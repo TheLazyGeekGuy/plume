@@ -2595,3 +2595,7 @@ preview	Title	Örnek
 	kept in the keychain	anahtar zincirinde saklanır
 	Remember the token in the keychain	Belirteci anahtar zincirinde hatırla
 	Enter an access token for this forge.	Bu forge için bir erişim belirteci girin.
+	Keep to Markdown	Markdown ile sınırla
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown bu biçimlendirmeyi koruyamaz (katı Markdown modu)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Açık: Markdown'ın koruyamadığı komutlar (metin rengi, altı çizili, metin kutuları, sütunlar…) kapatılır. Kapalı: çalışırlar ve kaydetme, Markdown'ın neyi korumadığını söyler.

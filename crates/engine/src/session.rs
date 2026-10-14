@@ -499,6 +499,10 @@ pub struct MathEdit {
 pub struct Prefs {
     /// Word Count includes text boxes, footnotes and endnotes (Word's default).
     pub count_notes: bool,
+    /// Plume: in a Markdown document, the commands whose result Markdown can't keep (text
+    /// colour, underline, text boxes, columns…) are disabled instead of being reported when the
+    /// document is saved (`markdown.strict`).
+    pub markdown_strict: bool,
     /// Track Changes Options: what markup shows and how revisions are drawn (per user, as in
     /// Word).
     pub markup: wordcraft_layout::display::MarkupOptions,
@@ -543,6 +547,7 @@ impl Default for Prefs {
     fn default() -> Self {
         Prefs {
             count_notes: true,
+            markdown_strict: false,
             markup: Default::default(),
             print_markup: false,
             typing_replaces_selection: true,
@@ -1185,11 +1190,33 @@ impl Session {
     /// Run a command by id with JSON params (the single entry point for the UI, CLI, MCP and
     /// control channel). Mutating commands are undoable; a failed command leaves the document as
     /// it was; a panic inside a command becomes an error.
+    /// Is this a Markdown document (Plume): saved as `.md`, opened from a forge, or new while
+    /// Markdown is the document's own format?
+    pub fn is_markdown(&self) -> bool {
+        if !self.native_markdown {
+            return false;
+        }
+        match &self.path {
+            Some(p) => p.extension().is_some_and(|e| e.eq_ignore_ascii_case("md") || e.eq_ignore_ascii_case("markdown")),
+            None => true,
+        }
+    }
+
+    /// Why command `id` is off in strict Markdown mode ([`Prefs::markdown_strict`]): its result
+    /// is something Markdown can't keep. `None` = allowed.
+    pub fn markdown_blocks(&self, id: &str) -> Option<&'static str> {
+        if !self.prefs.markdown_strict || !self.is_markdown() {
+            return None;
+        }
+        (crate::cmd::versions::NOT_IN_MARKDOWN.contains(&id) || id.starts_with("draw.") && id != "draw.select")
+            .then_some("Markdown can't keep this formatting (strict Markdown mode)")
+    }
+
     pub fn run(&mut self, id: &str, params: &Value) -> Result<Value, CmdError> {
         let join = std::mem::take(&mut self.join_next);
         let reg = self.registry.clone();
         let Some(spec) = reg.get(id) else { return Err(CmdError::Unknown(id.to_string())) };
-        if let Some(why) = (spec.enabled)(self) {
+        if let Some(why) = (spec.enabled)(self).or_else(|| self.markdown_blocks(id)) {
             return Err(CmdError::Disabled(format!("{id}: {why}")));
         }
         // Restrict Editing: refused outright, or allowed as long as it only edits the exceptions.

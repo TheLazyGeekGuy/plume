@@ -2213,3 +2213,7 @@
 	kept in the keychain	чува се у привеску кључева
 	Remember the token in the keychain	Запамти токен у привеску кључева
 	Enter an access token for this forge.	Унесите токен за приступ овом forge-у.
+	Keep to Markdown	Само Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown не може да задржи ово обликовање (строги Markdown режим)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Укључено: команде које Markdown не може да задржи (боја текста, подвлачење, оквири за текст, колоне…) су искључене. Искључено: раде, а чување каже шта Markdown није задржао.

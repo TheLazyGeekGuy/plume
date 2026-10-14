@@ -2594,3 +2594,7 @@
 	kept in the keychain	a kulcskarikában tárolva
 	Remember the token in the keychain	Token megjegyzése a kulcskarikában
 	Enter an access token for this forge.	Adjon meg egy hozzáférési tokent ehhez a forge-hoz.
+	Keep to Markdown	Csak Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	A Markdown nem tudja megőrizni ezt a formázást (szigorú Markdown mód)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Bekapcsolva a Markdown által meg nem őrizhető parancsok (szövegszín, aláhúzás, szövegdobozok, hasábok…) ki vannak kapcsolva. Kikapcsolva működnek, és mentéskor kiderül, mit nem őrzött meg a Markdown.

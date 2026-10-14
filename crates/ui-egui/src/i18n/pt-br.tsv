@@ -2211,3 +2211,7 @@
 	kept in the keychain	guardado nas chaves
 	Remember the token in the keychain	Lembrar o token nas chaves
 	Enter an access token for this forge.	Informe um token de acesso para esta forja.
+	Keep to Markdown	Manter-se no Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	O Markdown não consegue manter esta formatação (modo Markdown estrito)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Ativado: os comandos que o Markdown não consegue manter (cor do texto, sublinhado, caixas de texto, colunas…) ficam desativados. Desativado: funcionam e ao salvar é informado o que o Markdown não manteve.

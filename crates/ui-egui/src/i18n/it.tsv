@@ -2581,3 +2581,7 @@ preview	Title	Esempio
 	kept in the keychain	conservato nel portachiavi
 	Remember the token in the keychain	Ricorda il token nel portachiavi
 	Enter an access token for this forge.	Inserisci un token di accesso per questa forge.
+	Keep to Markdown	Solo Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown non può conservare questa formattazione (modalità Markdown rigorosa)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Attivo: i comandi che Markdown non può conservare (colore del testo, sottolineatura, caselle di testo, colonne…) sono disattivati. Disattivo: funzionano e il salvataggio indica cosa Markdown non ha conservato.

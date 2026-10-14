@@ -2588,3 +2588,7 @@ preview	Title	Tytuł
 	kept in the keychain	przechowywany w pęku kluczy
 	Remember the token in the keychain	Zapamiętaj token w pęku kluczy
 	Enter an access token for this forge.	Wprowadź token dostępu do tego forge.
+	Keep to Markdown	Tylko Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown nie zachowa tego formatowania (ścisły tryb Markdown)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Włączone: polecenia, których Markdown nie zachowa (kolor tekstu, podkreślenie, pola tekstowe, kolumny…), są wyłączone. Wyłączone: działają, a zapis informuje, czego Markdown nie zachował.

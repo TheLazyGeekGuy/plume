@@ -2596,3 +2596,7 @@ preview	Title	Пример
 	kept in the keychain	хранится в связке ключей
 	Remember the token in the keychain	Запомнить токен в связке ключей
 	Enter an access token for this forge.	Введите токен доступа к этому forge.
+	Keep to Markdown	Только Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown не может сохранить это форматирование (строгий режим Markdown)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Включено: команды, которые Markdown не может сохранить (цвет текста, подчёркивание, надписи, колонки…), отключены. Выключено: они работают, а при сохранении сообщается, что Markdown не сохранил.

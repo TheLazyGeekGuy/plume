@@ -2206,3 +2206,7 @@
 	kept in the keychain	conservé dans le trousseau
 	Remember the token in the keychain	Mémoriser le jeton dans le trousseau
 	Enter an access token for this forge.	Saisissez un jeton d'accès pour cette forge.
+	Keep to Markdown	S'en tenir au Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Le Markdown ne peut pas conserver cette mise en forme (mode Markdown strict)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Activé, les commandes que le Markdown ne peut pas conserver (couleur du texte, soulignement, zones de texte, colonnes…) sont désactivées. Désactivé, elles fonctionnent et l'enregistrement indique ce que le Markdown n'a pas conservé.

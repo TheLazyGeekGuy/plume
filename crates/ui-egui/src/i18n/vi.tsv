@@ -2622,3 +2622,7 @@
 	kept in the keychain	lưu trong chuỗi khóa
 	Remember the token in the keychain	Ghi nhớ mã trong chuỗi khóa
 	Enter an access token for this forge.	Nhập mã truy cập cho forge này.
+	Keep to Markdown	Chỉ dùng Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown không giữ được định dạng này (chế độ Markdown nghiêm ngặt)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Bật: các lệnh Markdown không giữ được (màu chữ, gạch chân, hộp văn bản, cột…) bị tắt. Tắt: chúng vẫn hoạt động và khi lưu sẽ cho biết Markdown đã không giữ những gì.

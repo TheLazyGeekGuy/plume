@@ -2233,3 +2233,7 @@
 	kept in the keychain	hoitakse võtmerõngas
 	Remember the token in the keychain	Jäta luba võtmerõngasse meelde
 	Enter an access token for this forge.	Sisestage selle forge'i juurdepääsuluba.
+	Keep to Markdown	Piirdu Markdowniga
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown ei suuda seda vormingut säilitada (range Markdowni režiim)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Sees: käsud, mida Markdown ei säilita (teksti värv, allakriipsutus, tekstiväljad, veerud…), on välja lülitatud. Väljas: need töötavad ja salvestamisel öeldakse, mida Markdown ei säilitanud.

@@ -386,6 +386,17 @@ fn save(app: &mut WordApp, ui: &mut Ui) {
     }
     note(ui, "AutoSave writes your changes to the file a moment after you stop typing.");
     ui.add_space(8.0);
+    // Plume: what happens to formatting Markdown can't keep.
+    section(ui, "Markdown");
+    let mut strict = app.session.prefs.markdown_strict;
+    if ui.checkbox(&mut strict, tl!("Keep to Markdown")).changed() {
+        let _ = app.run("markdown.strict", json!({"value": strict}));
+    }
+    note(
+        ui,
+        "On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.",
+    );
+    ui.add_space(8.0);
     // The open document's `file.privacyOptions` (#1062): saved with it, honoured when it is saved.
     section(ui, "Privacy for this document");
     let settings = &app.session.doc.settings;

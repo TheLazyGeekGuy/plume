@@ -2211,3 +2211,7 @@
 	kept in the keychain	保存在钥匙串中
 	Remember the token in the keychain	在钥匙串中记住令牌
 	Enter an access token for this forge.	请输入此平台的访问令牌。
+	Keep to Markdown	仅限 Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown 无法保留此格式（严格 Markdown 模式）
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	打开时，Markdown 无法保留的命令（文字颜色、下划线、文本框、分栏…）将被关闭。关闭时，它们可用，保存时会说明 Markdown 未保留的内容。

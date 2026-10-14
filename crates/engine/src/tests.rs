@@ -6693,3 +6693,22 @@ fn native_markdown_draws_charts_and_diagrams() {
     }
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// Strict Markdown mode turns off what Markdown can't keep, only in Markdown documents.
+#[test]
+fn strict_markdown_mode() {
+    let mut s = Session::new(wordcraft_doc::Document::from_text("Some text"));
+    s.native_markdown = true;
+    s.run("select.all", &json!({})).unwrap();
+    s.run("format.underline", &json!({})).unwrap();
+    s.run("markdown.strict", &json!({"value": true})).unwrap();
+    assert!(matches!(s.run("format.color", &json!({"color": "FF0000"})), Err(crate::CmdError::Disabled(_))));
+    assert!(s.markdown_blocks("insert.textBox").is_some());
+    assert!(s.run("format.bold", &json!({})).is_ok(), "Markdown keeps bold");
+    // A Word document isn't held to it.
+    s.path = Some("letter.docx".into());
+    assert!(s.markdown_blocks("format.color").is_none());
+    s.native_markdown = false;
+    s.path = None;
+    assert!(s.markdown_blocks("format.color").is_none());
+}

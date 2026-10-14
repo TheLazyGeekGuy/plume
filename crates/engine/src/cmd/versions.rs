@@ -11,8 +11,67 @@ use wordcraft_doc::Document;
 
 use crate::{CmdError, CmdResult, CommandSpec, Session, p};
 
+/// Commands whose result Markdown can't keep: off in strict Markdown mode.
+pub const NOT_IN_MARKDOWN: &[&str] = &[
+    "format.underline",
+    "format.doubleUnderline",
+    "format.wordUnderline",
+    "format.subscript",
+    "format.superscript",
+    "format.allCaps",
+    "format.smallCaps",
+    "format.outline",
+    "format.shadow",
+    "format.emboss",
+    "format.engrave",
+    "format.color",
+    "format.highlight",
+    "format.shading",
+    "format.border",
+    "format.hidden",
+    "format.enclose",
+    "format.textEffects",
+    "para.alignCenter",
+    "para.alignRight",
+    "para.distribute",
+    "para.shading",
+    "para.borders",
+    "insert.textBox",
+    "insert.shape",
+    "insert.wordArt",
+    "insert.dropCap",
+    "insert.canvas",
+    "insert.signatureLine",
+    "insert.object",
+    "insert.spreadsheet",
+    "insert.coverPage",
+    "insert.blankPage",
+    "insert.pageBreak",
+    "insert.header",
+    "insert.footer",
+    "insert.editHeader",
+    "insert.editFooter",
+    "insert.createHeader",
+    "insert.createFooter",
+    "insert.pageNumber",
+    "layout.columns",
+    "layout.break",
+    "layout.lineNumbers",
+    "layout.section",
+    "design.watermark",
+    "design.pageColor",
+    "design.pageBorders",
+];
+
 pub fn specs() -> Vec<CommandSpec> {
     vec![
+        CommandSpec::new("markdown.strict", "Keep to Markdown", "File › Options › Markdown", |s, v| {
+            let on = p::bool(v, "value").unwrap_or(!s.prefs.markdown_strict);
+            s.prefs.markdown_strict = on;
+            Ok(json!({"value": on}))
+        })
+        .params(r#"{"value"?: bool} → {value}: on, a Markdown document's commands whose result Markdown can't keep (colour, underline, text boxes…) are disabled; off (default), they work and the save report lists what Markdown didn't keep"#)
+        .pure(),
         CommandSpec::new("forge.signIn", "Sign In to a Forge", "File › Open", remote::sign_in)
             .params(r#"{"forge": "github|gitlab|forgejo", "host"?: string (GitLab or Forgejo server; default gitlab.com / codeberg.org), "token": access token} → {signedIn: api}: the token is kept for this session and never returned"#)
             .pure(),
