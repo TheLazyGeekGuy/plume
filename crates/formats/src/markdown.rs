@@ -8,11 +8,20 @@
 //! backslash escapes, entities, `<br>` and `<a id>` anchors.
 //!
 //! Export writes the same constructs; pictures become `![alt](media-name)` placeholders.
+//!
+//! [`export_native`] is the Markdown-native save: pure CommonMark + GFM with no HTML at all
+//! (only HTML *comments*, which every renderer hides), pictures written as files beside the
+//! document with stable content-hash names, and a [`Report`] of what Markdown can't hold. Its
+//! counterpart [`import_with`] loads pictures named by a relative path through a resolver.
+
+use std::cell::RefCell;
+use std::collections::BTreeMap;
+use std::sync::Arc;
 
 use wordcraft_doc::{Align, Document};
 
 use crate::html::decode_entity;
-use crate::model::{self, Cell, FBlock, FTable, Fmt, Inline, Kind, ListInfo, Para, make_img};
+use crate::model::{self, Cell, FBlock, FTable, Fmt, Img, Inline, Kind, ListInfo, Para, make_img};
 
 /// Nesting limit for block containers (quotes, list items) and inline links.
 const MAX_NEST: usize = 32;
@@ -27,6 +36,82 @@ pub fn import(text: &str) -> Document {
 
 /// [`import`] onto `page`: Markdown gives no page size (#1381).
 pub fn import_on(text: &str, page: &wordcraft_doc::SectionProps) -> Document {
+    model::to_doc_in(&parse(text), page.clone())
+}
+
+/// Most distinct picture destinations one document resolves.
+const MAX_IMAGE_REFS: usize = 4096;
+
+/// What the image branch of the inline parser does with a destination that isn't a `data:` URI.
+enum ImageRefs {
+    /// Alt text only (plain [`parse`]).
+    Off,
+    /// Note the destination (first pass of [`import_with`]).
+    Collect(Vec<String>),
+    /// Use the bytes resolved for it (second pass).
+    Use(BTreeMap<String, Arc<Vec<u8>>>),
+}
+
+thread_local! {
+    static IMAGE_REFS: RefCell<ImageRefs> = const { RefCell::new(ImageRefs::Off) };
+}
+
+/// Restores [`ImageRefs::Off`] when an import ends, however it ends.
+struct RefsGuard;
+
+impl Drop for RefsGuard {
+    fn drop(&mut self) {
+        IMAGE_REFS.with(|r| {
+            if let Ok(mut r) = r.try_borrow_mut() {
+                *r = ImageRefs::Off;
+            }
+        });
+    }
+}
+
+fn set_refs(v: ImageRefs) -> RefsGuard {
+    IMAGE_REFS.with(|r| {
+        if let Ok(mut r) = r.try_borrow_mut() {
+            *r = v;
+        }
+    });
+    RefsGuard
+}
+
+/// The bytes resolved for `dest`, noting it on the collecting pass.
+fn image_ref(dest: &str) -> Option<Arc<Vec<u8>>> {
+    IMAGE_REFS.with(|r| {
+        let mut r = r.try_borrow_mut().ok()?;
+        match &mut *r {
+            ImageRefs::Off => None,
+            ImageRefs::Collect(v) => {
+                if v.len() < MAX_IMAGE_REFS && !v.iter().any(|d| d == dest) {
+                    v.push(dest.to_string());
+                }
+                None
+            }
+            ImageRefs::Use(m) => m.get(dest).cloned(),
+        }
+    })
+}
+
+/// [`import_on`] with pictures named by a path (`![alt](assets/img.png)`): `resolve` gives the
+/// bytes of each destination (the caller decides what may be read, e.g. only files inside the
+/// document's folder); a destination it can't resolve keeps its alt text, as in [`import`].
+pub fn import_with(text: &str, page: &wordcraft_doc::SectionProps, resolve: &dyn Fn(&str) -> Option<Arc<Vec<u8>>>) -> Document {
+    let dests = {
+        let _guard = set_refs(ImageRefs::Collect(Vec::new()));
+        let _ = parse(text);
+        IMAGE_REFS.with(|r| match r.try_borrow_mut().map(|mut r| std::mem::replace(&mut *r, ImageRefs::Off)) {
+            Ok(ImageRefs::Collect(v)) => v,
+            _ => Vec::new(),
+        })
+    };
+    if dests.is_empty() {
+        return import_on(text, page);
+    }
+    let resolved: BTreeMap<String, Arc<Vec<u8>>> = dests.into_iter().filter_map(|d| resolve(&d).map(|b| (d, b))).collect();
+    let _guard = set_refs(ImageRefs::Use(resolved));
     model::to_doc_in(&parse(text), page.clone())
 }
 
@@ -798,7 +883,11 @@ fn tokenize(s: &str, base: &Fmt, depth: usize) -> Vec<Node> {
                             .iter()
                             .filter_map(|x| if let Inline::Text(t, _) = x { Some(t.as_str()) } else { None })
                             .collect();
-                        match model::data_uri(&dest).and_then(|d| make_img(d, None, None, &alt)) {
+                        let data = match model::data_uri(&dest) {
+                            Some(d) => Some(Arc::new(d)),
+                            None => image_ref(&dest),
+                        };
+                        match data.and_then(|d| make_img(d, None, None, &alt)) {
                             Some(im) => nodes.push(Node::Inl(Inline::Image(im))),
                             None => push_text(&mut nodes, &alt, base),
                         }
@@ -1090,20 +1179,174 @@ enum Mark {
     Strike,
 }
 
+/// What Markdown can't hold, found while writing a native copy ([`export_native`]).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Adaptation {
+    /// Underlined text (not a link): written plain.
+    Underline,
+    /// Superscript or subscript: written on the baseline.
+    SupSub,
+    /// Text colour or highlight: left to the publication profile.
+    Color,
+    /// Centred, right or justified paragraph: left to the publication profile.
+    Alignment,
+    /// A page break before a paragraph.
+    PageBreak,
+    /// A bookmark that isn't a heading: links to it lose their target.
+    Bookmark,
+    /// A table cell with several paragraphs or line breaks: joined on one line.
+    CellParagraphs,
+    /// A table inside a table: its text joined into the cell.
+    NestedTable,
+    /// A merged cell: written as empty cells.
+    MergedCells,
+    /// A chart, diagram or drawing: kept as its alt text.
+    Figure,
+    /// An equation: written as its linear text.
+    Equation,
+}
+
+impl Adaptation {
+    pub fn describe(self) -> &'static str {
+        match self {
+            Adaptation::Underline => "underlined text written without underline",
+            Adaptation::SupSub => "superscript/subscript written on the baseline",
+            Adaptation::Color => "text colour or highlight left to the publication profile",
+            Adaptation::Alignment => "paragraph alignment left to the publication profile",
+            Adaptation::PageBreak => "page breaks left out",
+            Adaptation::Bookmark => "bookmarks (not on a heading) left out",
+            Adaptation::CellParagraphs => "table cells with several lines joined on one line",
+            Adaptation::NestedTable => "nested tables flattened into their cell",
+            Adaptation::MergedCells => "merged cells written as empty cells",
+            Adaptation::Figure => "charts and drawings kept as their alt text",
+            Adaptation::Equation => "equations written as linear text",
+        }
+    }
+}
+
+/// How many times each [`Adaptation`] happened.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Report {
+    pub counts: BTreeMap<Adaptation, usize>,
+    /// Pictures written as asset files.
+    pub images: usize,
+    /// Comments kept as HTML comments.
+    pub comments: usize,
+}
+
+impl Report {
+    fn note(&mut self, a: Adaptation) {
+        let n = self.counts.entry(a).or_insert(0);
+        *n = n.saturating_add(1);
+    }
+    /// Nothing was adapted.
+    pub fn is_lossless(&self) -> bool {
+        self.counts.is_empty()
+    }
+    /// One line per adaptation: `3 × underlined text written without underline`.
+    pub fn lines(&self) -> Vec<String> {
+        self.counts.iter().map(|(a, n)| format!("{n} × {}", a.describe())).collect()
+    }
+}
+
+/// How [`export_native`] writes.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct NativeOptions {
+    /// Folder, relative to the Markdown file, the pictures go in (`assets`). Empty = beside it.
+    pub assets_dir: String,
+    /// Keep the document's comments, as an HTML comment block at the end.
+    pub comments: bool,
+}
+
+impl Default for NativeOptions {
+    fn default() -> Self {
+        NativeOptions { assets_dir: "assets".into(), comments: true }
+    }
+}
+
+/// A Markdown-native copy: the text, the asset files it references and what was adapted.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct Bundle {
+    pub text: String,
+    /// (path relative to the Markdown file, bytes), each path once.
+    pub assets: Vec<(String, Arc<Vec<u8>>)>,
+    pub report: Report,
+}
+
+/// Writer state: the legacy copy ([`export`]) or the native profile ([`export_native`]).
+#[derive(Default)]
+struct Ctx {
+    native: bool,
+    assets_dir: String,
+    assets: Vec<(String, Arc<Vec<u8>>)>,
+    report: Report,
+}
+
+impl Ctx {
+    fn native(opts: &NativeOptions) -> Ctx {
+        let dir = opts.assets_dir.trim().trim_matches(['/', '\\']).replace('\\', "/");
+        Ctx { native: true, assets_dir: dir, ..Default::default() }
+    }
+
+    fn note(&mut self, a: Adaptation) {
+        if self.native {
+            self.report.note(a);
+        }
+    }
+
+    /// The asset path of `img`: `assets/img-<hash>.<ext>`, the same for the same bytes, so saving
+    /// again doesn't rename files and identical pictures are stored once.
+    fn asset(&mut self, img: &Img) -> String {
+        let ext: String = img.ext.chars().filter(|c| c.is_ascii_alphanumeric()).take(5).collect::<String>().to_ascii_lowercase();
+        let ext = if ext.is_empty() { "bin".to_string() } else { ext };
+        let file = format!("img-{:016x}.{ext}", fnv64(&img.data));
+        let path = if self.assets_dir.is_empty() { file } else { format!("{}/{file}", self.assets_dir) };
+        if !self.assets.iter().any(|(p, _)| *p == path) {
+            self.assets.push((path.clone(), img.data.clone()));
+            self.report.images = self.report.images.saturating_add(1);
+        }
+        path
+    }
+}
+
+/// FNV-1a, 64 bits: a stable content hash for asset names (not for security).
+fn fnv64(data: &[u8]) -> u64 {
+    let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+    for b in data {
+        h ^= u64::from(*b);
+        h = h.wrapping_mul(0x0000_0100_0000_01b3);
+    }
+    h
+}
+
 /// Inline spans → Markdown with properly nested markers.
+#[cfg(test)]
 fn inlines_md(inlines: &[Inline]) -> String {
-    inlines_md_impl(inlines, false)
+    inlines_md_impl(inlines, false, &mut Ctx::default())
 }
 
-fn inlines_md_table(inlines: &[Inline]) -> String {
-    inlines_md_impl(inlines, true)
-}
-
-fn inlines_md_impl(inlines: &[Inline], in_table: bool) -> String {
+fn inlines_md_impl(inlines: &[Inline], in_table: bool, ctx: &mut Ctx) -> String {
     // Split into (text, fmt) pieces with whitespace moved outside emphasis.
     let mut pieces: Vec<(String, Fmt, Option<String>)> = Vec::new();
+    if inlines.iter().any(|i| matches!(i, Inline::Equation { .. })) {
+        ctx.note(Adaptation::Equation);
+    }
     let inlines = crate::model::equations_as_text(inlines);
     for i in inlines.iter() {
+        if ctx.native
+            && let Inline::Text(t, f) = i
+            && !t.trim().is_empty()
+        {
+            if f.underline {
+                ctx.note(Adaptation::Underline);
+            }
+            if f.sup || f.sub {
+                ctx.note(Adaptation::SupSub);
+            }
+            if f.color.is_some_and(|c| c != wordcraft_doc::Rgb::BLACK) || f.background.is_some() {
+                ctx.note(Adaptation::Color);
+            }
+        }
         match i {
             Inline::Text(t, f) => {
                 let has_emph = f.bold || f.italic || f.strike;
@@ -1126,12 +1369,18 @@ fn inlines_md_impl(inlines: &[Inline], in_table: bool) -> String {
                 }
             }
             Inline::Image(img) => {
-                let name = format!("image.{}", img.ext);
+                let name = if ctx.native { link_target(&ctx.asset(img)) } else { format!("image.{}", img.ext) };
                 pieces.push((String::new(), Fmt::default(), Some(format!("![{}]({})", escape(&img.alt), name))));
             }
+            // No HTML in a native copy: headings get their anchors from the renderer's slugs.
+            Inline::Anchor(_) if ctx.native => ctx.note(Adaptation::Bookmark),
             Inline::Anchor(a) => {
                 let safe: String = a.chars().filter(|c| c.is_alphanumeric() || matches!(c, '_' | '-' | '.' | ':')).collect();
                 pieces.push((String::new(), Fmt::default(), Some(format!("<a id=\"{safe}\"></a>"))));
+            }
+            Inline::Figure(alt) if ctx.native => {
+                ctx.note(Adaptation::Figure);
+                pieces.push((format!("[{}]", alt.trim()), Fmt { italic: true, ..Fmt::default() }, None));
             }
             Inline::Figure(alt) => pieces.push((String::new(), Fmt::default(), Some(format!("![{}]()", escape(alt))))),
             Inline::Equation { .. } => {}
@@ -1209,23 +1458,41 @@ fn marker(m: Mark) -> &'static str {
     }
 }
 
-fn table_md(t: &FTable, out: &mut Vec<String>) {
+fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
     let cols = t.cols().max(1);
-    let cell_md = |c: &Cell| -> String {
+    // A native copy has no `<br>`: the lines of a cell are joined with a space.
+    let cell_md = |c: &Cell, ctx: &mut Ctx| -> String {
+        let br = if ctx.native { " " } else { "<br>" };
         let mut parts = Vec::new();
         for b in &c.blocks {
             match b {
-                FBlock::Para(p) => parts.push(inlines_md_table(&p.inlines).replace("\\\n", "<br>")),
-                FBlock::Table(inner) => parts.push(escape(&inner.rows.iter().flat_map(|r| r.iter().map(Cell::text)).collect::<Vec<_>>().join(" "))),
+                FBlock::Para(p) => {
+                    let md = inlines_md_impl(&p.inlines, true, ctx);
+                    if md.contains("\\\n") {
+                        ctx.note(Adaptation::CellParagraphs);
+                    }
+                    parts.push(md.replace("\\\n", br));
+                }
+                FBlock::Table(inner) => {
+                    ctx.note(Adaptation::NestedTable);
+                    parts.push(escape(&inner.rows.iter().flat_map(|r| r.iter().map(Cell::text)).collect::<Vec<_>>().join(" ")))
+                }
             }
         }
-        parts.join("<br>").replace('\n', " ")
+        if parts.iter().filter(|p| !p.is_empty()).count() > 1 {
+            ctx.note(Adaptation::CellParagraphs);
+        }
+        let parts: Vec<String> = if ctx.native { parts.into_iter().filter(|p| !p.is_empty()).collect() } else { parts };
+        parts.join(br).replace('\n', " ")
     };
     let align_of = |c: &Cell| c.blocks.iter().find_map(|b| if let FBlock::Para(p) = b { Some(p.align) } else { None }).flatten();
-    let row_md = |r: &Vec<Cell>| -> Vec<String> {
+    let row_md = |r: &Vec<Cell>, ctx: &mut Ctx| -> Vec<String> {
         let mut v: Vec<String> = Vec::new();
         for c in r {
-            v.push(if c.covered { String::new() } else { cell_md(c) });
+            v.push(if c.covered { String::new() } else { cell_md(c, ctx) });
+            if c.covered || c.colspan > 1 || c.rowspan > 1 {
+                ctx.note(Adaptation::MergedCells);
+            }
             for _ in 1..c.colspan.clamp(1, 63) {
                 v.push(String::new());
             }
@@ -1234,7 +1501,7 @@ fn table_md(t: &FTable, out: &mut Vec<String>) {
         v
     };
     let Some(head) = t.rows.first() else { return };
-    out.push(format!("| {} |", row_md(head).join(" | ")));
+    out.push(format!("| {} |", row_md(head, ctx).join(" | ")));
     let mut aligns: Vec<Option<Align>> = Vec::new();
     for c in head {
         aligns.push(align_of(c));
@@ -1253,15 +1520,19 @@ fn table_md(t: &FTable, out: &mut Vec<String>) {
         .collect();
     out.push(format!("| {} |", delim.join(" | ")));
     for r in t.rows.iter().skip(1) {
-        out.push(format!("| {} |", row_md(r).join(" | ")));
+        out.push(format!("| {} |", row_md(r, ctx).join(" | ")));
     }
 }
 
 /// Markdown text of a document.
 pub fn export(doc: &Document) -> String {
+    write_doc(doc, &mut Ctx::default())
+}
+
+fn write_doc(doc: &Document, ctx: &mut Ctx) -> String {
     let flow = model::from_doc(doc);
     let mut out: Vec<String> = Vec::new();
-    write_blocks(&flow.blocks, &mut out);
+    write_blocks(&flow.blocks, &mut out, ctx);
     let mut s = out.join("\n");
     while s.ends_with("\n\n") {
         s.pop();
@@ -1272,15 +1543,124 @@ pub fn export(doc: &Document) -> String {
     s
 }
 
-fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>) {
+/// The Markdown-native copy of `doc`: CommonMark + GFM (tables, strikethrough) with no HTML
+/// except HTML comments, its pictures as asset files, and a report of what was adapted. Writing
+/// it, reading it back with [`import_with`] and writing again gives the same text.
+pub fn export_native(doc: &Document, opts: &NativeOptions) -> Bundle {
+    let mut ctx = Ctx::native(opts);
+    let mut text = write_doc(doc, &mut ctx);
+    if opts.comments {
+        let notes = crate::comments::notes(doc);
+        if !notes.is_empty() {
+            ctx.report.comments = notes.len();
+            text.push('\n');
+            text.push_str(&comments_block(&notes));
+        }
+    }
+    Bundle { text, assets: ctx.assets, report: ctx.report }
+}
+
+/// Opening line of the comment block [`export_native`] writes.
+pub const COMMENTS_OPEN: &str = "<!-- wordcraft:comments";
+
+/// The document's comments as one HTML comment: invisible on every renderer, kept by every
+/// Markdown tool, readable in a text editor.
+fn comments_block(notes: &[crate::comments::Note]) -> String {
+    // `--` can't appear inside an HTML comment; neither can a line break inside one entry.
+    let clean = |s: &str| s.replace("--", "‑‑").replace(['\n', '\r'], " ");
+    let mut s = format!("{COMMENTS_OPEN}\n");
+    for (i, n) in notes.iter().enumerate() {
+        s.push_str(&format!("{}. {}", i + 1, clean(&n.author)));
+        if !n.quote.is_empty() {
+            s.push_str(&format!(" on “{}”", clean(&n.quote)));
+        }
+        s.push_str(&format!(": {}\n", clean(&n.text)));
+        for (a, t) in &n.replies {
+            s.push_str(&format!("   - {}: {}\n", clean(a), clean(t)));
+        }
+    }
+    s.push_str("-->\n");
+    s
+}
+
+/// Lines (1-based) of `md` that hold HTML other than comments: what a native copy must never
+/// contain. Code blocks and code spans are skipped, and so are autolinks (`<https://…>`).
+pub fn html_lines(md: &str) -> Vec<usize> {
+    let mut bad = Vec::new();
+    let mut open_fence: Option<(char, usize)> = None;
+    let mut in_comment = false;
+    for (n, line) in md.lines().enumerate() {
+        let t = line.trim_start();
+        if let Some((c, len)) = open_fence {
+            if fence(t).is_some_and(|(c2, l2)| c2 == c && l2 >= len) {
+                open_fence = None;
+            }
+            continue;
+        }
+        if !in_comment && let Some(f) = fence(t) {
+            open_fence = Some(f);
+            continue;
+        }
+        let mut rest = line;
+        let mut found = false;
+        loop {
+            if in_comment {
+                match rest.find("-->") {
+                    Some(k) => {
+                        in_comment = false;
+                        rest = rest.get(k + 3..).unwrap_or("");
+                    }
+                    None => break,
+                }
+            }
+            let Some(k) = rest.find('<') else { break };
+            let before = rest.get(..k).unwrap_or("");
+            let after = rest.get(k..).unwrap_or("");
+            // Escaped `\<`, or inside a code span (an odd number of backticks before it).
+            if before.ends_with('\\') || before.matches('`').count() % 2 == 1 {
+                rest = after.get(1..).unwrap_or("");
+                continue;
+            }
+            if let Some(r) = after.strip_prefix("<!--") {
+                in_comment = true;
+                rest = r;
+                continue;
+            }
+            let inner = after.get(1..).and_then(|a| a.split_once('>')).map(|(i, _)| i).unwrap_or("");
+            let autolink = !inner.is_empty() && !inner.contains([' ', '<']) && (inner.contains(':') || inner.contains('@'));
+            // A link destination in angle brackets: `](<path with spaces>)`.
+            let destination = before.ends_with("](");
+            let tagish = after.get(1..).and_then(|a| a.chars().next()).is_some_and(|c| c.is_ascii_alphabetic() || c == '/' || c == '!');
+            if tagish && !autolink && !destination {
+                found = true;
+                break;
+            }
+            rest = after.get(1..).unwrap_or("");
+        }
+        if found {
+            bad.push(n + 1);
+        }
+    }
+    bad
+}
+
+fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
     let mut i = 0;
     let mut counters = [0u32; 9];
     let mut prev_list = false;
     let mut prev_top_ordered = false;
     while let Some(b) = blocks.get(i) {
+        if let FBlock::Para(p) = b {
+            if p.page_break {
+                ctx.note(Adaptation::PageBreak);
+            }
+            if p.list.is_none() && matches!(p.align, Some(Align::Center | Align::Right)) && !p.is_empty() {
+                ctx.note(Adaptation::Alignment);
+            }
+        }
         match b {
             FBlock::Table(t) => {
-                table_md(t, out);
+                table_md(t, out, ctx);
                 out.push(String::new());
                 prev_list = false;
             }
@@ -1303,7 +1683,7 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>) {
                 continue;
             }
             FBlock::Para(p) => {
-                let body = inlines_md(&p.inlines);
+                let body = inlines_md_impl(&p.inlines, false, ctx);
                 match p.list {
                     Some(li) => {
                         let lv = li.level.min(8) as usize;
@@ -1460,7 +1840,7 @@ mod tests {
         assert_eq!(p1.text(), "pass");
 
         let mut out = Vec::new();
-        table_md(t, &mut out);
+        table_md(t, &mut out, &mut Ctx::default());
         let exported = out.join("\n");
         assert!(exported.contains("`cmd \\| grep`"), "Exported: {exported}");
     }
@@ -1524,7 +1904,7 @@ mod tests {
         assert!(matches!(&p0.inlines[0], Inline::Text(_, f) if !f.code));
 
         let mut out = Vec::new();
-        table_md(t, &mut out);
+        table_md(t, &mut out, &mut Ctx::default());
         let exported = out.join("\n");
         assert!(exported.contains("Regular \\| Pipe"), "Exported: {exported}");
         assert!(!exported.contains("Regular \\\\| Pipe"), "Exported: {exported}");
@@ -1547,7 +1927,7 @@ mod tests {
         let flow = parse(md);
         let FBlock::Table(t) = &flow.blocks[0] else { panic!() };
         let mut out = Vec::new();
-        table_md(t, &mut out);
+        table_md(t, &mut out, &mut Ctx::default());
         assert_eq!(out.join("\n"), "| Alpha | Beta |\n| --- | --- |\n| 1 | 2 |");
 
         let mut p = Para::default();
@@ -1585,7 +1965,7 @@ mod tests {
         table.rows.push(vec![cell_a, cell_b]);
 
         let mut out = Vec::new();
-        table_md(&table, &mut out);
+        table_md(&table, &mut out, &mut Ctx::default());
         let exported_md = out.join("\n");
 
         assert!(exported_md.contains("``a`b\\|c``"), "Exported: {exported_md}");

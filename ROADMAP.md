@@ -136,6 +136,7 @@ Ranked, to beta (detail and remaining milestones in [docs/roadmap.md](docs/roadm
 
 | Date | What landed |
 |---|---|
+| 2026-10-14 | Markdown-native save (fork work, `docs/architecture/`): saving to a `.md` path writes pure CommonMark + GFM with no HTML (HTML comments only, for the document's comments), pictures as `assets/img-<content hash>.<ext>` files, and a report of what Markdown can't hold; opening a `.md` file loads its relative pictures from inside its folder. DOCX → Markdown → reopen → save is byte-identical and exports to PDF (`docx_to_native_markdown_round_trip`). `save_bytes` copies are unchanged |
 | 2026-10-12 | Comments can show only for the selected text (#1055): Track Changes Options › Comments › "Only for the selected text" drops the margin column, and the comment under the caret, or the clicked one, floats beside the page (over its edge in a narrow window). The default stays "In the margin", as in Word; `review.trackingOptions {"commentDisplay"}` for agents |
 | 2026-10-12 | Clicking inside a selected comment's balloon moves the caret in its text (#1013); the click used to leave the balloon, so the caret could only be moved with the arrow keys. A press on any balloon now belongs to the balloon, not the page behind it |
 | 2026-10-12 | Page background pictures and textures (Design › Page Color › Fill Effects) are drawn (tiled or stretched) and kept on save instead of being dropped from the package (#999); PDF export paints them too |

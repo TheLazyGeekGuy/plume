@@ -6251,3 +6251,52 @@ fn odt_deleted_mark_inside_an_insertion_survives_reject_all() {
         assert_eq!(text(&s), "One \n two");
     }
 }
+
+/// The Markdown-native milestone: a Word document opened, saved as Markdown (pictures in
+/// `assets/`), closed, reopened from the Markdown, edited, saved again and exported to PDF, with
+/// no HTML in the file and no drift between saves.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn docx_to_native_markdown_round_trip() {
+    let mut doc = crate::sample::sample_document();
+    let key = doc.add_media(tiny_png(), "png");
+    let image = wordcraft_doc::InlineObject::Image {
+        media: key,
+        w: 20.0,
+        h: 20.0,
+        alt: "Red square".into(),
+        float: Default::default(),
+        crop: [0.0; 4],
+        ole: None,
+    };
+    doc.insert_object(&Pos::body(0, 0), image, &Default::default()).unwrap();
+    let docx = crate::io::save_bytes("in.docx", &doc).unwrap();
+    let from_word = crate::io::open_bytes("in.docx", &docx).unwrap();
+
+    let dir = scratch_dir("native-md");
+    let md = dir.join("doc.md");
+    let report = crate::io::save_markdown(&md, &from_word).unwrap();
+    assert_eq!(report.images, 1);
+    let first = std::fs::read_to_string(&md).unwrap();
+    assert!(wordcraft_formats::markdown::html_lines(&first).is_empty(), "{first}");
+    let asset = first.split("](assets/").nth(1).and_then(|r| r.split(')').next()).map(|f| dir.join("assets").join(f)).unwrap();
+    assert_eq!(std::fs::read(&asset).unwrap(), tiny_png());
+
+    // Reopen: the picture comes back from the asset file; saving again changes nothing.
+    let reopened = crate::io::open_path(&md).unwrap();
+    assert_eq!(reopened.media.len(), 1);
+    crate::io::save_path(&md, &reopened).unwrap();
+    assert_eq!(std::fs::read_to_string(&md).unwrap(), first);
+
+    // Edit through the command layer, save, reopen: the edit is there and nothing else moved.
+    let mut s = Session::new(reopened);
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": "Ajout après réouverture"})).unwrap();
+    crate::io::save_path(&md, &s.doc).unwrap();
+    let edited = std::fs::read_to_string(&md).unwrap();
+    assert!(edited.contains("Ajout après réouverture") && edited.starts_with(first.trim_end()), "{edited}");
+    let again = crate::io::open_path(&md).unwrap();
+    let pdf = crate::io::save_bytes("out.pdf", &again).unwrap();
+    assert!(pdf.starts_with(b"%PDF"));
+    let _ = std::fs::remove_dir_all(&dir);
+}

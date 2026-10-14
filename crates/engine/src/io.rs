@@ -314,6 +314,16 @@ pub fn open_path_in(path: &std::path::Path, password: Option<&str>, region: &wor
         doc.ensure_nonempty();
         return Ok((doc, false));
     }
+    if is_markdown(&ext_of(&name)) {
+        // Pictures named by a relative path (the `assets` folder a native save writes) load from
+        // beside the Markdown file, with the same limits as HTML.
+        let images = LocalImages::new(path.parent().unwrap_or(std::path::Path::new("")));
+        let text = wordcraft_formats::txt::decode(&bytes);
+        let mut doc = wordcraft_formats::markdown::import_with(&text, &region_page(region), &|src| images.load(src));
+        fit_pictures(&mut doc);
+        doc.ensure_nonempty();
+        return Ok((doc, false));
+    }
     open_bytes_in(&name, &bytes, password, region)
 }
 
@@ -525,8 +535,39 @@ pub fn save_path(path: &std::path::Path, doc: &Document) -> Result<(), String> {
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save_path_with(path: &std::path::Path, doc: &Document, password: Option<&str>, opts: &ExportOptions) -> Result<(), String> {
     crate::file_access::check_write(&path.to_string_lossy())?;
+    if is_markdown(&ext_of(&path.to_string_lossy())) {
+        return save_markdown(path, doc).map(|_| ());
+    }
     let bytes = save_bytes_with(&path.to_string_lossy(), doc, password, opts)?;
     safe_save::write(path, &bytes).map_err(|e| format!("{}: {e}", path.display()))
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn is_markdown(ext: &str) -> bool {
+    matches!(ext, "md" | "markdown")
+}
+
+/// Save `doc` as a Markdown-native file ([`wordcraft_formats::markdown::export_native`]): the
+/// text at `path`, its pictures in an `assets` folder beside it (an asset already there with the
+/// same name has the same bytes, so it isn't written again). Returns what Markdown couldn't hold.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn save_markdown(path: &std::path::Path, doc: &Document) -> Result<wordcraft_formats::markdown::Report, String> {
+    crate::file_access::check_write(&path.to_string_lossy())?;
+    let bundle = wordcraft_formats::markdown::export_native(doc, &wordcraft_formats::markdown::NativeOptions::default());
+    let dir = path.parent().unwrap_or(std::path::Path::new(""));
+    for (rel, bytes) in &bundle.assets {
+        let target = dir.join(rel);
+        if target.is_file() {
+            continue;
+        }
+        crate::file_access::check_write(&target.to_string_lossy())?;
+        if let Some(parent) = target.parent() {
+            std::fs::create_dir_all(parent).map_err(|e| format!("{}: {e}", parent.display()))?;
+        }
+        safe_save::write(&target, bytes).map_err(|e| format!("{}: {e}", target.display()))?;
+    }
+    safe_save::write(path, bundle.text.as_bytes()).map_err(|e| format!("{}: {e}", path.display()))?;
+    Ok(bundle.report)
 }
 
 #[cfg(target_arch = "wasm32")]

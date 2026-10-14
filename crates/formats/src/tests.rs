@@ -690,3 +690,67 @@ fn hidden_drawings_are_left_out_of_exports() {
     // Two pictures, one hidden: one comes out.
     assert_eq!(crate::html::export(&d).matches("<img").count(), 1);
 }
+
+/// The Markdown-native save: no HTML, pictures as asset files, and a second save of the file read
+/// back is the same text with the same assets (no drift over open/save cycles).
+#[test]
+fn native_markdown_is_html_free_and_stable() {
+    use crate::markdown::{NativeOptions, export_native, html_lines, import_with};
+    let d = sample();
+    let first = export_native(&d, &NativeOptions::default());
+    assert!(html_lines(&first.text).is_empty(), "HTML on lines {:?}:\n{}", html_lines(&first.text), first.text);
+    assert!(!first.assets.is_empty(), "{}", first.text);
+    for (path, _) in &first.assets {
+        assert!(path.starts_with("assets/img-") && first.text.contains(path.as_str()), "{path}\n{}", first.text);
+    }
+    assert_eq!(first.report.images, first.assets.len());
+
+    let assets = first.assets.clone();
+    let resolve = move |src: &str| assets.iter().find(|(p, _)| p == src).map(|(_, b)| b.clone());
+    let page = wordcraft_doc::SectionProps::default();
+    let back = import_with(&first.text, &page, &resolve);
+    assert_eq!(back.media.len(), first.assets.len());
+    let second = export_native(&back, &NativeOptions::default());
+    assert_eq!(second.text, first.text);
+    assert_eq!(second.assets, first.assets);
+    let third = export_native(&import_with(&second.text, &page, &resolve), &NativeOptions::default());
+    assert_eq!(third.text, second.text);
+}
+
+/// Identical pictures are stored once, under a name that depends only on their bytes.
+#[test]
+fn native_markdown_assets_are_content_named() {
+    use crate::markdown::{NativeOptions, export_native};
+    let uri = format!("data:image/png;base64,{}", model::base64_encode(&png()));
+    let d = crate::markdown::import(&format!("![a]({uri})\n\n![b]({uri})\n"));
+    let b = export_native(&d, &NativeOptions { assets_dir: "media/".into(), comments: true });
+    assert_eq!(b.assets.len(), 1);
+    let path = &b.assets[0].0;
+    assert!(path.starts_with("media/img-") && path.ends_with(".png"), "{path}");
+    assert_eq!(b.text.matches(path.as_str()).count(), 2, "{}", b.text);
+    // A plain import after `import_with` doesn't resolve paths any more.
+    let plain = crate::markdown::import(&format!("![alt]({path})\n"));
+    assert!(plain.media.is_empty());
+}
+
+/// Cell lines, bookmarks and merged cells: written without HTML and reported.
+#[test]
+fn native_markdown_reports_adaptations() {
+    use crate::markdown::{Adaptation, NativeOptions, export, export_native, html_lines};
+    let d = crate::markdown::import("| A | B |\n|---|---|\n| one<br>two | <a id=\"here\"></a>x |\n\n<a id=\"mark\"></a>Text\n");
+    let legacy = export(&d);
+    assert!(!html_lines(&legacy).is_empty(), "{legacy}");
+    let b = export_native(&d, &NativeOptions::default());
+    assert!(html_lines(&b.text).is_empty(), "{}", b.text);
+    assert!(b.text.contains("one two"), "{}", b.text);
+    assert!(b.report.counts.contains_key(&Adaptation::CellParagraphs), "{:?}", b.report);
+    assert!(b.report.counts.contains_key(&Adaptation::Bookmark), "{:?}", b.report);
+    assert!(!b.report.is_lossless() && !b.report.lines().is_empty());
+}
+
+#[test]
+fn html_lines_finds_tags_but_not_comments_code_or_autolinks() {
+    use crate::markdown::html_lines;
+    let md = "a <br> b\n<!-- note <b>x</b> -->\n`<span>` and <https://x.org> and <a@b.org>\n```\n<div>\n```\n[l](<my file.md>)\n\\<i> escaped\n<!--\n<b>\n-->\n<em>bad</em>\n";
+    assert_eq!(html_lines(md), vec![1, 12]);
+}
