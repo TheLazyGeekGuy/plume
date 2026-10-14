@@ -2592,3 +2592,10 @@ preview	Title	Tytuł
 	Markdown	Markdown
 	Markdown can't keep this formatting (strict Markdown mode)	Markdown nie zachowa tego formatowania (ścisły tryb Markdown)
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Włączone: polecenia, których Markdown nie zachowa (kolor tekstu, podkreślenie, pola tekstowe, kolumny…), są wyłączone. Wyłączone: działają, a zapis informuje, czego Markdown nie zachował.
+	Request Review	Poproś o recenzję
+	Get Review Comments	Pobierz komentarze recenzji
+	Review Status	Stan recenzji
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Aby poprosić o recenzję, otwórz dokument z GitHuba, GitLaba lub Forgejo
+	What should your colleagues review?	Co mają sprawdzić współpracownicy?
+	Details (optional)	Szczegóły (opcjonalnie)
+	Review requested: {url}	Poproszono o recenzję: {url}

@@ -2594,3 +2594,10 @@ preview	Title	Ukázka
 	Markdown	Markdown
 	Markdown can't keep this formatting (strict Markdown mode)	Markdown toto formátování neudrží (přísný režim Markdown)
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Zapnuto: příkazy, které Markdown neudrží (barva textu, podtržení, textová pole, sloupce…), jsou vypnuté. Vypnuto: fungují a uložení řekne, co Markdown neudržel.
+	Request Review	Požádat o revizi
+	Get Review Comments	Načíst komentáře z revize
+	Review Status	Stav revize
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Chcete-li požádat o revizi, otevřete dokument z GitHubu, GitLabu nebo Forgejo
+	What should your colleagues review?	Co mají kolegové zkontrolovat?
+	Details (optional)	Podrobnosti (nepovinné)
+	Review requested: {url}	Revize vyžádána: {url}

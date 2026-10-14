@@ -495,6 +495,257 @@ impl Client<'_> {
     }
 }
 
+/// A review request: a pull request (GitHub, Forgejo) or merge request (GitLab).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Review {
+    /// The pull request number, or the merge request's project-wide iid.
+    pub number: u64,
+    /// Its page on the forge.
+    pub url: String,
+    /// The branch the reviewed versions are saved on.
+    pub branch: String,
+}
+
+/// A reviewer's comment: on a line of the document (`path`, `line`), or on the review as a whole.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct ReviewComment {
+    /// The forge's id for it (stable: comments already read aren't read twice).
+    pub id: String,
+    pub author: String,
+    pub date: String,
+    pub body: String,
+    pub path: Option<String>,
+    /// 1-based line of the file, when the forge says it.
+    pub line: Option<u32>,
+}
+
+/// Where a review stands.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct ReviewState {
+    pub approved_by: Vec<String>,
+    pub changes_requested_by: Vec<String>,
+    /// Merged (published) or closed.
+    pub merged: bool,
+    pub closed: bool,
+}
+
+/// Most comments read from one review.
+pub const MAX_COMMENTS: usize = 2_000;
+
+/// A branch name made of safe characters only.
+pub fn check_branch(branch: &str) -> Result<(), ForgeError> {
+    let ok = !branch.is_empty()
+        && branch.len() <= 200
+        && !branch.starts_with(['-', '/', '.'])
+        && !branch.ends_with(['/', '.'])
+        && !branch.contains("..")
+        && branch.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '/' | '.'));
+    if ok { Ok(()) } else { Err(ForgeError::BadInput(format!("{branch:?}: not a branch name"))) }
+}
+
+impl Client<'_> {
+    fn branch_head(&self, doc: &DocRef) -> Result<String, ForgeError> {
+        let base = Self::repo_url(doc);
+        let (url, ptr) = match doc.forge.kind {
+            Kind::GitHub => (format!("{base}/git/ref/heads/{}", encode_path(&doc.branch)), "/object/sha"),
+            Kind::GitLab => (format!("{base}/repository/branches/{}", encode_component(&doc.branch)), "/commit/id"),
+            Kind::Forgejo => (format!("{base}/branches/{}", encode_path(&doc.branch)), "/commit/id"),
+        };
+        let v = self.call(doc.forge.kind, Method::Get, url, None)?;
+        v.pointer(ptr)
+            .and_then(Value::as_str)
+            .filter(|s| crate::is_object_id(s))
+            .map(str::to_string)
+            .ok_or_else(|| ForgeError::Server(200, "no branch head".into()))
+    }
+
+    /// Open a review request: a new branch `branch` from the document's branch, then a pull or
+    /// merge request from it into the document's branch. Versions saved on `branch` (a
+    /// [`DocRef`] with that branch) are what reviewers see.
+    pub fn request_review(&self, doc: &DocRef, branch: &str, title: &str, body: &str) -> Result<Review, ForgeError> {
+        check_doc(doc)?;
+        check_branch(branch)?;
+        let base = Self::repo_url(doc);
+        let k = doc.forge.kind;
+        let title = crate::clean_message(title, "Review request");
+        match k {
+            Kind::GitHub => {
+                let head = self.branch_head(doc)?;
+                self.call(k, Method::Post, format!("{base}/git/refs"), Some(json!({"ref": format!("refs/heads/{branch}"), "sha": head})))?;
+            }
+            Kind::GitLab => {
+                self.call(
+                    k,
+                    Method::Post,
+                    format!("{base}/repository/branches?branch={}&ref={}", encode_component(branch), encode_component(&doc.branch)),
+                    None,
+                )?;
+            }
+            Kind::Forgejo => {
+                self.call(k, Method::Post, format!("{base}/branches"), Some(json!({"new_branch_name": branch, "old_branch_name": doc.branch})))?;
+            }
+        }
+        let v = match k {
+            Kind::GitHub | Kind::Forgejo => {
+                self.call(k, Method::Post, format!("{base}/pulls"), Some(json!({"title": title, "head": branch, "base": doc.branch, "body": body})))?
+            }
+            Kind::GitLab => self.call(
+                k,
+                Method::Post,
+                format!("{base}/merge_requests"),
+                Some(json!({"source_branch": branch, "target_branch": doc.branch, "title": title, "description": body})),
+            )?,
+        };
+        let number = match k {
+            Kind::GitLab => v.get("iid"),
+            _ => v.get("number"),
+        }
+        .and_then(Value::as_u64)
+        .ok_or_else(|| ForgeError::Server(200, "no review number".into()))?;
+        let url = match k {
+            Kind::GitLab => v.get("web_url"),
+            _ => v.get("html_url"),
+        }
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_string();
+        Ok(Review { number, url, branch: branch.to_string() })
+    }
+
+    /// The comments on review `number`: line comments on the document and general ones, oldest
+    /// first.
+    pub fn review_comments(&self, doc: &DocRef, number: u64) -> Result<Vec<ReviewComment>, ForgeError> {
+        check_doc(doc)?;
+        let base = Self::repo_url(doc);
+        let k = doc.forge.kind;
+        let s = |v: Option<&Value>| v.and_then(Value::as_str).unwrap_or("").to_string();
+        let id = |v: Option<&Value>| {
+            v.map(|x| x.as_u64().map(|n| n.to_string()).unwrap_or_else(|| x.as_str().unwrap_or("").to_string())).unwrap_or_default()
+        };
+        let line = |v: Option<&Value>| v.and_then(Value::as_u64).and_then(|n| u32::try_from(n).ok()).filter(|n| *n > 0);
+        let list = |v: Value| v.as_array().cloned().unwrap_or_default();
+        let mut out = Vec::new();
+        match k {
+            Kind::GitHub | Kind::Forgejo => {
+                for c in list(self.call(k, Method::Get, format!("{base}/issues/{number}/comments?per_page=100&limit=50"), None)?) {
+                    out.push(ReviewComment {
+                        id: id(c.get("id")),
+                        author: s(c.pointer("/user/login")),
+                        date: s(c.get("created_at")),
+                        body: s(c.get("body")),
+                        path: None,
+                        line: None,
+                    });
+                }
+                if k == Kind::GitHub {
+                    for c in list(self.call(k, Method::Get, format!("{base}/pulls/{number}/comments?per_page=100"), None)?) {
+                        out.push(ReviewComment {
+                            id: id(c.get("id")),
+                            author: s(c.pointer("/user/login")),
+                            date: s(c.get("created_at")),
+                            body: s(c.get("body")),
+                            path: c.get("path").and_then(Value::as_str).map(str::to_string),
+                            line: line(c.get("line")).or_else(|| line(c.get("original_line"))),
+                        });
+                    }
+                } else {
+                    for r in list(self.call(k, Method::Get, format!("{base}/pulls/{number}/reviews"), None)?).iter().take(100) {
+                        let rid = id(r.get("id"));
+                        if !s(r.get("body")).trim().is_empty() {
+                            out.push(ReviewComment {
+                                id: format!("r{rid}"),
+                                author: s(r.pointer("/user/login")),
+                                date: s(r.get("submitted_at")),
+                                body: s(r.get("body")),
+                                path: None,
+                                line: None,
+                            });
+                        }
+                        if rid.is_empty() || !rid.bytes().all(|b| b.is_ascii_digit()) {
+                            continue;
+                        }
+                        for c in list(self.call(k, Method::Get, format!("{base}/pulls/{number}/reviews/{rid}/comments"), None)?) {
+                            out.push(ReviewComment {
+                                id: id(c.get("id")),
+                                author: s(c.pointer("/user/login")),
+                                date: s(c.get("created_at")),
+                                body: s(c.get("body")),
+                                path: c.get("path").and_then(Value::as_str).map(str::to_string),
+                                line: line(c.get("position")).or_else(|| line(c.get("original_position"))),
+                            });
+                        }
+                    }
+                }
+            }
+            Kind::GitLab => {
+                for d in list(self.call(k, Method::Get, format!("{base}/merge_requests/{number}/discussions?per_page=100"), None)?) {
+                    for n in d.get("notes").and_then(Value::as_array).cloned().unwrap_or_default() {
+                        if n.get("system").and_then(Value::as_bool) == Some(true) {
+                            continue;
+                        }
+                        out.push(ReviewComment {
+                            id: id(n.get("id")),
+                            author: s(n.pointer("/author/name")),
+                            date: s(n.get("created_at")),
+                            body: s(n.get("body")),
+                            path: n.pointer("/position/new_path").and_then(Value::as_str).map(str::to_string),
+                            line: line(n.pointer("/position/new_line")),
+                        });
+                    }
+                }
+            }
+        }
+        out.retain(|c| !c.id.is_empty() && !c.body.trim().is_empty());
+        out.truncate(MAX_COMMENTS);
+        out.sort_by(|a, b| a.date.cmp(&b.date));
+        Ok(out)
+    }
+
+    /// Who approved review `number`, who asked for changes, and whether it was merged.
+    pub fn review_state(&self, doc: &DocRef, number: u64) -> Result<ReviewState, ForgeError> {
+        check_doc(doc)?;
+        let base = Self::repo_url(doc);
+        let k = doc.forge.kind;
+        let mut st = ReviewState::default();
+        match k {
+            Kind::GitHub | Kind::Forgejo => {
+                let pr = self.call(k, Method::Get, format!("{base}/pulls/{number}"), None)?;
+                st.merged = pr.get("merged").and_then(Value::as_bool).unwrap_or(false);
+                st.closed = pr.get("state").and_then(Value::as_str) == Some("closed");
+                // The latest review per reviewer counts.
+                let mut latest: std::collections::BTreeMap<String, String> = Default::default();
+                for r in self.call(k, Method::Get, format!("{base}/pulls/{number}/reviews"), None)?.as_array().cloned().unwrap_or_default() {
+                    let who = r.pointer("/user/login").and_then(Value::as_str).unwrap_or("").to_string();
+                    let state = r.get("state").and_then(Value::as_str).unwrap_or("").to_string();
+                    if !who.is_empty() && state != "COMMENTED" && state != "COMMENT" {
+                        latest.insert(who, state);
+                    }
+                }
+                for (who, state) in latest {
+                    match state.as_str() {
+                        "APPROVED" => st.approved_by.push(who),
+                        "CHANGES_REQUESTED" | "REQUEST_CHANGES" => st.changes_requested_by.push(who),
+                        _ => {}
+                    }
+                }
+            }
+            Kind::GitLab => {
+                let mr = self.call(k, Method::Get, format!("{base}/merge_requests/{number}"), None)?;
+                let state = mr.get("state").and_then(Value::as_str).unwrap_or("");
+                st.merged = state == "merged";
+                st.closed = state == "closed";
+                let a = self.call(k, Method::Get, format!("{base}/merge_requests/{number}/approvals"), None)?;
+                for u in a.get("approved_by").and_then(Value::as_array).cloned().unwrap_or_default() {
+                    if let Some(n) = u.pointer("/user/name").and_then(Value::as_str) {
+                        st.approved_by.push(n.to_string());
+                    }
+                }
+            }
+        }
+        Ok(st)
+    }
+}
+
 /// An OAuth device-flow sign-in in progress: show `user_code` and `verification_uri`, then
 /// call [`device_poll`] every `interval` seconds.
 #[derive(Clone, Debug, PartialEq, Eq)]

@@ -152,6 +152,13 @@ pub enum Dialog {
         error: String,
         focus: bool,
     },
+    /// Review › Versions › Request Review (Plume): a pull or merge request for colleagues.
+    RequestReview {
+        title: String,
+        message: String,
+        error: String,
+        focus: bool,
+    },
     /// File › Open › Open from a Forge (Plume): a Markdown document on GitHub, GitLab or Forgejo.
     OpenFromForge {
         /// 0 GitHub, 1 GitLab, 2 Forgejo.
@@ -974,6 +981,7 @@ impl Dialog {
             Dialog::RenameDocument { .. } => "renameDocument",
             Dialog::SaveVersion { .. } => "saveVersion",
             Dialog::OpenFromForge { .. } => "openFromForge",
+            Dialog::RequestReview { .. } => "requestReview",
             Dialog::Versions { .. } => "versions",
             Dialog::Font { .. } => "font",
             Dialog::Paragraph { .. } => "paragraph",
@@ -1247,6 +1255,7 @@ impl Dialog {
             "pasteSpecial" => Dialog::paste_special(app, &json!({})),
             "renameDocument" => Dialog::RenameDocument { name: app.title_stem(), message: String::new(), focus: true },
             "saveVersion" => Dialog::SaveVersion { message: String::new(), error: String::new(), focus: true },
+            "requestReview" => Dialog::RequestReview { title: String::new(), message: String::new(), error: String::new(), focus: true },
             "openFromForge" => Dialog::OpenFromForge {
                 forge: 0,
                 host: String::new(),
@@ -1456,6 +1465,7 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
         Dialog::RenameDocument { .. } => "Rename Document",
         Dialog::SaveVersion { .. } => "Save Version",
         Dialog::OpenFromForge { .. } => "Open from a Forge",
+        Dialog::RequestReview { .. } => "Request Review",
         Dialog::Versions { .. } => "Version History",
         Dialog::Font { .. } => "Font",
         Dialog::Paragraph { .. } => "Paragraph",
@@ -1858,6 +1868,34 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
                         {
                             log::warn!("keychain: {e}");
                         }
+                        return true;
+                    }
+                    Err(e) => *error = e,
+                }
+            }
+            false
+        }
+        Dialog::RequestReview { title, message, error, focus } => {
+            ui.label(tl!("What should your colleagues review?"));
+            let r = ui.add(egui::TextEdit::singleline(title).desired_width(360.0).char_limit(200));
+            if *focus {
+                r.request_focus();
+                *focus = false;
+            }
+            ui.label(tl!("Details (optional)"));
+            ui.add(egui::TextEdit::multiline(message).desired_width(360.0).desired_rows(3).char_limit(5000));
+            if !error.is_empty() {
+                ui.colored_label(ui.visuals().error_fg_color, error.as_str());
+            }
+            let (ok, cancel) = buttons(ui, tl!("Request Review"));
+            if cancel {
+                return true;
+            }
+            if ok {
+                match app.run("vcs.requestReview", json!({"title": title, "message": message})) {
+                    Ok(v) => {
+                        let url = v.pointer("/review/url").and_then(Value::as_str).unwrap_or("").to_string();
+                        app.status(crate::i18n::fmt(tl!("Review requested: {url}"), &[("url", &url)]));
                         return true;
                     }
                     Err(e) => *error = e,

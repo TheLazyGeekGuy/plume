@@ -129,12 +129,11 @@ impl Profile {
         }
         for _ in 0..MAX_LEVELS {
             let file = dir.join(PROFILE_PATH);
-            if let Ok(meta) = std::fs::metadata(&file)
-                && meta.is_file()
-                && meta.len() as usize <= MAX_PROFILE
-                && let Ok(text) = std::fs::read_to_string(&file)
+            // Through `io`, so the automation read root applies.
+            if file.is_file()
+                && let Ok(bytes) = crate::io::read_file_capped(&file.to_string_lossy(), MAX_PROFILE as u64, "publication profile")
             {
-                return Some((Profile::parse(&text), file));
+                return Some((Profile::parse(&String::from_utf8_lossy(&bytes)), file));
             }
             if dir.join(".git").exists() {
                 break;

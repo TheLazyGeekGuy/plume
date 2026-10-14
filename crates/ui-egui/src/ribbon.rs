@@ -1785,6 +1785,8 @@ fn review(app: &mut WordApp, ui: &mut Ui) {
         big(ui, app, "versionHistory", "Version\nHistory", "ui.dialog", json!({"name": "versions"}), false);
         stack(ui, |ui| {
             small(ui, app, "sync", Some("Synchronize"), "Synchronize", "vcs.sync", json!({}), false);
+            small(ui, app, "requestReview", Some("Request Review"), "Request Review", "ui.dialog", json!({"name": "requestReview"}), false);
+            small(ui, app, "reviewComments", Some("Get Review Comments"), "Get Review Comments", "vcs.reviewComments", json!({}), false);
         });
     });
     group(ui, "Protect", None, app, |ui, app| {

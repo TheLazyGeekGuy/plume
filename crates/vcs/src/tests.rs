@@ -259,4 +259,79 @@ mod forges {
         assert_eq!(device_poll(&fake, Kind::GitHub, "", "client", &code), Ok(None));
         assert!(matches!(device_start(&fake, Kind::Forgejo, "https://codeberg.org", "c", "s"), Err(ForgeError::BadInput(_))));
     }
+
+    #[test]
+    fn gitlab_and_forgejo_reviews() {
+        let gl = Fake {
+            routes: vec![
+                (
+                    "GET",
+                    "https://gitlab.example/api/v4/projects/acme%2Fhandbook/repository/branches/main".into(),
+                    200,
+                    json!({"commit": {"id": SHA1}}),
+                ),
+                (
+                    "POST",
+                    "https://gitlab.example/api/v4/projects/acme%2Fhandbook/repository/branches?branch=review%2Fx&ref=main".into(),
+                    201,
+                    json!({}),
+                ),
+                (
+                    "POST",
+                    "https://gitlab.example/api/v4/projects/acme%2Fhandbook/merge_requests".into(),
+                    201,
+                    json!({"iid": 7, "web_url": "https://gitlab.example/acme/handbook/-/merge_requests/7"}),
+                ),
+                (
+                    "GET",
+                    "https://gitlab.example/api/v4/projects/acme%2Fhandbook/merge_requests/7/discussions".into(),
+                    200,
+                    json!([
+                        {"notes": [{"id": 1, "body": "Fix the date", "author": {"name": "Bob"}, "created_at": "2026-10-14T10:00:00Z", "position": {"new_path": "docs/guide é.md", "new_line": 3}}]},
+                        {"notes": [{"id": 2, "body": "approved this merge request", "system": true, "author": {"name": "Bob"}, "created_at": "x"}]},
+                    ]),
+                ),
+            ],
+            seen: RefCell::new(Vec::new()),
+        };
+        let c = Client { transport: &gl, token: "t".into() };
+        let d = doc(Forge::gitlab("gitlab.example"));
+        let r = c.request_review(&d, "review/x", "Check", "").unwrap();
+        assert_eq!((r.number, r.branch.as_str()), (7, "review/x"));
+        let comments = c.review_comments(&d, 7).unwrap();
+        assert_eq!(comments.len(), 1, "system notes left out");
+        assert_eq!((comments[0].author.as_str(), comments[0].line), ("Bob", Some(3)));
+        assert!(matches!(c.request_review(&d, "--bad", "t", ""), Err(ForgeError::BadInput(_))));
+
+        let fj = Fake {
+            routes: vec![
+                (
+                    "GET",
+                    "https://codeberg.org/api/v1/repos/acme/handbook/issues/3/comments".into(),
+                    200,
+                    json!([{"id": 5, "body": "Nice", "user": {"login": "eve"}, "created_at": "2026-10-14T09:00:00Z"}]),
+                ),
+                (
+                    "GET",
+                    "https://codeberg.org/api/v1/repos/acme/handbook/pulls/3/reviews/9/comments".into(),
+                    200,
+                    json!([{"id": 6, "body": "Typo here", "user": {"login": "eve"}, "created_at": "2026-10-14T09:30:00Z", "path": "docs/guide é.md", "position": 4}]),
+                ),
+                (
+                    "GET",
+                    "https://codeberg.org/api/v1/repos/acme/handbook/pulls/3/reviews".into(),
+                    200,
+                    json!([{"id": 9, "state": "REQUEST_CHANGES", "body": "", "user": {"login": "eve"}}]),
+                ),
+                ("GET", "https://codeberg.org/api/v1/repos/acme/handbook/pulls/3".into(), 200, json!({"merged": false, "state": "open"})),
+            ],
+            seen: RefCell::new(Vec::new()),
+        };
+        let c = Client { transport: &fj, token: "t".into() };
+        let d = doc(Forge::forgejo("codeberg.org"));
+        let comments = c.review_comments(&d, 3).unwrap();
+        assert_eq!(comments.iter().map(|c| (c.body.as_str(), c.line)).collect::<Vec<_>>(), [("Nice", None), ("Typo here", Some(4))]);
+        let st = c.review_state(&d, 3).unwrap();
+        assert_eq!(st.changes_requested_by, ["eve"]);
+    }
 }

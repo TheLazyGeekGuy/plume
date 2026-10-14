@@ -2202,3 +2202,10 @@
 	Markdown	Markdown
 	Markdown can't keep this formatting (strict Markdown mode)	Markdown kann diese Formatierung nicht behalten (strenger Markdown-Modus)
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Ein: Befehle, die Markdown nicht behalten kann (Textfarbe, Unterstreichung, Textfelder, Spalten…), sind ausgeschaltet. Aus: Sie funktionieren, und beim Speichern wird gemeldet, was Markdown nicht behalten hat.
+	Request Review	Überprüfung anfordern
+	Get Review Comments	Überprüfungskommentare abrufen
+	Review Status	Überprüfungsstatus
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Öffnen Sie das Dokument aus GitHub, GitLab oder Forgejo, um eine Überprüfung anzufordern
+	What should your colleagues review?	Was sollen Ihre Kollegen prüfen?
+	Details (optional)	Details (optional)
+	Review requested: {url}	Überprüfung angefordert: {url}

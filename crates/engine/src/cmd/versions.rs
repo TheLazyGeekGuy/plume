@@ -107,6 +107,17 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("vcs.restore", "Restore Version", "Review › Versions", |s, v| if s.forge.is_some() { remote::restore(s, v) } else { restore(s, v) })
             .when(markdown_document)
             .params(r#"{"id": version id} → {restored}: the document becomes that version (undoable; save a version to keep it)"#),
+        CommandSpec::new("vcs.requestReview", "Request Review", "Review › Versions", remote::request_review)
+            .when(forge_document)
+            .params(r#"{"title": string, "message"?: string} → {review: {number, url, branch}}: saves this version on a new branch and opens a pull request (GitHub, Forgejo) or merge request (GitLab) for colleagues to review"#)
+            .pure(),
+        CommandSpec::new("vcs.reviewComments", "Get Review Comments", "Review › Versions", remote::review_comments)
+            .when(forge_document)
+            .params(r#"{} → {imported, comments}: colleagues' comments on the review become comments in the document, on the paragraph they're about"#),
+        CommandSpec::new("vcs.reviewStatus", "Review Status", "Review › Versions", remote::review_status)
+            .when(forge_document)
+            .params(r#"{} → {review?, approvedBy: [name], changesRequestedBy: [name], merged, closed}"#)
+            .pure(),
         CommandSpec::new("vcs.sync", "Synchronize", "Review › Versions", |s, v| if s.forge.is_some() { remote::sync(s, v) } else { sync(s, v) })
             .when(markdown_document)
             .params(r#"{} → {synced: true}: gets the server's versions (never merging silently), then sends this copy's"#)
@@ -121,6 +132,11 @@ fn markdown_document(s: &Session) -> Option<&'static str> {
         return None;
     }
     markdown_path(s).err().map(|_| "Save the document as Markdown first")
+}
+
+/// Reviews need a document opened from a forge.
+fn forge_document(s: &Session) -> Option<&'static str> {
+    s.forge.is_none().then_some("Open the document from GitHub, GitLab or Forgejo to ask for a review")
 }
 
 /// The document's Markdown file: versions are only kept for a saved Markdown document.
@@ -162,6 +178,10 @@ fn folder_of(path: &str) -> String {
 pub struct Remote {
     pub doc: wordcraft_vcs::forge::DocRef,
     pub sha: String,
+    /// The review request this document is in, if any.
+    pub review: Option<wordcraft_vcs::forge::Review>,
+    /// Reviewers' comments already brought in as comments (by forge id).
+    pub imported: std::collections::BTreeSet<String>,
 }
 
 /// Versions on a forge, through its REST API: the same commands, no clone.
@@ -264,7 +284,7 @@ mod remote {
         let name = doc.path.rsplit('/').next().unwrap_or(&doc.path).to_string();
         s.path = None;
         s.file_name = Some(name.trim_end_matches(".markdown").trim_end_matches(".md").to_string());
-        s.forge = Some(Remote { doc, sha: sha.clone() });
+        s.forge = Some(Remote { doc, sha: sha.clone(), review: None, imported: Default::default() });
         s.imported_from = None;
         s.import_report.clear();
         s.dirty = false;
@@ -384,6 +404,133 @@ mod remote {
         Ok(json!({"restored": id}))
     }
 
+    pub(super) fn request_review(s: &mut Session, v: &Value) -> CmdResult {
+        let r = current(s)?;
+        if let Some(rv) = &r.review {
+            return Err(CmdError::Failed(format!("this document is already in review {}: save versions to update it", rv.number)));
+        }
+        let title = p::str(v, "title").unwrap_or("").trim().to_string();
+        let message = p::str(v, "message").unwrap_or("").to_string();
+        // review/<file>-<yyyymmdd-hhmmss>: a new branch for this review's versions.
+        let stem: String = r
+            .doc
+            .path
+            .rsplit('/')
+            .next()
+            .unwrap_or("document")
+            .trim_end_matches(".md")
+            .chars()
+            .filter(|c| c.is_ascii_alphanumeric() || *c == '-')
+            .take(40)
+            .collect();
+        let stamp: String = super::super::now_iso().chars().filter(char::is_ascii_digit).take(14).collect();
+        let branch = format!("review/{}-{stamp}", if stem.is_empty() { "document" } else { &stem });
+        let t = transport(s)?;
+        let c = Client { transport: t.as_ref(), token: token(s, &r.doc.forge)? };
+        let review = c.request_review(&r.doc, &branch, if title.is_empty() { "Review request" } else { &title }, &message).map_err(ferr)?;
+        // This copy's edits become the first version under review.
+        let on_branch = DocRef { branch: branch.clone(), ..r.doc.clone() };
+        if let Some(f) = s.forge.as_mut() {
+            f.doc = on_branch;
+            f.review = Some(review.clone());
+        }
+        let (_, sha) = c.read(&DocRef { branch, ..r.doc }, None).map_err(ferr)?;
+        if let Some(f) = s.forge.as_mut() {
+            f.sha = sha;
+        }
+        if s.dirty {
+            save_version(s, &json!({"message": if title.is_empty() { "Version for review".to_string() } else { title }}))?;
+        }
+        Ok(json!({"review": {"number": review.number, "url": review.url, "branch": review.branch}}))
+    }
+
+    /// Words of a Markdown line without its syntax, for finding the paragraph it is.
+    fn plain_words(line: &str) -> String {
+        let t = line.trim().trim_start_matches(['#', '>', '-', '*', '+', '|', ' ']);
+        let t = t.trim_start_matches(|c: char| c.is_ascii_digit()).trim_start_matches(['.', ')', ' ']);
+        t.chars()
+            .filter(|c| !matches!(c, '*' | '_' | '`' | '~' | '\\' | '[' | ']'))
+            .collect::<String>()
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+
+    /// The top-level paragraph a Markdown line is about (by its words), else the first one.
+    fn paragraph_for(doc: &Document, md: &str, line: Option<u32>) -> usize {
+        let first = doc.body.iter().position(|b| matches!(&**b, wordcraft_doc::Block::Para(_))).unwrap_or(0);
+        let Some(text) = line.and_then(|l| md.lines().nth(l.saturating_sub(1) as usize)).map(plain_words) else { return first };
+        let probe: String = text.chars().take(40).collect();
+        if probe.chars().count() < 3 {
+            return first;
+        }
+        doc.body
+            .iter()
+            .position(|b| match &**b {
+                wordcraft_doc::Block::Para(p) => p.plain_text().split_whitespace().collect::<Vec<_>>().join(" ").contains(&probe),
+                wordcraft_doc::Block::Table(_) => false,
+            })
+            .unwrap_or(first)
+    }
+
+    pub(super) fn review_comments(s: &mut Session, _: &Value) -> CmdResult {
+        let r = current(s)?;
+        let review = r.review.clone().ok_or_else(|| CmdError::Failed("ask for a review first".into()))?;
+        let t = transport(s)?;
+        let c = Client { transport: t.as_ref(), token: token(s, &r.doc.forge)? };
+        let comments = c.review_comments(&r.doc, review.number).map_err(ferr)?;
+        let (md, _) = c.read(&r.doc, None).map_err(ferr)?;
+        let md = wordcraft_formats::txt::decode(&md);
+        let mut imported = 0usize;
+        for rc in comments.iter().filter(|rc| !r.imported.contains(&rc.id)) {
+            // A comment on another file of the repository isn't about this document.
+            if rc.path.as_deref().is_some_and(|p| p != r.doc.path) {
+                continue;
+            }
+            let bi = paragraph_for(&s.doc, &md, rc.line);
+            let Some(wordcraft_doc::Block::Para(para)) = s.doc.body.get(bi).map(|b| &**b) else { continue };
+            let len = para.len();
+            let part = s.doc.add_part(
+                wordcraft_doc::PartKind::Comment,
+                vec![wordcraft_doc::para_block(wordcraft_doc::Paragraph::with_text(
+                    &wordcraft_formats::model::clean_text(&rc.body),
+                    Default::default(),
+                ))],
+            );
+            let id = s.doc.comments.keys().next_back().map(|k| k + 1).unwrap_or(0);
+            let initials: String = rc.author.split_whitespace().filter_map(|w| w.chars().next()).take(3).collect();
+            s.doc
+                .comments
+                .insert(id, wordcraft_doc::Comment { author: rc.author.clone(), initials, date: rc.date.clone(), part, ..Default::default() });
+            let props = wordcraft_doc::CharProps::default();
+            s.doc.insert_object(&wordcraft_doc::Pos::body(bi, len), wordcraft_doc::InlineObject::CommentEnd { id }, &props)?;
+            s.doc.insert_object(&wordcraft_doc::Pos::body(bi, 0), wordcraft_doc::InlineObject::CommentStart { id }, &props)?;
+            imported += 1;
+        }
+        if let Some(f) = s.forge.as_mut() {
+            f.imported.extend(comments.iter().map(|c| c.id.clone()));
+        }
+        if imported > 0 {
+            s.view.comments_pane = true;
+        }
+        Ok(json!({"imported": imported, "comments": comments.len()}))
+    }
+
+    pub(super) fn review_status(s: &mut Session, _: &Value) -> CmdResult {
+        let r = current(s)?;
+        let Some(review) = r.review.clone() else { return Ok(json!({"approvedBy": [], "changesRequestedBy": [], "merged": false, "closed": false})) };
+        let t = transport(s)?;
+        let c = Client { transport: t.as_ref(), token: token(s, &r.doc.forge)? };
+        let st = c.review_state(&r.doc, review.number).map_err(ferr)?;
+        Ok(json!({
+            "review": {"number": review.number, "url": review.url, "branch": review.branch},
+            "approvedBy": st.approved_by,
+            "changesRequestedBy": st.changes_requested_by,
+            "merged": st.merged,
+            "closed": st.closed,
+        }))
+    }
+
     /// Get the server's latest version: reloaded when this copy has no unsaved changes; with
     /// changes on both sides, an error that says how to see theirs (Compare with Version).
     pub(super) fn sync(s: &mut Session, _: &Value) -> CmdResult {
@@ -400,7 +547,7 @@ mod remote {
             ));
         }
         let (d, sha) = load(&c, &r.doc, None)?;
-        let remote = Remote { doc: r.doc, sha };
+        let remote = Remote { sha, ..r };
         let name = s.file_name.clone();
         s.set_document(d);
         s.forge = Some(remote);

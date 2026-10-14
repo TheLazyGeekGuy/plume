@@ -2215,3 +2215,10 @@
 	Markdown	Markdown
 	Markdown can't keep this formatting (strict Markdown mode)	O Markdown não consegue manter esta formatação (modo Markdown estrito)
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Ativado: os comandos que o Markdown não consegue manter (cor do texto, sublinhado, caixas de texto, colunas…) ficam desativados. Desativado: funcionam e ao salvar é informado o que o Markdown não manteve.
+	Request Review	Solicitar revisão
+	Get Review Comments	Obter comentários da revisão
+	Review Status	Status da revisão
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Abra o documento do GitHub, GitLab ou Forgejo para solicitar uma revisão
+	What should your colleagues review?	O que seus colegas devem revisar?
+	Details (optional)	Detalhes (opcional)
+	Review requested: {url}	Revisão solicitada: {url}

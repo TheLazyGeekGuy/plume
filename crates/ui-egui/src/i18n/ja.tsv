@@ -2203,3 +2203,10 @@
 	Markdown	Markdown
 	Markdown can't keep this formatting (strict Markdown mode)	Markdown ではこの書式を保持できません (厳格な Markdown モード)
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	オンにすると、Markdown で保持できないコマンド (文字の色、下線、テキスト ボックス、段組み…) が無効になります。オフにすると使用でき、保存時に Markdown で保持されなかった内容が表示されます。
+	Request Review	レビューを依頼
+	Get Review Comments	レビュー コメントを取得
+	Review Status	レビューの状態
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	レビューを依頼するには、GitHub、GitLab、Forgejo から文書を開いてください
+	What should your colleagues review?	同僚に何をレビューしてもらいますか?
+	Details (optional)	詳細 (省略可)
+	Review requested: {url}	レビューを依頼しました: {url}

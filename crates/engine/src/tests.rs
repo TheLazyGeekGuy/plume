@@ -6463,7 +6463,8 @@ fn versions_in_git() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
-/// A tiny in-memory GitHub (contents, commits, git data API) for the forge commands.
+/// A tiny in-memory GitHub (contents, commits, git data API, branches, pull requests) for the
+/// forge commands.
 mod fake_github {
     use std::collections::BTreeMap;
     use std::sync::Mutex;
@@ -6471,22 +6472,29 @@ mod fake_github {
     use serde_json::{Value, json};
     use wordcraft_vcs::forge::{Method, Request, Response, Transport, base64_decode, base64_encode};
 
+    type Files = BTreeMap<String, Vec<u8>>;
+
     #[derive(Default)]
     struct State {
-        files: BTreeMap<String, Vec<u8>>,
-        head: String,
+        /// Branch → head commit.
+        branches: BTreeMap<String, String>,
         /// id → (author, message, files after it, parent).
-        commits: BTreeMap<String, (String, String, BTreeMap<String, Vec<u8>>, String)>,
-        order: Vec<String>,
+        commits: BTreeMap<String, (String, String, Files, String)>,
         blobs: BTreeMap<String, Vec<u8>>,
         trees: BTreeMap<String, Vec<(String, String)>>,
         n: u64,
+        /// Opened pull requests: (head branch, base branch).
+        pulls: Vec<(String, String)>,
     }
 
     pub struct Server {
         state: Mutex<State>,
         /// Commits made through the API are by this author.
         pub author: Mutex<String>,
+        /// What reviewers said on pull request 1: conversation, line comments, reviews.
+        pub issue_comments: Mutex<Value>,
+        pub line_comments: Mutex<Value>,
+        pub reviews: Mutex<Value>,
     }
 
     fn sha(n: u64) -> String {
@@ -6506,42 +6514,63 @@ mod fake_github {
         String::from_utf8(wordcraft_formats::model::percent_decode(p)).unwrap()
     }
 
+    impl State {
+        fn files(&self, rev: &str) -> Option<Files> {
+            let id = self.branches.get(rev).cloned().unwrap_or_else(|| rev.to_string());
+            self.commits.get(&id).map(|c| c.2.clone())
+        }
+    }
+
     impl Server {
         pub fn new(files: &[(&str, &[u8])]) -> Server {
-            let s = Server { state: Mutex::new(State::default()), author: Mutex::new("Ada".into()) };
+            let s = Server {
+                state: Mutex::new(State::default()),
+                author: Mutex::new("Ada".into()),
+                issue_comments: Mutex::new(json!([])),
+                line_comments: Mutex::new(json!([])),
+                reviews: Mutex::new(json!([])),
+            };
             {
                 let mut st = s.state.lock().unwrap();
                 st.n = 1;
-                st.files = files.iter().map(|(p, b)| (p.to_string(), b.to_vec())).collect();
-                let id = sha(1);
-                let snapshot = st.files.clone();
-                st.commits.insert(id.clone(), ("Ada".into(), "Initial version".into(), snapshot, String::new()));
-                st.order.push(id.clone());
-                st.head = id;
+                let snapshot: Files = files.iter().map(|(p, b)| (p.to_string(), b.to_vec())).collect();
+                st.commits.insert(sha(1), ("Ada".into(), "Initial version".into(), snapshot, String::new()));
+                st.branches.insert("main".into(), sha(1));
             }
             s
         }
 
-        /// Someone else saves a version directly on the server.
+        /// Someone else saves a version directly on the server (on main).
         pub fn commit(&self, author: &str, path: &str, bytes: &[u8], message: &str) {
             let mut st = self.state.lock().unwrap();
             st.n += 1;
             let id = sha(st.n);
-            st.files.insert(path.into(), bytes.to_vec());
-            let snapshot = st.files.clone();
-            let parent = st.head.clone();
-            st.commits.insert(id.clone(), (author.into(), message.into(), snapshot, parent));
-            st.order.push(id.clone());
-            st.head = id;
+            let parent = st.branches["main"].clone();
+            let mut files = st.commits[&parent].2.clone();
+            files.insert(path.into(), bytes.to_vec());
+            st.commits.insert(id.clone(), (author.into(), message.into(), files, parent));
+            st.branches.insert("main".into(), id);
         }
 
         pub fn file(&self, path: &str) -> Option<Vec<u8>> {
-            self.state.lock().unwrap().files.get(path).cloned()
+            self.file_on("main", path)
+        }
+
+        pub fn file_on(&self, branch: &str, path: &str) -> Option<Vec<u8>> {
+            self.state.lock().unwrap().files(branch).and_then(|f| f.get(path).cloned())
+        }
+
+        pub fn pulls(&self) -> Vec<(String, String)> {
+            self.state.lock().unwrap().pulls.clone()
         }
     }
 
     fn ok(v: Value) -> Result<Response, String> {
         Ok(Response { status: 200, body: v.to_string().into_bytes() })
+    }
+
+    fn not_found() -> Result<Response, String> {
+        Ok(Response { status: 404, body: b"{}".to_vec() })
     }
 
     impl Transport for Server {
@@ -6556,26 +6585,34 @@ mod fake_github {
                 (Method::Get, r) if r.starts_with("/contents/") => {
                     let path = decode(&r["/contents/".len()..]);
                     let rev = q("ref").unwrap_or("main".into());
-                    let files = if rev == "main" { st.files.clone() } else { st.commits.get(&rev).map(|c| c.2.clone()).ok_or("no rev")? };
-                    match files.get(&path) {
-                        Some(b) => ok(json!({"content": base64_encode(b), "sha": blob_id(b)})),
-                        None => Ok(Response { status: 404, body: b"{}".to_vec() }),
+                    match st.files(&rev).and_then(|f| f.get(&path).cloned()) {
+                        Some(b) => ok(json!({"content": base64_encode(&b), "sha": blob_id(&b)})),
+                        None => not_found(),
                     }
                 }
                 (Method::Get, "/commits") => {
                     let path = q("path").unwrap();
+                    let mut id = st.branches.get(&q("sha").unwrap_or("main".into())).cloned().unwrap_or_default();
                     let mut out = Vec::new();
-                    for id in st.order.iter().rev() {
-                        let (author, message, files, parent) = &st.commits[id];
+                    while let Some((author, message, files, parent)) = st.commits.get(&id) {
                         let before = st.commits.get(parent).and_then(|c| c.2.get(&path));
                         if files.get(&path) != before {
                             out.push(json!({"sha": id, "commit": {"author": {"name": author, "email": "x@y", "date": "2026-10-14T10:00:00Z"}, "message": message}}));
                         }
+                        id = parent.clone();
                     }
                     ok(Value::Array(out))
                 }
-                (Method::Get, "/git/ref/heads/main") => ok(json!({"object": {"sha": st.head}})),
+                (Method::Get, r) if r.starts_with("/git/ref/heads/") => match st.branches.get(&decode(&r["/git/ref/heads/".len()..])) {
+                    Some(h) => ok(json!({"object": {"sha": h}})),
+                    None => not_found(),
+                },
                 (Method::Get, r) if r.starts_with("/git/commits/") => ok(json!({"tree": {"sha": &r["/git/commits/".len()..]}})),
+                (Method::Post, "/git/refs") => {
+                    let name = body["ref"].as_str().unwrap().trim_start_matches("refs/heads/").to_string();
+                    st.branches.insert(name, body["sha"].as_str().unwrap().to_string());
+                    ok(json!({}))
+                }
                 (Method::Post, "/git/blobs") => {
                     let b = base64_decode(body["content"].as_str().unwrap(), 1 << 20).unwrap();
                     let id = blob_id(&b);
@@ -6606,17 +6643,24 @@ mod fake_github {
                     st.commits.insert(id.clone(), (author, body["message"].as_str().unwrap().into(), files, parent));
                     ok(json!({"sha": id}))
                 }
-                (Method::Patch, "/git/refs/heads/main") => {
+                (Method::Patch, r) if r.starts_with("/git/refs/heads/") => {
+                    let branch = decode(&r["/git/refs/heads/".len()..]);
                     let id = body["sha"].as_str().unwrap().to_string();
-                    if st.commits[&id].3 != st.head {
+                    if Some(&st.commits[&id].3) != st.branches.get(&branch) {
                         return Ok(Response { status: 422, body: b"{\"message\":\"Update is not a fast forward\"}".to_vec() });
                     }
-                    st.files = st.commits[&id].2.clone();
-                    st.order.push(id.clone());
-                    st.head = id;
+                    st.branches.insert(branch, id);
                     ok(json!({}))
                 }
-                _ => Ok(Response { status: 404, body: b"{}".to_vec() }),
+                (Method::Post, "/pulls") => {
+                    st.pulls.push((body["head"].as_str().unwrap().into(), body["base"].as_str().unwrap().into()));
+                    ok(json!({"number": st.pulls.len(), "html_url": format!("https://github.com/acme/docs/pull/{}", st.pulls.len())}))
+                }
+                (Method::Get, "/issues/1/comments") => ok(self.issue_comments.lock().unwrap().clone()),
+                (Method::Get, "/pulls/1/comments") => ok(self.line_comments.lock().unwrap().clone()),
+                (Method::Get, "/pulls/1/reviews") => ok(self.reviews.lock().unwrap().clone()),
+                (Method::Get, "/pulls/1") => ok(json!({"merged": false, "state": "open"})),
+                _ => not_found(),
             }
         }
     }
@@ -6740,4 +6784,48 @@ fn publication_profile() {
     crate::io::save_path(&dir.join("chapters/one.md"), &doc).unwrap();
     assert_eq!(std::fs::read_to_string(dir.join("chapters/one.md")).unwrap(), "# One\n\nText.\n");
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Asking colleagues for a review: a branch and a pull request; their comments come back as
+/// comments on the paragraphs they're about; their approvals show.
+#[test]
+fn forge_review_round_trip() {
+    let server = std::sync::Arc::new(fake_github::Server::new(&[("guide.md", b"# Guide\n\nFirst paragraph.\n\nSecond paragraph about budgets.\n")]));
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.forge_transport = Some(server.clone());
+    s.run("forge.signIn", &json!({"forge": "github", "token": "t"})).unwrap();
+    s.run("forge.open", &json!({"forge": "github", "repo": "acme/docs", "path": "guide.md"})).unwrap();
+    assert!(s.run("vcs.reviewComments", &json!({})).is_err(), "no review yet");
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " Updated."})).unwrap();
+    let r = s.run("vcs.requestReview", &json!({"title": "Please check the budget"})).unwrap();
+    assert_eq!(r["review"]["number"], json!(1));
+    let branch = r["review"]["branch"].as_str().unwrap().to_string();
+    assert!(branch.starts_with("review/guide-"), "{branch}");
+    assert_eq!(server.pulls(), vec![(branch.clone(), "main".to_string())]);
+    assert!(String::from_utf8(server.file_on(&branch, "guide.md").unwrap()).unwrap().contains("Updated."));
+    assert_eq!(
+        String::from_utf8(server.file("guide.md").unwrap()).unwrap(),
+        "# Guide\n\nFirst paragraph.\n\nSecond paragraph about budgets.\n",
+        "main untouched"
+    );
+    assert!(!s.dirty);
+
+    *server.line_comments.lock().unwrap() =
+        json!([{"id": 11, "user": {"login": "bob"}, "created_at": "2026-10-14T11:00:00Z", "body": "Which budget?", "path": "guide.md", "line": 5}]);
+    *server.issue_comments.lock().unwrap() =
+        json!([{"id": 12, "user": {"login": "carol"}, "created_at": "2026-10-14T12:00:00Z", "body": "Looks good overall."}]);
+    *server.reviews.lock().unwrap() =
+        json!([{"user": {"login": "carol"}, "state": "APPROVED"}, {"user": {"login": "bob"}, "state": "CHANGES_REQUESTED"}]);
+    let r = s.run("vcs.reviewComments", &json!({})).unwrap();
+    assert_eq!(r["imported"], json!(2));
+    let notes = wordcraft_formats::comments::notes(&s.doc);
+    let bobs = notes.iter().find(|n| n.author == "bob").unwrap();
+    assert!(bobs.quote.contains("budgets"), "on the paragraph line 5 is: {:?}", bobs.quote);
+    assert_eq!(bobs.text, "Which budget?");
+    // Read twice, brought in once.
+    assert_eq!(s.run("vcs.reviewComments", &json!({})).unwrap()["imported"], json!(0));
+    let st = s.run("vcs.reviewStatus", &json!({})).unwrap();
+    assert_eq!(st["approvedBy"], json!(["carol"]));
+    assert_eq!(st["changesRequestedBy"], json!(["bob"]));
 }

@@ -2215,3 +2215,10 @@
 	Markdown	Markdown
 	Markdown can't keep this formatting (strict Markdown mode)	Markdown не може зберегти це форматування (суворий режим Markdown)
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Увімкнено: команди, які Markdown не може зберегти (колір тексту, підкреслення, текстові поля, колонки…), вимкнено. Вимкнено: вони працюють, а під час збереження повідомляється, що Markdown не зберіг.
+	Request Review	Попросити рецензію
+	Get Review Comments	Отримати коментарі рецензії
+	Review Status	Стан рецензії
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Щоб попросити рецензію, відкрийте документ із GitHub, GitLab або Forgejo
+	What should your colleagues review?	Що мають переглянути колеги?
+	Details (optional)	Подробиці (необов'язково)
+	Review requested: {url}	Рецензію запитано: {url}
