@@ -15,7 +15,9 @@ permissions:
 
 concurrency:
   group: plume-macos-${{ github.ref }}
-  cancel-in-progress: true
+  # A run in progress finishes; only the newest waiting push is kept (frequent pushes would
+  # otherwise never get a result).
+  cancel-in-progress: false
 
 jobs:
   check:

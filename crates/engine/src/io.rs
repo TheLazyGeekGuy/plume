@@ -325,6 +325,10 @@ pub fn open_path_in(path: &std::path::Path, password: Option<&str>, region: &wor
         let text = wordcraft_formats::txt::decode(&bytes);
         let mut doc = wordcraft_formats::markdown::import_with(&text, &region_page(region), &|src| images.load(src));
         wordcraft_formats::markdown::apply_theme(&mut doc, Default::default());
+        // The folder's publication profile: page, margins, fonts, theme.
+        if let Some((profile, _)) = crate::publication::Profile::for_document(path) {
+            profile.apply(&mut doc);
+        }
         fit_pictures(&mut doc);
         doc.ensure_nonempty();
         return Ok((doc, false));

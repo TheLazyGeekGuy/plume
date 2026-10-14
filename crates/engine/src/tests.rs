@@ -6712,3 +6712,32 @@ fn strict_markdown_mode() {
     s.path = None;
     assert!(s.markdown_blocks("format.color").is_none());
 }
+
+/// A folder's publication profile lays its Markdown documents out: page, margins, fonts.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn publication_profile() {
+    use crate::publication::Profile;
+    let p = Profile::parse(
+        "theme = \"vitepress\" # comment\n[page]\nformat = \"Letter\"\norientation = \"landscape\"\n[margins]\ntop = 10\nleft = 25.4\n[typography]\nbody_font = \"Liberation Serif\"\nbody_size = 11\nheading_font = \"Source Sans 3\"\n[other]\nformat = \"A3\"\nbroken line\n",
+    );
+    assert_eq!(p.theme, Some(wordcraft_formats::markdown::Theme::VitePress));
+    assert_eq!(p.page, Some((612.0, 792.0)));
+    assert_eq!(p.landscape, Some(true));
+    assert!((p.margins[2].unwrap() - 72.0).abs() < 0.01);
+    assert_eq!(p.body_size, Some(11.0));
+
+    let dir = scratch_dir("publication");
+    std::fs::create_dir_all(dir.join("publication")).unwrap();
+    std::fs::create_dir_all(dir.join("chapters")).unwrap();
+    std::fs::write(dir.join("publication/default.toml"), "[page]\nformat = \"A5\"\n[margins]\nleft = 30\n[typography]\nbody_size = 10\n").unwrap();
+    std::fs::write(dir.join("chapters/one.md"), "# One\n\nText.\n").unwrap();
+    let doc = crate::io::open_path(&dir.join("chapters/one.md")).unwrap();
+    assert!((doc.last_section.page_w - 148.0 * 72.0 / 25.4).abs() < 0.1);
+    assert!((doc.last_section.margin_left - 30.0 * 72.0 / 25.4).abs() < 0.1);
+    assert_eq!(doc.styles.default_chr.size, Some(10.0));
+    // The profile never reaches the Markdown.
+    crate::io::save_path(&dir.join("chapters/one.md"), &doc).unwrap();
+    assert_eq!(std::fs::read_to_string(dir.join("chapters/one.md")).unwrap(), "# One\n\nText.\n");
+    let _ = std::fs::remove_dir_all(&dir);
+}
