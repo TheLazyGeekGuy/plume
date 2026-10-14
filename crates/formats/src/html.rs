@@ -1120,7 +1120,7 @@ impl<'r> Builder<'r> {
         if let Some(t) = self.title.take() {
             self.meta.title = t;
         }
-        Flow { blocks, meta: self.meta }
+        Flow { blocks, meta: self.meta, comments: Vec::new() }
     }
 }
 
@@ -1381,6 +1381,7 @@ pub fn inlines_html(inlines: &[Inline]) -> String {
             Inline::Anchor(a) => o.push_str(&format!("<a id=\"{}\"></a>", esc(a))),
             // No picture to show: the browser shows the alt text in its place.
             Inline::Figure(alt) => o.push_str(&format!("<img alt=\"{}\">", esc(alt))),
+            Inline::Note { .. } | Inline::Comment { .. } => {}
             // MathML, which browsers, Word and LibreOffice show as an equation (#816).
             Inline::Equation { linear, display } => o.push_str(&crate::mathml::linear_to_mathml(linear, *display)),
         }

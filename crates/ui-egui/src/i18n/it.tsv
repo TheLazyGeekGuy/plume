@@ -2555,3 +2555,16 @@ preview	Title	Esempio
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	I file Hunspell .aff e .dic in questa cartella (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) hanno la precedenza su quelli di sistema.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: nessun dizionario trovato
+	Version Status	Stato versioni
+	Start Keeping Versions	Inizia a conservare le versioni
+	Save Version	Salva versione
+	Show Changes	Mostra modifiche
+	Compare with Version	Confronta con versione
+	Restore Version	Ripristina versione
+	Synchronize	Sincronizza
+	Versions	Versioni
+	Describe your changes	Descrivi le modifiche
+	No versions yet	Nessuna versione per ora
+	Restore	Ripristina
+	Save\nVersion	Salva\nversione
+	Version\nHistory	Cronologia\nversioni

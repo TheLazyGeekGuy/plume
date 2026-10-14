@@ -416,6 +416,14 @@ pub struct Session {
     /// Quick Parts / AutoText entries.
     pub building_blocks: std::collections::BTreeMap<String, Fragment>,
     pub autosave: bool,
+    /// Markdown is the document's own format (Plume): opening another format imports it into a
+    /// new `.md` beside it (never saving over the original), and saving to `.md` keeps the
+    /// document saved. Off, Markdown is a copy like any non-Word format.
+    pub native_markdown: bool,
+    /// The file an imported document came from (`native_markdown`), and what its Markdown can't
+    /// hold (one line per kind of adaptation; empty = nothing).
+    pub imported_from: Option<std::path::PathBuf>,
+    pub import_report: Vec<String>,
     /// Citation style: APA, MLA, Chicago, IEEE.
     pub bib_style: String,
     /// Mail merge data source and preview.
@@ -627,6 +635,9 @@ impl Session {
             versions: Vec::new(),
             building_blocks: Default::default(),
             autosave: true,
+            native_markdown: false,
+            imported_from: None,
+            import_report: Vec::new(),
             bib_style,
             merge: Default::default(),
             ui_requests: Vec::new(),
@@ -1071,6 +1082,9 @@ impl Session {
             versions: _,
             building_blocks: _,
             autosave: _,
+            native_markdown: _,
+            imported_from: _,
+            import_report: _,
             bib_style: _,
             merge: _,
             ui_requests: _,

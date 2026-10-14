@@ -2568,3 +2568,16 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Az ebben a mappában lévő Hunspell .aff és .dic fájlok (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) elsőbbséget élveznek a rendszer fájljaival szemben.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: nem található szótár
+	Version Status	Verziók állapota
+	Start Keeping Versions	Verziók megőrzésének indítása
+	Save Version	Verzió mentése
+	Show Changes	Módosítások megjelenítése
+	Compare with Version	Összehasonlítás verzióval
+	Restore Version	Verzió visszaállítása
+	Synchronize	Szinkronizálás
+	Versions	Verziók
+	Describe your changes	Írja le a módosításait
+	No versions yet	Még nincsenek verziók
+	Restore	Visszaállítás
+	Save\nVersion	Verzió\nmentése
+	Version\nHistory	Verzió-\nelőzmények

@@ -2187,3 +2187,16 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Hunspell .aff и .dic датотеке из ове фасцикле (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) користе се пре системских.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: речник није пронађен
+	Version Status	Стање верзија
+	Start Keeping Versions	Почни чување верзија
+	Save Version	Сачувај верзију
+	Show Changes	Прикажи измене
+	Compare with Version	Упореди са верзијом
+	Restore Version	Врати верзију
+	Synchronize	Синхронизуј
+	Versions	Верзије
+	Describe your changes	Опишите своје измене
+	No versions yet	Још нема верзија
+	Restore	Врати
+	Save\nVersion	Сачувај\nверзију
+	Version\nHistory	Историја\nверзија

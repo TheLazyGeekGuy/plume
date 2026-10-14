@@ -2207,3 +2207,16 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Selle kausta Hunspelli .aff- ja .dic-failid (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) on eelistatud süsteemi omadele.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: sõnastikku ei leitud
+	Version Status	Versioonide olek
+	Start Keeping Versions	Alusta versioonide hoidmist
+	Save Version	Salvesta versioon
+	Show Changes	Näita muudatusi
+	Compare with Version	Võrdle versiooniga
+	Restore Version	Taasta versioon
+	Synchronize	Sünkrooni
+	Versions	Versioonid
+	Describe your changes	Kirjeldage oma muudatusi
+	No versions yet	Versioone veel pole
+	Restore	Taasta
+	Save\nVersion	Salvesta\nversioon
+	Version\nHistory	Versiooni-\najalugu

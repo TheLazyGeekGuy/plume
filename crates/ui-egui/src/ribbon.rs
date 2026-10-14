@@ -1779,6 +1779,14 @@ fn review(app: &mut WordApp, ui: &mut Ui) {
     group(ui, "Compare", None, app, |ui, app| {
         big(ui, app, "compare", "Compare", "review.compare", json!({}), false);
     });
+    // Plume: versions kept by Git, in a word processor's words.
+    group(ui, "Versions", None, app, |ui, app| {
+        big(ui, app, "saveVersion", "Save\nVersion", "ui.dialog", json!({"name": "saveVersion"}), false);
+        big(ui, app, "versionHistory", "Version\nHistory", "ui.dialog", json!({"name": "versions"}), false);
+        stack(ui, |ui| {
+            small(ui, app, "sync", Some("Synchronize"), "Synchronize", "vcs.sync", json!({}), false);
+        });
+    });
     group(ui, "Protect", None, app, |ui, app| {
         big(ui, app, "blockAuthors", "Block\nAuthors", "review.blockAuthors", json!({}), false);
         big(ui, app, "restrict", "Restrict\nEditing", "review.restrict", json!({}), false);

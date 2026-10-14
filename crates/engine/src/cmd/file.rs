@@ -221,11 +221,37 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
         super::view::restore_zoom(s, z);
     }
     s.path = Some(path.into());
+    s.imported_from = None;
+    s.import_report.clear();
     // Like Word, a document opened with a password is saved with it again.
     if encrypted {
         s.password = password.map(crate::io::Password::new);
     }
-    Ok(json!({"path": path, "paragraphs": s.doc.paragraph_count(), "words": s.doc.word_count(), "encrypted": encrypted}))
+    if s.native_markdown && !matches!(ext.as_str(), "md" | "markdown") {
+        import_as_markdown(s, std::path::Path::new(path));
+    }
+    let saves_to = s.path.as_ref().map(|p| p.to_string_lossy().to_string());
+    Ok(json!({
+        "path": path,
+        "paragraphs": s.doc.paragraph_count(),
+        "words": s.doc.word_count(),
+        "encrypted": encrypted,
+        "savesTo": saves_to,
+        "adapted": s.import_report,
+    }))
+}
+
+/// A document opened from another format (Word, RTF, ODT…) with Markdown as the document's own
+/// format: it will be saved as `<name>.md` beside the original, which is never written; when that
+/// file already exists, Save asks where instead. The import report says what Markdown can't hold.
+fn import_as_markdown(s: &mut Session, from: &std::path::Path) {
+    let md = from.with_extension("md");
+    s.imported_from = Some(from.to_path_buf());
+    s.path = (!md.exists()).then_some(md);
+    s.password = None;
+    s.dirty = true;
+    let report = wordcraft_formats::markdown::export_native(&s.doc, &Default::default()).report;
+    s.import_report = report.lines();
 }
 
 /// File › Info › Protect Document › Encrypt with Password: the password Word documents are saved
@@ -281,13 +307,30 @@ fn save(s: &mut Session, v: &Value) -> CmdResult {
     let password = s.password.as_ref().map(crate::io::Password::as_str);
     // A header/footer just made and left empty isn't saved (#960).
     let copy = super::insert::saved_copy(s);
-    crate::io::save_path_with(&path, copy.as_ref().unwrap_or(&s.doc), password, &opts).map_err(CmdError::Failed)?;
+    let markdown = matches!(ext.as_str(), "md" | "markdown");
+    let mut adapted: Vec<String> = Vec::new();
+    if markdown {
+        adapted = save_markdown(&path, copy.as_ref().unwrap_or(&s.doc))?;
+    } else {
+        crate::io::save_path_with(&path, copy.as_ref().unwrap_or(&s.doc), password, &opts).map_err(CmdError::Failed)?;
+    }
     let encrypted = password.is_some() && crate::io::can_encrypt(&path.to_string_lossy());
-    if ["docx", "docm", "dotx", "dotm", "odt", "rtf", "json", "xml"].contains(&ext.as_str()) {
+    if ["docx", "docm", "dotx", "dotm", "odt", "rtf", "json", "xml"].contains(&ext.as_str()) || (markdown && s.native_markdown) {
         s.path = Some(path.clone());
         s.dirty = false;
     }
-    Ok(json!({"saved": true, "path": path.to_string_lossy(), "encrypted": encrypted}))
+    Ok(json!({"saved": true, "path": path.to_string_lossy(), "encrypted": encrypted, "adapted": adapted}))
+}
+
+/// Write the Markdown-native file and its assets; what Markdown couldn't hold, one line per kind.
+#[cfg(not(target_arch = "wasm32"))]
+fn save_markdown(path: &std::path::Path, doc: &wordcraft_doc::Document) -> Result<Vec<String>, CmdError> {
+    crate::io::save_markdown(path, doc).map(|r| r.lines()).map_err(CmdError::Failed)
+}
+
+#[cfg(target_arch = "wasm32")]
+fn save_markdown(path: &std::path::Path, _doc: &wordcraft_doc::Document) -> Result<Vec<String>, CmdError> {
+    Err(CmdError::Failed(format!("{}: files are saved through the browser on the web", path.display())))
 }
 
 /// Does `path` hold a Word 2003 XML Document already (so a plain save keeps that format)?

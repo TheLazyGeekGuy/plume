@@ -146,6 +146,17 @@ pub enum Dialog {
         message: String,
         focus: bool,
     },
+    /// Review › Versions › Save Version (Plume): describe the changes, record a version.
+    SaveVersion {
+        message: String,
+        error: String,
+        focus: bool,
+    },
+    /// Review › Versions › Version History (Plume): the document's versions, newest first.
+    Versions {
+        list: Vec<Value>,
+        error: String,
+    },
     Font {
         /// The font (Latin text) and the Asian text font, as the font lists name them, and their
         /// values when the dialog opened: OK changes only the ones changed (#505).
@@ -949,6 +960,8 @@ impl Dialog {
     pub fn name(&self) -> &'static str {
         match self {
             Dialog::RenameDocument { .. } => "renameDocument",
+            Dialog::SaveVersion { .. } => "saveVersion",
+            Dialog::Versions { .. } => "versions",
             Dialog::Font { .. } => "font",
             Dialog::Paragraph { .. } => "paragraph",
             Dialog::Tabs { .. } => "tabs",
@@ -1220,6 +1233,11 @@ impl Dialog {
             }
             "pasteSpecial" => Dialog::paste_special(app, &json!({})),
             "renameDocument" => Dialog::RenameDocument { name: app.title_stem(), message: String::new(), focus: true },
+            "saveVersion" => Dialog::SaveVersion { message: String::new(), error: String::new(), focus: true },
+            "versions" => {
+                let (list, error) = version_list(app);
+                Dialog::Versions { list, error }
+            }
             "about" => Dialog::About { tab: 0 },
             "contributors" => Dialog::About { tab: 1 },
             "models" => Dialog::About { tab: 2 },
@@ -1413,6 +1431,8 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
     let mut close = false;
     let title = match &d {
         Dialog::RenameDocument { .. } => "Rename Document",
+        Dialog::SaveVersion { .. } => "Save Version",
+        Dialog::Versions { .. } => "Version History",
         Dialog::Font { .. } => "Font",
         Dialog::Paragraph { .. } => "Paragraph",
         Dialog::Tabs { .. } => "Tabs",
@@ -1711,6 +1731,97 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
             false
         }
 
+        Dialog::SaveVersion { message, error, focus } => {
+            ui.label(tl!("Describe your changes"));
+            let r = ui.add(egui::TextEdit::multiline(message).desired_width(360.0).desired_rows(3).char_limit(2000));
+            if *focus {
+                r.request_focus();
+                *focus = false;
+            }
+            if !error.is_empty() {
+                ui.colored_label(ui.visuals().error_fg_color, error.as_str());
+                // Not in a versioned folder yet: one click starts keeping versions there.
+                let unversioned =
+                    app.session.run("vcs.status", &json!({})).ok().and_then(|v| v.get("versioned").and_then(Value::as_bool)) == Some(false);
+                if unversioned && app.session.path.is_some() && ui.button(tl!("Start Keeping Versions")).clicked() {
+                    match app.run("vcs.init", json!({})) {
+                        Ok(_) => error.clear(),
+                        Err(e) => *error = e,
+                    }
+                }
+            }
+            let (ok, cancel) = buttons(ui, tl!("Save Version"));
+            if cancel {
+                return true;
+            }
+            if ok {
+                // An unsaved or non-Markdown document is saved as Markdown first.
+                if app.session.path.as_ref().is_none_or(|p| !crate::is_markdown_name(&p.to_string_lossy())) {
+                    *error = tl!("Save the document as Markdown first (File › Save As).").to_string();
+                    return false;
+                }
+                match app.run("vcs.saveVersion", json!({"message": message})) {
+                    Ok(v) => {
+                        let short = v.pointer("/version/short").and_then(Value::as_str).unwrap_or("").to_string();
+                        app.status(crate::i18n::fmt(tl!("Version {id} saved"), &[("id", &short)]));
+                        return true;
+                    }
+                    Err(e) => *error = e,
+                }
+            }
+            false
+        }
+        Dialog::Versions { list, error } => {
+            if !error.is_empty() {
+                ui.colored_label(ui.visuals().error_fg_color, error.as_str());
+            } else if list.is_empty() {
+                ui.label(tl!("No versions yet"));
+            }
+            let mut action: Option<(&str, String)> = None;
+            egui::ScrollArea::vertical().max_height(360.0).show(ui, |ui| {
+                egui::Grid::new("versions").num_columns(4).spacing(vec2(12.0, 6.0)).striped(true).show(ui, |ui| {
+                    for v in list.iter() {
+                        let s = |k: &str| v.get(k).and_then(Value::as_str).unwrap_or("").to_string();
+                        let date = s("date");
+                        ui.label(date.get(..16).unwrap_or(&date).replace('T', " "));
+                        ui.label(s("author"));
+                        ui.label(s("message"));
+                        ui.horizontal(|ui| {
+                            let id = s("id");
+                            if ui.small_button(tl!("Show Changes")).clicked() {
+                                action = Some(("vcs.showChanges", id.clone()));
+                            }
+                            if ui.small_button(tl!("Compare")).clicked() {
+                                action = Some(("vcs.compare", id.clone()));
+                            }
+                            if ui.small_button(tl!("Restore")).clicked() {
+                                action = Some(("vcs.restore", id));
+                            }
+                        });
+                        ui.end_row();
+                    }
+                });
+            });
+            ui.horizontal(|ui| {
+                if ui.button(tl!("Synchronize")).clicked() {
+                    action = Some(("vcs.sync", String::new()));
+                }
+            });
+            if let Some((cmd, id)) = action {
+                let params = if id.is_empty() { json!({}) } else { json!({"id": id}) };
+                match app.run(cmd, params) {
+                    Ok(_) if cmd == "vcs.sync" => {
+                        let (l, e) = version_list(app);
+                        *list = l;
+                        *error = e;
+                    }
+                    Ok(_) => return true,
+                    Err(e) => *error = e,
+                }
+            }
+            let (_, cancel) = buttons(ui, tl!("Close"));
+            cancel
+        }
         Dialog::Font { font, font_ea, asian, size, bold, italic, underline, strike, sup, sub, small_caps, caps, hidden, color, spacing, .. } => {
             // Build the sample text format for the preview pane below.
             let preview_size = size.trim().parse::<f32>().unwrap_or(12.0).clamp(6.0, 72.0);
@@ -3652,6 +3763,14 @@ fn enclose_preview(ui: &mut Ui, style: &str, text: &str, shape: &str) {
     p.text(c + vec2(0.0, dy), egui::Align2::CENTER_CENTER, text, egui::FontId::proportional(px), ink);
 }
 
+/// The document's versions for the Version History dialog, or why there are none.
+fn version_list(app: &mut WordApp) -> (Vec<Value>, String) {
+    match app.session.run("vcs.history", &json!({"limit": 200})) {
+        Ok(v) => (v.get("versions").and_then(Value::as_array).cloned().unwrap_or_default(), String::new()),
+        Err(e) => (Vec::new(), e.to_string()),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -4341,3 +4460,4 @@ mod tests {
         assert_eq!(h.state().dialog.as_ref().map(|d| d.name()), Some("pageSetup"));
     }
 }
+

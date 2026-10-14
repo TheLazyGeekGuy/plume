@@ -1,0 +1,12 @@
+[package]
+name = "wordcraft-vcs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Plume document versions: a document's history in a local Git repository (through the `git` program) and on GitHub, GitLab and Forgejo (through their REST APIs, over a transport the app provides)"
+
+[dependencies]
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

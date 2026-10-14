@@ -2173,3 +2173,16 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	このフォルダーの Hunspell .aff と .dic ファイル (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) は、システムのものより優先して使われます。
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: 辞書が見つかりません
+	Version Status	バージョンの状態
+	Start Keeping Versions	バージョンの保存を開始
+	Save Version	バージョンを保存
+	Show Changes	変更を表示
+	Compare with Version	バージョンと比較
+	Restore Version	バージョンを復元
+	Synchronize	同期
+	Versions	バージョン
+	Describe your changes	変更内容を記入してください
+	No versions yet	バージョンはまだありません
+	Restore	復元
+	Save\nVersion	バージョン\nを保存
+	Version\nHistory	バージョン\n履歴

@@ -2539,3 +2539,16 @@ preview	Title	Título
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Los archivos .aff y .dic de Hunspell de esta carpeta (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) se usan antes que los del sistema.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: no se encontró ningún diccionario
+	Version Status	Estado de versiones
+	Start Keeping Versions	Empezar a guardar versiones
+	Save Version	Guardar versión
+	Show Changes	Mostrar cambios
+	Compare with Version	Comparar con versión
+	Restore Version	Restaurar versión
+	Synchronize	Sincronizar
+	Versions	Versiones
+	Describe your changes	Describa sus cambios
+	No versions yet	Aún no hay versiones
+	Restore	Restaurar
+	Save\nVersion	Guardar\nversión
+	Version\nHistory	Historial de\nversiones

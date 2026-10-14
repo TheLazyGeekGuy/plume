@@ -6300,3 +6300,165 @@ fn docx_to_native_markdown_round_trip() {
     assert!(pdf.starts_with(b"%PDF"));
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// A metafile picture (EMF) is saved to Markdown as a PNG drawn from it, and loads back.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn native_markdown_draws_metafiles_as_png() {
+    // A 25 mm square EMF with a red rectangle over its right half.
+    let rec = |typ: u32, payload: &[u8]| -> Vec<u8> {
+        let mut v = typ.to_le_bytes().to_vec();
+        v.extend(((8 + payload.len()) as u32).to_le_bytes());
+        v.extend(payload);
+        v
+    };
+    let le32 = |vals: &[i32]| -> Vec<u8> { vals.iter().flat_map(|v| v.to_le_bytes()).collect() };
+    let mut h = vec![0u8; 88];
+    h[0..4].copy_from_slice(&1u32.to_le_bytes());
+    h[4..8].copy_from_slice(&88u32.to_le_bytes());
+    h[8..24].copy_from_slice(&le32(&[0, 0, 100, 100]));
+    h[24..40].copy_from_slice(&le32(&[0, 0, 2500, 2500]));
+    h[40..44].copy_from_slice(&0x464D_4520u32.to_le_bytes());
+    h[72..88].copy_from_slice(&le32(&[1000, 1000, 250, 250]));
+    let emf = [h, rec(39, &le32(&[1, 0, 0x0000_00FF, 0])), rec(37, &le32(&[1])), rec(43, &le32(&[50, 0, 100, 100])), rec(14, &[0; 12])].concat();
+
+    let mut doc = wordcraft_doc::Document::new();
+    let key = doc.add_media(emf, "emf");
+    let pic = wordcraft_doc::InlineObject::Image {
+        media: key,
+        w: 70.0,
+        h: 70.0,
+        alt: "Chart".into(),
+        float: Default::default(),
+        crop: [0.0; 4],
+        ole: None,
+    };
+    doc.insert_object(&Pos::body(0, 0), pic, &Default::default()).unwrap();
+    let dir = scratch_dir("native-md-emf");
+    let md = dir.join("emf.md");
+    let report = crate::io::save_markdown(&md, &doc).unwrap();
+    assert!(!report.counts.contains_key(&wordcraft_formats::markdown::Adaptation::ImageFormat), "{report:?}");
+    let text = std::fs::read_to_string(&md).unwrap();
+    assert!(text.contains("![Chart](assets/img-") && text.contains(".png)"), "{text}");
+    let back = crate::io::open_path(&md).unwrap();
+    let png = back.media.values().next().unwrap();
+    let img = image::load_from_memory(png).unwrap().to_rgba8();
+    // Left half clear, right half red.
+    let (w, h) = img.dimensions();
+    assert_eq!(img.get_pixel(w / 4, h / 2)[3], 0);
+    let right = img.get_pixel(3 * w / 4, h / 2);
+    assert!(right[0] > 200 && right[1] < 60 && right[3] > 200, "{right:?}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Markdown as the document's own format: opening a Word document imports it into `<name>.md`
+/// beside it (the Word file is never written), Save writes the Markdown and leaves the document
+/// saved, and a Markdown file already there is never overwritten without asking.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn native_markdown_imports_word_documents() {
+    let dir = scratch_dir("native-md-import");
+    let docx = dir.join("report.docx");
+    let mut doc = crate::sample::sample_document();
+    doc.body.push(wordcraft_doc::para_block(wordcraft_doc::Paragraph::with_text(
+        "Underlined",
+        wordcraft_doc::CharProps { underline: Some(wordcraft_doc::props::Underline::Single), ..Default::default() },
+    )));
+    std::fs::write(&docx, crate::io::save_bytes("report.docx", &doc).unwrap()).unwrap();
+    let original = std::fs::read(&docx).unwrap();
+
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    let r = s.run("file.open", &json!({"path": docx.to_string_lossy()})).unwrap();
+    let md = dir.join("report.md");
+    assert_eq!(r["savesTo"], json!(md.to_string_lossy()));
+    assert!(r["adapted"].as_array().is_some_and(|a| a.iter().any(|l| l.as_str().is_some_and(|l| l.contains("underlined")))), "{r}");
+    assert!(s.dirty && s.imported_from.as_deref() == Some(docx.as_path()));
+    let r = s.run("file.save", &json!({})).unwrap();
+    assert_eq!(r["saved"], json!(true));
+    assert!(!s.dirty);
+    assert_eq!(std::fs::read(&docx).unwrap(), original, "the Word file is untouched");
+    let text = std::fs::read_to_string(&md).unwrap();
+    assert!(wordcraft_formats::markdown::html_lines(&text).is_empty() && text.contains("Underlined"), "{text}");
+
+    // Opening the Word file again: report.md exists now, so Save asks where.
+    s.run("file.open", &json!({"path": docx.to_string_lossy()})).unwrap();
+    assert!(s.path.is_none());
+    let r = s.run("file.save", &json!({})).unwrap();
+    assert_eq!(r["saved"], json!(false));
+    assert_eq!(std::fs::read_to_string(&md).unwrap(), text);
+
+    // Opening the Markdown keeps it as the document's file.
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    assert_eq!(s.path.as_deref(), Some(md.as_path()));
+    assert!(s.imported_from.is_none());
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// In the browser a Markdown save downloads the Markdown alone, or a zip with its pictures.
+#[test]
+fn markdown_download_zips_pictures() {
+    let (name, bytes) = crate::io::markdown_download("notes.md", &crate::sample::sample_document()).unwrap();
+    assert_eq!(name, "notes.md");
+    assert!(wordcraft_formats::markdown::html_lines(&String::from_utf8(bytes).unwrap()).is_empty());
+    let mut doc = crate::sample::sample_document();
+    let key = doc.add_media(tiny_png(), "png");
+    let pic =
+        wordcraft_doc::InlineObject::Image { media: key, w: 20.0, h: 20.0, alt: "dot".into(), float: Default::default(), crop: [0.0; 4], ole: None };
+    doc.insert_object(&Pos::body(0, 0), pic, &Default::default()).unwrap();
+    let (name, bytes) = crate::io::markdown_download("notes.md", &doc).unwrap();
+    assert_eq!(name, "notes.zip");
+    let mut z = zip::ZipArchive::new(std::io::Cursor::new(bytes)).unwrap();
+    let names: Vec<String> = (0..z.len()).map(|i| z.by_index(i).unwrap().name().to_string()).collect();
+    assert_eq!(names.len(), 2);
+    assert_eq!(names[0], "notes.md");
+    assert!(names[1].starts_with("assets/img-") && names[1].ends_with(".png"), "{names:?}");
+}
+
+/// Versions kept by Git: start keeping versions, save two, list them, show a version's changes as
+/// tracked changes by its author, compare with an older one, restore it.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn versions_in_git() {
+    let dir = scratch_dir("versions-git");
+    let md = dir.join("guide.md");
+    let mut s = Session::new(wordcraft_doc::Document::from_text("First paragraph.\n\nSecond paragraph."));
+    s.native_markdown = true;
+    assert!(s.run("vcs.history", &json!({})).is_err(), "unsaved: no versions");
+    s.run("file.save", &json!({"path": md.to_string_lossy()})).unwrap();
+    assert_eq!(s.run("vcs.status", &json!({})).unwrap()["versioned"], json!(false));
+    s.run("vcs.init", &json!({})).unwrap();
+    assert_eq!(s.run("vcs.status", &json!({})).unwrap()["versioned"], json!(true));
+
+    let v1 = s.run("vcs.saveVersion", &json!({"message": "First draft", "author": "Ada", "email": "ada@x.org"})).unwrap();
+    let v1 = v1["version"]["id"].as_str().unwrap().to_string();
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " Added later."})).unwrap();
+    let v2 = s.run("vcs.saveVersion", &json!({"message": "Second draft", "author": "Bob", "email": "bob@x.org"})).unwrap();
+    let v2 = v2["version"]["id"].as_str().unwrap().to_string();
+    assert!(!s.dirty);
+    assert_eq!(s.versions.len(), 2, "also kept in File › Info › Version History");
+    let h = s.run("vcs.history", &json!({})).unwrap();
+    let messages: Vec<&str> = h["versions"].as_array().unwrap().iter().filter_map(|v| v["message"].as_str()).collect();
+    assert_eq!(messages, ["Second draft", "First draft"]);
+    assert!(s.run("vcs.saveVersion", &json!({"message": "nothing"})).is_err(), "no change, no version");
+
+    // Bob's changes, as tracked changes by Bob, in an untitled document.
+    let r = s.run("vcs.showChanges", &json!({"id": v2})).unwrap();
+    assert!(r["changes"].as_u64().unwrap() >= 1);
+    assert!(s.path.is_none());
+    assert!(s.doc.revisions.iter().any(|r| r.author == "Bob"));
+    assert!(s.doc.plain_text(StoryRef::Body).contains("Added later."));
+    s.run("edit.undo", &json!({})).unwrap();
+
+    // Back to the first draft (undoable), then save it as a new version.
+    s.path = Some(md.clone());
+    s.run("vcs.restore", &json!({"id": v1})).unwrap();
+    assert!(!s.doc.plain_text(StoryRef::Body).contains("Added later."));
+    assert!(s.dirty);
+    let v3 = s.run("vcs.saveVersion", &json!({"message": "Back to the first draft", "author": "Ada"})).unwrap();
+    assert!(v3["version"]["id"].as_str().is_some());
+    assert!(s.run("vcs.restore", &json!({"id": "HEAD"})).is_err(), "only version ids");
+    assert!(s.run("vcs.sync", &json!({})).unwrap_err().to_string().contains("server"));
+    let _ = std::fs::remove_dir_all(&dir);
+}

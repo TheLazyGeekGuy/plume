@@ -2569,3 +2569,16 @@ preview	Title	Örnek
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Bu klasördeki Hunspell .aff ve .dic dosyaları (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) sistemdekilerden önce kullanılır.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: sözlük bulunamadı
+	Version Status	Sürüm Durumu
+	Start Keeping Versions	Sürümleri Saklamaya Başla
+	Save Version	Sürümü Kaydet
+	Show Changes	Değişiklikleri Göster
+	Compare with Version	Sürümle Karşılaştır
+	Restore Version	Sürümü Geri Yükle
+	Synchronize	Eşitle
+	Versions	Sürümler
+	Describe your changes	Değişikliklerinizi açıklayın
+	No versions yet	Henüz sürüm yok
+	Restore	Geri Yükle
+	Save\nVersion	Sürümü\nKaydet
+	Version\nHistory	Sürüm\nGeçmişi

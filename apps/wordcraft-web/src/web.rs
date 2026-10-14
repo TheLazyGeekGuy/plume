@@ -59,6 +59,8 @@ pub fn start() {
                     let sample = query().contains("sample");
                     let doc = if sample { wordcraft_engine::sample::sample_document() } else { wordcraft_engine::blank_document(&region) };
                     let mut session = Session::new(doc);
+                    // Plume: Markdown is the document's own format.
+                    session.native_markdown = true;
                     session.system_region = region;
                     let mut app = WordApp::new(session, services(inbox.clone(), cc.egui_ctx.clone(), dirty, saves.clone()));
                     // Pasted pictures wait apart from dropped files: the app inserts one only when the page is the edit target (#1349).

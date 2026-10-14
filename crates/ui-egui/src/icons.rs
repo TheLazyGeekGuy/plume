@@ -862,6 +862,22 @@ pub fn paint(p: &Painter, r: Rect, name: &str, c: Color32, accent: Color32) {
             pen.text(10.0, 9.5, 8.0, "Aa", a, true);
         }
         "wordCount" => pen.text(10.0, 10.0, 9.0, "123", a, true),
+        // Review › Versions (Plume): a page with a saved-version dot; a clock; two arrows.
+        "saveVersion" => {
+            pen.page(3.0, 2.0, 13.0, 16.0);
+            pen.fcircle(15.0, 15.0, 3.5, a);
+            pen.line_c(&[(13.5, 15.0), (14.7, 16.2), (16.7, 13.8)], Color32::WHITE);
+        }
+        "versionHistory" => {
+            pen.circle(10.0, 10.0, 7.0, c);
+            pen.line_c(&[(10.0, 5.5), (10.0, 10.0), (13.5, 12.0)], a);
+        }
+        "sync" => {
+            pen.line_c(&[(4.0, 9.0), (6.0, 5.5), (10.0, 4.0), (14.0, 5.5), (16.0, 8.0)], a);
+            pen.line_c(&[(16.0, 4.5), (16.0, 8.0), (12.5, 8.0)], a);
+            pen.line_c(&[(16.0, 11.0), (14.0, 14.5), (10.0, 16.0), (6.0, 14.5), (4.0, 12.0)], c);
+            pen.line_c(&[(4.0, 15.5), (4.0, 12.0), (7.5, 12.0)], c);
+        }
         "readAloud" => {
             pen.text(6.0, 10.0, 10.0, "A", c, false);
             pen.line_c(&[(12.0, 7.0), (13.5, 10.0), (12.0, 13.0)], a);

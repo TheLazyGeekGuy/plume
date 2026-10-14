@@ -118,13 +118,297 @@ pub fn import_with(text: &str, page: &wordcraft_doc::SectionProps, resolve: &dyn
 /// Parse Markdown text into the flow model.
 pub fn parse(text: &str) -> model::Flow {
     let text = text.strip_prefix('\u{FEFF}').unwrap_or(text);
-    let lines: Vec<String> = text.split('\n').map(|l| expand_tabs(l.trim_end_matches('\r'))).collect();
+    let mut lines: Vec<String> = text.split('\n').map(|l| expand_tabs(l.trim_end_matches('\r'))).collect();
+    let meta = take_front_matter(&mut lines).unwrap_or_default();
+    let comments = take_comment_block(&mut lines);
+    // Footnote definitions are parsed first (a reference inside one stays text), then the body
+    // resolves `[^label]` against them.
+    let notes: BTreeMap<String, Vec<FBlock>> = take_footnote_defs(&mut lines).into_iter().map(|(l, body)| (l, parse_blocks(&body, 1, 0))).collect();
+    let _guard = NotesGuard::set(notes);
     let mut blocks = parse_blocks(&lines, 0, 0);
-    // A leading "Title" from front matter isn't supported; a first-level heading stays a heading.
     if blocks.is_empty() {
         blocks.push(FBlock::Para(Para::default()));
     }
-    model::Flow { blocks, meta: Default::default() }
+    model::Flow { blocks, meta, comments }
+}
+
+/// First line of the comment block [`export_native`] writes.
+pub const COMMENTS_OPEN: &str = "<!-- plume:comments";
+/// The block's first line in the first prototype (read and dropped: it held no anchors).
+const OLD_COMMENTS_OPEN: &str = "<!-- wordcraft:comments";
+
+/// `c12` → (12, false), `/c12` → (12, true): a comment range marker's text.
+fn comment_marker(inner: &str) -> Option<(u32, bool)> {
+    let (end, num) = match inner.strip_prefix('/') {
+        Some(r) => (true, r),
+        None => (false, inner),
+    };
+    let digits = num.strip_prefix('c')?;
+    if digits.is_empty() || digits.len() > 9 || !digits.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    Some((digits.parse().ok()?, end))
+}
+
+/// Remove the comment block (outside code blocks) and read its threads:
+///
+/// ```text
+/// <!-- plume:comments
+/// c1 | Alice | 2026-10-14T09:12:00Z | resolved
+///     The comment's text,
+///     one paragraph per line.
+/// c1.1 | Bob | 2026-10-14T10:03:00Z
+///     A reply.
+/// -->
+/// ```
+fn take_comment_block(lines: &mut Vec<String>) -> Vec<model::FComment> {
+    let mut out: Vec<model::FComment> = Vec::new();
+    let mut fenced: Option<(char, usize)> = None;
+    let mut start = None;
+    for (k, l) in lines.iter().enumerate() {
+        if indent(l) >= 4 {
+            continue;
+        }
+        let t = l.trim();
+        if let Some((c, n)) = fenced {
+            if fence(t).is_some_and(|(c2, n2)| c2 == c && n2 >= n) {
+                fenced = None;
+            }
+            continue;
+        }
+        if let Some(f) = fence(t) {
+            fenced = Some(f);
+            continue;
+        }
+        if t.starts_with(COMMENTS_OPEN) || t.starts_with(OLD_COMMENTS_OPEN) {
+            start = Some(k);
+            break;
+        }
+    }
+    let Some(start) = start else { return out };
+    let legacy = lines.get(start).is_some_and(|l| l.trim().starts_with(OLD_COMMENTS_OPEN));
+    let end = lines.iter().enumerate().skip(start).find(|(_, l)| l.contains("-->")).map(|(k, _)| k).unwrap_or(lines.len().saturating_sub(1));
+    if !legacy {
+        for l in lines.get(start + 1..end).unwrap_or(&[]) {
+            if indent(l) >= 4 || l.trim().is_empty() {
+                if let Some(c) = out.last_mut()
+                    && (!c.text.is_empty() || !l.trim().is_empty())
+                {
+                    if !c.text.is_empty() {
+                        c.text.push('\n');
+                    }
+                    c.text.push_str(strip_indent(l, 4).trim_end());
+                }
+                continue;
+            }
+            let mut parts = l.split(" | ");
+            let key = parts.next().unwrap_or("").trim();
+            let (n, reply) = match key.split_once('.') {
+                Some((a, b)) => (comment_marker(a).map(|m| m.0), b.parse::<u32>().ok()),
+                None => (comment_marker(key).map(|m| m.0), Some(0)),
+            };
+            let (Some(n), Some(reply)) = (n, reply) else { continue };
+            if out.len() >= 5_000 {
+                break;
+            }
+            let author = parts.next().unwrap_or("").trim().to_string();
+            let date = parts.next().unwrap_or("").trim().to_string();
+            let resolved = parts.next().is_some_and(|x| x.trim() == "resolved");
+            out.push(model::FComment { n, reply, author, date, resolved, text: String::new() });
+        }
+        for c in &mut out {
+            while c.text.ends_with('\n') {
+                c.text.pop();
+            }
+        }
+    }
+    lines.drain(start..=end.min(lines.len().saturating_sub(1)));
+    out
+}
+
+/// Longest front matter block read (lines).
+const MAX_FRONT_MATTER: usize = 200;
+/// Most footnote definitions one document holds.
+const MAX_NOTES: usize = 10_000;
+
+/// YAML front matter (`---` … `---`) at the very start: the document properties it gives
+/// (`title`, `author`, `subject`, `keywords`, `description`, `date`), its lines removed. Only a
+/// block of `key: value` lines counts, so a document opening with a thematic break isn't eaten.
+fn take_front_matter(lines: &mut Vec<String>) -> Option<model::Meta> {
+    if lines.first().map(|l| l.trim_end()) != Some("---") {
+        return None;
+    }
+    let close = lines.iter().enumerate().skip(1).take(MAX_FRONT_MATTER).find(|(_, l)| matches!(l.trim_end(), "---" | "...")).map(|(k, _)| k)?;
+    let body = lines.get(1..close)?;
+    let mut meta = model::Meta::default();
+    let mut any = false;
+    for l in body {
+        if l.trim().is_empty() || l.trim_start().starts_with('#') {
+            continue;
+        }
+        let (key, value) = l.split_once(':')?;
+        if key.starts_with([' ', '-']) || key.trim().is_empty() || key.contains(' ') {
+            return None;
+        }
+        let value = yaml_scalar(value.trim());
+        any = true;
+        match key.trim().to_ascii_lowercase().as_str() {
+            "title" => meta.title = value,
+            "author" => meta.author = value,
+            "subject" => meta.subject = value,
+            "keywords" | "tags" => meta.keywords = value,
+            "description" => meta.description = value,
+            "date" => meta.created = value,
+            _ => {}
+        }
+    }
+    if !any {
+        return None;
+    }
+    lines.drain(..=close);
+    Some(meta)
+}
+
+/// A YAML scalar as written by [`front_matter_md`] (double-quoted with `\"` and `\\`), single-quoted
+/// (`''`), plain, or a flow list `[a, b]` (joined with `, `).
+fn yaml_scalar(v: &str) -> String {
+    if let Some(inner) = v.strip_prefix('"').and_then(|r| r.strip_suffix('"')) {
+        let mut out = String::new();
+        let mut chars = inner.chars();
+        while let Some(c) = chars.next() {
+            if c == '\\' {
+                match chars.next() {
+                    Some('n') => out.push(' '),
+                    Some(n) => out.push(n),
+                    None => {}
+                }
+            } else {
+                out.push(c);
+            }
+        }
+        return out;
+    }
+    if let Some(inner) = v.strip_prefix('\'').and_then(|r| r.strip_suffix('\'')) {
+        return inner.replace("''", "'");
+    }
+    if let Some(inner) = v.strip_prefix('[').and_then(|r| r.strip_suffix(']')) {
+        return inner.split(',').map(|x| yaml_scalar(x.trim())).filter(|x| !x.is_empty()).collect::<Vec<_>>().join(", ");
+    }
+    v.to_string()
+}
+
+/// A footnote definition's label at the start of `l` (`[^label]: rest`) and the rest.
+fn footnote_def(l: &str) -> Option<(String, String)> {
+    if indent(l) > 3 {
+        return None;
+    }
+    let t = l.trim_start().strip_prefix("[^")?;
+    let close = t.find("]:")?;
+    let label = t.get(..close)?;
+    if label.is_empty() || label.len() > 64 || label.contains(char::is_whitespace) || label.contains(['[', ']']) {
+        return None;
+    }
+    let rest = t.get(close + 2..)?;
+    Some((label.to_string(), rest.strip_prefix(' ').unwrap_or(rest).to_string()))
+}
+
+/// Remove footnote definitions (outside code blocks) from `lines`: label → the definition's
+/// lines, continuation lines (indented by four) dedented.
+fn take_footnote_defs(lines: &mut Vec<String>) -> Vec<(String, Vec<String>)> {
+    let mut defs: Vec<(String, Vec<String>)> = Vec::new();
+    if !lines.iter().any(|l| l.contains("[^")) {
+        return defs;
+    }
+    let mut kept: Vec<String> = Vec::with_capacity(lines.len());
+    let mut fenced: Option<(char, usize)> = None;
+    let mut i = 0;
+    while let Some(l) = lines.get(i) {
+        if let Some((c, n)) = fenced {
+            if indent(l) < 4 && fence(l.trim_start()).is_some_and(|(c2, n2)| c2 == c && n2 >= n) {
+                fenced = None;
+            }
+            kept.push(l.clone());
+            i += 1;
+            continue;
+        }
+        if indent(l) < 4
+            && let Some(f) = fence(l.trim_start())
+        {
+            fenced = Some(f);
+            kept.push(l.clone());
+            i += 1;
+            continue;
+        }
+        match footnote_def(l).filter(|_| defs.len() < MAX_NOTES) {
+            Some((label, first)) => {
+                let mut body = vec![first];
+                i += 1;
+                while let Some(next) = lines.get(i) {
+                    if is_blank(next) {
+                        // A blank line continues the note only if an indented line follows.
+                        let more = lines.get(i + 1..).and_then(|r| r.iter().find(|x| !is_blank(x))).is_some_and(|x| indent(x) >= 4);
+                        if !more {
+                            break;
+                        }
+                        body.push(String::new());
+                    } else if indent(next) >= 4 {
+                        body.push(strip_indent(next, 4).to_string());
+                    } else {
+                        break;
+                    }
+                    i += 1;
+                }
+                if !defs.iter().any(|(l, _)| *l == label) {
+                    defs.push((label, body));
+                }
+            }
+            None => {
+                kept.push(l.clone());
+                i += 1;
+            }
+        }
+    }
+    *lines = kept;
+    defs
+}
+
+thread_local! {
+    static NOTES: RefCell<BTreeMap<String, Vec<FBlock>>> = const { RefCell::new(BTreeMap::new()) };
+}
+
+/// The footnote definitions of the document being parsed; the previous ones come back when it
+/// ends, however it ends.
+struct NotesGuard(BTreeMap<String, Vec<FBlock>>);
+
+impl NotesGuard {
+    fn set(notes: BTreeMap<String, Vec<FBlock>>) -> NotesGuard {
+        let prev = NOTES.with(|n| n.try_borrow_mut().map(|mut n| std::mem::replace(&mut *n, notes)).unwrap_or_default());
+        NotesGuard(prev)
+    }
+}
+
+impl Drop for NotesGuard {
+    fn drop(&mut self) {
+        let prev = std::mem::take(&mut self.0);
+        NOTES.with(|n| {
+            if let Ok(mut n) = n.try_borrow_mut() {
+                *n = prev;
+            }
+        });
+    }
+}
+
+/// A footnote reference `[^label]` at byte `i` of `s` whose definition exists: the note's blocks
+/// and the byte after the reference.
+fn footnote_ref(s: &str, i: usize) -> Option<(Vec<FBlock>, usize)> {
+    let rest = s.get(i..)?.strip_prefix("[^")?;
+    let close = within(rest, 66).find(']')?;
+    let label = rest.get(..close)?;
+    if label.is_empty() || label.contains(char::is_whitespace) || rest.get(close + 1..).is_some_and(|r| r.starts_with(':')) {
+        return None;
+    }
+    let blocks = NOTES.with(|n| n.try_borrow().ok().and_then(|n| n.get(label).cloned()))?;
+    Some((blocks, i + 2 + close + 1))
 }
 
 /// Leading tabs → spaces (tab stops of 4); the rest of the line is kept.
@@ -392,6 +676,17 @@ fn parse_blocks(lines: &[String], depth: usize, level: u8) -> Vec<FBlock> {
             continue;
         }
         let t = line.trim_start();
+        // An HTML comment on its own (CommonMark HTML block, type 2) isn't content. A range
+        // marker followed by text on the same line is part of a paragraph.
+        if para.is_empty() && t.starts_with("<!--") && !t.find("-->").and_then(|k| t.get(k + 3..)).is_some_and(|r| !r.trim().is_empty()) {
+            while let Some(l) = lines.get(i) {
+                i += 1;
+                if l.contains("-->") {
+                    break;
+                }
+            }
+            continue;
+        }
         // Setext heading underline.
         if !para.is_empty() {
             let u = t.trim_end();
@@ -861,6 +1156,16 @@ fn tokenize(s: &str, base: &Fmt, depth: usize) -> Vec<Node> {
                 i += n;
                 text_start = i;
             }
+            b'[' if footnote_ref(s, i).is_some() => {
+                flush!();
+                if let Some((blocks, end)) = footnote_ref(s, i) {
+                    nodes.push(Node::Inl(Inline::Note { endnote: false, blocks }));
+                    i = end;
+                } else {
+                    i += 1;
+                }
+                text_start = i;
+            }
             b'!' | b'[' if depth < MAX_NEST => {
                 let img = c == b'!';
                 let open = if img { i + 1 } else { i };
@@ -905,6 +1210,20 @@ fn tokenize(s: &str, base: &Fmt, depth: usize) -> Vec<Node> {
                         text_start = i;
                     }
                     _ => i += 1,
+                }
+            }
+            b'<' if s.get(i..).is_some_and(|r| r.starts_with("<!--")) => {
+                let rest = s.get(i + 4..).unwrap_or("");
+                match within(rest, MAX_TAG).find("-->") {
+                    Some(k) => {
+                        flush!();
+                        if let Some((id, end)) = rest.get(..k).and_then(|inner| comment_marker(inner.trim())) {
+                            nodes.push(Node::Inl(Inline::Comment { id, end }));
+                        }
+                        i += 4 + k + 3;
+                        text_start = i;
+                    }
+                    None => i += 1,
                 }
             }
             b'<' => {
@@ -1204,6 +1523,10 @@ pub enum Adaptation {
     Figure,
     /// An equation: written as its linear text.
     Equation,
+    /// An endnote: written as a footnote.
+    Endnote,
+    /// A picture in a format browsers don't show (EMF, WMF…) kept as is.
+    ImageFormat,
 }
 
 impl Adaptation {
@@ -1220,6 +1543,8 @@ impl Adaptation {
             Adaptation::MergedCells => "merged cells written as empty cells",
             Adaptation::Figure => "charts and drawings kept as their alt text",
             Adaptation::Equation => "equations written as linear text",
+            Adaptation::Endnote => "endnotes written as footnotes",
+            Adaptation::ImageFormat => "pictures in formats browsers can't show (EMF, WMF…)",
         }
     }
 }
@@ -1280,12 +1605,20 @@ struct Ctx {
     assets_dir: String,
     assets: Vec<(String, Arc<Vec<u8>>)>,
     report: Report,
+    /// Notes met so far, numbered in order: written as definitions after the body.
+    notes: Vec<Vec<FBlock>>,
+    /// Bookmark name → slug of the heading it sits in (native copies link to headings by slug).
+    slugs: BTreeMap<String, String>,
+    /// Write comment range markers and the comment block.
+    comments: bool,
+    /// Document comment id → its thread number (`c1`…), for the threads written.
+    comment_keys: BTreeMap<u32, u32>,
 }
 
 impl Ctx {
     fn native(opts: &NativeOptions) -> Ctx {
         let dir = opts.assets_dir.trim().trim_matches(['/', '\\']).replace('\\', "/");
-        Ctx { native: true, assets_dir: dir, ..Default::default() }
+        Ctx { native: true, assets_dir: dir, comments: opts.comments, ..Default::default() }
     }
 
     fn note(&mut self, a: Adaptation) {
@@ -1297,6 +1630,11 @@ impl Ctx {
     /// The asset path of `img`: `assets/img-<hash>.<ext>`, the same for the same bytes, so saving
     /// again doesn't rename files and identical pictures are stored once.
     fn asset(&mut self, img: &Img) -> String {
+        let converted = web_image(img);
+        let img = converted.as_ref().unwrap_or(img);
+        if !matches!(img.ext.as_str(), "png" | "jpeg" | "jpg" | "gif" | "webp" | "bmp" | "svg") {
+            self.note(Adaptation::ImageFormat);
+        }
         let ext: String = img.ext.chars().filter(|c| c.is_ascii_alphanumeric()).take(5).collect::<String>().to_ascii_lowercase();
         let ext = if ext.is_empty() { "bin".to_string() } else { ext };
         let file = format!("img-{:016x}.{ext}", fnv64(&img.data));
@@ -1307,6 +1645,56 @@ impl Ctx {
         }
         path
     }
+}
+
+/// `img` as a PNG when browsers can't show its format but the image crate reads it (TIFF…).
+fn web_image(img: &Img) -> Option<Img> {
+    if matches!(img.ext.as_str(), "png" | "jpeg" | "jpg" | "gif" | "webp" | "bmp" | "svg") {
+        return None;
+    }
+    let decoded = image::load_from_memory(&img.data).ok()?;
+    let mut png = Vec::new();
+    decoded.write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png).ok()?;
+    Some(Img { data: Arc::new(png), ext: "png".into(), ..img.clone() })
+}
+
+/// The anchor GitHub gives a heading: lower case, punctuation dropped, spaces as `-`.
+pub fn heading_slug(text: &str) -> String {
+    text.trim()
+        .to_lowercase()
+        .chars()
+        .filter_map(|c| {
+            if c.is_alphanumeric() || c == '_' || c == '-' {
+                Some(c)
+            } else if c == ' ' {
+                Some('-')
+            } else {
+                None
+            }
+        })
+        .collect()
+}
+
+/// Bookmarks inside headings → their heading's slug (`-1`, `-2`… for repeated headings).
+fn heading_slugs(blocks: &[FBlock]) -> BTreeMap<String, String> {
+    let mut seen: BTreeMap<String, usize> = BTreeMap::new();
+    let mut out = BTreeMap::new();
+    for b in blocks {
+        let FBlock::Para(p) = b else { continue };
+        if !matches!(p.kind, Kind::Heading(_) | Kind::Title) {
+            continue;
+        }
+        let base = heading_slug(&p.text());
+        let n = seen.entry(base.clone()).or_insert(0);
+        let slug = if *n == 0 { base.clone() } else { format!("{base}-{n}") };
+        *n += 1;
+        for i in &p.inlines {
+            if let Inline::Anchor(a) = i {
+                out.insert(a.clone(), slug.clone());
+            }
+        }
+    }
+    out
 }
 
 /// FNV-1a, 64 bits: a stable content hash for asset names (not for security).
@@ -1373,7 +1761,24 @@ fn inlines_md_impl(inlines: &[Inline], in_table: bool, ctx: &mut Ctx) -> String 
                 pieces.push((String::new(), Fmt::default(), Some(format!("![{}]({})", escape(&img.alt), name))));
             }
             // No HTML in a native copy: headings get their anchors from the renderer's slugs.
-            Inline::Anchor(_) if ctx.native => ctx.note(Adaptation::Bookmark),
+            Inline::Anchor(a) if ctx.native => {
+                if !ctx.slugs.contains_key(a) {
+                    ctx.note(Adaptation::Bookmark);
+                }
+            }
+            Inline::Comment { id, end } => {
+                if let Some(n) = ctx.comment_keys.get(id).filter(|_| ctx.native) {
+                    let slash = if *end { "/" } else { "" };
+                    pieces.push((String::new(), Fmt::default(), Some(format!("<!-- {slash}c{n} -->"))));
+                }
+            }
+            Inline::Note { endnote, blocks } => {
+                if *endnote {
+                    ctx.note(Adaptation::Endnote);
+                }
+                ctx.notes.push(blocks.clone());
+                pieces.push((String::new(), Fmt::default(), Some(format!("[^{}]", ctx.notes.len()))));
+            }
             Inline::Anchor(a) => {
                 let safe: String = a.chars().filter(|c| c.is_alphanumeric() || matches!(c, '_' | '-' | '.' | ':')).collect();
                 pieces.push((String::new(), Fmt::default(), Some(format!("<a id=\"{safe}\"></a>"))));
@@ -1396,7 +1801,10 @@ fn inlines_md_impl(inlines: &[Inline], in_table: bool, ctx: &mut Ctx) -> String 
     };
     for (text, f, raw) in pieces {
         // Links are the outermost construct; a script or other non-web target is plain text.
-        let f_link = f.link.clone().filter(|l| wordcraft_doc::link::is_safe_href(l));
+        let f_link = f.link.clone().filter(|l| wordcraft_doc::link::is_safe_href(l)).map(|l| match l.strip_prefix('#') {
+            Some(name) if ctx.native => ctx.slugs.get(name).map(|slug| format!("#{slug}")).unwrap_or(l),
+            _ => l,
+        });
         if f_link != link || raw.is_some() {
             close_all(&mut out, &mut stack);
             if let Some(l) = &link {
@@ -1530,9 +1938,32 @@ pub fn export(doc: &Document) -> String {
 }
 
 fn write_doc(doc: &Document, ctx: &mut Ctx) -> String {
-    let flow = model::from_doc(doc);
+    let flow = model::from_doc_markdown(doc);
     let mut out: Vec<String> = Vec::new();
+    if ctx.native {
+        ctx.slugs = heading_slugs(&flow.blocks);
+        if ctx.comments {
+            ctx.comment_keys = comment_keys(doc, &flow.blocks);
+        }
+        front_matter_md(&flow.meta, &mut out);
+    }
     write_blocks(&flow.blocks, &mut out, ctx);
+    // Footnote definitions, numbered in reference order; a note's later lines are indented.
+    let mut k = 0;
+    while let Some(blocks) = ctx.notes.get(k).cloned() {
+        k += 1;
+        let mut body: Vec<String> = Vec::new();
+        write_blocks(&blocks, &mut body, ctx);
+        while body.last().is_some_and(|l| l.is_empty()) {
+            body.pop();
+        }
+        let mut lines = body.into_iter();
+        out.push(format!("[^{k}]: {}", lines.next().unwrap_or_default()).trim_end().to_string());
+        for l in lines {
+            out.push(if l.is_empty() { l } else { format!("    {l}") });
+        }
+        out.push(String::new());
+    }
     let mut s = out.join("\n");
     while s.ends_with("\n\n") {
         s.pop();
@@ -1549,38 +1980,163 @@ fn write_doc(doc: &Document, ctx: &mut Ctx) -> String {
 pub fn export_native(doc: &Document, opts: &NativeOptions) -> Bundle {
     let mut ctx = Ctx::native(opts);
     let mut text = write_doc(doc, &mut ctx);
-    if opts.comments {
-        let notes = crate::comments::notes(doc);
-        if !notes.is_empty() {
-            ctx.report.comments = notes.len();
-            text.push('\n');
-            text.push_str(&comments_block(&notes));
-        }
+    if !ctx.comment_keys.is_empty() {
+        ctx.report.comments = ctx.comment_keys.len();
+        text.push('\n');
+        text.push_str(&comments_block(doc, &ctx.comment_keys));
     }
     Bundle { text, assets: ctx.assets, report: ctx.report }
 }
 
-/// Opening line of the comment block [`export_native`] writes.
-pub const COMMENTS_OPEN: &str = "<!-- wordcraft:comments";
+/// A zip of a native copy: the Markdown as `md_name` and each asset at its path.
+pub fn bundle_zip(md_name: &str, bundle: &Bundle) -> Result<Vec<u8>, String> {
+    use std::io::Write;
+    let err = |e: zip::result::ZipError| format!("zip: {e}");
+    let mut z = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
+    let opts = zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+    z.start_file(md_name, opts).map_err(err)?;
+    z.write_all(bundle.text.as_bytes()).map_err(|e| e.to_string())?;
+    // Pictures are compressed already.
+    let stored = zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
+    for (path, bytes) in &bundle.assets {
+        z.start_file(path.as_str(), stored).map_err(err)?;
+        z.write_all(bytes).map_err(|e| e.to_string())?;
+    }
+    Ok(z.finish().map_err(err)?.into_inner())
+}
 
-/// The document's comments as one HTML comment: invisible on every renderer, kept by every
-/// Markdown tool, readable in a text editor.
-fn comments_block(notes: &[crate::comments::Note]) -> String {
-    // `--` can't appear inside an HTML comment; neither can a line break inside one entry.
-    let clean = |s: &str| s.replace("--", "‑‑").replace(['\n', '\r'], " ");
-    let mut s = format!("{COMMENTS_OPEN}\n");
-    for (i, n) in notes.iter().enumerate() {
-        s.push_str(&format!("{}. {}", i + 1, clean(&n.author)));
-        if !n.quote.is_empty() {
-            s.push_str(&format!(" on “{}”", clean(&n.quote)));
+/// YAML front matter for the document properties that are set (none: nothing written).
+fn front_matter_md(m: &model::Meta, out: &mut Vec<String>) {
+    let fields = [
+        ("title", &m.title),
+        ("author", &m.author),
+        ("subject", &m.subject),
+        ("keywords", &m.keywords),
+        ("description", &m.description),
+        ("date", &m.created),
+    ];
+    if fields.iter().all(|(_, v)| v.trim().is_empty()) {
+        return;
+    }
+    out.push("---".into());
+    for (k, v) in fields {
+        let v = v.trim();
+        if !v.is_empty() {
+            let q = v.replace('\\', "\\\\").replace('"', "\\\"").replace(['\n', '\r'], " ");
+            out.push(format!("{k}: \"{q}\""));
         }
-        s.push_str(&format!(": {}\n", clean(&n.text)));
-        for (a, t) in &n.replies {
-            s.push_str(&format!("   - {}: {}\n", clean(a), clean(t)));
+    }
+    out.push("---".into());
+    out.push(String::new());
+}
+
+/// The thread a comment belongs to (its top comment).
+fn comment_root(doc: &Document, id: u32) -> u32 {
+    let mut cur = id;
+    for _ in 0..64 {
+        match doc.comments.get(&cur).and_then(|c| c.parent) {
+            Some(p) if p != cur && doc.comments.contains_key(&p) => cur = p,
+            _ => break,
+        }
+    }
+    cur
+}
+
+/// Thread numbers: commented ranges in document order, then threads with no range.
+fn comment_keys(doc: &Document, blocks: &[FBlock]) -> BTreeMap<u32, u32> {
+    fn visit(doc: &Document, blocks: &[FBlock], keys: &mut BTreeMap<u32, u32>, depth: usize) {
+        if depth > model::MAX_DEPTH + 2 {
+            return;
+        }
+        for b in blocks {
+            match b {
+                FBlock::Para(p) => {
+                    for i in &p.inlines {
+                        match i {
+                            Inline::Comment { id, end: false } if doc.comments.contains_key(id) && comment_root(doc, *id) == *id => {
+                                let n = keys.len() as u32 + 1;
+                                keys.entry(*id).or_insert(n);
+                            }
+                            Inline::Note { blocks, .. } => visit(doc, blocks, keys, depth + 1),
+                            _ => {}
+                        }
+                    }
+                }
+                FBlock::Table(t) => {
+                    for c in t.rows.iter().flatten() {
+                        visit(doc, &c.blocks, keys, depth + 1);
+                    }
+                }
+            }
+        }
+    }
+    let mut keys = BTreeMap::new();
+    visit(doc, blocks, &mut keys, 0);
+    for (id, c) in &doc.comments {
+        if c.parent.is_none() && !keys.contains_key(id) && keys.len() < 5_000 {
+            let n = keys.len() as u32 + 1;
+            keys.insert(*id, n);
+        }
+    }
+    keys
+}
+
+/// The comment threads as one HTML comment: invisible on every renderer, kept by every Markdown
+/// tool, readable in a text editor. See [`take_comment_block`] for the format.
+fn comments_block(doc: &Document, keys: &BTreeMap<u32, u32>) -> String {
+    // `--` can't appear inside an HTML comment, and `|` separates the header fields.
+    let clean = |s: &str| s.replace("--", "‑‑").replace('|', "/").replace(['\n', '\r'], " ");
+    let mut threads: Vec<(u32, u32)> = keys.iter().map(|(id, n)| (*n, *id)).collect();
+    threads.sort();
+    let entry = |s: &mut String, key: String, c: &wordcraft_doc::Comment| {
+        let author = if c.author.trim().is_empty() { "Author".to_string() } else { clean(c.author.trim()) };
+        s.push_str(&format!("{key} | {author} | {}", clean(c.date.trim())));
+        if c.resolved {
+            s.push_str(" | resolved");
+        }
+        s.push('\n');
+        for line in doc.plain_text(wordcraft_doc::StoryRef::Part(c.part)).lines() {
+            let line = clean(line).trim_end().to_string();
+            s.push_str(&if line.is_empty() { String::new() } else { format!("    {line}") });
+            s.push('\n');
+        }
+    };
+    let mut s = format!("{COMMENTS_OPEN}\n");
+    for (n, id) in threads {
+        let Some(c) = doc.comments.get(&id) else { continue };
+        entry(&mut s, format!("c{n}"), c);
+        let replies = doc.comments.iter().filter(|(rid, _)| **rid != id && comment_root(doc, **rid) == id).take(200);
+        for (k, (_, r)) in replies.enumerate() {
+            entry(&mut s, format!("c{n}.{}", k + 1), r);
         }
     }
     s.push_str("-->\n");
     s
+}
+
+/// A paragraph line must not start with a comment marker: CommonMark would read the line as an
+/// HTML block. Leading markers move after the first word (or to the end of a line whose first
+/// word is code).
+fn shift_leading_markers(line: &str) -> String {
+    let mut markers = String::new();
+    let mut rest = line;
+    while let Some(r) = rest.strip_prefix("<!-- ") {
+        let Some(k) = r.find(" -->") else { break };
+        if r.get(..k).and_then(comment_marker).is_none() {
+            break;
+        }
+        markers.push_str(rest.get(..5 + k + 4).unwrap_or(""));
+        rest = r.get(k + 4..).unwrap_or("");
+    }
+    if markers.is_empty() || rest.is_empty() {
+        return line.to_string();
+    }
+    let cut = rest.find(char::is_whitespace).unwrap_or(rest.len());
+    let word = rest.get(..cut).unwrap_or("");
+    if word.contains('`') {
+        return format!("{rest}{markers}");
+    }
+    format!("{word}{markers}{}", rest.get(cut..).unwrap_or(""))
 }
 
 /// Lines (1-based) of `md` that hold HTML other than comments: what a native copy must never
@@ -1733,7 +2289,7 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
                                     i += 1;
                                     continue;
                                 }
-                                escape_line_start(body)
+                                escape_line_start(body).split('\n').map(shift_leading_markers).collect::<Vec<_>>().join("\n")
                             }
                         };
                         out.push(line);

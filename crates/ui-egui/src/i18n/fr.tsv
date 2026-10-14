@@ -2180,3 +2180,16 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Les fichiers Hunspell .aff et .dic de ce dossier (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) sont utilisés avant ceux du système.
 	{language}: {file}	{language} : {file}
 	{language}: no dictionary found	{language} : aucun dictionnaire trouvé
+	Version Status	État des versions
+	Start Keeping Versions	Activer le suivi des versions
+	Save Version	Enregistrer une version
+	Show Changes	Afficher les modifications
+	Compare with Version	Comparer avec une version
+	Restore Version	Restaurer une version
+	Synchronize	Synchroniser
+	Versions	Versions
+	Describe your changes	Décrivez vos modifications
+	No versions yet	Aucune version pour l'instant
+	Restore	Restaurer
+	Save\nVersion	Enregistrer\nune version
+	Version\nHistory	Historique\ndes versions

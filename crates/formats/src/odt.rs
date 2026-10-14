@@ -385,7 +385,7 @@ impl Writer {
                     prev_space = false;
                 }
                 Inline::Anchor(a) => out.push_str(&format!("<text:bookmark text:name=\"{}\"/>", x(a))),
-                Inline::Figure(_) | Inline::Equation { .. } => {}
+                Inline::Figure(_) | Inline::Equation { .. } | Inline::Note { .. } | Inline::Comment { .. } => {}
             }
         }
     }
@@ -2230,7 +2230,7 @@ fn parse_tracked(bytes: &[u8]) -> Result<(Flow, SectionProps, Option<bool>), Str
         blocks.push(FBlock::Para(Para::default()));
     }
     let track = body.track;
-    Ok((Flow { blocks, meta }, last, track))
+    Ok((Flow { blocks, meta, comments: Vec::new() }, last, track))
 }
 
 /// Parse an `.odt` package into a document.

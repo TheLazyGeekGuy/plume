@@ -265,7 +265,7 @@ impl Writer {
                     o.push_str(&format!("\\textit{{[{}]}}", escape_text(&alt)));
                 }
                 Inline::Anchor(name) => o.push_str(&format!("\\hypertarget{{{}}}{{}}", escape_url(name))),
-                Inline::Figure(_) => {}
+                Inline::Figure(_) | Inline::Note { .. } | Inline::Comment { .. } => {}
                 Inline::Equation { linear, display } => {
                     self.uses.math = true;
                     let src = linear_to_latex(linear);
@@ -2757,7 +2757,7 @@ pub fn parse(src: &str) -> Flow {
     p.top = u8::from(uses(["part", "part*"])) + u8::from(uses(["chapter", "chapter*"]));
     p.run(Some("document"));
     let (blocks, meta) = p.finish();
-    Flow { blocks, meta }
+    Flow { blocks, meta, comments: Vec::new() }
 }
 
 fn squash(s: &str) -> String {

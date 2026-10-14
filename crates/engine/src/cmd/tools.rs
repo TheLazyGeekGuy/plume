@@ -1023,6 +1023,13 @@ fn compare(s: &mut Session, v: &Value) -> CmdResult {
     } else {
         return Err(CmdError::Params("`path` or `text` of the revised document is required".into()));
     };
+    compare_docs(s, revised, v)
+}
+
+/// Compare the session's document (or `original`) with `revised`: the session's document becomes
+/// `revised` with the differences as tracked changes by `author` (Review › Compare; a version's
+/// changes in Plume's history).
+pub(crate) fn compare_docs(s: &mut Session, revised: Document, v: &Value) -> CmdResult {
     let show_in = p::str(v, "showIn").unwrap_or("original");
     if !matches!(show_in, "original" | "revised" | "new") {
         return Err(CmdError::Params("`showIn` is \"original\", \"revised\" or \"new\"".into()));

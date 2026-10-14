@@ -2185,3 +2185,16 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	此文件夹中的 Hunspell .aff 和 .dic 文件 (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) 优先于系统中的文件。
 	{language}: {file}	{language}：{file}
 	{language}: no dictionary found	{language}：未找到词典
+	Version Status	版本状态
+	Start Keeping Versions	开始保留版本
+	Save Version	保存版本
+	Show Changes	显示更改
+	Compare with Version	与版本比较
+	Restore Version	还原版本
+	Synchronize	同步
+	Versions	版本
+	Describe your changes	描述你的更改
+	No versions yet	尚无版本
+	Restore	还原
+	Save\nVersion	保存\n版本
+	Version\nHistory	版本\n历史记录

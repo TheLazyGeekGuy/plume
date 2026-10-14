@@ -552,8 +552,16 @@ fn is_markdown(ext: &str) -> bool {
 /// same name has the same bytes, so it isn't written again). Returns what Markdown couldn't hold.
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save_markdown(path: &std::path::Path, doc: &Document) -> Result<wordcraft_formats::markdown::Report, String> {
+    save_markdown_files(path, doc).map(|(report, _)| report)
+}
+
+/// [`save_markdown`], also giving the asset files the Markdown references (what a version of the
+/// document must hold besides the Markdown itself).
+#[cfg(not(target_arch = "wasm32"))]
+pub fn save_markdown_files(path: &std::path::Path, doc: &Document) -> Result<(wordcraft_formats::markdown::Report, Vec<std::path::PathBuf>), String> {
     crate::file_access::check_write(&path.to_string_lossy())?;
-    let bundle = wordcraft_formats::markdown::export_native(doc, &wordcraft_formats::markdown::NativeOptions::default());
+    let doc = web_pictures(doc);
+    let bundle = wordcraft_formats::markdown::export_native(&doc, &wordcraft_formats::markdown::NativeOptions::default());
     let dir = path.parent().unwrap_or(std::path::Path::new(""));
     for (rel, bytes) in &bundle.assets {
         let target = dir.join(rel);
@@ -567,12 +575,53 @@ pub fn save_markdown(path: &std::path::Path, doc: &Document) -> Result<wordcraft
         safe_save::write(&target, bytes).map_err(|e| format!("{}: {e}", target.display()))?;
     }
     safe_save::write(path, bundle.text.as_bytes()).map_err(|e| format!("{}: {e}", path.display()))?;
-    Ok(bundle.report)
+    let assets = bundle.assets.iter().map(|(rel, _)| dir.join(rel)).collect();
+    Ok((bundle.report, assets))
 }
 
 #[cfg(target_arch = "wasm32")]
 pub fn save_path_with(path: &std::path::Path, _doc: &Document, _password: Option<&str>, _opts: &ExportOptions) -> Result<(), String> {
     Err(format!("{}: files are saved through the browser on the web", path.display()))
+}
+
+/// The download for a Markdown-native save in the browser: `name` and the Markdown when the
+/// document has no pictures, else `<name>.zip` holding the Markdown and its `assets/` folder.
+pub fn markdown_download(name: &str, doc: &Document) -> Result<(String, Vec<u8>), String> {
+    let doc = web_pictures(doc);
+    let bundle = wordcraft_formats::markdown::export_native(&doc, &wordcraft_formats::markdown::NativeOptions::default());
+    if bundle.assets.is_empty() {
+        return Ok((name.to_string(), bundle.text.into_bytes()));
+    }
+    let file = name.rsplit(['/', '\\']).next().unwrap_or(name);
+    let zip = wordcraft_formats::markdown::bundle_zip(file, &bundle)?;
+    Ok((format!("{}.zip", name.rsplit_once('.').map(|(stem, _)| stem).unwrap_or(name)), zip))
+}
+
+/// `doc` with its metafile pictures (WMF, EMF) drawn as PNG, for copies read on the web
+/// (Markdown): browsers and Markdown renderers can't show metafiles. Borrowed when there are none.
+pub fn web_pictures(doc: &Document) -> std::borrow::Cow<'_, Document> {
+    let metafiles: Vec<(String, f32, f32)> =
+        doc.media.iter().filter_map(|(k, b)| wordcraft_render::metafile_size(b).map(|(w, h, _)| (k.clone(), w, h))).collect();
+    if metafiles.is_empty() {
+        return std::borrow::Cow::Borrowed(doc);
+    }
+    let mut out = doc.clone();
+    for (key, w, h) in metafiles {
+        // Two pixels per point, at most 2048 pixels on the longer side.
+        let scale = (2048.0 / w.max(h).max(1.0)).min(2.0);
+        let item = wordcraft_layout::display::Draw::Image {
+            rect: wordcraft_geom::Rect { x: 0.0, y: 0.0, w, h },
+            media: key.clone(),
+            crop: [0.0; 4],
+            alpha: 1.0,
+            alt: String::new(),
+        };
+        let png = wordcraft_render::render_items(doc, &[item], 0.0, 0.0, w, h, scale, &Default::default()).to_png();
+        if !png.is_empty() {
+            out.media.insert(key, std::sync::Arc::new(png));
+        }
+    }
+    std::borrow::Cow::Owned(out)
 }
 
 /// Decode text bytes: UTF-8 (with or without BOM), UTF-16 LE/BE (BOM or sniffed), else the

@@ -754,3 +754,125 @@ fn html_lines_finds_tags_but_not_comments_code_or_autolinks() {
     let md = "a <br> b\n<!-- note <b>x</b> -->\n`<span>` and <https://x.org> and <a@b.org>\n```\n<div>\n```\n[l](<my file.md>)\n\\<i> escaped\n<!--\n<b>\n-->\n<em>bad</em>\n";
     assert_eq!(html_lines(md), vec![1, 12]);
 }
+
+/// Footnotes: `[^n]` references and definitions in, Word notes out, and back the same.
+#[test]
+fn markdown_footnotes_round_trip() {
+    use crate::markdown::{NativeOptions, export_native, html_lines, import};
+    let md = "Body with a note[^a] and another[^long].\n\n[^a]: First note.\n[^long]: Second note, first paragraph.\n\n    Its second paragraph.\n";
+    let d = import(md);
+    let notes: Vec<_> = d.parts.values().filter(|p| p.kind == wordcraft_doc::PartKind::Footnote).collect();
+    assert_eq!(notes.len(), 2);
+    let body = d.plain_text(wordcraft_doc::StoryRef::Body);
+    assert!(!body.contains("[^"), "{body:?}");
+    let out = export_native(&d, &NativeOptions::default());
+    assert!(html_lines(&out.text).is_empty());
+    assert!(out.text.contains("note[^1] and another[^2]."), "{}", out.text);
+    assert!(out.text.contains("[^1]: First note.\n"), "{}", out.text);
+    assert!(out.text.contains("[^2]: Second note, first paragraph.\n\n    Its second paragraph.\n"), "{}", out.text);
+    let again = export_native(&import(&out.text), &NativeOptions::default());
+    assert_eq!(again.text, out.text);
+    // An undefined reference stays text; a definition inside a code block stays code.
+    let d = import("x[^missing]\n\n```\n[^c]: code\n```\n");
+    assert!(d.parts.values().all(|p| p.kind != wordcraft_doc::PartKind::Footnote));
+    assert!(d.plain_text(wordcraft_doc::StoryRef::Body).contains("[^c]: code"));
+}
+
+/// Document properties go to YAML front matter and come back; a leading rule isn't front matter.
+#[test]
+fn markdown_front_matter() {
+    use crate::markdown::{NativeOptions, export_native, import};
+    let mut d = sample();
+    d.core.title = "Le \"guide\" \\ v2".into();
+    let out = export_native(&d, &NativeOptions::default());
+    assert!(out.text.starts_with("---\ntitle: \"Le \\\"guide\\\" \\\\ v2\"\nauthor: \"Ada Writer\"\n---\n"), "{}", out.text);
+    let assets = out.assets.clone();
+    let resolve = move |src: &str| assets.iter().find(|(p, _)| p == src).map(|(_, b)| b.clone());
+    let back = crate::markdown::import_with(&out.text, &wordcraft_doc::SectionProps::default(), &resolve);
+    assert_eq!(back.core.title, "Le \"guide\" \\ v2");
+    assert_eq!(back.core.creator, "Ada Writer");
+    assert_eq!(export_native(&back, &NativeOptions::default()).text, out.text);
+    let d = import("---\n\nText\n\n---\n");
+    assert!(d.plain_text(wordcraft_doc::StoryRef::Body).contains("Text"));
+    let d = import("---\ntitle: Plain\ntags: [a, b]\n---\n# H\n");
+    assert_eq!((d.core.title.as_str(), d.core.keywords.as_str()), ("Plain", "a, b"));
+}
+
+/// Links to a bookmark inside a heading become links to the heading's slug; no anchor HTML.
+#[test]
+fn markdown_internal_links_use_heading_slugs() {
+    use crate::markdown::{Adaptation, NativeOptions, export_native, heading_slug};
+    assert_eq!(heading_slug("Étape 2 : l'installation!"), "étape-2--linstallation");
+    let d =
+        crate::markdown::import("# <a id=\"_Toc1\"></a>Getting started\n\nSee [the start](#_Toc1) and [elsewhere](#nowhere).\n\n# Getting started\n");
+    let out = export_native(&d, &NativeOptions::default());
+    assert!(out.text.contains("[the start](#getting-started)"), "{}", out.text);
+    assert!(out.text.contains("[elsewhere](#nowhere)"), "{}", out.text);
+    assert!(!out.report.counts.contains_key(&Adaptation::Bookmark), "{:?}", out.report);
+}
+
+/// A TIFF picture is written as PNG, so it shows on the web and loads again.
+#[test]
+fn native_markdown_converts_tiff_to_png() {
+    use crate::markdown::{NativeOptions, export_native};
+    let img = image::RgbaImage::from_pixel(3, 2, image::Rgba([1, 2, 3, 255]));
+    let mut tiff = Vec::new();
+    img.write_to(&mut std::io::Cursor::new(&mut tiff), image::ImageFormat::Tiff).unwrap();
+    let mut d = Document::new();
+    let key = d.add_media(tiff, "tiff");
+    let pic = InlineObject::Image { media: key, w: 30.0, h: 20.0, alt: "scan".into(), float: Default::default(), crop: [0.0; 4], ole: None };
+    d.insert_object(&wordcraft_doc::Pos::body(0, 0), pic, &CharProps::default()).unwrap();
+    let out = export_native(&d, &NativeOptions::default());
+    assert_eq!(out.assets.len(), 1);
+    assert!(out.assets[0].0.ends_with(".png"), "{:?}", out.assets[0].0);
+    assert_eq!(crate::model::sniff_image(&out.assets[0].1), Some("png"));
+    assert!(out.report.is_lossless(), "{:?}", out.report);
+}
+
+/// Comments: anchored with `<!-- cN -->` markers, threads (with replies) in the comment block,
+/// read back as Word comments, and written again the same.
+#[test]
+fn markdown_comments_round_trip() {
+    use crate::markdown::{NativeOptions, export_native, html_lines, import};
+    use wordcraft_doc::{Comment, PartKind, Pos};
+    let mut d = Document::new();
+    d.body = vec![para_block(Paragraph::with_text("Le budget prévisionnel est validé.", CharProps::default()))];
+    let part = d.add_part(PartKind::Comment, vec![para_block(Paragraph::with_text("Chiffre à vérifier -- vite", CharProps::default()))]);
+    d.comments.insert(0, Comment { author: "Alice".into(), date: "2026-10-14T09:12:00Z".into(), part, ..Default::default() });
+    let part = d.add_part(PartKind::Comment, vec![para_block(Paragraph::with_text("Vérifié.", CharProps::default()))]);
+    d.comments.insert(
+        1,
+        Comment { author: "Bob".into(), date: "2026-10-14T10:03:00Z".into(), parent: Some(0), resolved: true, part, ..Default::default() },
+    );
+    // "budget prévisionnel": end first so the start offset stays valid.
+    let end = "Le budget prévisionnel".len();
+    d.insert_object(&Pos::body(0, end), InlineObject::CommentEnd { id: 0 }, &CharProps::default()).unwrap();
+    d.insert_object(&Pos::body(0, 3), InlineObject::CommentStart { id: 0 }, &CharProps::default()).unwrap();
+
+    let out = export_native(&d, &NativeOptions::default());
+    assert!(html_lines(&out.text).is_empty(), "{}", out.text);
+    assert!(out.text.contains("Le <!-- c1 -->budget prévisionnel<!-- /c1 --> est validé."), "{}", out.text);
+    assert!(out.text.contains("<!-- plume:comments\nc1 | Alice | 2026-10-14T09:12:00Z\n    Chiffre à vérifier ‑‑ vite\nc1.1 | Bob | 2026-10-14T10:03:00Z | resolved\n    Vérifié.\n-->\n"), "{}", out.text);
+    assert_eq!(out.report.comments, 1);
+
+    let back = import(&out.text);
+    assert_eq!(back.comments.len(), 2);
+    let root = back.comments.iter().find(|(_, c)| c.parent.is_none()).map(|(k, _)| *k).unwrap();
+    let reply = back.comments.values().find(|c| c.parent == Some(root)).unwrap();
+    assert!(reply.resolved && reply.author == "Bob");
+    assert_eq!(back.plain_text(wordcraft_doc::StoryRef::Body).trim(), "Le budget prévisionnel est validé.");
+    assert_eq!(crate::comments::notes(&back)[0].quote, "budget prévisionnel");
+    assert_eq!(export_native(&back, &NativeOptions::default()).text, out.text);
+
+    // A range starting the paragraph: the marker moves after the first word (no HTML block).
+    let md = "First<!-- c1 --> words<!-- /c1 -->.\n\n<!-- plume:comments\nc1 | A | \n    x\n-->\n";
+    let again = export_native(&import(md), &NativeOptions::default());
+    assert!(again.text.starts_with("First<!-- c1 --> words<!-- /c1 -->.\n"), "{}", again.text);
+    let d = import("<!-- c1 -->Start here<!-- /c1 -->\n\n<!-- plume:comments\nc1 | A | \n    x\n-->\n");
+    assert_eq!(d.comments.len(), 1);
+    let out = export_native(&d, &NativeOptions::default());
+    assert!(out.text.starts_with("Start<!-- c1 --> here<!-- /c1 -->\n"), "{}", out.text);
+    // Other HTML comments are not content.
+    let d = import("<!-- a note\nfor editors -->\n\nText <!-- inline --> here\n");
+    assert_eq!(d.plain_text(wordcraft_doc::StoryRef::Body).trim(), "Text  here");
+}

@@ -2562,3 +2562,16 @@ preview	Title	Tytuł
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Pliki Hunspell .aff i .dic z tego folderu (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) mają pierwszeństwo przed systemowymi.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: nie znaleziono słownika
+	Version Status	Stan wersji
+	Start Keeping Versions	Zacznij przechowywać wersje
+	Save Version	Zapisz wersję
+	Show Changes	Pokaż zmiany
+	Compare with Version	Porównaj z wersją
+	Restore Version	Przywróć wersję
+	Synchronize	Synchronizuj
+	Versions	Wersje
+	Describe your changes	Opisz swoje zmiany
+	No versions yet	Brak wersji
+	Restore	Przywróć
+	Save\nVersion	Zapisz\nwersję
+	Version\nHistory	Historia\nwersji

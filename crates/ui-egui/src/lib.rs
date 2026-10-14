@@ -815,7 +815,14 @@ impl WordApp {
             let password =
                 if matches!(id, "file.save" | "file.saveAs") { self.session.password.as_ref().map(wordcraft_engine::Password::as_str) } else { None };
             let opts = wordcraft_engine::cmd::file::export_options(&self.session, &params);
-            let bytes = wordcraft_engine::io::save_bytes_with(&name, &self.session.doc, password, &opts)?;
+            // Markdown as the document's own format: the native copy, with its pictures in a
+            // zip beside it when it has any.
+            let native_md = self.session.native_markdown && matches!(id, "file.save" | "file.saveAs") && is_markdown_name(&name);
+            let (name, bytes) = if native_md {
+                wordcraft_engine::io::markdown_download(&name, &self.session.doc)?
+            } else {
+                (name.clone(), wordcraft_engine::io::save_bytes_with(&name, &self.session.doc, password, &opts)?)
+            };
             // A ticket left over from an earlier call isn't this save's.
             let saves = self.services.async_saves.clone();
             if let Some(saves) = &saves {
@@ -831,7 +838,7 @@ impl WordApp {
             }
             // An export is a copy, and so is a save in a format that doesn't keep everything (a
             // page image, plain text): the document itself still has unsaved changes.
-            let marked_saved = matches!(id, "file.save" | "file.saveAs") && keeps_everything(&name);
+            let marked_saved = matches!(id, "file.save" | "file.saveAs") && (keeps_everything(&name) || native_md);
             if marked_saved {
                 self.session.dirty = false;
             }
@@ -877,12 +884,27 @@ impl WordApp {
         }
         if let Ok(v) = &r {
             self.keep_web_font(id, &params, v);
+            self.say_adaptations(id, v);
         }
         self.after_command(id);
         if let Err(e) = &r {
             self.status(e.clone());
         }
         r
+    }
+
+    /// After an import or a Markdown save, say in the status bar what Markdown couldn't hold.
+    fn say_adaptations(&mut self, id: &str, result: &Value) {
+        if !matches!(id, "file.open" | "file.save" | "file.saveAs") {
+            return;
+        }
+        let lines: Vec<&str> =
+            result.get("adapted").and_then(Value::as_array).map(|a| a.iter().filter_map(Value::as_str).collect()).unwrap_or_default();
+        if lines.is_empty() {
+            return;
+        }
+        let what = if id == "file.open" { tl!("Imported as Markdown") } else { tl!("Saved as Markdown") };
+        self.status(format!("{what} — {}", lines.join("; ")));
     }
 
     /// Web: store a font added from bytes, or forget the removed ones ([`Services::store_font`]).
@@ -1547,6 +1569,11 @@ impl WordApp {
     fn default_save_name(&self) -> String {
         let ext = self.session.path.as_ref().and_then(|p| p.extension()).map(|e| e.to_string_lossy().to_string());
         match ext {
+            // Markdown is the document's own format: everything else saves as a new `.md`.
+            Some(e) if self.session.native_markdown && matches!(e.to_ascii_lowercase().as_str(), "md" | "markdown") => {
+                format!("{}.{e}", self.title_stem())
+            }
+            _ if self.session.native_markdown => format!("{}.md", self.title_stem()),
             Some(e) if wordcraft_engine::io::is_word_package(&e) => format!("{}.{e}", self.title_stem()),
             _ => format!("{}.docx", self.title_stem()),
         }
@@ -1742,7 +1769,7 @@ impl WordApp {
             return Some(AutoSaveBlock::Browser);
         }
         let Some(path) = &self.session.path else { return Some(AutoSaveBlock::Unsaved) };
-        if !keeps_everything(&path.to_string_lossy()) {
+        if !keeps_everything(&path.to_string_lossy()) && !(self.session.native_markdown && is_markdown_name(&path.to_string_lossy())) {
             let name = path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
             return Some(AutoSaveBlock::Format { name });
         }
@@ -2085,6 +2112,13 @@ impl AutoSaveBlock {
 pub fn keeps_everything(name: &str) -> bool {
     let ext = std::path::Path::new(name).extension().map(|e| e.to_string_lossy().to_ascii_lowercase()).unwrap_or_default();
     matches!(ext.as_str(), "docx" | "docm" | "dotx" | "dotm" | "odt" | "rtf" | "json" | "xml")
+}
+
+/// Whether `name` is a Markdown file (`.md`, `.markdown`): the document's own format when
+/// [`wordcraft_engine::Session::native_markdown`] is on.
+pub fn is_markdown_name(name: &str) -> bool {
+    let ext = std::path::Path::new(name).extension().map(|e| e.to_string_lossy().to_ascii_lowercase()).unwrap_or_default();
+    matches!(ext.as_str(), "md" | "markdown")
 }
 
 /// The dialog a user-run command opens when it lacks the input it needs (scripts and agents get

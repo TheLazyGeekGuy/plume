@@ -5254,6 +5254,7 @@ dependencies = [
  "wordcraft-pdf",
  "wordcraft-proof",
  "wordcraft-render",
+ "wordcraft-vcs",
  "zeroize",
  "zip",
 ]
@@ -5400,6 +5401,13 @@ dependencies = [
  "wordcraft-zotero",
  "zbus",
  "zip",
+]
+
+[[package]]
+name = "wordcraft-vcs"
+version = "0.7.0"
+dependencies = [
+ "serde_json",
 ]
 
 [[package]]

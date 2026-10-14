@@ -2564,3 +2564,16 @@ preview	Title	Ukázka
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Soubory Hunspell .aff a .dic z této složky (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) mají přednost před systémovými.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: slovník nebyl nalezen
+	Version Status	Stav verzí
+	Start Keeping Versions	Začít uchovávat verze
+	Save Version	Uložit verzi
+	Show Changes	Zobrazit změny
+	Compare with Version	Porovnat s verzí
+	Restore Version	Obnovit verzi
+	Synchronize	Synchronizovat
+	Versions	Verze
+	Describe your changes	Popište své změny
+	No versions yet	Zatím žádné verze
+	Restore	Obnovit
+	Save\nVersion	Uložit\nverzi
+	Version\nHistory	Historie\nverzí

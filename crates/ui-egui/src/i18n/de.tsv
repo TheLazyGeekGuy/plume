@@ -2172,3 +2172,16 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Hunspell-Dateien (.aff und .dic) in diesem Ordner (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) haben Vorrang vor denen des Systems.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: kein Wörterbuch gefunden
+	Version Status	Versionsstatus
+	Start Keeping Versions	Versionen aufbewahren
+	Save Version	Version speichern
+	Show Changes	Änderungen anzeigen
+	Compare with Version	Mit Version vergleichen
+	Restore Version	Version wiederherstellen
+	Synchronize	Synchronisieren
+	Versions	Versionen
+	Describe your changes	Beschreiben Sie Ihre Änderungen
+	No versions yet	Noch keine Versionen
+	Restore	Wiederherstellen
+	Save\nVersion	Version\nspeichern
+	Version\nHistory	Versions-\nverlauf
