@@ -2576,3 +2576,9 @@
 	Restore	Visszaállítás
 	Save\nVersion	Verzió\nmentése
 	Version\nHistory	Verzió-\nelőzmények
+	Save the document as Markdown first (File › Save As).	Előbb mentse a dokumentumot Markdownként (Fájl › Mentés másként).
+	This document's folder doesn't keep versions yet: use Save Version to start.	A dokumentum mappája még nem őriz verziókat: kezdje a Verzió mentése paranccsal.
+	Version {id} saved	{id} verzió mentve
+	Save the document as Markdown first	Előbb mentse a dokumentumot Markdownként
+	Imported as Markdown	Importálva Markdownként
+	Saved as Markdown	Mentve Markdownként

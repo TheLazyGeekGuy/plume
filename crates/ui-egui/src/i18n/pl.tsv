@@ -2570,3 +2570,9 @@ preview	Title	Tytuł
 	Restore	Przywróć
 	Save\nVersion	Zapisz\nwersję
 	Version\nHistory	Historia\nwersji
+	Save the document as Markdown first (File › Save As).	Najpierw zapisz dokument jako Markdown (Plik › Zapisz jako).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Folder tego dokumentu nie przechowuje jeszcze wersji: użyj polecenia Zapisz wersję, aby zacząć.
+	Version {id} saved	Zapisano wersję {id}
+	Save the document as Markdown first	Najpierw zapisz dokument jako Markdown
+	Imported as Markdown	Zaimportowano jako Markdown
+	Saved as Markdown	Zapisano jako Markdown

@@ -2578,3 +2578,9 @@ preview	Title	Пример
 	Restore	Восстановить
 	Save\nVersion	Сохранить\nверсию
 	Version\nHistory	Журнал\nверсий
+	Save the document as Markdown first (File › Save As).	Сначала сохраните документ в формате Markdown (Файл › Сохранить как).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Папка этого документа пока не хранит версии: начните с команды «Сохранить версию».
+	Version {id} saved	Версия {id} сохранена
+	Save the document as Markdown first	Сначала сохраните документ в формате Markdown
+	Imported as Markdown	Импортировано в Markdown
+	Saved as Markdown	Сохранено в Markdown

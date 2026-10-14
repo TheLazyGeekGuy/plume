@@ -2577,3 +2577,9 @@ preview	Title	Örnek
 	Restore	Geri Yükle
 	Save\nVersion	Sürümü\nKaydet
 	Version\nHistory	Sürüm\nGeçmişi
+	Save the document as Markdown first (File › Save As).	Önce belgeyi Markdown olarak kaydedin (Dosya › Farklı Kaydet).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Bu belgenin klasörü henüz sürüm saklamıyor: başlamak için Sürümü Kaydet'i kullanın.
+	Version {id} saved	{id} sürümü kaydedildi
+	Save the document as Markdown first	Önce belgeyi Markdown olarak kaydedin
+	Imported as Markdown	Markdown olarak içe aktarıldı
+	Saved as Markdown	Markdown olarak kaydedildi

@@ -2193,3 +2193,9 @@
 	Restore	Відновити
 	Save\nVersion	Зберегти\nверсію
 	Version\nHistory	Історія\nверсій
+	Save the document as Markdown first (File › Save As).	Спочатку збережіть документ як Markdown (Файл › Зберегти як).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Папка цього документа ще не зберігає версії: почніть із команди «Зберегти версію».
+	Version {id} saved	Версію {id} збережено
+	Save the document as Markdown first	Спочатку збережіть документ як Markdown
+	Imported as Markdown	Імпортовано як Markdown
+	Saved as Markdown	Збережено як Markdown

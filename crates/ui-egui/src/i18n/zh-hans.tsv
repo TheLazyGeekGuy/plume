@@ -2193,3 +2193,9 @@
 	Restore	还原
 	Save\nVersion	保存\n版本
 	Version\nHistory	版本\n历史记录
+	Save the document as Markdown first (File › Save As).	请先将文档另存为 Markdown（文件 › 另存为）。
+	This document's folder doesn't keep versions yet: use Save Version to start.	此文档的文件夹尚未保留版本：使用“保存版本”开始。
+	Version {id} saved	已保存版本 {id}
+	Save the document as Markdown first	请先将文档另存为 Markdown
+	Imported as Markdown	已导入为 Markdown
+	Saved as Markdown	已保存为 Markdown

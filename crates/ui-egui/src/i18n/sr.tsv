@@ -2195,3 +2195,9 @@
 	Restore	Врати
 	Save\nVersion	Сачувај\nверзију
 	Version\nHistory	Историја\nверзија
+	Save the document as Markdown first (File › Save As).	Прво сачувајте документ као Markdown (Датотека › Сачувај као).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Фасцикла овог документа још не чува верзије: почните командом Сачувај верзију.
+	Version {id} saved	Верзија {id} сачувана
+	Save the document as Markdown first	Прво сачувајте документ као Markdown
+	Imported as Markdown	Увезено као Markdown
+	Saved as Markdown	Сачувано као Markdown

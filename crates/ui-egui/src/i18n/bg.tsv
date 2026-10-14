@@ -2568,3 +2568,9 @@
 	Restore	Възстанови
 	Save\nVersion	Запиши\nверсия
 	Version\nHistory	История на\nверсиите
+	Save the document as Markdown first (File › Save As).	Първо запишете документа като Markdown (Файл › Запиши като).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Папката на този документ още не пази версии: използвайте „Запиши версия“, за да започнете.
+	Version {id} saved	Версия {id} е записана
+	Save the document as Markdown first	Първо запишете документа като Markdown
+	Imported as Markdown	Импортиран като Markdown
+	Saved as Markdown	Записан като Markdown

@@ -2563,3 +2563,9 @@ preview	Title	Esempio
 	Restore	Ripristina
 	Save\nVersion	Salva\nversione
 	Version\nHistory	Cronologia\nversioni
+	Save the document as Markdown first (File › Save As).	Salva prima il documento come Markdown (File › Salva con nome).
+	This document's folder doesn't keep versions yet: use Save Version to start.	La cartella di questo documento non conserva ancora versioni: usa Salva versione per iniziare.
+	Version {id} saved	Versione {id} salvata
+	Save the document as Markdown first	Salva prima il documento come Markdown
+	Imported as Markdown	Importato come Markdown
+	Saved as Markdown	Salvato come Markdown

@@ -2182,3 +2182,9 @@
 	Restore	還原
 	Save\nVersion	儲存\n版本
 	Version\nHistory	版本\n歷程記錄
+	Save the document as Markdown first (File › Save As).	請先將文件另存為 Markdown（檔案 › 另存新檔）。
+	This document's folder doesn't keep versions yet: use Save Version to start.	此文件的資料夾尚未保留版本：使用「儲存版本」開始。
+	Version {id} saved	已儲存版本 {id}
+	Save the document as Markdown first	請先將文件另存為 Markdown
+	Imported as Markdown	已匯入為 Markdown
+	Saved as Markdown	已儲存為 Markdown

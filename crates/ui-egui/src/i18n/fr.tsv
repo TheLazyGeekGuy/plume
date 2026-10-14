@@ -2188,3 +2188,9 @@
 	Restore	Restaurer
 	Save\nVersion	Enregistrer\nune version
 	Version\nHistory	Historique\ndes versions
+	Save the document as Markdown first (File › Save As).	Enregistrez d'abord le document en Markdown (Fichier › Enregistrer sous).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Le dossier de ce document ne conserve pas encore de versions : utilisez Enregistrer une version pour commencer.
+	Version {id} saved	Version {id} enregistrée
+	Save the document as Markdown first	Enregistrez d'abord le document en Markdown
+	Imported as Markdown	Importé en Markdown
+	Saved as Markdown	Enregistré en Markdown

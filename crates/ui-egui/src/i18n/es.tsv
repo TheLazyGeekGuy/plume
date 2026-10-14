@@ -2547,3 +2547,9 @@ preview	Title	Título
 	Restore	Restaurar
 	Save\nVersion	Guardar\nversión
 	Version\nHistory	Historial de\nversiones
+	Save the document as Markdown first (File › Save As).	Guarde primero el documento como Markdown (Archivo › Guardar como).
+	This document's folder doesn't keep versions yet: use Save Version to start.	La carpeta de este documento aún no guarda versiones: use Guardar versión para empezar.
+	Version {id} saved	Versión {id} guardada
+	Save the document as Markdown first	Guarde primero el documento como Markdown
+	Imported as Markdown	Importado como Markdown
+	Saved as Markdown	Guardado como Markdown

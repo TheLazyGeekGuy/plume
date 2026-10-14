@@ -2215,3 +2215,9 @@
 	Restore	Taasta
 	Save\nVersion	Salvesta\nversioon
 	Version\nHistory	Versiooni-\najalugu
+	Save the document as Markdown first (File › Save As).	Salvestage dokument esmalt Markdownina (Fail › Salvesta nimega).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Selle dokumendi kaust ei hoia veel versioone: alustamiseks kasutage käsku Salvesta versioon.
+	Version {id} saved	Versioon {id} salvestatud
+	Save the document as Markdown first	Salvestage dokument esmalt Markdownina
+	Imported as Markdown	Imporditud Markdownina
+	Saved as Markdown	Salvestatud Markdownina

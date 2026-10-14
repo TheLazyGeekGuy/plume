@@ -2572,3 +2572,9 @@ preview	Title	Ukázka
 	Restore	Obnovit
 	Save\nVersion	Uložit\nverzi
 	Version\nHistory	Historie\nverzí
+	Save the document as Markdown first (File › Save As).	Nejprve dokument uložte jako Markdown (Soubor › Uložit jako).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Složka tohoto dokumentu zatím verze neuchovává: začněte příkazem Uložit verzi.
+	Version {id} saved	Verze {id} uložena
+	Save the document as Markdown first	Nejprve dokument uložte jako Markdown
+	Imported as Markdown	Importováno jako Markdown
+	Saved as Markdown	Uloženo jako Markdown

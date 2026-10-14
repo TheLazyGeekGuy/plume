@@ -2180,3 +2180,9 @@
 	Restore	Wiederherstellen
 	Save\nVersion	Version\nspeichern
 	Version\nHistory	Versions-\nverlauf
+	Save the document as Markdown first (File › Save As).	Speichern Sie das Dokument zuerst als Markdown (Datei › Speichern unter).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Der Ordner dieses Dokuments bewahrt noch keine Versionen auf: Beginnen Sie mit „Version speichern“.
+	Version {id} saved	Version {id} gespeichert
+	Save the document as Markdown first	Speichern Sie das Dokument zuerst als Markdown
+	Imported as Markdown	Als Markdown importiert
+	Saved as Markdown	Als Markdown gespeichert

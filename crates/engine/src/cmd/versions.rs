@@ -17,24 +17,36 @@ pub fn specs() -> Vec<CommandSpec> {
             .params(r#"{} → {versioned: bool, root?, file?, modified?, servers?: [name], reason?}"#)
             .pure(),
         CommandSpec::new("vcs.history", "Version History", "Review › Versions", history)
+            .when(markdown_document)
             .params(r#"{"limit"?: 1..1000 (default 100)} → {versions: [{id, short, author, email, date, message}]} newest first"#)
             .pure(),
         CommandSpec::new("vcs.init", "Start Keeping Versions", "Review › Versions", init)
+            .when(markdown_document)
             .params(r#"{} → {root}: makes the document's folder a Git repository"#)
             .pure(),
         CommandSpec::new("vcs.saveVersion", "Save Version", "Review › Versions", save_version)
+            .when(markdown_document)
             .params(r#"{"message": string (what changed), "author"?: string, "email"?: string} → {version: {id, short, author, date, message}}: saves the document as Markdown, then records it and its pictures as a version"#)
             .pure(),
         CommandSpec::new("vcs.showChanges", "Show Changes", "Review › Versions", show_changes)
+            .when(markdown_document)
             .params(r#"{"id": version id, "since"?: version id (default: the version before)} → {changes, author}: an untitled document with the version's changes tracked, by its author"#),
         CommandSpec::new("vcs.compare", "Compare with Version", "Review › Versions", compare_with)
+            .when(markdown_document)
             .params(r#"{"id": version id} → {changes}: an untitled document showing what changed since that version, as tracked changes"#),
         CommandSpec::new("vcs.restore", "Restore Version", "Review › Versions", restore)
+            .when(markdown_document)
             .params(r#"{"id": version id} → {restored}: the document becomes that version (undoable; save a version to keep it)"#),
         CommandSpec::new("vcs.sync", "Synchronize", "Review › Versions", sync)
+            .when(markdown_document)
             .params(r#"{} → {synced: true}: gets the server's versions (never merging silently), then sends this copy's"#)
             .pure(),
     ]
+}
+
+/// Versions need a saved Markdown document (the reason shown on a disabled button).
+fn markdown_document(s: &Session) -> Option<&'static str> {
+    markdown_path(s).err().map(|_| "Save the document as Markdown first")
 }
 
 /// The document's Markdown file: versions are only kept for a saved Markdown document.

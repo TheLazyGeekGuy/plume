@@ -2181,3 +2181,9 @@
 	Restore	復元
 	Save\nVersion	バージョン\nを保存
 	Version\nHistory	バージョン\n履歴
+	Save the document as Markdown first (File › Save As).	まず文書を Markdown として保存してください (ファイル › 名前を付けて保存)。
+	This document's folder doesn't keep versions yet: use Save Version to start.	この文書のフォルダーはまだバージョンを保存していません。[バージョンを保存] で開始してください。
+	Version {id} saved	バージョン {id} を保存しました
+	Save the document as Markdown first	まず文書を Markdown として保存してください
+	Imported as Markdown	Markdown としてインポートしました
+	Saved as Markdown	Markdown として保存しました

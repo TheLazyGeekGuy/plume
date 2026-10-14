@@ -3765,6 +3765,13 @@ fn enclose_preview(ui: &mut Ui, style: &str, text: &str, shape: &str) {
 
 /// The document's versions for the Version History dialog, or why there are none.
 fn version_list(app: &mut WordApp) -> (Vec<Value>, String) {
+    if app.session.path.as_ref().is_none_or(|p| !crate::is_markdown_name(&p.to_string_lossy())) {
+        return (Vec::new(), tl!("Save the document as Markdown first (File › Save As).").to_string());
+    }
+    let versioned = app.session.run("vcs.status", &json!({})).ok().and_then(|v| v.get("versioned").and_then(Value::as_bool));
+    if versioned != Some(true) {
+        return (Vec::new(), tl!("This document's folder doesn't keep versions yet: use Save Version to start.").to_string());
+    }
     match app.session.run("vcs.history", &json!({"limit": 200})) {
         Ok(v) => (v.get("versions").and_then(Value::as_array).cloned().unwrap_or_default(), String::new()),
         Err(e) => (Vec::new(), e.to_string()),
@@ -4460,4 +4467,3 @@ mod tests {
         assert_eq!(h.state().dialog.as_ref().map(|d| d.name()), Some("pageSetup"));
     }
 }
-

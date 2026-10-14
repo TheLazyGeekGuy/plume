@@ -2604,3 +2604,9 @@
 	Restore	Khôi phục
 	Save\nVersion	Lưu\nphiên bản
 	Version\nHistory	Lịch sử\nphiên bản
+	Save the document as Markdown first (File › Save As).	Hãy lưu tài liệu dưới dạng Markdown trước (Tệp › Lưu thành).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Thư mục của tài liệu này chưa lưu phiên bản: dùng Lưu phiên bản để bắt đầu.
+	Version {id} saved	Đã lưu phiên bản {id}
+	Save the document as Markdown first	Hãy lưu tài liệu dưới dạng Markdown trước
+	Imported as Markdown	Đã nhập dưới dạng Markdown
+	Saved as Markdown	Đã lưu dưới dạng Markdown
