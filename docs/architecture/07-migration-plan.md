@@ -29,7 +29,7 @@ Branding is being done now. The owner works in the cloud: every step below happe
 | New **original** icon drawn in code or CC0, with an `ATTRIBUTION.md` row | `assets/app-icon/`, `packaging/icons.sh` |
 | `NOTICE`: "based on WordCraft by the ArtCraft team", MIT/Apache licences kept | `NOTICE`, `README.md` |
 
-### Phase 2 — Native Markdown — 10 to 15 d (increment 1 done)
+### Phase 2 — Native Markdown — 10 to 15 d (mostly done, 2026-10-14)
 
 | Task | State |
 |---|---|
@@ -37,13 +37,13 @@ Branding is being done now. The owner works in the cloud: every step below happe
 | `import_with` (relative images); opening `.md` from disk | ✅ done |
 | `io::save_markdown`; a `.md` path saves natively | ✅ done |
 | End-to-end test DOCX → MD → MD → PDF | ✅ done |
-| `.md` = master format: default name on save, "modified" flag, autosave | to do (`ui-egui/src/lib.rs:1547, 2085`, `engine/src/cmd/file.rs:286`) |
-| Report shown after import and on save (non-blocking banner) | to do |
-| YAML front matter (import + export) | to do |
-| Footnotes `[^n]` | to do |
-| Anchored comments `<!-- cN -->` (03 §6) | to do |
-| Internal links to heading slugs | to do |
-| PNG conversion of non-web images, charts/SmartArt rendered as images | to do |
+| `.md` = master format: default name on save, "modified" flag, autosave; Word files imported into `<name>.md` | ✅ done (`Session::native_markdown`) |
+| Report shown after import and on save | ✅ done (status bar; a richer banner is still to do) |
+| YAML front matter (import + export) | ✅ done |
+| Footnotes `[^n]` | ✅ done (endnotes written as footnotes) |
+| Anchored comments `<!-- cN -->` (03 §6) | ✅ done (block `<!-- plume:comments … -->`) |
+| Internal links to heading slugs | ✅ done |
+| PNG conversion of non-web images, charts/SmartArt rendered as images | ✅ TIFF and EMF/WMF → PNG; charts/SmartArt still alt text |
 | Strict/lenient command mode (03 §5) | to do |
 | `gfm` / `vitepress` visual themes (stylesheets applied on import) | to do |
 | Publishing profile `publication/default.toml` (page, margins, fonts) | to do |
@@ -59,6 +59,8 @@ Corpus (09 §2), import report, asset conversion, Word 6/95 (optional fallback),
 ### Phase 5 — Forges and review — 20 to 30 d
 
 `forge` crate (GitHub, GitLab, Forgejo), authentication (device flow / PKCE / tokens), keychain, open from a forge, sync, conflicts via `compare`, review (PR/MR), forge comments ↔ Word comments, approval workflow.
+
+**Status 2026-10-14 (phases 4–5):** done — crate `wordcraft-vcs` (Git through the `git` program; GitHub/GitLab/Forgejo REST connectors), commands `vcs.*` and `forge.*`, Review › Versions ribbon group, Save Version and Version History dialogs, File › Open › Open from a Forge…, tokens in the macOS Keychain, macOS CI (`.github/workflows/plume-macos.yml`). Still to do: OAuth device-flow sign-in in the UI (needs a registered OAuth app id), review requests (PR/MR) and forge review comments, the web transport (async `fetch`), conflict merge beyond "reload or compare", a document explorer for folders.
 
 ### Phase 6 — Distribution — 5 to 10 d
 

@@ -38,9 +38,9 @@ Microsoft Word's workflow. Plume keeps that editor and changes what a document *
 | | Goal | Status |
 |---|---|---|
 | **Word-like editing** | The ribbon, styles, lists, tables, track changes, references, shortcuts and typing behaviour Word users expect | Works today (inherited from WordCraft) |
-| **Markdown native** | A document is a `.md` file: what you see is laid out from Markdown, and saving writes clean, diff-friendly Markdown | In progress (Markdown import and export work today; Markdown as the native format is being built) |
-| **Zero HTML** | Nothing in the editor or in saved files needs HTML; formatting Markdown can't express is kept in Markdown-friendly form, never as raw HTML | Planned |
-| **Git versioning** | Every document can live in a Git repository: save points are commits, history and compare are built in | Planned |
+| **Markdown native** | A document is a `.md` file: what you see is laid out from Markdown, and saving writes clean, diff-friendly Markdown. Opening a Word, RTF or ODT file imports it into a `.md` beside it (the original is never written) and says what Markdown can't hold | Works (footnotes, front matter, comments, pictures in `assets/`; see `docs/architecture/03-markdown-native-design.md` for what's left) |
+| **Zero HTML** | Saved files are CommonMark + GitHub Flavored Markdown with no HTML; the only exception is HTML *comments*, which carry review comments invisibly | Works |
+| **Git versioning** | Review › Versions: Save Version (a commit), Version History, Show Changes (a version's edits as tracked changes by its author), Compare, Restore, Synchronize — in a local Git folder or straight on GitHub, GitLab and Forgejo (File › Open › Open from a Forge…) | Works (desktop; the web version reads and saves single files) |
 | **Other formats** | Open and save .docx, export PDF, ODT, RTF, LaTeX and plain text | Works today (inherited from WordCraft) |
 | **Built for agents** | Every action is a command with an id, driven by the ribbon, the CLI, a JSON control channel and an MCP server | Works today (inherited from WordCraft) |
 
