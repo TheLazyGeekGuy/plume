@@ -1,161 +1,161 @@
-# 03 — Conception du format natif Markdown
+# 03 — Native Markdown format design
 
-> Statut : proposition + premier incrément implémenté (`export_native`, `import_with`, `html_lines`, `io::save_markdown`).
+> Status: proposal + first increment implemented (`export_native`, `import_with`, `html_lines`, `io::save_markdown`).
 
-## 1. Principe
+## 1. Principle
 
-> L'utilisateur édite visuellement un `Document` WordCraft complet ; **à l'enregistrement**, le document est projeté sur un **profil Markdown** ; **à l'ouverture**, le Markdown est reconstruit en `Document` avec la feuille de styles du **thème visuel** choisi.
+> The user visually edits a complete WordCraft `Document`; **on save**, the document is projected onto a **Markdown profile**; **on open**, the Markdown is rebuilt into a `Document` with the stylesheet of the chosen **visual theme**.
 
 ```text
-              ┌──────────── édition WYSIWYG (inchangée) ────────────┐
-.docx/.doc ──►│  Document (crates/doc)  ──►  layout ──► écran / PDF  │
+              ┌──────────── WYSIWYG editing (unchanged) ────────────┐
+.docx/.doc ──►│  Document (crates/doc)  ──►  layout ──► screen / PDF │
               └──────────────┬───────────────────────▲──────────────┘
                      export_native              import_with
-                (profil + rapport)          (assets + thème)
+                  (profile + report)        (assets + theme)
                              ▼                       │
                      document.md  +  assets/img-<hash>.<ext>
 ```
 
-Pas de conversion à chaque frappe : la projection n'a lieu qu'à l'enregistrement (et, plus tard, pour l'indicateur « éléments non conservés », de façon différée).
+No conversion on every keystroke: the projection only happens on save (and later, deferred, for the "items not preserved" indicator).
 
-## 2. Règles absolues du fichier `.md`
+## 2. Absolute rules for the `.md` file
 
-1. **Zéro HTML.** Seule exception : les **commentaires HTML** `<!-- … -->`, invisibles dans tous les moteurs de rendu, réservés aux commentaires de relecture. Vérifié par `markdown::html_lines` (tests).
-2. **Aucune donnée de présentation encodée** (pas de XML, pas d'attributs de style, pas de base64).
-3. **Images externes**, en chemins relatifs : `assets/img-<hash FNV-64>.<ext>`. Le nom dépend uniquement des octets : réenregistrer ne renomme rien, deux images identiques sont stockées une fois, et un diff Git sur le `.md` ne bouge pas quand on ne touche pas aux images.
-4. **Idempotence** : `export(import(export(d))) == export(d)`. Les pertes éventuelles ont lieu **une seule fois**, au premier enregistrement, et sont signalées.
-5. **Lisible et modifiable à la main** : un `.md` modifié dans VS Code ou sur GitHub se rouvre normalement.
+1. **Zero HTML.** Sole exception: **HTML comments** `<!-- … -->`, invisible in every renderer, reserved for review comments. Checked by `markdown::html_lines` (tests).
+2. **No encoded presentation data** (no XML, no style attributes, no base64).
+3. **External images**, as relative paths: `assets/img-<FNV-64 hash>.<ext>`. The name depends only on the bytes: saving again renames nothing, two identical images are stored once, and a Git diff of the `.md` does not move when images are untouched.
+4. **Idempotence**: `export(import(export(d))) == export(d)`. Any losses happen **once only**, on the first save, and are reported.
+5. **Readable and hand-editable**: a `.md` edited in VS Code or on GitHub reopens normally.
 
-## 3. Profils de rendu cibles (« cible visuelle »)
+## 3. Target rendering profiles ("visual target")
 
-Le porteur souhaite pouvoir choisir la cible visuelle : **GitHub**, **VitePress par défaut**, **VitePress avec plugins étendus**. Chaque profil fixe (a) les constructions autorisées dans le fichier, (b) le thème visuel de l'éditeur (polices, tailles des titres, style des tableaux et du code calqués sur la cible, **réalisés avec nos propres couleurs et polices libres** — aucune ressource GitHub copiée).
+The owner wants to be able to choose the visual target: **GitHub**, **default VitePress**, **VitePress with extended plugins**. Each profile sets (a) the constructs allowed in the file, (b) the editor's visual theme (fonts, heading sizes, table and code styles modelled on the target, **made with our own colours and free fonts** — no GitHub asset copied).
 
-| Construction | `gfm` (GitHub, GitLab, Forgejo) | `vitepress` (défaut) | `vitepress-ext` (plugins) |
+| Construct | `gfm` (GitHub, GitLab, Forgejo) | `vitepress` (stock VitePress) | `vitepress-ext` (plugins) |
 |---|---|---|---|
-| Titres, gras, italique, barré, code, citations, listes, règles | oui | oui | oui |
-| Tableaux pipe, alignement de colonnes | oui | oui | oui |
-| Listes de tâches `- [ ]` | oui | oui | oui |
-| Notes de bas de page `[^1]` | **oui** | non → note convertie en texte « (note : …) » | oui (`markdown-it-footnote`) |
-| Encadrés | `> [!NOTE]` (alertes GitHub) | `> [!NOTE]` (pris en charge par VitePress) | `::: tip` / `::: warning` |
-| Ancre explicite de titre | non (slug automatique) | `## Titre {#ancre}` | `{#ancre}` |
-| Table des matières | non (générée par le site) | `[[toc]]` | `[[toc]]` |
-| Mathématiques | `$…$`, `$$…$$` | non → texte linéaire | `$…$` (option `math`) |
-| Diagrammes | bloc ` ```mermaid ` | non | ` ```mermaid ` (plugin) |
-| Front matter YAML | affiché en tableau par GitHub | oui (titre, description) | oui |
+| Headings, bold, italic, strikethrough, code, quotes, lists, rules | yes | yes | yes |
+| Pipe tables, column alignment | yes | yes | yes |
+| Task lists `- [ ]` | yes | yes | yes |
+| Footnotes `[^1]` | **yes** | no → note converted to text "(note: …)" | yes (`markdown-it-footnote`) |
+| Callouts | `> [!NOTE]` (GitHub alerts) | `> [!NOTE]` (supported by VitePress) | `::: tip` / `::: warning` |
+| Explicit heading anchor | no (automatic slug) | `## Title {#anchor}` | `{#anchor}` |
+| Table of contents | no (generated by the site) | `[[toc]]` | `[[toc]]` |
+| Maths | `$…$`, `$$…$$` | no → linear text | `$…$` (`math` option) |
+| Diagrams | ` ```mermaid ` block | no | ` ```mermaid ` (plugin) |
+| YAML front matter | shown as a table by GitHub | yes (title, description) | yes |
 
-**Recommandation :** `gfm` par défaut (c'est le seul rendu commun à GitHub, GitLab et Forgejo, donc à la collaboration via forge) ; le profil est une propriété **du dépôt / du dossier** (fichier `publication/default.toml`, clé `profile`), pas du document — ainsi tous les documents d'un même site se comportent pareil.
+**Decision (confirmed by the owner):** `gfm` (GitHub) is the default profile (it is the only rendering shared by GitHub, GitLab and Forgejo, hence by forge-based collaboration); the profile is a property **of the repository / folder** (file `publication/default.toml`, key `profile`), not of the document — so all documents of one site behave the same.
 
-Le prototype implémente le **socle commun** des trois profils (sans notes, encadrés ni mathématiques), qui est valide partout.
+The prototype implements the **common base** of the three profiles (without footnotes, callouts or maths), which is valid everywhere.
 
-## 4. Correspondance Word → Markdown (profil `gfm`)
+## 4. Word → Markdown mapping (`gfm` profile)
 
-| Élément Word / WordCraft | Écriture | Traitement | Rapport (`Adaptation`) |
+| Word / WordCraft element | Written as | Handling | Report (`Adaptation`) |
 |---|---|---|---|
-| Titre 1-6, Titre du document | `#`…`######` | conservé | — |
-| Gras, italique, barré | `**`, `*`, `~~` | conservé | — |
-| Police à chasse fixe | `` `code` `` | conservé | — |
-| Style « Code » | bloc ` ``` ` | conservé | — |
-| Citation / Citation intense | `>` | conservé | — |
-| Listes à puces / numérotées, 9 niveaux | `-`, `1.` indentation 4 | conservé (le type de numérotation i, a, A… est normalisé en 1.) | — |
-| Lien externe | `[texte](url)` | conservé ; les schémas dangereux (`javascript:`…) sont écrits en texte | — |
-| Lien interne vers un titre | `[texte](#slug)` | **à faire** : réécrire `#_Toc123` vers le slug du titre | — |
-| Signet hors titre | — | supprimé | `Bookmark` |
-| Image inline ou flottante | `![alt](assets/img-….png)` | fichier externe, flottant → inline ; **taille d'affichage perdue** en GFM pur (l'image s'affiche à sa taille en pixels, réduite à la largeur de page) | — (taille : à ajouter) |
-| Graphique, SmartArt, forme | `*[texte alternatif]*` | **à faire** : rendre en PNG via `render` et écrire comme image | `Figure` |
-| Équation | texte linéaire | **à faire** : `$…$` en `gfm` | `Equation` |
-| Tableau simple | tableau pipe | conservé, 1re ligne = en-tête | — |
-| Cellule à plusieurs paragraphes | paragraphes joints par une espace | aplati | `CellParagraphs` |
-| Cellule fusionnée | cellules vides | aplati | `MergedCells` |
-| Tableau imbriqué | texte dans la cellule | aplati | `NestedTable` |
-| Tableau de mise en page (sans bordure, sert à positionner) | **à faire** : dérouler en paragraphes | — | — |
-| Soulignement | texte simple | perdu | `Underline` |
-| Exposant / indice | texte simple | perdu (Unicode ¹²³ possible pour les chiffres : **à étudier**) | `SupSub` |
-| Couleur, surlignage | — | déporté vers le profil de publication | `Color` |
-| Police, taille | — | normalisé par le thème (non signalé : attendu) | — |
-| Centré / droite | — | déporté vers le profil | `Alignment` |
-| Justifié | — | normalisé par le thème (non signalé) | — |
-| Saut de page | — | **à étudier** : règle `---` + profil « saut avant H1 » | `PageBreak` |
-| En-têtes, pieds, numéros de page, marges, orientation | — | profil de publication (`publication/default.toml`) | — |
-| Notes de bas de page | aujourd'hui : numéro de renvoi seul | **à faire** : `[^n]` + définitions en fin de fichier | — |
-| Commentaires | commentaires HTML | voir §6 | compteur `comments` |
-| Suivi des modifications en attente | — | voir §7 | — |
-| Champs (TOC, PAGE, REF…) | résultat texte | TOC : supprimée (le site la génère) ou `[[toc]]` | **à faire** |
+| Heading 1-6, Title | `#`…`######` | kept | — |
+| Bold, italic, strikethrough | `**`, `*`, `~~` | kept | — |
+| Monospace font | `` `code` `` | kept | — |
+| "Code" style | ` ``` ` block | kept | — |
+| Quote / Intense Quote | `>` | kept | — |
+| Bulleted / numbered lists, 9 levels | `-`, `1.` 4-space indent | kept (numbering type i, a, A… normalised to 1.) | — |
+| External link | `[text](url)` | kept; dangerous schemes (`javascript:`…) are written as text | — |
+| Internal link to a heading | `[text](#slug)` | **to do**: rewrite `#_Toc123` to the heading's slug | — |
+| Bookmark not on a heading | — | removed | `Bookmark` |
+| Inline or floating image | `![alt](assets/img-….png)` | external file, floating → inline; **display size lost** in pure GFM (the image shows at its pixel size, shrunk to page width) | — (size: to add) |
+| Chart, SmartArt, shape | `*[alt text]*` | **to do**: render to PNG via `render` and write as an image | `Figure` |
+| Equation | linear text | **to do**: `$…$` in `gfm` | `Equation` |
+| Simple table | pipe table | kept, 1st row = header | — |
+| Cell with several paragraphs | paragraphs joined by a space | flattened | `CellParagraphs` |
+| Merged cell | empty cells | flattened | `MergedCells` |
+| Nested table | text in the cell | flattened | `NestedTable` |
+| Layout table (no borders, used for positioning) | **to do**: unroll into paragraphs | — | — |
+| Underline | plain text | lost | `Underline` |
+| Superscript / subscript | plain text | lost (Unicode ¹²³ possible for digits: **to study**) | `SupSub` |
+| Colour, highlighting | — | moved to the publishing profile | `Color` |
+| Font, size | — | normalised by the theme (not reported: expected) | — |
+| Centred / right | — | moved to the profile | `Alignment` |
+| Justified | — | normalised by the theme (not reported) | — |
+| Page break | — | **to study**: `---` rule + "break before H1" profile setting | `PageBreak` |
+| Headers, footers, page numbers, margins, orientation | — | publishing profile (`publication/default.toml`) | — |
+| Footnotes | today: reference number only | **to do**: `[^n]` + definitions at the end of the file | — |
+| Comments | HTML comments | see §6 | `comments` counter |
+| Pending tracked changes | — | see §7 | — |
+| Fields (TOC, PAGE, REF…) | text result | TOC: removed (the site generates it) or `[[toc]]` | **to do** |
 
-## 5. Commandes d'édition en mode Markdown
+## 5. Editing commands in Markdown mode
 
-Les commandes existent toutes déjà dans le registre (`crates/engine/src/cmd/*.rs`). Trois traitements, choisis commande par commande via le champ `enabled` des `CommandSpec`, **sans retirer aucun bouton du ruban** :
+All commands already exist in the registry (`crates/engine/src/cmd/*.rs`). Three treatments, chosen command by command through the `enabled` field of `CommandSpec`, **without removing any ribbon button**:
 
-1. **Conservées** (représentables) : titres, styles de paragraphe compatibles, gras/italique/barré, listes, liens, images, tableaux, citations, code, recherche/remplacement, orthographe, annuler/rétablir, zoom, navigation.
-2. **Normalisées** (acceptées, le résultat dépend du profil) : polices, tailles, justification, interligne, espacements. Elles modifient l'affichage pendant la session ; à l'enregistrement le thème du profil s'applique.
-3. **Signalées** (non représentables) : couleur, soulignement, exposant/indice, zones de texte, WordArt, formes, colonnes, sections, en-têtes/pieds dans le corps, cellules fusionnées. Deux modes au choix de l'utilisateur :
-   - **souple** (défaut) : la commande s'exécute, la barre d'état affiche « 3 mises en forme ne seront pas conservées » (alimenté par `Report`) ;
-   - **strict** : la commande est grisée avec une info-bulle explicative.
+1. **Kept** (representable): headings, compatible paragraph styles, bold/italic/strikethrough, lists, links, images, tables, quotes, code, find/replace, spelling, undo/redo, zoom, navigation.
+2. **Normalised** (accepted, the result depends on the profile): fonts, sizes, justification, line spacing, spacing. They change the display during the session; on save the profile's theme applies.
+3. **Flagged** (not representable): colour, underline, superscript/subscript, text boxes, WordArt, shapes, columns, sections, headers/footers in the body, merged cells. Two modes, chosen by the user:
+   - **lenient** (default): the command runs, the status bar shows "3 formatting items will not be preserved" (fed by `Report`);
+   - **strict**: the command is greyed out with an explanatory tooltip.
 
-Le mode est une option de session (`Session`), il n'affecte pas les documents ouverts en `.docx` (le format Word reste disponible en **export**).
+The mode is a session option (`Session`); it does not affect documents opened as `.docx` (the Word format remains available as an **export**).
 
-## 6. Commentaires (seule exception au zéro HTML)
+## 6. Comments (sole exception to zero HTML)
 
-**Incrément actuel** (prototype) : les commentaires du document et leurs réponses sont écrits en fin de fichier dans un unique commentaire HTML :
+**Current increment** (prototype): the document's comments and their replies are written at the end of the file in a single HTML comment:
 
 ```markdown
 <!-- wordcraft:comments
-1. Alice on “le budget prévisionnel”: chiffre à vérifier
-   - Bob: vérifié avec la compta
+1. Alice on “the provisional budget”: figure to check
+   - Bob: checked with accounting
 -->
 ```
 
-**Cible** (phase 5) : ancrage précis + fil, toujours invisible au rendu.
+**Target** (phase 5): precise anchoring + threads, still invisible when rendered.
 
 ```markdown
-Le <!-- c1 -->budget prévisionnel<!-- /c1 --> est validé.
+The <!-- c1 -->provisional budget<!-- /c1 --> is approved.
 
 <!-- wordcraft:comments
-c1 | Alice | 2026-10-14T09:12Z | ouvert
-   chiffre à vérifier
+c1 | Alice | 2026-10-14T09:12Z | open
+   figure to check
 c1.1 | Bob | 2026-10-14T10:03Z
-   vérifié avec la compta
+   checked with accounting
 -->
 ```
 
-- À l'ouverture, les paires `<!-- cN -->…<!-- /cN -->` redeviennent des `CommentStart/End` et le bloc final reconstruit `Document.comments` → les commentaires s'affichent en bulles comme dans Word, et toutes les commandes `review.*Comment` fonctionnent.
-- En collaboration via une forge, les commentaires peuvent **aussi** venir des revues de demande de fusion (voir 05 §6) : ils sont alors affichés comme commentaires Word mais restent stockés côté forge.
-- Contraintes : `--` est interdit dans un commentaire HTML (remplacé), un marqueur d'ancrage ne doit pas couper une construction Markdown (placement aux limites de mots, hors code).
+- On open, the `<!-- cN -->…<!-- /cN -->` pairs become `CommentStart/End` again and the final block rebuilds `Document.comments` → comments show as balloons as in Word, and every `review.*Comment` command works.
+- In forge-based collaboration, comments can **also** come from merge request reviews (see 05 §6): they are then shown as Word comments but stay stored on the forge.
+- Constraints: `--` is forbidden inside an HTML comment (replaced); an anchor marker must not split a Markdown construct (placed at word boundaries, outside code).
 
-## 7. Suivi des modifications
+## 7. Track changes
 
-Markdown n'a pas de suivi des modifications : **le suivi devient l'historique Git**.
+Markdown has no track changes: **tracking becomes the Git history**.
 
-- Pendant l'édition, le suivi WordCraft (Ctrl+Maj+E) reste utilisable : insertions/suppressions colorées par auteur.
-- À l'enregistrement d'un document avec des révisions en attente, le fichier contient **la version avec les modifications acceptées** et l'utilisateur est prévenu ; l'état « avec révisions » est conservé dans la version Git précédente.
-- « Afficher les modifications » d'une version Git = **Comparer** (`review.compare`, déjà implémenté) entre la version N-1 et N : le résultat est un document avec révisions attribuées à l'auteur du commit, et **Accepter / Rejeter** fonctionnent tels quels.
+- While editing, WordCraft track changes (Ctrl+Shift+E) remain usable: insertions/deletions coloured by author.
+- When saving a document with pending revisions, the file contains **the version with the changes accepted** and the user is warned; the "with revisions" state is kept in the previous Git version.
+- "Show changes" for a Git version = **Compare** (`review.compare`, already implemented) between version N-1 and N: the result is a document with revisions attributed to the commit's author, and **Accept / Reject** work as is.
 
-## 8. Ressources
+## 8. Assets
 
-- Dossier `assets/` à côté du `.md` (paramétrable : `NativeOptions::assets_dir`). Dans un dépôt de plusieurs documents, un dossier `assets/` partagé est sans risque grâce au nommage par contenu.
-- Un fichier déjà présent avec le même nom n'est pas réécrit (même nom ⇒ mêmes octets, au risque de collision FNV près — négligeable à cette échelle, et sans conséquence de sécurité : le nommage ne sert pas à l'intégrité).
-- Les images orphelines (plus référencées) ne sont **pas** supprimées automatiquement : **à faire**, nettoyage proposé à l'enregistrement d'une version.
-- Formats non web (EMF, WMF, TIFF, BMP) : **à faire**, conversion PNG à l'enregistrement (le moteur sait déjà les dessiner).
-- À l'ouverture : seules les images **à l'intérieur du dossier du document** sont lues (`LocalImages` : pas de `..`, pas d'URL, pas de chemin absolu, liens symboliques résolus, plafond de 256 Mo par fichier et 1 Go par document).
+- `assets/` folder next to the `.md` (configurable: `NativeOptions::assets_dir`). In a repository with several documents, a shared `assets/` folder is safe thanks to content-based naming.
+- A file already present with the same name is not rewritten (same name ⇒ same bytes, barring an FNV collision — negligible at this scale, and with no security consequence: the naming is not used for integrity).
+- Orphaned images (no longer referenced) are **not** deleted automatically: **to do**, clean-up offered when saving a version.
+- Non-web formats (EMF, WMF, TIFF, BMP): **to do**, PNG conversion on save (the engine can already draw them).
+- On open: only images **inside the document's folder** are read (`LocalImages`: no `..`, no URL, no absolute path, symlinks resolved, cap of 256 MB per file and 1 GB per document).
 
-## 9. API implémentée (incrément 1)
+## 9. Implemented API (increment 1)
 
-`crates/formats/src/markdown.rs` :
+`crates/formats/src/markdown.rs`:
 
-| Élément | Rôle |
+| Item | Role |
 |---|---|
-| `export_native(&Document, &NativeOptions) -> Bundle` | texte + `assets: Vec<(chemin, octets)>` + `Report` |
-| `NativeOptions { assets_dir, comments }` | défaut `assets`, commentaires conservés |
-| `Report { counts: BTreeMap<Adaptation, usize>, images, comments }`, `lines()`, `is_lossless()` | rapport d'adaptation |
+| `export_native(&Document, &NativeOptions) -> Bundle` | text + `assets: Vec<(path, bytes)>` + `Report` |
+| `NativeOptions { assets_dir, comments }` | default `assets`, comments kept |
+| `Report { counts: BTreeMap<Adaptation, usize>, images, comments }`, `lines()`, `is_lossless()` | adaptation report |
 | `Adaptation` | `Underline`, `SupSub`, `Color`, `Alignment`, `PageBreak`, `Bookmark`, `CellParagraphs`, `NestedTable`, `MergedCells`, `Figure`, `Equation` |
-| `import_with(text, page, resolve)` | import avec résolution des images relatives (deux passes, état thread-local remis à zéro par garde) |
-| `html_lines(&str) -> Vec<usize>` | lignes contenant du HTML hors commentaires, code et autoliens |
+| `import_with(text, page, resolve)` | import with resolution of relative images (two passes, thread-local state reset by a guard) |
+| `html_lines(&str) -> Vec<usize>` | lines containing HTML outside comments, code and autolinks |
 
-`crates/engine/src/io.rs` :
+`crates/engine/src/io.rs`:
 
-| Élément | Rôle |
+| Item | Role |
 |---|---|
-| `save_markdown(path, doc) -> Report` | écrit le `.md` et `assets/` (écritures atomiques, racine d'automatisation respectée) |
-| `save_path_with` | un chemin `.md`/`.markdown` passe désormais par `save_markdown` |
-| `open_path_in` | un `.md` ouvert depuis le disque résout ses images relatives |
+| `save_markdown(path, doc) -> Report` | writes the `.md` and `assets/` (atomic writes, automation root respected) |
+| `save_path_with` | a `.md`/`.markdown` path now goes through `save_markdown` |
+| `open_path_in` | a `.md` opened from disk resolves its relative images |
 
-`markdown::export` (copie « historique » utilisée par `save_bytes`, le Web et la CLI vers la sortie standard) est **inchangé** octet pour octet ; ses tests passent.
+`markdown::export` (the "legacy" copy used by `save_bytes`, the Web and the CLI to standard output) is **unchanged** byte for byte; its tests pass.

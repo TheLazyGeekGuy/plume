@@ -1,76 +1,76 @@
-# 02 — Étude de faisabilité
+# 02 — Feasibility study
 
-> Statut : audit initial, 14 octobre 2026. Légende : **[code]** vérifié dans le code · **[testé]** vérifié par un test exécuté · **[hypothèse]** à confirmer · **[prototype]** démontré par le prototype de cette branche.
+> Status: initial audit, 14 October 2026. Legend: **[code]** verified in the code · **[tested]** verified by a test run · **[hypothesis]** to be confirmed · **[prototype]** demonstrated by this branch's prototype.
 
 ## 1. Conclusion
 
-**Option B retenue : adaptation de WordCraft avec couche documentaire spécifique.**
+**Option B chosen: adapt WordCraft with a dedicated document layer.**
 
-- L'interface, le moteur documentaire, la pagination, le PDF, les importateurs DOCX/DOC et le WASM sont conservés **sans modification**.
-- La couche de transformation contrôlée existe déjà (`crates/formats/src/model.rs`, modèle `Flow`) ; on y ajoute un **profil Markdown natif** (zéro HTML, ressources externes, rapport d'adaptation). C'est fait dans cette branche (prototype, voir §4).
-- Ce qui change : la frontière de persistance (`.md` devient le format d'enregistrement par défaut), quelques commandes d'édition à contraindre ou signaler, et l'ajout de deux briques neuves : **stockage/versionnement Git** et **connecteurs de forges**.
+- The UI, the document engine, pagination, PDF, the DOCX/DOC importers and WASM are kept **unchanged**.
+- The controlled transformation layer already exists (`crates/formats/src/model.rs`, `Flow` model); we add a **native Markdown profile** to it (zero HTML, external assets, adaptation report). This is done in this branch (prototype, see §4).
+- What changes: the persistence boundary (`.md` becomes the default save format), a few editing commands to constrain or flag, and two new building blocks: **Git storage/versioning** and **forge connectors**.
 
-Pourquoi pas l'option A pure : le modèle en mémoire est bien plus riche que Markdown (couleurs, polices, objets flottants, sections…). Le sauvegarder « tel quel » en Markdown serait soit avec perte silencieuse (interdit par le cahier des charges), soit avec du HTML/XML caché (interdit). Une couche de profil avec rapport est nécessaire — d'où B.
+Why not pure option A: the in-memory model is much richer than Markdown (colours, fonts, floating objects, sections…). Saving it "as is" to Markdown would mean either silent loss (forbidden by the specification) or hidden HTML/XML (forbidden). A profile layer with a report is needed — hence B.
 
-Pourquoi pas l'option C : rien dans l'audit ne justifie de remplacer un composant. Le parseur Markdown existant est déjà CommonMark + GFM, borné et sans panique.
+Why not option C: nothing in the audit justifies replacing a component. The existing Markdown parser is already CommonMark + GFM, bounded and panic-free.
 
-## 2. Réponses aux 12 questions de l'audit Markdown (§15.2)
+## 2. Answers to the 12 Markdown audit questions (§15.2)
 
-| # | Question | Réponse | Source |
+| # | Question | Answer | Source |
 |---|---|---|---|
-| 1 | Représentation en mémoire | `Document` riche (blocs `Para`/`Table`, runs + objets inline, parties secondaires, médias par clé) | `crates/doc/src/lib.rs:623` **[code]** |
-| 2 | Import Markdown | `markdown::import` : parseur maison CommonMark (titres ATX/setext, listes imbriquées, citations, code, règles, tableaux GFM, emphase par l'algorithme des délimiteurs, liens, autoliens, entités, barré). Images : seules les URI `data:` devenaient des images. **Ajout : `import_with` résout les chemins relatifs** | `crates/formats/src/markdown.rs` **[code][prototype]** |
-| 3 | Export Markdown | `markdown::export` via `model::from_doc`. Écrivait `<br>` dans les cellules, `<a id>` pour les signets et `![](image.png)` **sans écrire les fichiers images**. **Ajout : `export_native`** | idem **[code][prototype]** |
-| 4 | Pertes à la conversion | soulignement, exposant/indice, couleurs, surlignage, polices/tailles, alignement, sauts de page, sections/en-têtes/pieds, notes de bas de page (texte du renvoi seul), cellules fusionnées, tableaux imbriqués, objets flottants (deviennent inline), graphiques/SmartArt (texte alternatif), équations (texte linéaire), suivi des modifications, champs (résultat seul) | `model.rs:803-960` **[code]** |
-| 5 | Markdown format par défaut ? | Oui : changer `default_save_name` (`ui-egui/src/lib.rs:1547`) et traiter `.md` comme format « maître » (chemin + indicateur « modifié ») dans `cmd/file.rs:286-289` | **[code]** — à faire en phase 2 |
-| 6 | Neutraliser les fonctions non représentables ? | Oui, par le champ `enabled` des `CommandSpec` (grisage selon un « mode Markdown » de la session) — sans retirer les commandes du ruban | `crates/engine/src/cmd/mod.rs` **[code]**, voir 03 §5 |
-| 7 | Styles de rendu hors document ? | Oui : la feuille de styles `Document.styles` est reconstruite à l'import (`model::to_doc_in`) ; un **profil de publication** TOML peut fixer polices, tailles, marges à l'ouverture | **[hypothèse]** à prototyper (phase 3) |
-| 8 | Images | `InlineObject::Image { media, w, h, alt }` + octets dans `Document.media`. Le profil natif les écrit dans `assets/img-<hash>.<ext>` | **[prototype]** |
-| 9 | Liens relatifs | Les liens sont conservés tels quels (attribut de run) ; les images relatives sont désormais résolues à l'ouverture, **confinées au dossier du document** (`LocalImages`, protections `..`/liens symboliques/taille) | `crates/engine/src/io.rs` **[code][prototype]** |
-| 10 | Tableaux sur plusieurs cycles | Oui pour les tableaux GFM simples : export → import → export identique. Les cellules multi-lignes sont aplaties **au premier cycle** puis stables | test `native_markdown_is_html_free_and_stable` **[testé]** |
-| 11 | Conserver la pagination ? | Oui, intégralement : le Markdown est converti en `Document` puis mis en page par `layout` comme tout document | **[code]** |
-| 12 | Éviter une modification profonde du moteur ? | Oui : aucune modification de `doc`, `layout`, `render`, `pdf`, `docx`, `docbin`. Modifications limitées à `formats/markdown.rs` et `engine/io.rs` | diff de cette branche **[code]** |
+| 1 | In-memory representation | Rich `Document` (`Para`/`Table` blocks, runs + inline objects, secondary parts, media by key) | `crates/doc/src/lib.rs:623` **[code]** |
+| 2 | Markdown import | `markdown::import`: in-house CommonMark parser (ATX/setext headings, nested lists, block quotes, code, rules, GFM tables, emphasis via the delimiter algorithm, links, autolinks, entities, strikethrough). Images: only `data:` URIs became images. **Added: `import_with` resolves relative paths** | `crates/formats/src/markdown.rs` **[code][prototype]** |
+| 3 | Markdown export | `markdown::export` via `model::from_doc`. Wrote `<br>` in cells, `<a id>` for bookmarks and `![](image.png)` **without writing the image files**. **Added: `export_native`** | same **[code][prototype]** |
+| 4 | Conversion losses | underline, superscript/subscript, colours, highlighting, fonts/sizes, alignment, page breaks, sections/headers/footers, footnotes (reference mark only), merged cells, nested tables, floating objects (become inline), charts/SmartArt (alt text), equations (linear text), track changes, fields (result only) | `model.rs:803-960` **[code]** |
+| 5 | Markdown as the default format? | Yes: change `default_save_name` (`ui-egui/src/lib.rs:1547`) and treat `.md` as the "master" format (path + "modified" flag) in `cmd/file.rs:286-289` | **[code]** — to do in phase 2 |
+| 6 | Disable non-representable features? | Yes, through the `enabled` field of `CommandSpec` (greyed out according to a session "Markdown mode") — without removing commands from the ribbon | `crates/engine/src/cmd/mod.rs` **[code]**, see 03 §5 |
+| 7 | Rendering styles outside the document? | Yes: the `Document.styles` stylesheet is rebuilt on import (`model::to_doc_in`); a TOML **publishing profile** can set fonts, sizes, margins on open | **[hypothesis]** to prototype (phase 3) |
+| 8 | Images | `InlineObject::Image { media, w, h, alt }` + bytes in `Document.media`. The native profile writes them to `assets/img-<hash>.<ext>` | **[prototype]** |
+| 9 | Relative links | Links are kept as is (run attribute); relative images are now resolved on open, **confined to the document's folder** (`LocalImages`, `..`/symlink/size protections) | `crates/engine/src/io.rs` **[code][prototype]** |
+| 10 | Tables over several cycles | Yes for simple GFM tables: export → import → export is identical. Multi-line cells are flattened **in the first cycle**, then stable | test `native_markdown_is_html_free_and_stable` **[tested]** |
+| 11 | Keep pagination? | Yes, fully: Markdown is converted to a `Document` and laid out by `layout` like any document | **[code]** |
+| 12 | Avoid a deep engine change? | Yes: no change to `doc`, `layout`, `render`, `pdf`, `docx`, `docbin`. Changes limited to `formats/markdown.rs` and `engine/io.rs` | this branch's diff **[code]** |
 
-## 3. Tableau de faisabilité (§19)
+## 3. Feasibility table (§19)
 
-| Fonction | Existant | Réutilisable | Modifications | Risque |
+| Feature | Existing | Reusable | Changes | Risk |
 |---|---|---|---|---|
-| Interface Word | Ruban complet, backstage, raccourcis, onglets contextuels — `crates/engine/src/ribbon.rs`, `crates/ui-egui/src/ribbon.rs`, `backstage.rs` | Oui, intégralement | Ajouter un onglet **Publication**, un groupe **Versions** dans Révision, un panneau **Historique** ; griser les commandes non représentables en mode Markdown | Faible |
-| Moteur documentaire | `crates/doc` (modèle), `crates/engine` (Session, undo, 500 niveaux, commandes) | Oui | Aucune dans `doc` ; dans `engine` : notion de « format maître » et mode Markdown | Faible |
-| Markdown | `crates/formats/src/markdown.rs` (import/export CommonMark+GFM), `model.rs` (Flow) | Oui | **Fait :** `export_native`, `import_with`, `html_lines`, rapport. **À faire :** notes de bas de page GFM `[^n]`, commentaires ancrés, front matter YAML, listes de tâches à l'export | Moyen (fidélité) |
-| DOCX | `crates/docx` (lecture/écriture OOXML, chiffrement) | Oui, comme importateur | Aucune | Faible |
-| DOC ancien | `crates/docbin` (Word 97-2003, [MS-DOC], lecture seule) | Oui | **Word 6.0/95 refusé** (`docbin/src/fib.rs:117`) : à documenter, éventuel ajout ultérieur | Moyen (Word 95 et antérieurs) |
-| PDF | `crates/pdf` (krilla : polices embarquées, liens, signets des titres, PDF balisé) | Oui, intégralement | Aucune ; appliquer le profil de publication avant l'export | Faible |
-| Pagination | `crates/layout` | Oui | Aucune | Faible |
-| Images | `Document.media`, `InlineObject::Image`, `LocalImages` (HTML) | Oui | **Fait :** extraction `assets/`, noms stables, dédoublonnage, réimport. **À faire :** taille d'affichage (perdue en GFM pur), images non web (EMF/WMF/TIFF → PNG) | Moyen |
-| Git local | Rien (versions en mémoire uniquement : `cmd/tools.rs:396`) | Le modèle de commandes `file.versions` | Nouvelle crate `vcs` (L2/L4) : historique, commit, diff, restauration — voir 05 | Moyen |
-| GitHub | Rien | — | Connecteur API REST (contenu, commits, PR, commentaires) + OAuth device flow | Moyen |
-| GitLab | Rien | — | Idem API v4 | Moyen |
-| Forgejo | Rien | — | Idem API (compatible Gitea) ; le porteur a déjà un fork `forgejo-mcp` | Moyen |
-| WebAssembly | `apps/wordcraft-web`, toutes les crates vérifiées par `cargo xtask wasm` | Oui | Pas de système de fichiers ni de Git natif dans le navigateur : utiliser les **API REST des forges** (pas de clone) et un stockage IndexedDB/OPFS | Élevé (Git + CORS + auth) |
+| Word UI | Full ribbon, backstage, shortcuts, contextual tabs — `crates/engine/src/ribbon.rs`, `crates/ui-egui/src/ribbon.rs`, `backstage.rs` | Yes, fully | Add a **Publishing** tab, a **Versions** group in Review, a **History** panel; grey out non-representable commands in Markdown mode | Low |
+| Document engine | `crates/doc` (model), `crates/engine` (Session, undo, 500 levels, commands) | Yes | None in `doc`; in `engine`: notion of "master format" and Markdown mode | Low |
+| Markdown | `crates/formats/src/markdown.rs` (CommonMark+GFM import/export), `model.rs` (Flow) | Yes | **Done:** `export_native`, `import_with`, `html_lines`, report. **To do:** GFM footnotes `[^n]`, anchored comments, YAML front matter, task lists on export | Medium (fidelity) |
+| DOCX | `crates/docx` (OOXML read/write, encryption) | Yes, as an importer | None | Low |
+| Legacy DOC | `crates/docbin` (Word 97-2003, [MS-DOC], read only) | Yes | **Word 6.0/95 rejected** (`docbin/src/fib.rs:117`): to document, possible later addition | Medium (Word 95 and earlier) |
+| PDF | `crates/pdf` (krilla: embedded fonts, links, heading bookmarks, tagged PDF) | Yes, fully | None; apply the publishing profile before export | Low |
+| Pagination | `crates/layout` | Yes | None | Low |
+| Images | `Document.media`, `InlineObject::Image`, `LocalImages` (HTML) | Yes | **Done:** `assets/` extraction, stable names, deduplication, re-import. **To do:** display size (lost in pure GFM), non-web images (EMF/WMF/TIFF → PNG) | Medium |
+| Local Git | Nothing (in-memory versions only: `cmd/tools.rs:396`) | The `file.versions` command model | New `vcs` crate (L2/L4): history, commit, diff, restore — see 05 | Medium |
+| GitHub | Nothing | — | REST API connector (contents, commits, PRs, comments) + OAuth device flow | Medium |
+| GitLab | Nothing | — | Same, API v4 | Medium |
+| Forgejo | Nothing | — | Same, API (Gitea-compatible); the owner already has a `forgejo-mcp` fork | Medium |
+| WebAssembly | `apps/wordcraft-web`, all crates checked by `cargo xtask wasm` | Yes | No file system or native Git in the browser: use the **forges' REST APIs** (no clone) and IndexedDB/OPFS storage | High (Git + CORS + auth) |
 
-## 4. Prototype réalisé dans cette branche
+## 4. Prototype built in this branch
 
-Jalon visé (§21) :
+Target milestone (§21):
 
 ```text
-Ouverture DOCX → édition → sauvegarde Markdown → fermeture → réouverture Markdown → édition sans perte → export PDF
+Open DOCX → edit → save Markdown → close → reopen Markdown → edit without loss → export PDF
 ```
 
-Ce qui est démontré **par un test automatique** (`crates/engine/src/tests.rs::docx_to_native_markdown_round_trip`) :
+What is demonstrated **by an automated test** (`crates/engine/src/tests.rs::docx_to_native_markdown_round_trip`):
 
-1. un document (document d'exemple WordCraft + une image) est écrit en DOCX puis rouvert via l'importateur DOCX ;
-2. `io::save_markdown` écrit `doc.md` + `assets/img-<hash>.png` ;
-3. le fichier ne contient **aucune ligne HTML** (`markdown::html_lines`) ;
-4. la réouverture recharge l'image depuis `assets/` ; un nouvel enregistrement produit **exactement le même texte** ;
-5. une édition par la couche de commandes (`text.insert`) est enregistrée, relue, et le reste du fichier n'a pas bougé ;
-6. l'export PDF du document rouvert produit un PDF valide.
+1. a document (WordCraft sample document + one image) is written as DOCX then reopened through the DOCX importer;
+2. `io::save_markdown` writes `doc.md` + `assets/img-<hash>.png`;
+3. the file contains **no HTML line** (`markdown::html_lines`);
+4. reopening reloads the image from `assets/`; saving again produces **exactly the same text**;
+5. an edit through the command layer (`text.insert`) is saved, read back, and the rest of the file is unchanged;
+6. the PDF export of the reopened document produces a valid PDF.
 
-Ce qui reste **non démontré** : l'ergonomie dans l'interface graphique (Enregistrer → `.md` par défaut), le rapport d'import affiché à l'utilisateur, le corpus réel de documents Word du porteur.
+What remains **not demonstrated**: usability in the GUI (Save → `.md` by default), the import report shown to the user, the owner's real corpus of Word documents.
 
-## 5. Points de vigilance
+## 5. Points to watch
 
-1. **Le rendu « visuel » cible** (GitHub, VitePress, VitePress + plugins) change ce qui est représentable : notes de bas de page, conteneurs `::: tip`, ancres `{#id}`, mathématiques. Voir 03 §3 — c'est le principal choix de produit restant.
-2. **Commentaires** : la seule exception au zéro HTML (commentaires HTML `<!-- -->`). Le prototype les conserve en bloc en fin de fichier ; l'ancrage précis est conçu en 03 §6.
-3. **Word 95 et antérieurs** : non pris en charge par `docbin`. « N'importe quel Word » nécessite soit un nouvel importateur, soit un convertisseur externe facultatif.
-4. **Scripts de conversion existants du porteur** (`convertDoC`) : non consultés — l'accès à ce dépôt n'a pas été accordé à cette session. À comparer avec l'importateur WordCraft dès que l'accès est donné.
+1. **The target "visual" rendering** (GitHub, VitePress, VitePress + plugins) changes what can be represented: footnotes, `::: tip` containers, `{#id}` anchors, maths. See 03 §3 — the owner has since confirmed the `gfm` (GitHub) profile as the default.
+2. **Comments**: the only exception to zero HTML (HTML comments `<!-- -->`). The prototype keeps them as a block at the end of the file; precise anchoring is designed in 03 §6.
+3. **Word 95 and earlier**: not supported by `docbin`. "Any Word file" requires either a new importer or an optional external converter.
+4. **The owner's existing conversion scripts** (`convertDoC`): not consulted — access to that repository was not granted to the audit session. The comparison with the WordCraft importer has since been dropped by the owner's decision (done without).

@@ -1,143 +1,143 @@
-# 05 — Intégration Git et forges (GitHub, GitLab, Forgejo)
+# 05 — Git and forge integration (GitHub, GitLab, Forgejo)
 
-> Statut : conception (rien d'implémenté). Légende : **[code]** vérifié · **[doc]** documentation publique des forges · **[hypothèse]** à prototyper.
+> Status: design (nothing implemented). Legend: **[code]** verified · **[doc]** public forge documentation · **[hypothesis]** to prototype.
 
-## 1. Exigences retenues
+## 1. Requirements
 
-- Ouvrir **un seul fichier Markdown à la fois** dans un dépôt Git (local ou distant).
-- Authentification **GitHub, GitLab et Forgejo** ; un document peut être ouvert par toute personne ayant accès au dépôt.
-- Chaque « version » = **un commit avec un message** ; l'utilisateur ne voit jamais le mot « commit ».
-- Voir les révisions des collègues : **qui a modifié quoi, quand, avec quel commentaire**.
-- **Conserver le mécanisme de versions existant** (`file.versions`, en mémoire : `crates/engine/src/cmd/tools.rs:396-412`) en le **branchant sur Git** quand le document est dans un dépôt.
-- Enregistrer ≠ créer une version ≠ synchroniser (§9.2 du cahier des charges).
+- Open **a single Markdown file at a time** in a Git repository (local or remote).
+- **GitHub, GitLab and Forgejo** authentication; a document can be opened by anyone with access to the repository.
+- Each "version" = **one commit with a message**; the user never sees the word "commit".
+- See colleagues' revisions: **who changed what, when, with what message**.
+- **Keep the existing version mechanism** (`file.versions`, in memory: `crates/engine/src/cmd/tools.rs:396-412`) and **plug it into Git** when the document lives in a repository.
+- Save ≠ create a version ≠ sync (§9.2 of the specification).
 
-## 2. Vocabulaire présenté
+## 2. User-facing vocabulary
 
-| Git | Interface |
+| Git | UI |
 |---|---|
-| commit | **Enregistrer une version** (avec « Décrivez vos modifications ») |
-| push | **Synchroniser** (automatique après « Enregistrer une version » si connecté) |
-| pull / fetch | **Récupérer les modifications** |
-| log du fichier | **Historique du document** |
-| diff | **Comparer / Afficher les modifications** |
-| branche | **Version de travail** |
-| merge request / pull request | **Demander une relecture** |
-| review | **Relecture** (commentaires, approbation) |
-| merge | **Intégrer / Publier** |
-| conflit | **Modifications à résoudre** |
+| commit | **Save a version** (with "Describe your changes") |
+| push | **Sync** (automatic after "Save a version" when signed in) |
+| pull / fetch | **Get changes** |
+| file log | **Document history** |
+| diff | **Compare / Show changes** |
+| branch | **Working version** |
+| merge request / pull request | **Request a review** |
+| review | **Review** (comments, approval) |
+| merge | **Integrate / Publish** |
+| conflict | **Changes to resolve** |
 
 ## 3. Architecture
 
 ```text
-ui-egui (L6) ── panneau Historique, dialogue Connexion, onglet Publication
-     │ commandes vcs.* (CommandSpec, comme tout le reste)
-engine (L4) ── VersionStore (trait) : list / read_at / save_version / sync / restore
-     │                      ├── MemoryStore  (comportement actuel, documents hors dépôt)
-     │                      ├── LocalGitStore (dépôt sur disque)          [desktop]
-     │                      └── ForgeStore    (API REST, sans clone)      [desktop + Web]
-crate `forge` (nouvelle, L2, sans réseau propre) ── GitHub / GitLab / Forgejo : requêtes + décodage JSON
-     │ Transport HTTP injecté par l'application
-apps ── natif : client HTTP Rust (ex. `ureq` + rustls) ; Web : `fetch` du navigateur (web-sys)
+ui-egui (L6) ── History panel, Sign-in dialog, Publishing tab
+     │ vcs.* commands (CommandSpec, like everything else)
+engine (L4) ── VersionStore (trait): list / read_at / save_version / sync / restore
+     │                      ├── MemoryStore  (current behaviour, documents outside a repo)
+     │                      ├── LocalGitStore (repository on disk)        [desktop]
+     │                      └── ForgeStore    (REST API, no clone)        [desktop + Web]
+crate `forge` (new, L2, no network of its own) ── GitHub / GitLab / Forgejo: requests + JSON decoding
+     │ HTTP transport injected by the application
+apps ── native: Rust HTTP client (e.g. `ureq` + rustls); Web: browser `fetch` (web-sys)
 ```
 
-Respect des règles du dépôt : le moteur reste sans réseau ni egui (`cargo xtask layers`), l'accès réseau est un **service fourni par l'application** (comme le dialogue de fichiers aujourd'hui, `apps/wordcraft-web/src/web.rs`), et les commandes programmatiques (CLI, MCP) passent par les mêmes `CommandSpec`.
+Repository rules respected: the engine stays free of network and egui (`cargo xtask layers`), network access is a **service provided by the application** (like the file dialog today, `apps/wordcraft-web/src/web.rs`), and programmatic commands (CLI, MCP) go through the same `CommandSpec`s.
 
-### 3.1 Pourquoi l'API REST des forges plutôt qu'un clone Git ?
+### 3.1 Why the forges' REST APIs rather than a Git clone?
 
-Le besoin est **un fichier à la fois**. Les trois forges exposent tout ce qu'il faut pour un fichier sans cloner le dépôt **[doc]** :
+The need is **one file at a time**. All three forges expose everything needed for a single file without cloning the repository **[doc]**:
 
-| Besoin | GitHub (REST v3) | GitLab (API v4) | Forgejo (API compatible Gitea) |
+| Need | GitHub (REST v3) | GitLab (API v4) | Forgejo (Gitea-compatible API) |
 |---|---|---|---|
-| Lire le fichier (à une révision) | `GET /repos/{o}/{r}/contents/{path}?ref=` | `GET /projects/:id/repository/files/:path?ref=` | `GET /repos/{o}/{r}/contents/{path}?ref=` |
-| Écrire = 1 commit | `PUT …/contents/{path}` (message, `sha` attendu) | `PUT …/repository/files/:path` (commit_message, `last_commit_id`) | `PUT …/contents/{path}` (message, `sha`) |
-| Plusieurs fichiers en 1 commit (`.md` + images) | API Git Data (blobs, tree, commit, ref) | `POST …/repository/commits` (actions multiples) | `POST …/contents` (fichiers multiples) |
-| Historique du fichier | `GET …/commits?path=` | `GET …/repository/commits?path=` | `GET …/commits?path=` |
-| Commentaires de commit | `GET/POST …/commits/{sha}/comments` | `GET/POST …/commits/:sha/comments` | **[hypothèse]** à vérifier |
-| Demande de relecture | Pull requests + reviews | Merge requests + notes/discussions | Pull requests + reviews |
+| Read the file (at a revision) | `GET /repos/{o}/{r}/contents/{path}?ref=` | `GET /projects/:id/repository/files/:path?ref=` | `GET /repos/{o}/{r}/contents/{path}?ref=` |
+| Write = 1 commit | `PUT …/contents/{path}` (message, expected `sha`) | `PUT …/repository/files/:path` (commit_message, `last_commit_id`) | `PUT …/contents/{path}` (message, `sha`) |
+| Several files in 1 commit (`.md` + images) | Git Data API (blobs, tree, commit, ref) | `POST …/repository/commits` (multiple actions) | `POST …/contents` (multiple files) |
+| File history | `GET …/commits?path=` | `GET …/repository/commits?path=` | `GET …/commits?path=` |
+| Commit comments | `GET/POST …/commits/{sha}/comments` | `GET/POST …/commits/:sha/comments` | **[hypothesis]** to check |
+| Review request | Pull requests + reviews | Merge requests + notes/discussions | Pull requests + reviews |
 
-Avantages : fonctionne **identiquement sur desktop et dans le navigateur** ; pas de Git installé chez l'utilisateur ; le contrôle de concurrence est natif (le `sha`/`last_commit_id` attendu fait échouer l'écriture si quelqu'un a modifié le fichier entre-temps → déclenche la résolution, §7).
+Advantages: works **identically on desktop and in the browser**; no Git installed on the user's machine; concurrency control is built in (the expected `sha`/`last_commit_id` makes the write fail if someone changed the file in the meantime → triggers resolution, §7).
 
-Le **dépôt local** (desktop) reste nécessaire pour les utilisateurs qui travaillent hors ligne ou sur un serveur Git « nu » : `LocalGitStore`.
+A **local repository** (desktop) is still needed for users who work offline or against a "bare" Git server: `LocalGitStore`.
 
-### 3.2 Git local : choix de la bibliothèque
+### 3.2 Local Git: library choice
 
-| Option | Licence | WASM | Commit / historique | Push / pull | Avis |
+| Option | Licence | WASM | Commit / history | Push / pull | Assessment |
 |---|---|---|---|---|---|
-| `gix` (gitoxide, Rust pur) | MIT/Apache | partiel (pas de réseau) | oui | fetch oui ; push **[hypothèse]** à vérifier sur la version retenue | **recommandé** pour l'historique, la lecture d'une révision et le commit |
-| `git2` (libgit2) | GPL-2.0 avec exception de liaison | non | oui | oui | dépendance C, complique les builds Windows/macOS universels |
-| Commande `git` en sous-processus | — | non | oui | oui, avec les identifiants système (SSH, gestionnaire d'identifiants) | **repli** pour push/pull quand `git` est installé |
+| `gix` (gitoxide, pure Rust) | MIT/Apache | partial (no network) | yes | fetch yes; push **[hypothesis]** to check on the chosen version | **recommended** for history, reading a revision and committing |
+| `git2` (libgit2) | GPL-2.0 with linking exception | no | yes | yes | C dependency, complicates Windows/macOS universal builds |
+| `git` command as a subprocess | — | no | yes | yes, with system credentials (SSH, credential manager) | **fallback** for push/pull when `git` is installed |
 
-Recommandation : `gix` pour toutes les opérations locales ; synchronisation via l'API de la forge si le remote est une forge connue, sinon via la commande `git` si elle est présente, sinon synchronisation indisponible (message clair).
+Recommendation: `gix` for all local operations; sync through the forge API if the remote is a known forge, otherwise through the `git` command if present, otherwise sync unavailable (clear message).
 
-## 4. Authentification
+## 4. Authentication
 
-| Forge | Méthode préférée | Repli | Remarques |
+| Forge | Preferred method | Fallback | Notes |
 |---|---|---|---|
-| GitHub | OAuth **device flow** (code à saisir sur github.com) | jeton personnel à portée fine | le device flow ne répond pas aux appels CORS du navigateur **[doc]** → la version Web demande un jeton ou passe par un petit relais |
-| GitLab (gitlab.com ou auto-hébergé) | OAuth (PKCE), device flow selon version **[hypothèse]** | jeton personnel | l'instance auto-hébergée doit déclarer l'application OAuth |
-| Forgejo / Codeberg | OAuth2 + PKCE | jeton d'accès | CORS de l'API à activer sur l'instance (`[cors]`) pour la version Web |
+| GitHub | OAuth **device flow** (code entered on github.com) | fine-grained personal token | the device flow does not answer browser CORS calls **[doc]** → the Web version asks for a token or goes through a small relay |
+| GitLab (gitlab.com or self-hosted) | OAuth (PKCE), device flow depending on version **[hypothesis]** | personal token | the self-hosted instance must register the OAuth application |
+| Forgejo / Codeberg | OAuth2 + PKCE | access token | API CORS must be enabled on the instance (`[cors]`) for the Web version |
 
-Stockage des secrets :
+Secret storage:
 
-- desktop : **trousseau du système** (macOS Keychain, Windows Credential Manager, Secret Service sous Linux) via une crate de trousseau ; jamais dans un fichier de configuration ni dans le dépôt ;
-- Web : jeton en mémoire de session uniquement (option « se souvenir » explicite, avec avertissement) ;
-- SSH : laissé à la commande `git` (agent SSH de l'utilisateur).
+- desktop: **system keychain** (macOS Keychain, Windows Credential Manager, Secret Service on Linux) via a keychain crate; never in a configuration file or in the repository;
+- Web: token in session memory only (explicit "remember me" option, with a warning);
+- SSH: left to the `git` command (the user's SSH agent).
 
-Le canal de contrôle et MCP **ne peuvent pas lire** les jetons (les commandes `vcs.*` reçoivent un jeton opaque géré par l'application).
+The control channel and MCP **cannot read** tokens (the `vcs.*` commands receive an opaque token managed by the application).
 
-## 5. Parcours utilisateur
+## 5. User journeys
 
-**Ouvrir depuis une forge** : Fichier → Ouvrir → *Depuis un dépôt en ligne* → choisir la forge → se connecter → choisir dépôt, branche, fichier `.md` → le document s'ouvre (images de `assets/` chargées par l'API, en cache local).
+**Open from a forge**: File → Open → *From an online repository* → choose the forge → sign in → choose repository, branch, `.md` file → the document opens (images from `assets/` loaded through the API, cached locally).
 
-**Enregistrer** (Ctrl+S) : écrit la copie de travail (fichier local, ou cache local + journal de récupération pour un document distant). **Pas de commit.**
+**Save** (Ctrl+S): writes the working copy (local file, or local cache + recovery journal for a remote document). **No commit.**
 
-**Enregistrer une version** (Révision → Versions, ou Fichier → Informations) : boîte « Décrivez vos modifications » → 1 commit contenant le `.md` et les images nouvelles → synchronisation automatique si connecté. Le message par défaut est proposé à partir du rapport de différences (« 3 paragraphes modifiés dans *Installation* »).
+**Save a version** (Review → Versions, or File → Info): "Describe your changes" box → 1 commit containing the `.md` and the new images → automatic sync when signed in. The default message is suggested from the diff report ("3 paragraphs changed in *Installation*").
 
-**Historique du document** (panneau latéral, reprend la liste de `file.versions`) :
+**Document history** (side panel, reuses the `file.versions` list):
 
 ```text
-Historique — guide-utilisateur.md
-● Alice  · aujourd'hui 10:12 · « Mise à jour des captures »      💬 2
-● Bob    · hier 17:40       · « Relecture chapitre 3 »
-● Alice  · 12 oct.          · « Version initiale importée de guide.docx »
-[Afficher les modifications] [Comparer avec la version actuelle] [Restaurer]
+History — user-guide.md
+● Alice  · today 10:12      · "Update screenshots"           💬 2
+● Bob    · yesterday 17:40  · "Review of chapter 3"
+● Alice  · 12 Oct           · "Initial version imported from guide.docx"
+[Show changes] [Compare with current version] [Restore]
 ```
 
-**Afficher les modifications** : la version N-1 et la version N sont relues en `Document` puis passées à **`review.compare`** (déjà implémenté) : le résultat s'affiche comme un document avec suivi des modifications, coloré par auteur, avec **Accepter / Rejeter** fonctionnels. C'est la réutilisation la plus forte de WordCraft dans ce projet.
+**Show changes**: version N-1 and version N are read back into `Document`s and passed to **`review.compare`** (already implemented): the result shows as a document with tracked changes, coloured by author, with working **Accept / Reject**. This is the strongest reuse of WordCraft in this project.
 
-**Restaurer** : ouvre l'ancienne version comme document courant ; l'enregistrement d'une version crée un nouveau commit (on ne réécrit jamais l'historique).
+**Restore**: opens the old version as the current document; saving a version creates a new commit (history is never rewritten).
 
-## 6. Relecture et circuit de validation
+## 6. Review and approval workflow
 
-Correspondance du circuit §10.3 avec les objets des forges (facultatif, activé par document ou par dépôt) :
+Mapping of the §10.3 workflow to forge objects (optional, enabled per document or per repository):
 
-| Étape | Objet forge |
+| Step | Forge object |
 |---|---|
-| Brouillon | commits sur une branche de travail `relecture/<auteur>-<date>` |
-| En révision | demande de fusion ouverte, relecteurs désignés |
-| Modifications demandées | revue « changes requested » |
-| Nouvelle révision | nouveaux commits sur la branche |
-| Approuvé | revue « approved » |
-| Publié | fusion dans la branche principale |
+| Draft | commits on a working branch `review/<author>-<date>` |
+| In review | open merge request, reviewers assigned |
+| Changes requested | "changes requested" review |
+| New revision | new commits on the branch |
+| Approved | "approved" review |
+| Published | merge into the main branch |
 
-Les **commentaires de relecture** posés sur la forge (sur une ligne du `.md`) sont importés comme commentaires WordCraft ancrés au paragraphe correspondant (ligne → paragraphe via la position des blocs à l'export) ; les réponses faites dans WordCraft sont renvoyées sur la forge. Les commentaires **internes au fichier** (03 §6) fonctionnent, eux, avec n'importe quel Git, même sans forge.
+**Review comments** left on the forge (on a line of the `.md`) are imported as WordCraft comments anchored to the matching paragraph (line → paragraph via block positions at export); replies made in WordCraft are sent back to the forge. Comments **inside the file** (03 §6) work with any Git, even without a forge.
 
-## 7. Conflits (« modifications à résoudre »)
+## 7. Conflicts ("changes to resolve")
 
-Quand la synchronisation échoue parce que le fichier a changé à distance :
+When sync fails because the file changed remotely:
 
-1. relire la version distante et la version de base commune ;
-2. `review.compare(base, distante)` → révisions de l'autre auteur, appliquées sur la copie locale ;
-3. l'utilisateur accepte/rejette comme dans Word ; puis nouvelle version.
+1. read the remote version and the common base version;
+2. `review.compare(base, remote)` → the other author's revisions, applied to the local copy;
+3. the user accepts/rejects as in Word; then a new version.
 
-Pas de marqueurs `<<<<<<<` dans le texte, jamais. **[hypothèse]** : la fusion par paragraphe (`compare` + application) suffit pour les cas courants ; à valider sur des scénarios réels (09 §5).
+Never any `<<<<<<<` markers in the text. **[hypothesis]**: paragraph-level merging (`compare` + apply) is enough for common cases; to validate on real scenarios (09 §5).
 
-## 8. Sauvegarde automatique et récupération
+## 8. Autosave and recovery
 
-Indépendantes de Git : journal local dans le dossier de données de l'application (pas dans le dépôt), écrit de façon atomique toutes les quelques secondes quand le document est modifié ; proposé à la réouverture après un arrêt anormal. Aujourd'hui l'auto-enregistrement n'existe que pour les formats sans perte et seulement sur le fichier lui-même (`ui-egui/src/lib.rs:1775`) ; il faut l'autoriser pour `.md` une fois Markdown devenu format maître.
+Independent of Git: a local journal in the application's data folder (not in the repository), written atomically every few seconds while the document is modified; offered on reopen after an abnormal exit. Today autosave only exists for lossless formats and only on the file itself (`ui-egui/src/lib.rs:1775`); it must be allowed for `.md` once Markdown becomes the master format.
 
-## 9. Sécurité
+## 9. Security
 
-- Les contenus venant d'une forge sont **non fiables** : mêmes limites que les fichiers (tailles, nombre d'images, profondeur) ; chemins d'images confinés au dépôt.
-- Aucun appel réseau sans action explicite de connexion ; l'édition, la conversion, le PDF et l'historique local fonctionnent hors ligne.
-- Portées minimales des jetons (lecture/écriture du contenu du dépôt, pull requests).
+- Content coming from a forge is **untrusted**: same limits as files (sizes, number of images, depth); image paths confined to the repository.
+- No network call without an explicit sign-in action; editing, conversion, PDF and local history work offline.
+- Minimal token scopes (read/write repository contents, pull requests).

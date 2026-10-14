@@ -1,83 +1,88 @@
-# 07 — Plan de migration et de développement
+# 07 — Migration and development plan
 
-> Statut : proposition. Estimations en jours de développement pour une personne connaissant Rust, **[hypothèse]** à réviser après la phase 2.
+> Status: proposal. Estimates in development days for one person who knows Rust, **[hypothesis]** to revise after phase 2.
 
-## 1. Principes
+## 1. Principles
 
-1. **Rester proche de l'amont** : les crates gardent leurs noms internes `wordcraft-*`. Seuls les éléments visibles (nom, icônes, identifiants, chemins) changent. Cela permet de récupérer les améliorations de `storytold/wordcraft` (remote `upstream`) par simples fusions.
-2. **Ajouter plutôt que modifier** : nouveau code dans des modules ou crates dédiés (`formats/markdown.rs` profil natif, crate `forge`, `VersionStore` dans `engine`).
-3. **Chaque étape compile et passe `cargo xtask ci`** ; chaque comportement nouveau est une commande avec tests.
-4. **Toute décision structurante a son ADR** (`docs/architecture/adr/`).
+1. **Stay close to upstream**: crates keep their internal `wordcraft-*` names. Only visible items (name, icons, identifiers, paths) change. This lets us pick up improvements from `storytold/wordcraft` (`upstream` remote) with plain merges.
+2. **Add rather than modify**: new code in dedicated modules or crates (native profile in `formats/markdown.rs`, `forge` crate, `VersionStore` in `engine`).
+3. **Every step builds and passes `cargo xtask ci`**; every new behaviour is a command with tests.
+4. **Every structural decision has its ADR** (`docs/architecture/adr/`).
 
 ## 2. Phases
 
-### Phase 0 — Audit ✅ (ce dossier)
+### Phase 0 — Audit ✅ (this folder)
 
-### Phase 1 — Nouveau projet (identité) — 3 à 5 j
+### Phase 1 — New project (identity) — 3 to 5 d — in progress
 
-| Tâche | Fichiers |
+Branding is being done now. The owner works in the cloud: every step below happens in the cloud checkout, with no "on your machine" steps.
+
+| Task | Files |
 |---|---|
-| Choisir le nom (décision du porteur) | — |
-| Ajouter le remote `upstream` | configuration locale |
-| Retirer les marques ArtCraft (logo du README, `docs/brand/` hors dépôt amont, lien Discord/site dans « À propos ») | `README.md`, `docs/brand/`, `crates/ui-egui/src/dialogs.rs:2578` |
-| Nouvel identifiant d'application (remplace `ai.storyteller.wordcraft`) | `apps/wordcraft/src/main.rs:293`, `default_apps.rs:35`, `packaging/macos/Info.plist.in`, `packaging/linux/*`, flatpak |
-| **Nouveau `UpgradeCode` Windows** et fabricant | `packaging/windows/wordcraft.wxs:13-23` |
-| Chemins de configuration propres (éviter de partager la configuration avec WordCraft installé) | `crates/control-key/src/lib.rs:7-18`, `crates/proof/src/hunspell.rs:60`, base IndexedDB `apps/wordcraft-web/src/web/font_store.rs:10` |
-| Titres, métadonnées producteur PDF/DOCX, nom MCP | `ui-egui/src/lib.rs:1867`, `chrome.rs:350`, `pdf/src/lib.rs:366`, `docx/src/write/mod.rs:1237`, `mcp/src/server.rs:136` |
-| Nouvelle icône **originale** dessinée en code ou CC0, avec ligne `ATTRIBUTION.md` | `assets/app-icon/`, `packaging/icons.sh` |
-| `NOTICE` : mention « basé sur WordCraft par l'équipe ArtCraft », licences MIT/Apache conservées | `NOTICE`, `README.md` |
+| Name: **Plume** (decided by the owner, see §4) | — |
+| Add the `upstream` remote (`git remote add upstream https://github.com/storytold/wordcraft`) | the cloud checkout's Git configuration |
+| Remove ArtCraft trademarks (README logo, `docs/brand/` outside the upstream repository, Discord/site link in "About") | `README.md`, `docs/brand/`, `crates/ui-egui/src/dialogs.rs:2578` |
+| New application id `io.github.thelazygeekguy.plume` (replaces `ai.storyteller.wordcraft`) | `apps/wordcraft/src/main.rs:293`, `default_apps.rs:35`, `packaging/macos/Info.plist.in`, `packaging/linux/*`, flatpak |
+| **New Windows `UpgradeCode`** and manufacturer | `packaging/windows/wordcraft.wxs:13-23` |
+| Own configuration paths (avoid sharing configuration with an installed WordCraft) | `crates/control-key/src/lib.rs:7-18`, `crates/proof/src/hunspell.rs:60`, IndexedDB database `apps/wordcraft-web/src/web/font_store.rs:10` |
+| Titles, PDF/DOCX producer metadata, MCP name | `ui-egui/src/lib.rs:1867`, `chrome.rs:350`, `pdf/src/lib.rs:366`, `docx/src/write/mod.rs:1237`, `mcp/src/server.rs:136` |
+| New **original** icon drawn in code or CC0, with an `ATTRIBUTION.md` row | `assets/app-icon/`, `packaging/icons.sh` |
+| `NOTICE`: "based on WordCraft by the ArtCraft team", MIT/Apache licences kept | `NOTICE`, `README.md` |
 
-### Phase 2 — Markdown natif — 10 à 15 j (incrément 1 fait)
+### Phase 2 — Native Markdown — 10 to 15 d (increment 1 done)
 
-| Tâche | État |
+| Task | State |
 |---|---|
-| `export_native` zéro HTML, `assets/` à noms stables, `Report` | ✅ fait |
-| `import_with` (images relatives) ; ouverture `.md` depuis le disque | ✅ fait |
-| `io::save_markdown` ; un chemin `.md` sauvegarde en natif | ✅ fait |
-| Test de bout en bout DOCX → MD → MD → PDF | ✅ fait |
-| `.md` = format maître : nom par défaut à l'enregistrement, indicateur « modifié », auto-enregistrement | à faire (`ui-egui/src/lib.rs:1547, 2085`, `engine/src/cmd/file.rs:286`) |
-| Rapport affiché après import et à l'enregistrement (bandeau non bloquant) | à faire |
-| Front matter YAML (import + export) | à faire |
-| Notes de bas de page `[^n]` | à faire |
-| Commentaires ancrés `<!-- cN -->` (03 §6) | à faire |
-| Liens internes vers les slugs de titres | à faire |
-| Conversion PNG des images non web, graphiques/SmartArt rendus en image | à faire |
-| Mode strict/souple des commandes (03 §5) | à faire |
-| Thèmes visuels `gfm` / `vitepress` (feuilles de styles appliquées à l'import) | à faire |
-| Profil de publication `publication/default.toml` (page, marges, polices) | à faire |
+| Zero-HTML `export_native`, `assets/` with stable names, `Report` | ✅ done |
+| `import_with` (relative images); opening `.md` from disk | ✅ done |
+| `io::save_markdown`; a `.md` path saves natively | ✅ done |
+| End-to-end test DOCX → MD → MD → PDF | ✅ done |
+| `.md` = master format: default name on save, "modified" flag, autosave | to do (`ui-egui/src/lib.rs:1547, 2085`, `engine/src/cmd/file.rs:286`) |
+| Report shown after import and on save (non-blocking banner) | to do |
+| YAML front matter (import + export) | to do |
+| Footnotes `[^n]` | to do |
+| Anchored comments `<!-- cN -->` (03 §6) | to do |
+| Internal links to heading slugs | to do |
+| PNG conversion of non-web images, charts/SmartArt rendered as images | to do |
+| Strict/lenient command mode (03 §5) | to do |
+| `gfm` / `vitepress` visual themes (stylesheets applied on import) | to do |
+| Publishing profile `publication/default.toml` (page, margins, fonts) | to do |
 
-### Phase 3 — Import Word et PDF — 5 à 8 j
+### Phase 3 — Word import and PDF — 5 to 8 d
 
-Corpus (09 §2), rapport d'import, conversion des ressources, Word 6/95 (repli facultatif), export PDF selon le profil de publication.
+Corpus (09 §2), import report, asset conversion, Word 6/95 (optional fallback), PDF export according to the publishing profile.
 
-### Phase 4 — Stockage et Git — 15 à 25 j
+### Phase 4 — Storage and Git — 15 to 25 d
 
-`VersionStore` + `MemoryStore` (reprise de `file.versions`), `LocalGitStore` (`gix`), panneau Historique, « Enregistrer une version », « Afficher les modifications » via `review.compare`, restauration, journal de récupération, explorateur de dossier documentaire.
+`VersionStore` + `MemoryStore` (taking over `file.versions`), `LocalGitStore` (`gix`), History panel, "Save a version", "Show changes" via `review.compare`, restore, recovery journal, document folder browser.
 
-### Phase 5 — Forges et révision — 20 à 30 j
+### Phase 5 — Forges and review — 20 to 30 d
 
-Crate `forge` (GitHub, GitLab, Forgejo), authentification (device flow / PKCE / jetons), trousseau, ouverture depuis une forge, synchronisation, conflits via `compare`, relecture (PR/MR), commentaires de forge ↔ commentaires Word, circuit de validation.
+`forge` crate (GitHub, GitLab, Forgejo), authentication (device flow / PKCE / tokens), keychain, open from a forge, sync, conflicts via `compare`, review (PR/MR), forge comments ↔ Word comments, approval workflow.
 
-### Phase 6 — Distribution — 5 à 10 j
+### Phase 6 — Distribution — 5 to 10 d
 
-Paquets macOS/Windows/Linux/Web sous la nouvelle identité, documentation utilisateur en français, tests de compatibilité.
+macOS/Windows/Linux/Web packages under the new identity, user documentation (English first; translations through the existing localization work), compatibility tests.
 
-## 3. Stratégie de renommage
+## 3. Renaming strategy
 
-- **Ne pas** renommer les crates ni les modules (diffs illisibles, fusions amont impossibles).
-- Centraliser le nom affiché dans une constante unique (par exemple `wordcraft_engine::APP_NAME`) et la référencer partout où « WordCraft » est visible — c'est une modification que l'amont pourrait même accepter.
-- Renommer les binaires au niveau de l'empaquetage seulement (`[[bin]] name`), pas des packages Cargo.
+- **Do not** rename crates or modules (unreadable diffs, upstream merges impossible).
+- Centralise the display name in a single constant (for example `wordcraft_engine::APP_NAME`) and reference it wherever "WordCraft" is visible — a change upstream might even accept.
+- Rename binaries at the packaging level only (`[[bin]] name`), not the Cargo packages.
 
-## 4. Propositions de nom (décision du porteur)
+## 4. Name: Plume
 
-Critères : pas de « Craft » (évite la confusion avec la marque ArtCraft), pas de référence à Word/Office, disponible comme nom de dépôt.
+The owner chose **Plume** as the product name. Criteria it meets: no "Craft" (avoids confusion with the ArtCraft trademark), no reference to Word/Office.
 
-| Nom | Idée |
-|---|---|
-| **Plume** | écrire, simple, francophone |
-| **Folio** | page, document |
-| **Marque-page** / **Signet** | lien avec Markdown, lecture |
-| **Calame** | instrument d'écriture |
-| **Scriptorium** | atelier d'écriture collaboratif — écho au versionnement |
+Check done on 2026-10-14:
 
-Vérifications à faire par le porteur : marques déposées, noms de domaine, dépôts existants.
+- No registered trademark found in a quick web search.
+- Other software already uses the name:
+  - "Plume", a desktop writing app for Windows/Mac (https://www.producthunt.com/p/plume-2);
+  - Plume Creator, a GPL novel-writing tool, discontinued and succeeded by Skribisto;
+  - Plume, an AGPL federated blogging engine written in Rust (https://github.com/Plume-org/Plume, joinplu.me);
+  - the Rust crate `plume` (LGPL).
+
+Recommendation: keep Plume as the display name, keep it in a single constant (§3) so it can change, and have the owner run a formal EUIPO/INPI/USPTO search (classes 9 and 42) before any public release.
+
+Application id chosen: `io.github.thelazygeekguy.plume`.

@@ -1,75 +1,75 @@
-# 04 — Stratégie de conversion
+# 04 — Conversion strategy
 
-> Statut : recommandation. Légende : **[code]** vérifié · **[doc]** documentation publique des outils · **[hypothèse]** à vérifier sur corpus.
+> Status: recommendation. Legend: **[code]** verified · **[doc]** public documentation of the tools · **[hypothesis]** to be checked on a corpus.
 
-## 1. Recommandation
+## 1. Recommendation
 
-**Le moteur WordCraft est l'unique chaîne de conversion par défaut**, sur toutes les plateformes y compris le Web :
+**The WordCraft engine is the only default conversion chain**, on every platform including the Web:
 
 ```text
 .docx/.docm/.dotx ─ crates/docx ─┐
 .doc (97-2003)   ─ crates/docbin ┤
-.rtf / .odt / .html / .txt ──────┼─► Document ─► export_native ─► .md + assets/ + rapport
-.md (natif)      ─ import_with ──┘
+.rtf / .odt / .html / .txt ──────┼─► Document ─► export_native ─► .md + assets/ + report
+.md (native)     ─ import_with ──┘
 ```
 
-Aucune dépendance externe lourde n'est ajoutée. Un convertisseur externe n'est envisagé qu'en **repli facultatif, desktop uniquement**, pour les formats que WordCraft ne lit pas (Word 6/95, Word pour DOS, WordPerfect).
+No heavy external dependency is added. An external converter is only considered as an **optional, desktop-only fallback**, for formats WordCraft does not read (Word 6/95, Word for DOS, WordPerfect).
 
-## 2. Comparatif
+## 2. Comparison
 
-| Critère | WordCraft natif | Pandoc | LibreOffice headless | Bibliothèques Rust (`docx-rs`, `docx-rust`) |
+| Criterion | Native WordCraft | Pandoc | Headless LibreOffice | Rust libraries (`docx-rs`, `docx-rust`) |
 |---|---|---|---|---|
-| Formats lus | DOCX/DOCM/DOTX/DOTM, DOC 97-2003, Flat OPC, WordML 2003, RTF, ODT, HTML, TXT, MD, LaTeX **[code]** | DOCX, ODT, RTF, HTML, EPUB… ; **pas de `.doc`** **[doc]** | quasiment tout, y compris Word 6/95 et `.doc` anciens **[doc]** | DOCX seulement |
-| Qualité attendue | élevée : moteur conçu pour la parité Word (styles, listes, tableaux, champs, notes, commentaires, révisions, images, WMF/EMF) **[code]** | bonne sur la structure, faible sur la mise en page **[doc]** | élevée **[doc]** | partielle (lecture surtout orientée génération) **[hypothèse]** |
-| Pertes connues | voir 03 §4 (côté Markdown, pas côté import) | idem + numérotation, objets | passe par un format intermédiaire (DOCX/HTML) puis par notre chaîne | nombreuses |
-| Dépendances | aucune nouvelle | binaire Haskell externe (~100 Mo) | suite bureautique complète (~500 Mo) | crate Rust |
-| Licence | MIT/Apache **[code]** | **GPL-2.0+** : utilisable seulement comme **programme externe** invoqué, jamais lié ni copié (règle *clean room* du dépôt) | MPL-2.0 : programme externe | MIT |
-| WebAssembly | **oui** (`cargo xtask wasm`) **[code]** | non (existe en WASM expérimental, très lourd) | non | oui |
-| Effort d'intégration | **déjà intégré** | appel de processus + gestion d'erreurs | appel de processus | réécriture de la couche d'import |
+| Formats read | DOCX/DOCM/DOTX/DOTM, DOC 97-2003, Flat OPC, WordML 2003, RTF, ODT, HTML, TXT, MD, LaTeX **[code]** | DOCX, ODT, RTF, HTML, EPUB…; **no `.doc`** **[doc]** | almost everything, including Word 6/95 and old `.doc` **[doc]** | DOCX only |
+| Expected quality | high: engine built for Word parity (styles, lists, tables, fields, notes, comments, revisions, images, WMF/EMF) **[code]** | good on structure, weak on layout **[doc]** | high **[doc]** | partial (reading mostly geared towards generation) **[hypothesis]** |
+| Known losses | see 03 §4 (on the Markdown side, not the import side) | same + numbering, objects | goes through an intermediate format (DOCX/HTML) then through our chain | many |
+| Dependencies | none new | external Haskell binary (~100 MB) | full office suite (~500 MB) | Rust crate |
+| Licence | MIT/Apache **[code]** | **GPL-2.0+**: usable only as an **external program** invoked, never linked or copied (the repository's *clean room* rule) | MPL-2.0: external program | MIT |
+| WebAssembly | **yes** (`cargo xtask wasm`) **[code]** | no (experimental WASM build exists, very heavy) | no | yes |
+| Integration effort | **already integrated** | process call + error handling | process call | rewrite of the import layer |
 
-Conclusion : seul LibreOffice apporte une valeur réelle (formats antérieurs à Word 97), et uniquement en repli. Pandoc n'apporte rien que WordCraft ne fasse déjà, et introduit une contrainte GPL. Les bibliothèques Rust sont en retrait par rapport au moteur existant.
+Conclusion: only LibreOffice brings real value (formats older than Word 97), and only as a fallback. Pandoc brings nothing WordCraft does not already do, and adds a GPL constraint. The Rust libraries fall short of the existing engine.
 
-## 3. Détail par format d'entrée
+## 3. Per input format
 
-| Format | Composant | État | Actions |
+| Format | Component | State | Actions |
 |---|---|---|---|
-| `.md`, `.markdown` | `formats::markdown::import_with` | natif, images relatives résolues **[code]** | front matter YAML (actuellement lu comme règle + texte), notes `[^n]`, listes de tâches, alertes `> [!NOTE]` |
-| `.docx` & co | `crates/docx` | complet, y compris documents chiffrés **[code]** | aucune |
-| `.doc` 97-2003 | `crates/docbin` | lecture seule complète (texte, styles, listes, tableaux, notes, images, dessins) **[code]** | aucune |
-| `.doc` Word 6.0/95 | — | **refusé** avec un message clair (`docbin/src/fib.rs:117`) **[code]** | repli LibreOffice facultatif, ou nouvel importateur (spécification publique limitée) |
-| `.rtf` | `formats::rtf` | lecture/écriture, révisions **[code]** | aucune |
-| `.odt` | `formats::odt` | lecture/écriture **[code]** | aucune |
-| `.html` | `formats::html` | lecture avec images locales **[code]** | aucune |
-| `.txt` | `formats::txt` | détection d'encodage (UTF-8/16, Windows-1252, GBK…) **[code]** | aucune |
-| `.pdf` | — | non éditable | consultation facultative, hors périmètre |
+| `.md`, `.markdown` | `formats::markdown::import_with` | native, relative images resolved **[code]** | YAML front matter (currently read as a rule + text), `[^n]` notes, task lists, `> [!NOTE]` alerts |
+| `.docx` & co | `crates/docx` | complete, including encrypted documents **[code]** | none |
+| `.doc` 97-2003 | `crates/docbin` | complete read-only support (text, styles, lists, tables, notes, images, drawings) **[code]** | none |
+| `.doc` Word 6.0/95 | — | **rejected** with a clear message (`docbin/src/fib.rs:117`) **[code]** | optional LibreOffice fallback, or a new importer (limited public specification) |
+| `.rtf` | `formats::rtf` | read/write, revisions **[code]** | none |
+| `.odt` | `formats::odt` | read/write **[code]** | none |
+| `.html` | `formats::html` | read with local images **[code]** | none |
+| `.txt` | `formats::txt` | encoding detection (UTF-8/16, Windows-1252, GBK…) **[code]** | none |
+| `.pdf` | — | not editable | optional viewing, out of scope |
 
-## 4. Conversion des ressources
+## 4. Asset conversion
 
-| Cas | Traitement |
+| Case | Handling |
 |---|---|
-| PNG, JPEG, GIF, WebP, BMP | conservés tels quels, nom `img-<hash>.<ext>`, rechargés à l'ouverture (`model::sniff_image`) **[prototype]** |
-| TIFF, SVG, EMF, WMF | **limite actuelle** : écrits dans `assets/` mais **non rechargés** à la réouverture (`sniff_image` ne les reconnaît pas) → l'image redevient son texte alternatif. **Priorité haute** : convertir en PNG à l'enregistrement |
-| WMF / EMF (fréquents dans les `.doc`) | **à faire** : rendu vectoriel → PNG via `crates/metafile` + `crates/render` (ou SVG) |
-| Graphiques, SmartArt, formes, WordArt | **à faire** : rendu PNG de l'objet (le moteur les dessine déjà à l'écran) ; texte alternatif conservé |
-| Images rognées | **à faire** : appliquer le rognage avant l'écriture (sinon l'image complète réapparaît) |
-| Objets OLE (Excel incorporé…) | image d'aperçu seulement, signalé |
+| PNG, JPEG, GIF, WebP, BMP | kept as is, named `img-<hash>.<ext>`, reloaded on open (`model::sniff_image`) **[prototype]** |
+| TIFF, SVG, EMF, WMF | **current limitation**: written to `assets/` but **not reloaded** on reopen (`sniff_image` does not recognise them) → the image reverts to its alt text. **High priority**: convert to PNG on save |
+| WMF / EMF (common in `.doc` files) | **to do**: vector rendering → PNG via `crates/metafile` + `crates/render` (or SVG) |
+| Charts, SmartArt, shapes, WordArt | **to do**: PNG rendering of the object (the engine already draws them on screen); alt text kept |
+| Cropped images | **to do**: apply the crop before writing (otherwise the full image reappears) |
+| OLE objects (embedded Excel…) | preview image only, reported |
 
-## 5. Rapport d'importation
+## 5. Import report
 
-Le `Report` produit par `export_native` alimente le rapport demandé (§5.4 du cahier des charges). À l'ouverture d'un `.docx`/`.doc`, l'application calcule ce rapport **sans écrire de fichier** et l'affiche dans un bandeau non bloquant :
+The `Report` produced by `export_native` feeds the requested report (§5.4 of the specification). When a `.docx`/`.doc` is opened, the application computes this report **without writing any file** and shows it in a non-blocking banner:
 
 ```text
-Importation terminée — procedure.docx
-Paragraphes : 156 · Titres : 12 · Tableaux : 8 · Images : 24 · Liens : 17
-Éléments adaptés : 3   [Voir le détail]
+Import complete — procedure.docx
+Paragraphs: 156 · Headings: 12 · Tables: 8 · Images: 24 · Links: 17
+Adapted items: 3   [Show details]
 ```
 
-Le détail liste les lignes `Report::lines()` (« 2 × cellules fusionnées écrites comme cellules vides »…). Les compteurs de structure (paragraphes, titres, liens) sont à ajouter au `Report` (**à faire**, trivial à partir du `Flow`).
+The details list the `Report::lines()` lines ("2 × merged cells written as empty cells"…). The structure counters (paragraphs, headings, links) have to be added to `Report` (**to do**, trivial from the `Flow`).
 
-## 6. Collage depuis Word
+## 6. Pasting from Word
 
-Le collage passe déjà par `crates/engine/src/cmd/paste.rs` (HTML et RTF du presse-papiers, images). Rien à changer : le contenu collé entre dans le `Document` riche, et c'est l'enregistrement qui applique le profil. Le mode « strict » (03 §5) pourrait proposer « Coller en conservant uniquement la structure » par défaut.
+Paste already goes through `crates/engine/src/cmd/paste.rs` (clipboard HTML and RTF, images). Nothing to change: pasted content enters the rich `Document`, and saving applies the profile. "Strict" mode (03 §5) could offer "Paste keeping structure only" by default.
 
-## 7. Scripts de conversion existants du porteur
+## 7. The owner's existing conversion scripts
 
-Le porteur indique disposer de scripts de conversion DOC → Markdown (dépôt `TheLazyGeekGuy/convertDoC`, privé). **Cette session n'a pas obtenu l'accès à ce dépôt** : la comparaison reste à faire. Méthode proposée : passer le même corpus (09 §2) dans les deux chaînes et comparer les `.md` produits et les rapports ; reprendre dans WordCraft les règles de normalisation des scripts qui se révèlent meilleures (en réécrivant le code, sans copie si la licence des scripts l'interdit).
+The owner has DOC → Markdown conversion scripts (repository `TheLazyGeekGuy/convertDoC`, private). The audit session was not given access to that repository. **The comparison was dropped by the owner's decision** (done without): the WordCraft importer is the only conversion chain, and the scripts will not be compared or reused.

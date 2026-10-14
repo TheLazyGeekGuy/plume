@@ -1,63 +1,63 @@
-# 06 — Analyse multiplateforme
+# 06 — Cross-platform analysis
 
-> Statut : audit. Légende : **[code]** vérifié · **[hypothèse]** à confirmer.
+> Status: audit. Legend: **[code]** verified · **[hypothesis]** to be confirmed.
 
-## 1. Situation actuelle
+## 1. Current situation
 
-| Plateforme | Binaire | Empaquetage existant | État |
+| Platform | Binary | Existing packaging | State |
 |---|---|---|---|
-| macOS (Apple Silicon, Intel) | `apps/wordcraft` (eframe) | `packaging/macos` (Info.plist, DMG signé) **[code]** | pris en charge |
-| Windows x64 / ARM64 | idem | `packaging/windows/wordcraft.wxs` (MSI WiX) **[code]** | pris en charge |
-| Linux x64 / ARM64 | idem | `packaging/linux` (.desktop, metainfo, MIME), Flatpak **[code]** | pris en charge |
-| BSD | idem | README (Gentoo overlay mentionné, BSD dans CLAUDE.md) | annoncé |
-| Web | `apps/wordcraft-web` (Trunk, eframe wgpu → WebGL2) | `packaging/web/package.sh` **[code]** | pris en charge |
+| macOS (Apple Silicon, Intel) | `apps/wordcraft` (eframe) | `packaging/macos` (Info.plist, signed DMG) **[code]** | supported |
+| Windows x64 / ARM64 | same | `packaging/windows/wordcraft.wxs` (WiX MSI) **[code]** | supported |
+| Linux x64 / ARM64 | same | `packaging/linux` (.desktop, metainfo, MIME), Flatpak **[code]** | supported |
+| BSD | same | README (Gentoo overlay mentioned, BSD in CLAUDE.md) | announced |
+| Web | `apps/wordcraft-web` (Trunk, eframe wgpu → WebGL2) | `packaging/web/package.sh` **[code]** | supported |
 
-Le code métier est **entièrement partagé** : toutes les crates L0–L6 compilent en `wasm32-unknown-unknown` (`cargo xtask wasm`, `xtask/src/main.rs:126-154`). Aucune réécriture n'est nécessaire.
+Business code is **fully shared**: every L0–L6 crate builds for `wasm32-unknown-unknown` (`cargo xtask wasm`, `xtask/src/main.rs:126-154`). No rewrite is needed.
 
-## 2. Capacités par plateforme pour le projet
+## 2. Per-platform capabilities for the project
 
-| Capacité | Desktop | Web | Commentaire |
+| Capability | Desktop | Web | Comment |
 |---|---|---|---|
-| Édition WYSIWYG, ruban, styles | oui | oui | même code |
-| Import DOCX / DOC / RTF / ODT / HTML | oui | oui | moteur pur Rust |
-| Ouverture / sauvegarde `.md` | oui, avec `assets/` | **partiel** : un fichier à la fois via le sélecteur ; les images d'`assets/` ne sont pas accessibles | voir §3 |
-| Export PDF | oui | oui (`print_pdf`, téléchargement) | krilla compilé en WASM |
-| Polices | polices système + `CRAFT_FONTS_DIR` | polices embarquées + IndexedDB | thème visuel : choisir des polices libres incluses |
-| Auto-enregistrement / récupération | à étendre au `.md` | **absent** (`autosave_block`) | IndexedDB/OPFS pour le journal |
-| Git local | `gix` | **non** | |
-| Forges (REST) | oui | oui, sous réserve de CORS et d'authentification (05 §4) | |
-| Trousseau système | oui | non (session) | |
-| Explorateur de documents | explorateur intégré existant (`ui-egui/src/file_browser.rs`) | non compilé en WASM | à remplacer par la vue « dépôt » via API |
-| Threads de rendu | oui (rayon) | 0 (`render/src/lib.rs:24`) | 100 pages : à mesurer |
+| WYSIWYG editing, ribbon, styles | yes | yes | same code |
+| DOCX / DOC / RTF / ODT / HTML import | yes | yes | pure-Rust engine |
+| Open / save `.md` | yes, with `assets/` | **partial**: one file at a time via the picker; images in `assets/` are not reachable | see §3 |
+| PDF export | yes | yes (`print_pdf`, download) | krilla built for WASM |
+| Fonts | system fonts + `CRAFT_FONTS_DIR` | embedded fonts + IndexedDB | visual theme: choose bundled free fonts |
+| Autosave / recovery | to extend to `.md` | **absent** (`autosave_block`) | IndexedDB/OPFS for the journal |
+| Local Git | `gix` | **no** | |
+| Forges (REST) | yes | yes, subject to CORS and authentication (05 §4) | |
+| System keychain | yes | no (session) | |
+| Document browser | existing built-in browser (`ui-egui/src/file_browser.rs`) | not built for WASM | to replace with a "repository" view via the API |
+| Render threads | yes (rayon) | 0 (`render/src/lib.rs:24`) | 100 pages: to measure |
 
-## 3. Obstacles propres au Web
+## 3. Web-specific obstacles
 
-1. **Système de fichiers.** Le navigateur ne donne qu'un fichier à la fois. Pour un `.md` + `assets/`, deux voies :
-   - File System Access API (`showDirectoryPicker`, Chromium seulement) pour ouvrir un **dossier** ;
-   - archive : proposer en téléchargement un `.zip` (`document.md` + `assets/`) — la crate `zip` est déjà une dépendance.
-   Recommandation : dossier sous Chromium, `.zip` ailleurs, et **le dépôt distant comme mode principal du Web** (il n'a pas ce problème).
-2. **Git.** Pas de processus, pas de sockets : uniquement les **API REST des forges** (05 §3.1). Pas de clone, pas de SSH.
-3. **CORS.** GitHub et GitLab.com acceptent les appels d'API authentifiés depuis le navigateur **[hypothèse à tester]** ; Forgejo exige l'activation CORS sur l'instance ; les points d'entrée OAuth « device flow » de GitHub ne sont pas appelables depuis le navigateur → jeton personnel ou relais.
-4. **Secrets.** Pas de trousseau : jeton en mémoire, durée de vie courte.
-5. **Performance.** Rendu sans threads : mesurer l'édition d'un document de 100 pages (09 §6) avant de promettre la fluidité.
-6. **Taille.** Le binaire WASM embarque tout le moteur ; ajouter un client Git en WASM est à proscrire (l'API REST suffit).
+1. **File system.** The browser only gives one file at a time. For a `.md` + `assets/`, two routes:
+   - File System Access API (`showDirectoryPicker`, Chromium only) to open a **folder**;
+   - archive: offer a `.zip` download (`document.md` + `assets/`) — the `zip` crate is already a dependency.
+   Recommendation: folder on Chromium, `.zip` elsewhere, and **the remote repository as the Web's main mode** (it does not have this problem).
+2. **Git.** No processes, no sockets: only the **forges' REST APIs** (05 §3.1). No clone, no SSH.
+3. **CORS.** GitHub and GitLab.com accept authenticated API calls from the browser **[hypothesis, to test]**; Forgejo requires CORS to be enabled on the instance; GitHub's OAuth "device flow" endpoints cannot be called from the browser → personal token or relay.
+4. **Secrets.** No keychain: token in memory, short lifetime.
+5. **Performance.** Rendering without threads: measure editing a 100-page document (09 §6) before promising smoothness.
+6. **Size.** The WASM binary embeds the whole engine; adding a Git client in WASM is ruled out (the REST API is enough).
 
-## 4. Abstractions à introduire
+## 4. Abstractions to introduce
 
-| Abstraction | Natif | Web |
+| Abstraction | Native | Web |
 |---|---|---|
-| `HttpTransport` (requête → réponse) | client HTTP Rust (rustls) | `fetch` |
-| `SecretStore` | trousseau système | mémoire de session |
-| `DocumentStore` (lire/écrire `.md` + ressources) | système de fichiers | sélecteur de dossier / zip / forge |
+| `HttpTransport` (request → response) | Rust HTTP client (rustls) | `fetch` |
+| `SecretStore` | system keychain | session memory |
+| `DocumentStore` (read/write `.md` + assets) | file system | folder picker / zip / forge |
 | `VersionStore` | `MemoryStore`, `LocalGitStore`, `ForgeStore` | `MemoryStore`, `ForgeStore` |
 
-Elles s'ajoutent au mécanisme `Services` déjà utilisé par l'interface pour les dialogues (`apps/wordcraft-web/src/web.rs:176`), sans dépendance réseau dans `engine`.
+They join the `Services` mechanism already used by the UI for dialogs (`apps/wordcraft-web/src/web.rs:176`), with no network dependency in `engine`.
 
-## 5. Priorités
+## 5. Priorities
 
-| Plateforme | Priorité cahier des charges | Effort supplémentaire du projet |
+| Platform | Specification priority | Extra project effort |
 |---|---|---|
-| macOS Apple Silicon | P0 | faible (identité, signature, identifiant d'application) |
-| macOS Intel, Windows x64, Linux x64 | P1 | faible |
-| Web | P1 | **moyen à élevé** (stockage, forges, CORS, auth) |
-| Windows ARM64, Linux ARM64 | P2 | faible (cross-compilation existante à vérifier) |
+| macOS Apple Silicon | P0 | low (identity, signing, application id) |
+| macOS Intel, Windows x64, Linux x64 | P1 | low |
+| Web | P1 | **medium to high** (storage, forges, CORS, auth) |
+| Windows ARM64, Linux ARM64 | P2 | low (existing cross-compilation to verify) |
