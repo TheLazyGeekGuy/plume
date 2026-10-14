@@ -607,10 +607,20 @@ pub fn markdown_download(name: &str, doc: &Document) -> Result<(String, Vec<u8>)
 pub fn web_pictures(doc: &Document) -> std::borrow::Cow<'_, Document> {
     let metafiles: Vec<(String, f32, f32)> =
         doc.media.iter().filter_map(|(k, b)| wordcraft_render::metafile_size(b).map(|(w, h, _)| (k.clone(), w, h))).collect();
-    if metafiles.is_empty() {
+    let graphics = has_graphics(&doc.body, 0);
+    if metafiles.is_empty() && !graphics {
         return std::borrow::Cow::Borrowed(doc);
     }
     let mut out = doc.clone();
+    if graphics {
+        // Charts, SmartArt and diagrams: drawn as they show on the page, kept as pictures.
+        let mut drawn = 0usize;
+        let mut body = std::mem::take(&mut out.body);
+        for b in &mut body {
+            graphics_as_pictures(doc, &mut out, std::sync::Arc::make_mut(b), &mut drawn, 0);
+        }
+        out.body = body;
+    }
     for (key, w, h) in metafiles {
         // Two pixels per point, at most 2048 pixels on the longer side.
         let scale = (2048.0 / w.max(h).max(1.0)).min(2.0);
@@ -627,6 +637,82 @@ pub fn web_pictures(doc: &Document) -> std::borrow::Cow<'_, Document> {
         }
     }
     std::borrow::Cow::Owned(out)
+}
+
+/// Most charts and diagrams drawn as pictures for one copy.
+const MAX_GRAPHICS: usize = 200;
+
+fn has_graphics(blocks: &wordcraft_doc::Blocks, depth: usize) -> bool {
+    depth < 8
+        && blocks.iter().any(|b| match &**b {
+            wordcraft_doc::Block::Para(p) => p.objects.iter().any(|o| matches!(o, wordcraft_doc::InlineObject::Graphic { .. })),
+            wordcraft_doc::Block::Table(t) => t.rows.iter().flat_map(|r| &r.cells).any(|c| has_graphics(&c.blocks, depth + 1)),
+        })
+}
+
+/// Replace the graphics in `b` (charts, SmartArt…) by pictures of them, drawn from `src`.
+fn graphics_as_pictures(src: &Document, out: &mut Document, b: &mut wordcraft_doc::Block, drawn: &mut usize, depth: usize) {
+    match b {
+        wordcraft_doc::Block::Para(p) => {
+            let mut changed = false;
+            for o in &mut p.objects {
+                let wordcraft_doc::InlineObject::Graphic { w, h, alt, .. } = o else { continue };
+                if *drawn >= MAX_GRAPHICS || !(w.is_finite() && h.is_finite() && *w >= 1.0 && *h >= 1.0) {
+                    continue;
+                }
+                let (w, h, alt) = (w.min(1584.0), h.min(1584.0), alt.clone());
+                let Some(png) = draw_object(src, o, w, h) else { continue };
+                *drawn += 1;
+                let media = out.add_media(png, "png");
+                *o = wordcraft_doc::InlineObject::Image { media, w, h, alt, float: Default::default(), crop: [0.0; 4], ole: None };
+                changed = true;
+            }
+            if changed {
+                p.touch();
+            }
+        }
+        wordcraft_doc::Block::Table(t) if depth < 8 => {
+            for c in t.rows.iter_mut().flat_map(|r| r.cells.iter_mut()) {
+                for cb in &mut c.blocks {
+                    graphics_as_pictures(src, out, std::sync::Arc::make_mut(cb), drawn, depth + 1);
+                }
+            }
+        }
+        wordcraft_doc::Block::Table(_) => {}
+    }
+}
+
+/// A PNG of one inline object `w`×`h` points: laid out alone, inline, on a page its size.
+fn draw_object(src: &Document, obj: &wordcraft_doc::InlineObject, w: f32, h: f32) -> Option<Vec<u8>> {
+    const M: f32 = 18.0;
+    let mut obj = obj.clone();
+    if let wordcraft_doc::InlineObject::Graphic { float, .. } = &mut obj {
+        *float = Default::default();
+    }
+    let mut tmp = src.clone();
+    tmp.parts.retain(|_, p| !matches!(p.kind, wordcraft_doc::PartKind::Header | wordcraft_doc::PartKind::Footer));
+    let mut para = wordcraft_doc::Paragraph::new();
+    para.props.space_before = Some(0.0);
+    para.props.space_after = Some(0.0);
+    para.props.line_spacing = Some(Default::default());
+    para.insert_object(0, obj, &Default::default()).ok()?;
+    tmp.body = vec![wordcraft_doc::para_block(para)];
+    tmp.last_section = wordcraft_doc::SectionProps {
+        page_w: w + 2.0 * M,
+        page_h: h + 2.0 * M + 24.0,
+        margin_top: M,
+        margin_bottom: M,
+        margin_left: M,
+        margin_right: M,
+        header: 0.0,
+        footer: 0.0,
+        ..Default::default()
+    };
+    let l = wordcraft_layout::layout(&tmp, &mut wordcraft_layout::LayoutCache::new(), &Default::default());
+    let page = l.pages.first()?;
+    let scale = (2048.0 / w.max(h).max(1.0)).min(2.0);
+    let png = wordcraft_render::render_area(&tmp, page, M, M, w, h, scale, &Default::default()).to_png();
+    (!png.is_empty()).then_some(png)
 }
 
 /// Decode text bytes: UTF-8 (with or without BOM), UTF-16 LE/BE (BOM or sniffed), else the

@@ -6668,3 +6668,28 @@ fn forge_document_versions() {
     assert!(s.doc.revisions.iter().any(|r| r.author == "Bob"));
     assert!(s.forge.is_none(), "the comparison is a new document");
 }
+
+/// A chart and a SmartArt diagram are saved to Markdown as pictures of themselves.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn native_markdown_draws_charts_and_diagrams() {
+    let mut s = Session::new(crate::sample::sample_document());
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("insert.chart", &json!({"type": "column", "title": "Sales"})).unwrap();
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("insert.smartArt", &json!({"layout": "process"})).unwrap();
+    let dir = scratch_dir("native-md-charts");
+    let md = dir.join("charts.md");
+    let report = crate::io::save_markdown(&md, &s.doc).unwrap();
+    assert!(!report.counts.contains_key(&wordcraft_formats::markdown::Adaptation::Figure), "{report:?}");
+    let text = std::fs::read_to_string(&md).unwrap();
+    let pictures: Vec<&str> = text.split("](assets/").skip(1).filter_map(|r| r.split(')').next()).collect();
+    assert_eq!(pictures.len(), 2, "{text}");
+    for p in pictures {
+        let img = image::load_from_memory(&std::fs::read(dir.join("assets").join(p)).unwrap()).unwrap().to_rgba8();
+        // Something is drawn: not one flat colour.
+        let first = *img.get_pixel(0, 0);
+        assert!(img.pixels().any(|px| *px != first), "{p} is blank");
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+}
