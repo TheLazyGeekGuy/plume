@@ -876,3 +876,22 @@ fn markdown_comments_round_trip() {
     let d = import("<!-- a note\nfor editors -->\n\nText <!-- inline --> here\n");
     assert_eq!(d.plain_text(wordcraft_doc::StoryRef::Body).trim(), "Text  here");
 }
+
+/// A table with no rules (Word's way of placing a logo beside an address) becomes paragraphs;
+/// a data table stays a table.
+#[test]
+fn native_markdown_unrolls_layout_tables() {
+    use crate::markdown::{Adaptation, NativeOptions, export_native};
+    use crate::model::{Cell, FTable, Flow, Para};
+    let cell = |t: &str| {
+        let mut p = Para::default();
+        p.push_text(t, &model::Fmt::default());
+        Cell { blocks: vec![FBlock::Para(p)], ..Default::default() }
+    };
+    let layout = FTable { rows: vec![vec![cell("ACME Ltd"), cell("12 Main Street")]], widths: vec![], borderless: true };
+    let data = FTable { rows: vec![vec![cell("A"), cell("B")], vec![cell("1"), cell("2")]], widths: vec![], borderless: false };
+    let d = model::to_doc(&Flow { blocks: vec![FBlock::Table(layout), FBlock::Table(data)], ..Default::default() });
+    let out = export_native(&d, &NativeOptions::default());
+    assert!(out.text.starts_with("ACME Ltd\n\n12 Main Street\n\n| A | B |"), "{}", out.text);
+    assert!(out.report.counts.contains_key(&Adaptation::LayoutTable));
+}

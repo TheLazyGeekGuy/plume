@@ -1525,6 +1525,8 @@ pub enum Adaptation {
     Equation,
     /// An endnote: written as a footnote.
     Endnote,
+    /// A table used for layout (no rules, or one column): its cells written as paragraphs.
+    LayoutTable,
     /// A picture in a format browsers don't show (EMF, WMF…) kept as is.
     ImageFormat,
 }
@@ -1544,6 +1546,7 @@ impl Adaptation {
             Adaptation::Figure => "charts and drawings kept as their alt text",
             Adaptation::Equation => "equations written as linear text",
             Adaptation::Endnote => "endnotes written as footnotes",
+            Adaptation::LayoutTable => "layout tables written as paragraphs",
             Adaptation::ImageFormat => "pictures in formats browsers can't show (EMF, WMF…)",
         }
     }
@@ -2356,6 +2359,14 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
             }
         }
         match b {
+            // A table with no rules, or a single column, lays things out rather than holding
+            // data: its cells' contents follow one another as paragraphs.
+            FBlock::Table(t) if ctx.native && (t.borderless || t.cols() == 1) => {
+                ctx.note(Adaptation::LayoutTable);
+                let cells: Vec<FBlock> = t.rows.iter().flatten().filter(|c| !c.covered).flat_map(|c| c.blocks.iter().cloned()).collect();
+                write_blocks(&cells, out, ctx);
+                prev_list = false;
+            }
             FBlock::Table(t) => {
                 table_md(t, out, ctx);
                 out.push(String::new());
