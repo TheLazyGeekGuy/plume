@@ -88,6 +88,13 @@ use wordcraft_engine::Session;
 pub use control::ControlRequest;
 pub use file_dialogs::{FileDialogAnswer, FileDialogRequest, open_filters};
 
+/// A place for secrets the user asked to remember (the macOS Keychain…): read, store, forget.
+pub struct Secrets {
+    pub get: Box<dyn Fn(&str) -> Option<String>>,
+    pub set: Box<dyn Fn(&str, &str) -> Result<(), String>>,
+    pub forget: Box<dyn Fn(&str)>,
+}
+
 /// Platform services injected by the host (file dialogs, file I/O).
 #[derive(Default)]
 pub struct Services {
@@ -123,6 +130,9 @@ pub struct Services {
     /// Web: told whether the document has unsaved changes after each pass, for the browser's
     /// leave-page guard (`beforeunload` runs between frames and can't ask the app).
     pub on_dirty: Option<Box<dyn Fn(bool)>>,
+    /// Plume: the system keychain, for forge access tokens (by forge API address). `None`: a
+    /// token lasts for the session only.
+    pub secrets: Option<Secrets>,
     /// Web: hand PDF bytes to the browser's print dialog (no download or intermediate file).
     /// Desktop uses `print_native` instead. An error means nothing was opened.
     pub print: Option<Box<dyn Fn(&[u8]) -> Result<(), String>>>,

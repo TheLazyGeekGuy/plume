@@ -2188,3 +2188,15 @@
 	Save the document as Markdown first	請先將文件另存為 Markdown
 	Imported as Markdown	已匯入為 Markdown
 	Saved as Markdown	已儲存為 Markdown
+	Sign In to a Forge	登入程式碼託管平台
+	Sign Out of Forges	登出程式碼託管平台
+	Open from a Forge	從程式碼託管平台開啟
+	Open from a Forge…	從程式碼託管平台開啟…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	從 GitHub、GitLab 或 Forgejo 開啟 Markdown 文件；「儲存版本」會在那裡記錄版本。
+	Server	伺服器
+	Repository	存放庫
+	Branch	分支
+	Access token	存取權杖
+	kept in the keychain	保存在鑰匙圈中
+	Remember the token in the keychain	在鑰匙圈中記住權杖
+	Enter an access token for this forge.	請輸入此平台的存取權杖。

@@ -16,6 +16,7 @@ mod clipboard;
 mod control_server;
 mod default_apps;
 mod file_dialogs;
+mod forge_net;
 #[cfg(any(target_os = "windows", test))]
 mod graphics;
 mod logging;
@@ -217,6 +218,7 @@ fn services(file_dialog: file_dialogs::Hook, ctx: &egui::Context) -> Services {
         set_clipboard_html: Some(Box::new(clipboard::set_html)),
         clipboard_rtf: Some(Box::new(clipboard::rtf)),
         clipboard_formats: Some(Box::new(clipboard::formats)),
+        secrets: forge_net::secrets(),
         ..Default::default()
     }
 }
@@ -339,8 +341,9 @@ fn main() -> eframe::Result {
             let (file_dialog, dialogs) = file_dialogs::hook(&cc.egui_ctx);
             let mut session = Session::new(doc);
             session.system_region = region;
-            // Plume: Markdown is the document's own format.
+            // Plume: Markdown is the document's own format; documents can come from forges.
             session.native_markdown = true;
+            session.forge_transport = Some(std::sync::Arc::new(forge_net::Https::new()));
             let mut app = WordApp::new(session, services(file_dialog, &cc.egui_ctx));
             load_prefs(&mut app);
             load_user_dictionary(&mut app);

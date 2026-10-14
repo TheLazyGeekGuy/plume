@@ -2574,3 +2574,15 @@
 	Save the document as Markdown first	Първо запишете документа като Markdown
 	Imported as Markdown	Импортиран като Markdown
 	Saved as Markdown	Записан като Markdown
+	Sign In to a Forge	Вход във форж
+	Sign Out of Forges	Изход от форжовете
+	Open from a Forge	Отвори от форж
+	Open from a Forge…	Отвори от форж…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Отворете Markdown документ от GitHub, GitLab или Forgejo; „Запиши версия“ записва версии там.
+	Server	Сървър
+	Repository	Хранилище
+	Branch	Клон
+	Access token	Токен за достъп
+	kept in the keychain	пази се в ключодържателя
+	Remember the token in the keychain	Запомни токена в ключодържателя
+	Enter an access token for this forge.	Въведете токен за достъп до този форж.

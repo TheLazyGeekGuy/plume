@@ -6462,3 +6462,209 @@ fn versions_in_git() {
     assert!(s.run("vcs.sync", &json!({})).unwrap_err().to_string().contains("server"));
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// A tiny in-memory GitHub (contents, commits, git data API) for the forge commands.
+mod fake_github {
+    use std::collections::BTreeMap;
+    use std::sync::Mutex;
+
+    use serde_json::{Value, json};
+    use wordcraft_vcs::forge::{Method, Request, Response, Transport, base64_decode, base64_encode};
+
+    #[derive(Default)]
+    struct State {
+        files: BTreeMap<String, Vec<u8>>,
+        head: String,
+        /// id → (author, message, files after it, parent).
+        commits: BTreeMap<String, (String, String, BTreeMap<String, Vec<u8>>, String)>,
+        order: Vec<String>,
+        blobs: BTreeMap<String, Vec<u8>>,
+        trees: BTreeMap<String, Vec<(String, String)>>,
+        n: u64,
+    }
+
+    pub struct Server {
+        state: Mutex<State>,
+        /// Commits made through the API are by this author.
+        pub author: Mutex<String>,
+    }
+
+    fn sha(n: u64) -> String {
+        format!("{n:040x}")
+    }
+
+    fn blob_id(b: &[u8]) -> String {
+        let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+        for x in b {
+            h ^= u64::from(*x);
+            h = h.wrapping_mul(0x0000_0100_0000_01b3);
+        }
+        format!("{h:040x}")
+    }
+
+    fn decode(p: &str) -> String {
+        String::from_utf8(wordcraft_formats::model::percent_decode(p)).unwrap()
+    }
+
+    impl Server {
+        pub fn new(files: &[(&str, &[u8])]) -> Server {
+            let s = Server { state: Mutex::new(State::default()), author: Mutex::new("Ada".into()) };
+            {
+                let mut st = s.state.lock().unwrap();
+                st.n = 1;
+                st.files = files.iter().map(|(p, b)| (p.to_string(), b.to_vec())).collect();
+                let id = sha(1);
+                let snapshot = st.files.clone();
+                st.commits.insert(id.clone(), ("Ada".into(), "Initial version".into(), snapshot, String::new()));
+                st.order.push(id.clone());
+                st.head = id;
+            }
+            s
+        }
+
+        /// Someone else saves a version directly on the server.
+        pub fn commit(&self, author: &str, path: &str, bytes: &[u8], message: &str) {
+            let mut st = self.state.lock().unwrap();
+            st.n += 1;
+            let id = sha(st.n);
+            st.files.insert(path.into(), bytes.to_vec());
+            let snapshot = st.files.clone();
+            let parent = st.head.clone();
+            st.commits.insert(id.clone(), (author.into(), message.into(), snapshot, parent));
+            st.order.push(id.clone());
+            st.head = id;
+        }
+
+        pub fn file(&self, path: &str) -> Option<Vec<u8>> {
+            self.state.lock().unwrap().files.get(path).cloned()
+        }
+    }
+
+    fn ok(v: Value) -> Result<Response, String> {
+        Ok(Response { status: 200, body: v.to_string().into_bytes() })
+    }
+
+    impl Transport for Server {
+        fn send(&self, req: &Request) -> Result<Response, String> {
+            let mut st = self.state.lock().unwrap();
+            let base = "https://api.github.com/repos/acme/docs";
+            let rest = req.url.strip_prefix(base).ok_or("wrong repo")?;
+            let (route, query) = rest.split_once('?').unwrap_or((rest, ""));
+            let q = |k: &str| query.split('&').find_map(|kv| kv.strip_prefix(&format!("{k}="))).map(decode);
+            let body: Value = req.body.as_deref().map(|b| serde_json::from_str(b).unwrap()).unwrap_or(Value::Null);
+            match (&req.method, route) {
+                (Method::Get, r) if r.starts_with("/contents/") => {
+                    let path = decode(&r["/contents/".len()..]);
+                    let rev = q("ref").unwrap_or("main".into());
+                    let files = if rev == "main" { st.files.clone() } else { st.commits.get(&rev).map(|c| c.2.clone()).ok_or("no rev")? };
+                    match files.get(&path) {
+                        Some(b) => ok(json!({"content": base64_encode(b), "sha": blob_id(b)})),
+                        None => Ok(Response { status: 404, body: b"{}".to_vec() }),
+                    }
+                }
+                (Method::Get, "/commits") => {
+                    let path = q("path").unwrap();
+                    let mut out = Vec::new();
+                    for id in st.order.iter().rev() {
+                        let (author, message, files, parent) = &st.commits[id];
+                        let before = st.commits.get(parent).and_then(|c| c.2.get(&path));
+                        if files.get(&path) != before {
+                            out.push(json!({"sha": id, "commit": {"author": {"name": author, "email": "x@y", "date": "2026-10-14T10:00:00Z"}, "message": message}}));
+                        }
+                    }
+                    ok(Value::Array(out))
+                }
+                (Method::Get, "/git/ref/heads/main") => ok(json!({"object": {"sha": st.head}})),
+                (Method::Get, r) if r.starts_with("/git/commits/") => ok(json!({"tree": {"sha": &r["/git/commits/".len()..]}})),
+                (Method::Post, "/git/blobs") => {
+                    let b = base64_decode(body["content"].as_str().unwrap(), 1 << 20).unwrap();
+                    let id = blob_id(&b);
+                    st.blobs.insert(id.clone(), b);
+                    ok(json!({"sha": id}))
+                }
+                (Method::Post, "/git/trees") => {
+                    st.n += 1;
+                    let id = sha(st.n);
+                    let entries = body["tree"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|e| (e["path"].as_str().unwrap().to_string(), e["sha"].as_str().unwrap().to_string()))
+                        .collect();
+                    st.trees.insert(id.clone(), entries);
+                    ok(json!({"sha": id}))
+                }
+                (Method::Post, "/git/commits") => {
+                    st.n += 1;
+                    let id = sha(st.n);
+                    let parent = body["parents"][0].as_str().unwrap().to_string();
+                    let mut files = st.commits[&parent].2.clone();
+                    for (p, b) in st.trees[body["tree"].as_str().unwrap()].clone() {
+                        files.insert(p, st.blobs[&b].clone());
+                    }
+                    let author = self.author.lock().unwrap().clone();
+                    st.commits.insert(id.clone(), (author, body["message"].as_str().unwrap().into(), files, parent));
+                    ok(json!({"sha": id}))
+                }
+                (Method::Patch, "/git/refs/heads/main") => {
+                    let id = body["sha"].as_str().unwrap().to_string();
+                    if st.commits[&id].3 != st.head {
+                        return Ok(Response { status: 422, body: b"{\"message\":\"Update is not a fast forward\"}".to_vec() });
+                    }
+                    st.files = st.commits[&id].2.clone();
+                    st.order.push(id.clone());
+                    st.head = id;
+                    ok(json!({}))
+                }
+                _ => Ok(Response { status: 404, body: b"{}".to_vec() }),
+            }
+        }
+    }
+}
+
+/// A Markdown document on GitHub: open it (pictures included), save versions there, see a
+/// colleague's version as tracked changes, and never save over their newer version.
+#[test]
+fn forge_document_versions() {
+    let png = tiny_png();
+    let server = std::sync::Arc::new(fake_github::Server::new(&[
+        ("guide/intro.md", b"# Intro\n\nHello ![logo](assets/logo.png)\n"),
+        ("guide/assets/logo.png", &png),
+    ]));
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.forge_transport = Some(server.clone());
+    let open = json!({"forge": "github", "repo": "acme/docs", "path": "guide/intro.md"});
+    assert!(s.run("forge.open", &open).unwrap_err().to_string().contains("sign in"));
+    s.run("forge.signIn", &json!({"forge": "github", "token": "ghp_test"})).unwrap();
+    s.run("forge.open", &open).unwrap();
+    assert_eq!(s.doc.media.len(), 1, "the picture came from the repository");
+    assert!(!s.dirty && s.path.is_none());
+    assert_eq!(s.run("vcs.status", &json!({})).unwrap()["repo"], json!("acme/docs"));
+
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " World"})).unwrap();
+    let v = s.run("vcs.saveVersion", &json!({"message": "Say hello to the world"})).unwrap();
+    assert_eq!(v["version"]["message"], json!("Say hello to the world"));
+    assert!(!s.dirty);
+    let saved = String::from_utf8(server.file("guide/intro.md").unwrap()).unwrap();
+    assert!(saved.contains("Hello ![logo](assets/img-") && saved.contains("World"), "{saved}");
+    let h = s.run("vcs.history", &json!({})).unwrap();
+    assert_eq!(h["versions"].as_array().unwrap().len(), 2);
+
+    // Bob saves a version on the server; ours is now stale: Save Version refuses, Synchronize
+    // with unsaved changes says how to see theirs, and without changes reloads.
+    server.commit("Bob", "guide/intro.md", b"# Intro\n\nHello World, from Bob.\n", "Bob's edit");
+    s.run("text.insert", &json!({"text": "!"})).unwrap();
+    assert!(s.run("vcs.saveVersion", &json!({"message": "mine"})).unwrap_err().to_string().contains("newer version"));
+    assert!(s.run("vcs.sync", &json!({})).is_err());
+    s.dirty = false;
+    let r = s.run("vcs.sync", &json!({})).unwrap();
+    assert_eq!(r["updated"], json!(true));
+    assert!(s.doc.plain_text(StoryRef::Body).contains("from Bob"));
+
+    // Bob's version as tracked changes by Bob.
+    let bobs = s.run("vcs.history", &json!({})).unwrap()["versions"][0]["id"].as_str().unwrap().to_string();
+    s.run("vcs.showChanges", &json!({"id": bobs})).unwrap();
+    assert!(s.doc.revisions.iter().any(|r| r.author == "Bob"));
+    assert!(s.forge.is_none(), "the comparison is a new document");
+}

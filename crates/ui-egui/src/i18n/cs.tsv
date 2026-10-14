@@ -2578,3 +2578,15 @@ preview	Title	Ukázka
 	Save the document as Markdown first	Nejprve dokument uložte jako Markdown
 	Imported as Markdown	Importováno jako Markdown
 	Saved as Markdown	Uloženo jako Markdown
+	Sign In to a Forge	Přihlásit se ke forge
+	Sign Out of Forges	Odhlásit se od forge
+	Open from a Forge	Otevřít z forge
+	Open from a Forge…	Otevřít z forge…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Otevřete dokument Markdown z GitHubu, GitLabu nebo Forgejo; Uložit verzi tam ukládá verze.
+	Server	Server
+	Repository	Repozitář
+	Branch	Větev
+	Access token	Přístupový token
+	kept in the keychain	uložen v klíčence
+	Remember the token in the keychain	Zapamatovat token v klíčence
+	Enter an access token for this forge.	Zadejte přístupový token pro tento forge.

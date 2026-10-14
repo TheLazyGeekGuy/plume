@@ -2583,3 +2583,15 @@ preview	Title	Örnek
 	Save the document as Markdown first	Önce belgeyi Markdown olarak kaydedin
 	Imported as Markdown	Markdown olarak içe aktarıldı
 	Saved as Markdown	Markdown olarak kaydedildi
+	Sign In to a Forge	Bir forge'a oturum aç
+	Sign Out of Forges	Forge'lardan oturumu kapat
+	Open from a Forge	Bir forge'dan aç
+	Open from a Forge…	Bir forge'dan aç…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	GitHub, GitLab veya Forgejo'dan bir Markdown belgesi açın; Sürümü Kaydet sürümleri oraya kaydeder.
+	Server	Sunucu
+	Repository	Depo
+	Branch	Dal
+	Access token	Erişim belirteci
+	kept in the keychain	anahtar zincirinde saklanır
+	Remember the token in the keychain	Belirteci anahtar zincirinde hatırla
+	Enter an access token for this forge.	Bu forge için bir erişim belirteci girin.

@@ -276,6 +276,11 @@ fn encrypt(s: &mut Session, v: &Value) -> CmdResult {
 fn save(s: &mut Session, v: &Value) -> CmdResult {
     let path = match p::str(v, "path").map(std::path::PathBuf::from).or_else(|| s.path.clone()) {
         Some(p) => p,
+        // A document opened from a forge is saved as a version there.
+        None if s.forge.is_some() => {
+            s.ui_requests.push(json!({"open": "saveVersion"}));
+            return Ok(json!({"saved": false, "forge": true}));
+        }
         None => {
             s.ui_requests.push(json!({"open": "saveAs"}));
             return Ok(json!({"saved": false}));

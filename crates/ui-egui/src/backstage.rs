@@ -307,6 +307,14 @@ fn open_page(app: &mut WordApp, ui: &mut Ui) {
     {
         let _ = app.run("ui.fileBrowser", json!({}));
     }
+    // Plume: a Markdown document straight from GitHub, GitLab or Forgejo.
+    if ui
+        .button(egui::RichText::new(tl!("Open from a Forge…")).font(medium(14.0)))
+        .on_hover_text(tl!("Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there."))
+        .clicked()
+    {
+        let _ = app.run("ui.dialog", json!({"name": "openFromForge"}));
+    }
     ui.add_space(18.0);
     open_list(app, ui);
 }

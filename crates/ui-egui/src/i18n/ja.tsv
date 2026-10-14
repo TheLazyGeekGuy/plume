@@ -2187,3 +2187,15 @@
 	Save the document as Markdown first	まず文書を Markdown として保存してください
 	Imported as Markdown	Markdown としてインポートしました
 	Saved as Markdown	Markdown として保存しました
+	Sign In to a Forge	フォージにサインイン
+	Sign Out of Forges	フォージからサインアウト
+	Open from a Forge	フォージから開く
+	Open from a Forge…	フォージから開く…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	GitHub、GitLab、Forgejo の Markdown 文書を開きます。[バージョンを保存] でそこにバージョンが記録されます。
+	Server	サーバー
+	Repository	リポジトリ
+	Branch	ブランチ
+	Access token	アクセス トークン
+	kept in the keychain	キーチェーンに保存
+	Remember the token in the keychain	トークンをキーチェーンに記憶
+	Enter an access token for this forge.	このフォージのアクセス トークンを入力してください。

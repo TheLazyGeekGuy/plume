@@ -2582,3 +2582,15 @@
 	Save the document as Markdown first	Előbb mentse a dokumentumot Markdownként
 	Imported as Markdown	Importálva Markdownként
 	Saved as Markdown	Mentve Markdownként
+	Sign In to a Forge	Bejelentkezés egy forge-ba
+	Sign Out of Forges	Kijelentkezés a forge-okból
+	Open from a Forge	Megnyitás forge-ból
+	Open from a Forge…	Megnyitás forge-ból…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Markdown-dokumentum megnyitása GitHubról, GitLabról vagy Forgejóról; a Verzió mentése ott rögzíti a verziókat.
+	Server	Kiszolgáló
+	Repository	Tároló
+	Branch	Ág
+	Access token	Hozzáférési token
+	kept in the keychain	a kulcskarikában tárolva
+	Remember the token in the keychain	Token megjegyzése a kulcskarikában
+	Enter an access token for this forge.	Adjon meg egy hozzáférési tokent ehhez a forge-hoz.

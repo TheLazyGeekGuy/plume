@@ -24,6 +24,10 @@ eframe = { workspace = true, features = ["default_fonts", "wgpu", "accesskit", "
 egui = { workspace = true }
 serde_json = { workspace = true }
 log = { workspace = true }
+# Plume: versions on GitHub, GitLab and Forgejo through their REST APIs, over HTTPS (rustls,
+# the platform's certificate verifier, the system proxy settings).
+wordcraft-vcs = { workspace = true }
+ureq = { version = "3.4", default-features = false, features = ["rustls", "platform-verifier"] }
 
 [build-dependencies]
 wordcraft-brand = { workspace = true }
@@ -45,6 +49,8 @@ objc2 = "0.6"
 # Closing the window must quit through NSApplication rather than by dropping the NSWindow
 # inside the AppKit run loop (see `schedule_macos_terminate`).
 dispatch2 = "0.3"
+# Plume: forge access tokens the user asked to remember go in the Keychain.
+security-framework = "3"
 
 [target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
 winit = { version = "0.30", default-features = false, features = ["x11"] }

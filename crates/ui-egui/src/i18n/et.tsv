@@ -2221,3 +2221,15 @@
 	Save the document as Markdown first	Salvestage dokument esmalt Markdownina
 	Imported as Markdown	Imporditud Markdownina
 	Saved as Markdown	Salvestatud Markdownina
+	Sign In to a Forge	Logi sisse forge'i
+	Sign Out of Forges	Logi forge'idest välja
+	Open from a Forge	Ava forge'ist
+	Open from a Forge…	Ava forge'ist…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Avage Markdowni dokument GitHubist, GitLabist või Forgejost; Salvesta versioon salvestab versioonid sinna.
+	Server	Server
+	Repository	Hoidla
+	Branch	Haru
+	Access token	Juurdepääsuluba
+	kept in the keychain	hoitakse võtmerõngas
+	Remember the token in the keychain	Jäta luba võtmerõngasse meelde
+	Enter an access token for this forge.	Sisestage selle forge'i juurdepääsuluba.

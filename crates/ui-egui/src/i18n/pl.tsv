@@ -2576,3 +2576,15 @@ preview	Title	Tytuł
 	Save the document as Markdown first	Najpierw zapisz dokument jako Markdown
 	Imported as Markdown	Zaimportowano jako Markdown
 	Saved as Markdown	Zapisano jako Markdown
+	Sign In to a Forge	Zaloguj się do forge
+	Sign Out of Forges	Wyloguj się z forge
+	Open from a Forge	Otwórz z forge
+	Open from a Forge…	Otwórz z forge…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Otwórz dokument Markdown z GitHuba, GitLaba lub Forgejo; Zapisz wersję zapisuje tam wersje.
+	Server	Serwer
+	Repository	Repozytorium
+	Branch	Gałąź
+	Access token	Token dostępu
+	kept in the keychain	przechowywany w pęku kluczy
+	Remember the token in the keychain	Zapamiętaj token w pęku kluczy
+	Enter an access token for this forge.	Wprowadź token dostępu do tego forge.

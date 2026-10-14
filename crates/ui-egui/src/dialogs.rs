@@ -152,6 +152,18 @@ pub enum Dialog {
         error: String,
         focus: bool,
     },
+    /// File › Open › Open from a Forge (Plume): a Markdown document on GitHub, GitLab or Forgejo.
+    OpenFromForge {
+        /// 0 GitHub, 1 GitLab, 2 Forgejo.
+        forge: usize,
+        host: String,
+        repo: String,
+        branch: String,
+        path: String,
+        token: String,
+        remember: bool,
+        error: String,
+    },
     /// Review › Versions › Version History (Plume): the document's versions, newest first.
     Versions {
         list: Vec<Value>,
@@ -961,6 +973,7 @@ impl Dialog {
         match self {
             Dialog::RenameDocument { .. } => "renameDocument",
             Dialog::SaveVersion { .. } => "saveVersion",
+            Dialog::OpenFromForge { .. } => "openFromForge",
             Dialog::Versions { .. } => "versions",
             Dialog::Font { .. } => "font",
             Dialog::Paragraph { .. } => "paragraph",
@@ -1234,6 +1247,16 @@ impl Dialog {
             "pasteSpecial" => Dialog::paste_special(app, &json!({})),
             "renameDocument" => Dialog::RenameDocument { name: app.title_stem(), message: String::new(), focus: true },
             "saveVersion" => Dialog::SaveVersion { message: String::new(), error: String::new(), focus: true },
+            "openFromForge" => Dialog::OpenFromForge {
+                forge: 0,
+                host: String::new(),
+                repo: String::new(),
+                branch: "main".into(),
+                path: String::new(),
+                token: String::new(),
+                remember: true,
+                error: String::new(),
+            },
             "versions" => {
                 let (list, error) = version_list(app);
                 Dialog::Versions { list, error }
@@ -1432,6 +1455,7 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
     let title = match &d {
         Dialog::RenameDocument { .. } => "Rename Document",
         Dialog::SaveVersion { .. } => "Save Version",
+        Dialog::OpenFromForge { .. } => "Open from a Forge",
         Dialog::Versions { .. } => "Version History",
         Dialog::Font { .. } => "Font",
         Dialog::Paragraph { .. } => "Paragraph",
@@ -1764,6 +1788,76 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
                     Ok(v) => {
                         let short = v.pointer("/version/short").and_then(Value::as_str).unwrap_or("").to_string();
                         app.status(crate::i18n::fmt(tl!("Version {id} saved"), &[("id", &short)]));
+                        return true;
+                    }
+                    Err(e) => *error = e,
+                }
+            }
+            false
+        }
+        Dialog::OpenFromForge { forge, host, repo, branch, path, token, remember, error } => {
+            const FORGES: [(&str, &str, &str); 3] =
+                [("GitHub", "github", ""), ("GitLab", "gitlab", "gitlab.com"), ("Forgejo", "forgejo", "codeberg.org")];
+            ui.horizontal(|ui| {
+                for (k, (name, _, _)) in FORGES.iter().enumerate() {
+                    ui.radio_value(forge, k, *name);
+                }
+            });
+            let (_, id, default_host) = FORGES.get(*forge).copied().unwrap_or(FORGES[0]);
+            egui::Grid::new("forge").num_columns(2).spacing(vec2(12.0, 6.0)).show(ui, |ui| {
+                if *forge != 0 {
+                    ui.label(tl!("Server"));
+                    ui.add(egui::TextEdit::singleline(host).hint_text(default_host).desired_width(300.0));
+                    ui.end_row();
+                }
+                ui.label(tl!("Repository"));
+                ui.add(egui::TextEdit::singleline(repo).hint_text("owner/name").desired_width(300.0));
+                ui.end_row();
+                ui.label(tl!("Branch"));
+                ui.add(egui::TextEdit::singleline(branch).desired_width(300.0));
+                ui.end_row();
+                ui.label(tl!("Document"));
+                ui.add(egui::TextEdit::singleline(path).hint_text("docs/guide.md").desired_width(300.0));
+                ui.end_row();
+                ui.label(tl!("Access token"));
+                ui.add(egui::TextEdit::singleline(token).password(true).hint_text(tl!("kept in the keychain")).desired_width(300.0));
+                ui.end_row();
+            });
+            if app.services.secrets.is_some() {
+                ui.checkbox(remember, tl!("Remember the token in the keychain"));
+            }
+            if !error.is_empty() {
+                ui.colored_label(ui.visuals().error_fg_color, error.as_str());
+            }
+            let (ok, cancel) = buttons(ui, tl!("Open"));
+            if cancel {
+                return true;
+            }
+            if ok {
+                let host_or_default = if host.trim().is_empty() { default_host.to_string() } else { host.trim().to_string() };
+                let api = match *forge {
+                    1 => format!("https://{host_or_default}/api/v4"),
+                    2 => format!("https://{host_or_default}/api/v1"),
+                    _ => "https://api.github.com".to_string(),
+                };
+                let typed = token.trim().to_string();
+                let stored = if typed.is_empty() { app.services.secrets.as_ref().and_then(|s| (s.get)(&api)) } else { None };
+                let tok = if typed.is_empty() { stored.unwrap_or_default() } else { typed.clone() };
+                if tok.is_empty() {
+                    *error = tl!("Enter an access token for this forge.").to_string();
+                    return false;
+                }
+                let target = json!({"forge": id, "host": host_or_default, "repo": repo.trim(), "branch": branch.trim(), "path": path.trim()});
+                let signed = app.session.run("forge.signIn", &json!({"forge": id, "host": host_or_default, "token": tok}));
+                match signed.map_err(|e| e.to_string()).and_then(|_| app.run("forge.open", target)) {
+                    Ok(_) => {
+                        if *remember
+                            && !typed.is_empty()
+                            && let Some(s) = &app.services.secrets
+                            && let Err(e) = (s.set)(&api, &typed)
+                        {
+                            log::warn!("keychain: {e}");
+                        }
                         return true;
                     }
                     Err(e) => *error = e,

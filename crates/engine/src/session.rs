@@ -424,6 +424,12 @@ pub struct Session {
     /// hold (one line per kind of adaptation; empty = nothing).
     pub imported_from: Option<std::path::PathBuf>,
     pub import_report: Vec<String>,
+    /// The forge document this session edits (opened from GitHub, GitLab or Forgejo), if any.
+    pub forge: Option<crate::cmd::versions::Remote>,
+    /// How forge requests are sent: the app's HTTP client. `None`: no network here.
+    pub forge_transport: Option<std::sync::Arc<dyn wordcraft_vcs::forge::Transport + Send + Sync>>,
+    /// Access tokens by forge API address. No command ever returns them.
+    pub forge_tokens: std::collections::BTreeMap<String, crate::io::Password>,
     /// Citation style: APA, MLA, Chicago, IEEE.
     pub bib_style: String,
     /// Mail merge data source and preview.
@@ -638,6 +644,9 @@ impl Session {
             native_markdown: false,
             imported_from: None,
             import_report: Vec::new(),
+            forge: None,
+            forge_transport: None,
+            forge_tokens: Default::default(),
             bib_style,
             merge: Default::default(),
             ui_requests: Vec::new(),
@@ -1007,6 +1016,7 @@ impl Session {
         self.doc = doc;
         self.doc.ensure_nonempty();
         self.password = None;
+        self.forge = None;
         self.file_name = None;
         self.sel = Selection::caret(self.doc.start_of(StoryRef::Body));
         self.pending = None;
@@ -1085,6 +1095,9 @@ impl Session {
             native_markdown: _,
             imported_from: _,
             import_report: _,
+            forge: _,
+            forge_transport: _,
+            forge_tokens: _,
             bib_style: _,
             merge: _,
             ui_requests: _,

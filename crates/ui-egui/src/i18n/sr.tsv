@@ -2201,3 +2201,15 @@
 	Save the document as Markdown first	Прво сачувајте документ као Markdown
 	Imported as Markdown	Увезено као Markdown
 	Saved as Markdown	Сачувано као Markdown
+	Sign In to a Forge	Пријави се на forge
+	Sign Out of Forges	Одјави се са forge-а
+	Open from a Forge	Отвори са forge-а
+	Open from a Forge…	Отвори са forge-а…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Отворите Markdown документ са GitHub-а, GitLab-а или Forgejo-а; Сачувај верзију тамо бележи верзије.
+	Server	Сервер
+	Repository	Репозиторијум
+	Branch	Грана
+	Access token	Токен за приступ
+	kept in the keychain	чува се у привеску кључева
+	Remember the token in the keychain	Запамти токен у привеску кључева
+	Enter an access token for this forge.	Унесите токен за приступ овом forge-у.
