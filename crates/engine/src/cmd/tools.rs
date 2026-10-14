@@ -441,7 +441,7 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("file.compatibility", "Check Compatibility", "File › Info", |s, _| {
             let mut issues = Vec::new();
             if s.doc.settings.watermark.is_some() {
-                issues.push("Watermarks are kept in WordCraft documents but not yet written to .docx.");
+                issues.push("Watermarks are kept in Plume documents but not yet written to .docx.");
             }
             if s.doc
                 .para_paths(StoryRef::Body)

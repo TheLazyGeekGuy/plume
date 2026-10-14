@@ -732,7 +732,7 @@ fn turkish_covers_the_entire_existing_interface_catalog_and_preserves_templates(
         ("Euler's identity", "Euler Özdeşliği"),
         ("Default Paragraph Font", "Varsayılan Paragraf Yazı Tipi"),
         ("CONFIDENTIAL", "GİZLİ"),
-        ("WordCraft", "WordCraft"),
+        ("Plume", "Plume"),
         ("unknown future label", "unknown future label"),
     ] {
         assert_eq!(super::tr(tr, source), expected);
@@ -811,7 +811,7 @@ fn hungarian_covers_the_entire_existing_interface_catalog() {
         ("Save", "Mentés"),
         ("Redo", "Újra"),
         ("UPPERCASE", "NAGYBETŰS"),
-        ("WordCraft", "WordCraft"),
+        ("Plume", "Plume"),
         ("unknown future label", "unknown future label"),
     ] {
         assert_eq!(super::tr(hu, source), expected);
@@ -989,7 +989,7 @@ fn a_polish_interface_writes_new_documents_in_polish() {
     let ctx = egui::Context::default();
     let frame = |app: &mut crate::WordApp| ctx.run_ui(egui::RawInput::default(), |ui| app.logic(ui.ctx())).drop_without_applying_deltas();
     frame(&mut app);
-    assert_eq!(app.session.editing_lang, None, "English interface: WordCraft's default, US English");
+    assert_eq!(app.session.editing_lang, None, "English interface: Plume's default, US English");
     assert_eq!(app.session.doc.styles.default_chr.lang.as_deref(), Some("en-US"));
     app.run("ui.language", serde_json::json!({"value": "pl"})).unwrap();
     frame(&mut app);
@@ -1184,7 +1184,7 @@ fn bulgarian_covers_the_entire_existing_interface_catalog() {
         ("Heading 1", "Заглавие 1"),
         ("Hyphenation", "Сричкопренасяне"),
         ("Track Changes", "Проследяване на промените"),
-        ("WordCraft", "WordCraft"),
+        ("Plume", "Plume"),
         ("unknown future label", "unknown future label"),
     ] {
         assert_eq!(tr(bg, source), expected, "{source}");
@@ -1308,4 +1308,18 @@ fn bundled_interface_fonts_cover_vietnamese_letters() {
         }
     }
     assert!(!lang("vi").uses_cjk());
+}
+
+/// The product is Plume: no catalog still names the upstream project, except the About dialog's
+/// attribution lines.
+#[test]
+fn catalogs_name_the_product_not_the_upstream_project() {
+    let attribution =
+        |src: &str| src.starts_with("Plume — based on ") || src.starts_with("WordCraft: ") || src.starts_with("MIT OR Apache-2.0. Copyright");
+    for info in &super::LANGUAGES {
+        for line in info.source.lines().filter(|l| !l.starts_with('#')) {
+            let src = line.split('\t').nth(1).unwrap_or("");
+            assert!(!line.contains(wordcraft_brand::UPSTREAM_NAME) || attribution(src), "{}: {line}", info.code);
+        }
+    }
 }

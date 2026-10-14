@@ -9,6 +9,7 @@ description = "WordCraft Zotero integration: Zotero's word-processor wire protoc
 workspace = true
 
 [dependencies]
+wordcraft-brand = { workspace = true }
 wordcraft-doc = { workspace = true }
 wordcraft-engine = { workspace = true }
 wordcraft-formats = { workspace = true }

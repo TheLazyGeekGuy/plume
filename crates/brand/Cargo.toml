@@ -1,0 +1,9 @@
+[package]
+name = "wordcraft-brand"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "The product's name, app id and settings-folder names: one source of truth for every crate and app"
+
+[lints]
+workspace = true

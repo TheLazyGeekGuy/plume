@@ -1,6 +1,6 @@
 # Ukrainian (uk) interface catalog. Columns, separated by a TAB:
 #   context <TAB> English source <TAB> translation
-#   context    empty (WordCraft uses no contexts yet)
+#   context    empty (Plume uses no contexts yet)
 #   source     the English text exactly as in the code (tl!(...), ribbon labels, command labels)
 #   escapes    \n  \t  \\ inside a column. `{name}` placeholders must appear in both columns,
 #              and a trailing "…" in one needs one in the other.
@@ -8,15 +8,17 @@
 #
 # Clean room: translated from the meaning of the English labels in this repository.
 # No Microsoft Word or other product localisation was consulted or copied.
-# Product, format and technology names (WordCraft, PDF, Markdown, MCP …) stay in Latin letters.
-# Author: @dmatviichuk with Codex; licensed MIT OR Apache-2.0, like WordCraft.
+# Product, format and technology names (Plume, PDF, Markdown, MCP …) stay in Latin letters.
+# Author: @dmatviichuk with Codex; licensed MIT OR Apache-2.0, like Plume.
 
 	(no style)	(без стилю)
 	(no suggestions)	(немає пропозицій)
 	1.5 Line Spacing	Міжрядковий інтервал 1,5
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	Безкоштовний текстовий процесор із відкритим кодом, написаний з нуля мовою Rust.\nЧастина Crafting Apps від команди ArtCraft.
+	A free, open-source word processor written in Rust, with Markdown as its native format.	Безкоштовний текстовий процесор з відкритим кодом, написаний на Rust, з Markdown як основним форматом.
+	Plume — based on WordCraft by the ArtCraft team.	Plume — створено на основі WordCraft від команди ArtCraft.
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	About	Про програму
-	About WordCraft	Про WordCraft
+	About Plume	Про Plume
 	Accept	Прийняти
 	Accept All Changes	Прийняти всі зміни
 	Accept This Change	Прийняти цю зміну
@@ -272,7 +274,6 @@
 	Comment	Коментар
 	Comments	Коментарі
 	Comments Pane	Панель коментарів
-	Community\nDiscord	Спільнота\nDiscord
 	Compact	Компактний
 	Compare	Порівняти
 	Compress Pictures	Стиснути зображення
@@ -285,7 +286,7 @@
 	Copy	Копіювати
 	Copy Formatting	Копіювати форматування
 	Corrections	Виправлення
-	Couldn't make WordCraft the default: {error}	Не вдалося зробити WordCraft типовою програмою: {error}
+	Couldn't make Plume the default: {error}	Не вдалося зробити Plume типовою програмою: {error}
 	Count words in text boxes and notes	Рахувати слова в текстових полях і виносках
 	Cover Page	Титульна сторінка
 	Create	Створити
@@ -323,15 +324,15 @@
 	Drag a rectangle to draw a table, or a line across cells to split them. Esc stops.	Перетягніть прямокутник, щоб намалювати таблицю, або лінію через клітинки, щоб їх розділити. Esc завершує.
 	Draw Table	Намалювати таблицю
 	Edit Comment	Редагувати коментар
-	In Default apps, choose WordCraft for the document types you want it to open.	У програмах за замовчуванням виберіть WordCraft для типів документів, які він має відкривати.
+	In Default apps, choose Plume for the document types you want it to open.	У програмах за замовчуванням виберіть Plume для типів документів, які він має відкривати.
 	Left Margin	Ліве поле
 	Indents and Spacing	Відступи й інтервали
 	Line breaking	Розрив рядків
-	Make WordCraft the default for Word documents…	Зробити WordCraft типовою програмою для документів Word…
+	Make Plume the default for Word documents…	Зробити Plume типовою програмою для документів Word…
 	More templates →	Більше шаблонів →
 	No templates match your search.	Немає шаблонів, що відповідають пошуку.
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	Відтепер файли .docx, .doc, .rtf, .odt і шаблони Word відкриватимуться у WordCraft.
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	Відкриває Параметри › Програми за замовчуванням, де ви вибираєте WordCraft для .docx та інших типів документів.
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	Відтепер файли .docx, .doc, .rtf, .odt і шаблони Word відкриватимуться у Plume.
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	Відкриває Параметри › Програми за замовчуванням, де ви вибираєте Plume для .docx та інших типів документів.
 	Reopen	Відкрити знову
 	Right Margin	Праве поле
 	Distribute letters	Розподілити літери
@@ -341,8 +342,8 @@
 	Right (vertical)	Праворуч (вертикально)
 	Ruby text:	Текст рубі:
 	Search for templates	Пошук шаблонів
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	Щоб документи Word типово відкривалися у WordCraft: виберіть документ у Finder, оберіть Файл › Отримати інфо, виберіть WordCraft у розділі «Відкривати за допомогою» і натисніть «Змінити все».
-	WordCraft is now the default app for Word documents.	WordCraft тепер типова програма для документів Word.
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	Щоб документи Word типово відкривалися у Plume: виберіть документ у Finder, оберіть Файл › Отримати інфо, виберіть Plume у розділі «Відкривати за допомогою» і натисніть «Змінити все».
+	Plume is now the default app for Word documents.	Plume тепер типова програма для документів Word.
 	development build	Збірка для розробки
 	Diagonal	Діагональ
 	Diamond	Ромб
@@ -350,8 +351,6 @@
 	Different First Page	Інша перша сторінка
 	Different Odd & Even Pages	Різні парні й непарні сторінки
 	Direct formatting	Пряме форматування
-	Discord	Discord
-	Discord community	Спільнота Discord
 	Display	Відображення
 	Display for Review	Відображення для рецензування
 	Distribute Columns	Розподілити стовпці
@@ -513,8 +512,6 @@
 	Inspect Styles at Selection	Переглянути стилі у виділенні
 	Interface language:	Мова інтерфейсу:
 	Italic	Курсив
-	Join the ArtCraft community on Discord	Приєднатися до спільноти ArtCraft у Discord
-	Join us on Discord: discord.gg/artcraft	Приєднуйтеся до нас у Discord: discord.gg/artcraft
 	Justify	За шириною
 	Keep Lines Together	Не розривати рядки абзацу
 	Keep lines together	Не розривати рядки абзацу
@@ -571,7 +568,7 @@
 	Merge Formatting	Об'єднати форматування
 	Merged PRs	Об'єднані PR
 	Mirrored	Дзеркальні
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Авторські права (c) 2026 команди ArtCraft і учасників WordCraft.
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 учасники проєкту Plume, команда ArtCraft і учасники проєкту WordCraft.
 	Moderate	Помірні
 	Modify Style	Змінити стиль
 	Modify…	Змінити…
@@ -830,7 +827,6 @@
 	Animation	Анімація
 	Animate the caret (it glides and fades)	Анімувати каретку (плавно рухається та згасає)
 	On: the caret glides to its new place when you type or use the arrow keys, and its blink fades. Off: it jumps and blinks on and off.	Увімкнено: каретка плавно переходить на нове місце, коли ви вводите текст або користуєтеся стрілками, а її блимання згасає поступово. Вимкнено: вона перестрибує й блимає різко.
-	Show the community button in the title bar	Показувати кнопку спільноти в заголовку вікна
 	Show/Hide ¶	Показати/приховати ¶
 	Show\nComments	Показати\nкоментарі
 	Shrink Font 1 Point	Зменшити шрифт на 1 пункт
@@ -846,7 +842,7 @@
 	Small caps	Малі великі літери
 	SmartArt	SmartArt
 	Sort	Сортувати
-	Source code: github.com/storytold/wordcraft	Вихідний код: github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/wordcraft	Вихідний код: github.com/TheLazyGeekGuy/wordcraft
 	Space	Пробіл
 	Space before/after:	Інтервал перед/після:
 	Spacing	Інтервал
@@ -987,7 +983,7 @@
 	Word Left	На слово ліворуч
 	Word Right	На слово праворуч
 	WordArt	WordArt
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	Слова
 	Words only	Лише слова
 	Wrap Text	Обтікання текстом
@@ -1050,7 +1046,7 @@
 	Stopped	Зупинено
 	Speed	Швидкість
 	Normal speed	Звичайна швидкість
-	AutoSave documents you have saved in WordCraft	Автоматично зберігати документи, збережені у WordCraft
+	AutoSave documents you have saved in Plume	Автоматично зберігати документи, збережені у Plume
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	Не вдалося виконати автозбереження: {error}. Збережіть документ, щоб знову ввімкнути автозбереження.
 	Couldn't download {name}: {error}	Не вдалося завантажити {name}: {error}
 	Do you want to save changes to {name}?	Зберегти зміни в {name}?
@@ -1220,7 +1216,6 @@
 	Insert a new equation (Alt+=)	Вставити нове рівняння (Alt+=)
 	Leave the equation (Esc)	Вийти з рівняння (Esc)
 	Preview	Попередній перегляд
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Draw Ink	Малювати чорнилом
 	Erase Ink	Стерти чорнило
 	Hide Ink	Сховати чорнило
@@ -1358,7 +1353,7 @@
 	The document will be saved with a password. Save it to protect it.	Документ буде збережено з паролем. Збережіть його, щоб захистити.
 	The password is removed. Save the document to keep the change.	Пароль видалено. Збережіть документ, щоб зберегти зміну.
 	The passwords don't match.	Паролі не збігаються.
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	Зберігайте пароль у надійному місці: без нього ніхто, зокрема WordCraft, не зможе відкрити документ. Залиште обидва поля порожніми, щоб видалити пароль.
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Зберігайте пароль у надійному місці: без нього ніхто, зокрема Plume, не зможе відкрити документ. Залиште обидва поля порожніми, щоб видалити пароль.
 
 # Interface text routed through translation (#313)
 	Align Top Left	Вирівняти вгорі ліворуч
@@ -1749,7 +1744,7 @@
 	Word document	Документ Word
 	All files	Усі файли
 	Recipient lists	Списки одержувачів
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Системне діалогове вікно файлів недоступне, тож WordCraft показує власне. Щоб отримати системне вікно, установіть портал вибору файлів (наприклад, xdg-desktop-portal-gtk) або zenity.
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Системне діалогове вікно файлів недоступне, тож Plume показує власне. Щоб отримати системне вікно, установіть портал вибору файлів (наприклад, xdg-desktop-portal-gtk) або zenity.
 	Up one level	На рівень вище
 	Home folder	Домашня тека
 	{name} wasn't found.	{name} не знайдено.
@@ -1757,8 +1752,8 @@
 	This folder can't be read: {error}	Не вдається прочитати цю теку: {error}
 	Showing the first {count} items.	Показано лише перші елементи: {count}.
 	File name:	Ім'я файлу:
-	Browse in WordCraft…	Огляд у WordCraft…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	Відкрити файл власним оглядачем WordCraft, коли системне діалогове вікно файлів не з'являється.
+	Browse in Plume…	Огляд у Plume…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	Відкрити файл власним оглядачем Plume, коли системне діалогове вікно файлів не з'являється.
 	Hide White Space	Приховати порожній простір
 	All pages	Усі сторінки
 	Current page	Поточна сторінка
@@ -2127,8 +2122,8 @@
 	Does not contain	Не містить
 	{count} of {total} recipients will be merged.	Одержувачів для злиття: {count} з {total}.
 	Start-up	Запуск
-	Show the Start screen when WordCraft starts	Показувати початковий екран під час запуску WordCraft
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Увімкнено: WordCraft відкривається на сторінці Файл › Основне з порожнім документом, шаблонами та нещодавніми документами. Вимкнено: відкривається порожній документ.
+	Show the Start screen when Plume starts	Показувати початковий екран під час запуску Plume
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Увімкнено: Plume відкривається на сторінці Файл › Основне з порожнім документом, шаблонами та нещодавніми документами. Вимкнено: відкривається порожній документ.
 	Copy to	Копіювати до
 
 # Document naming and account controls.
@@ -2159,7 +2154,7 @@
 	{name}   {height} × {width} mm	{name}   {height} × {width} мм
 	{width} × {height} mm	{width} × {height} мм
 	{kind}, {columns} × {rows}, {size} ({paper})	{kind}, {columns} × {rows}, {size} ({paper})
-	Researcher needs an online service; WordCraft keeps your documents offline.	Досліднику потрібна онлайн-служба, а WordCraft працює з документами без підключення до інтернету.
+	Researcher needs an online service; Plume keeps your documents offline.	Досліднику потрібна онлайн-служба, а Plume працює з документами без підключення до інтернету.
 	These settings will be used for new documents.	Ці параметри використовуватимуться для нових документів.
 	can't split at the first row	не можна розділити таблицю на першому рядку
 	select two or more cells to merge	виділіть дві або більше клітинок, щоб об'єднати їх
