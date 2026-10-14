@@ -164,6 +164,12 @@ pub const HEADING_BLUE: Rgb = Rgb(0x0F, 0x47, 0x61);
 pub const BODY_FONT: &str = "Aptos";
 pub const HEADING_FONT: &str = "Aptos Display";
 
+/// The sans-serif family Markdown themes set text in: the system's interface face on macOS
+/// (always installed there), elsewhere the open Source Sans 3 every build carries.
+pub fn sans_font() -> &'static str {
+    if cfg!(target_os = "macos") { "Helvetica Neue" } else { "Source Sans 3" }
+}
+
 fn chr() -> CharProps {
     CharProps::default()
 }

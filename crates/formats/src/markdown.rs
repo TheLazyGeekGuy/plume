@@ -1731,7 +1731,8 @@ fn inlines_md_impl(inlines: &[Inline], in_table: bool, ctx: &mut Ctx) -> String 
             if f.sup || f.sub {
                 ctx.note(Adaptation::SupSub);
             }
-            if f.color.is_some_and(|c| c != wordcraft_doc::Rgb::BLACK) || f.background.is_some() {
+            // A link's colour is the link style's, not the author's.
+            if (f.link.is_none() && f.color.is_some_and(|c| c != wordcraft_doc::Rgb::BLACK)) || f.background.is_some() {
                 ctx.note(Adaptation::Color);
             }
         }
@@ -1986,6 +1987,146 @@ pub fn export_native(doc: &Document, opts: &NativeOptions) -> Bundle {
         text.push_str(&comments_block(doc, &ctx.comment_keys));
     }
     Bundle { text, assets: ctx.assets, report: ctx.report }
+}
+
+/// How a Markdown document looks while it is edited: the look of the site it will be read on.
+/// Only the editing view changes; the Markdown file never carries any of it.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Theme {
+    /// As GitHub, GitLab and Forgejo show Markdown: a sans-serif text, rules under the first two
+    /// heading levels, quotes with a bar, shaded code.
+    #[default]
+    Gfm,
+    /// As a VitePress documentation site shows it: a rule above second-level headings, roomier
+    /// lines.
+    VitePress,
+}
+
+impl Theme {
+    pub fn from_name(name: &str) -> Option<Theme> {
+        match name.trim().to_ascii_lowercase().as_str() {
+            "gfm" | "github" | "gitlab" | "forgejo" => Some(Theme::Gfm),
+            "vitepress" => Some(Theme::VitePress),
+            _ => None,
+        }
+    }
+}
+
+/// Give `doc` (read from Markdown) the look of `theme`: body text, headings, quotes and code.
+pub fn apply_theme(doc: &mut Document, theme: Theme) {
+    use wordcraft_doc::props::{Border, BorderStyle, Borders, LineSpacing, TextColor};
+    let text = wordcraft_doc::Rgb(0x1F, 0x23, 0x28);
+    let muted = wordcraft_doc::Rgb(0x59, 0x63, 0x6E);
+    let rule = Border { style: BorderStyle::Single, width: 0.75, color: Some(wordcraft_doc::Rgb(0xD1, 0xD9, 0xE0)), space: 3.0 };
+    let bar = Border { style: BorderStyle::Single, width: 3.0, color: Some(wordcraft_doc::Rgb(0xD1, 0xD9, 0xE0)), space: 8.0 };
+    let (font, line) = match theme {
+        Theme::Gfm => (wordcraft_doc::styles::sans_font(), 1.5),
+        Theme::VitePress => (wordcraft_doc::styles::sans_font(), 1.7),
+    };
+    let st = &mut doc.styles;
+    st.default_chr.font = Some(font.into());
+    st.default_chr.size = Some(12.0);
+    st.default_chr.color = Some(TextColor::Rgb(text));
+    st.default_para.space_before = Some(0.0);
+    st.default_para.space_after = Some(12.0);
+    st.default_para.line_spacing = Some(LineSpacing::Multiple(line));
+    let sizes = [24.0, 18.0, 15.0, 12.0, 10.5, 10.0];
+    for (i, size) in sizes.iter().enumerate() {
+        if let Some(h) = st.get_mut(&format!("Heading{}", i + 1)) {
+            h.chr.font = Some(font.into());
+            h.chr.size = Some(*size);
+            h.chr.bold = Some(true);
+            h.chr.italic = Some(false);
+            h.chr.color = Some(TextColor::Rgb(if i == 5 { muted } else { text }));
+            h.para.space_before = Some(18.0);
+            h.para.space_after = Some(12.0);
+            h.para.line_spacing = Some(LineSpacing::Multiple(1.25));
+            h.para.borders = match (theme, i) {
+                (Theme::Gfm, 0 | 1) => Some(Borders { bottom: Some(rule), ..Default::default() }),
+                (Theme::VitePress, 1) => Some(Borders { top: Some(Border { space: 18.0, ..rule }), ..Default::default() }),
+                _ => None,
+            };
+        }
+    }
+    if let Some(t) = st.get_mut("Title") {
+        t.chr.font = Some(font.into());
+        t.chr.size = Some(28.0);
+        t.chr.bold = Some(true);
+        t.chr.color = Some(TextColor::Rgb(text));
+    }
+    for id in ["Quote", "IntenseQuote"] {
+        if let Some(q) = st.get_mut(id) {
+            q.para.align = Some(Align::Left);
+            q.para.indent_left = Some(12.0);
+            q.para.indent_right = Some(0.0);
+            q.para.borders = Some(Borders { left: Some(bar), ..Default::default() });
+            q.chr.italic = Some(false);
+            q.chr.color = Some(TextColor::Rgb(muted));
+        }
+    }
+    if let Some(c) = st.get_mut(model::CODE_STYLE) {
+        c.para.shading = Some(wordcraft_doc::Rgb(0xF6, 0xF8, 0xFA));
+        c.para.indent_left = Some(8.0);
+        c.para.indent_right = Some(8.0);
+        c.chr.size = Some(10.5);
+    }
+    if let Some(h) = st.get_mut("Hyperlink") {
+        h.chr.color = Some(TextColor::Rgb(wordcraft_doc::Rgb(0x09, 0x69, 0xDA)));
+        h.chr.underline = Some(wordcraft_doc::props::Underline::None);
+    }
+    theme_blocks(doc);
+}
+
+/// The look of the blocks themselves (none of it is written back to Markdown): links in the
+/// link style, tables with light rules and a shaded header, room after tables and code blocks.
+fn theme_blocks(doc: &mut Document) {
+    use wordcraft_doc::Block;
+    use wordcraft_doc::props::{Border, BorderStyle, Borders};
+    let grid = Border { style: BorderStyle::Single, width: 0.75, color: Some(wordcraft_doc::Rgb(0xD1, 0xD9, 0xE0)), space: 0.0 };
+    let code = |b: &Block| matches!(b, Block::Para(p) if p.props.style.as_deref() == Some(model::CODE_STYLE));
+    let kinds: Vec<(bool, bool)> = doc.body.iter().map(|b| (matches!(&**b, Block::Table(_)), code(b))).collect();
+    for (i, b) in doc.body.iter_mut().enumerate() {
+        let (prev_table, prev_code) = i.checked_sub(1).and_then(|k| kinds.get(k)).copied().unwrap_or((false, false));
+        let next_code = kinds.get(i + 1).is_some_and(|k| k.1);
+        match Arc::make_mut(b) {
+            Block::Para(p) => {
+                let mut changed = false;
+                for r in &mut p.runs {
+                    if r.props.link.is_some() && r.props.style.is_none() {
+                        r.props.style = Some("Hyperlink".into());
+                        changed = true;
+                    }
+                }
+                let is_code = p.props.style.as_deref() == Some(model::CODE_STYLE);
+                if prev_table || (is_code && !prev_code) {
+                    p.props.space_before = Some(if is_code { 6.0 } else { 12.0 });
+                    changed = true;
+                }
+                if is_code && !next_code {
+                    p.props.space_after = Some(12.0);
+                    changed = true;
+                }
+                if changed {
+                    p.touch();
+                }
+            }
+            Block::Table(t) => {
+                t.props.borders = Some(Borders {
+                    top: Some(grid),
+                    left: Some(grid),
+                    bottom: Some(grid),
+                    right: Some(grid),
+                    between: Some(grid),
+                    inside_v: Some(grid),
+                });
+                if let Some(first) = t.rows.first_mut() {
+                    for c in &mut first.cells {
+                        c.props.shading = Some(wordcraft_doc::Rgb(0xF6, 0xF8, 0xFA));
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// A zip of a native copy: the Markdown as `md_name` and each asset at its path.

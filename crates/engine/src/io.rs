@@ -155,6 +155,10 @@ fn read_bytes(name: &str, bytes: &[u8], password: Option<&str>, page: &wordcraft
             None => return open_by_content(name, other, bytes, password, page),
         },
     };
+    // Markdown looks as the site it's read on shows it.
+    if matches!(ext.as_str(), "md" | "markdown") {
+        wordcraft_formats::markdown::apply_theme(&mut doc, Default::default());
+    }
     doc.ensure_nonempty();
     Ok((doc, false))
 }
@@ -320,6 +324,7 @@ pub fn open_path_in(path: &std::path::Path, password: Option<&str>, region: &wor
         let images = LocalImages::new(path.parent().unwrap_or(std::path::Path::new("")));
         let text = wordcraft_formats::txt::decode(&bytes);
         let mut doc = wordcraft_formats::markdown::import_with(&text, &region_page(region), &|src| images.load(src));
+        wordcraft_formats::markdown::apply_theme(&mut doc, Default::default());
         fit_pictures(&mut doc);
         doc.ensure_nonempty();
         return Ok((doc, false));

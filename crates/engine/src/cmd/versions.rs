@@ -180,6 +180,7 @@ mod remote {
             Some(Arc::new(data))
         };
         let mut d = wordcraft_formats::markdown::import_with(&text, &crate::io::region_page(&Default::default()), &resolve);
+        wordcraft_formats::markdown::apply_theme(&mut d, Default::default());
         d.ensure_nonempty();
         Ok((d, sha))
     }
@@ -434,6 +435,7 @@ mod native {
             Some(std::sync::Arc::new(data))
         };
         let mut doc = wordcraft_formats::markdown::import_with(&text, &crate::io::region_page(&Default::default()), &resolve);
+        wordcraft_formats::markdown::apply_theme(&mut doc, Default::default());
         doc.ensure_nonempty();
         Ok(doc)
     }
