@@ -11,6 +11,7 @@ description = "WordCraft desktop app"
 workspace = true
 
 [dependencies]
+wordcraft-brand = { workspace = true }
 wordcraft-doc = { workspace = true }
 wordcraft-engine = { workspace = true }
 wordcraft-proof = { workspace = true }
@@ -25,6 +26,7 @@ serde_json = { workspace = true }
 log = { workspace = true }
 
 [build-dependencies]
+wordcraft-brand = { workspace = true }
 # Icon + VERSIONINFO for wordcraft.exe; build.rs only uses it when the target is Windows.
 winresource = "0.1"
 

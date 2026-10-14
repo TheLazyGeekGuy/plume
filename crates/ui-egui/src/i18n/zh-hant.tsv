@@ -4,9 +4,11 @@
 	(no style)	（無樣式）
 	(no suggestions)	（無建議）
 	1.5 Line Spacing	1.5 倍行距
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	一款以 Rust 從零開始撰寫的免費開源文書處理軟體。\n屬於 ArtCraft 團隊的 Crafting Apps 系列。
+	A free, open-source word processor written in Rust, with Markdown as its native format.	以 Rust 編寫的免費開源文書處理軟體，以 Markdown 為原生格式。
+	Plume — based on WordCraft by the ArtCraft team.	Plume — 以 ArtCraft 團隊的 WordCraft 為基礎。
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	About	關於
-	About WordCraft	關於 WordCraft
+	About Plume	關於 Plume
 	Accept	接受
 	Accept All Changes	接受所有修訂
 	Accept This Change	接受此修訂
@@ -64,7 +66,7 @@
 	Automatic Table 1 (3 levels)	自動目錄 1（3 階層）
 	Automatic Table 2 (2 levels)	自動目錄 2（2 階層）
 	AutoSave	自動儲存
-	AutoSave documents you have saved in WordCraft	自動儲存在 WordCraft 中儲存過的文件
+	AutoSave documents you have saved in Plume	自動儲存在 Plume 中儲存過的文件
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	自動儲存失敗：{error}。重新儲存文件後將恢復自動儲存。
 	Balloons	註解方塊
 	Bottom Margin	下邊界
@@ -78,7 +80,7 @@
 	Click to switch back to inserting	按一下以切換回插入模式
 	Color only	僅色彩
 	Compress punctuation at the start of a line	壓縮行首標點
-	Couldn't make WordCraft the default: {error}	無法將 WordCraft 設為預設應用程式：{error}
+	Couldn't make Plume the default: {error}	無法將 Plume 設為預設應用程式：{error}
 	Custom dictionary	自訂字典
 	Dark page (white text on black)	深色頁面（黑底白字）
 	Drag a rectangle to draw a table, or a line across cells to split them. Esc stops.	拖出矩形以繪製表格，或拖出穿過儲存格的線條以分割儲存格。按 Esc 結束。
@@ -108,7 +110,7 @@
 	Inside:	內側：
 	Latin text font:	拉丁文字字型：
 	Left border	左框線
-	In Default apps, choose WordCraft for the document types you want it to open.	請在「預設應用程式」中，為要以 WordCraft 開啟的文件類型選擇 WordCraft。
+	In Default apps, choose Plume for the document types you want it to open.	請在「預設應用程式」中，為要以 Plume 開啟的文件類型選擇 Plume。
 	Left Margin	左邊界
 	Indents and Spacing	縮排和間距
 	Legal style numbering	正規形式編號
@@ -131,9 +133,9 @@
 	Number style for this level:	此層級的編號樣式：
 	Only for the selected text	僅針對所選文字
 	Outside border	外側框線
-	Make WordCraft the default for Word documents…	將 WordCraft 設為 Word 文件的預設應用程式…
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	今後以 WordCraft 開啟 .docx、.doc、.rtf、.odt 檔案和 Word 範本。
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	開啟「設定 › 預設應用程式」，在其中為 .docx 及其他文件類型選擇 WordCraft。
+	Make Plume the default for Word documents…	將 Plume 設為 Word 文件的預設應用程式…
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	今後以 Plume 開啟 .docx、.doc、.rtf、.odt 檔案和 Word 範本。
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	開啟「設定 › 預設應用程式」，在其中為 .docx 及其他文件類型選擇 Plume。
 	Overtype	取代
 	Overtype (typing replaces the characters after the caret)	取代（輸入的內容會取代插入點後的字元）
 	Show alignment guides when moving pictures and shapes	移動圖片和圖案時顯示對齊參考線
@@ -285,7 +287,6 @@
 	Comment	註解
 	Comments	註解
 	Comments Pane	註解窗格
-	Community\nDiscord	社群\nDiscord
 	Compact	緊密
 	Compare	比較
 	Compress Pictures	壓縮圖片
@@ -332,16 +333,14 @@
 	Delete Style	刪除樣式
 	Delete Table	刪除表格
 	Design	設計
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	若要預設以 WordCraft 開啟 Word 文件：在 Finder 中選取一份文件，選擇「檔案 › 取得資訊」，在「打開檔案的應用程式」中選擇 WordCraft，然後按一下「全部更改」。
-	WordCraft is now the default app for Word documents.	WordCraft 現在是 Word 文件的預設應用程式。
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	若要預設以 Plume 開啟 Word 文件：在 Finder 中選取一份文件，選擇「檔案 › 取得資訊」，在「打開檔案的應用程式」中選擇 Plume，然後按一下「全部更改」。
+	Plume is now the default app for Word documents.	Plume 現在是 Word 文件的預設應用程式。
 	development build	開發版本
 	Diagonal	斜向
 	Diamond	菱形
 	Dictate	聽寫
 	Different First Page	首頁不同
 	Different Odd & Even Pages	奇偶頁不同
-	Discord	Discord
-	Discord community	Discord 社群
 	Display	顯示
 	Display for Review	顯示以供檢閱
 	Distribute Columns	平均分配欄寬
@@ -500,8 +499,6 @@
 	Inspect Document	檢查文件
 	Interface language:	介面語言：
 	Italic	斜體
-	Join the ArtCraft community on Discord	加入 Discord 上的 ArtCraft 社群
-	Join us on Discord: discord.gg/artcraft	在 Discord 上加入我們：discord.gg/artcraft
 	Justify	左右對齊
 	Keep Lines Together	段落中不分頁
 	Keep lines together	段落中不分頁
@@ -557,7 +554,7 @@
 	Merge Formatting	合併格式設定
 	Merged PRs	已合併的 PR
 	Mirrored	左右對稱
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0。著作權所有 (c) 2026 ArtCraft 團隊及 WordCraft 貢獻者。
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 Plume 貢獻者、ArtCraft 團隊與 WordCraft 貢獻者。
 	Moderate	中等
 	Modify Style	修改樣式
 	Modify…	修改…
@@ -805,7 +802,6 @@
 	Animation	動畫
 	Animate the caret (it glides and fades)	為游標加上動畫（平滑移動並淡入淡出）
 	On: the caret glides to its new place when you type or use the arrow keys, and its blink fades. Off: it jumps and blinks on and off.	開啟：輸入或使用方向鍵時，游標會平滑移動到新位置，閃爍時淡入淡出。關閉：游標直接跳到新位置，閃爍時直接顯示和隱藏。
-	Show the community button in the title bar	在標題列中顯示社群按鈕
 	Show/Hide ¶	顯示/隱藏 ¶
 	Show\nComments	顯示註解
 	Shrink Font 1 Point	字型縮小 1 點
@@ -821,7 +817,7 @@
 	Small caps	小型大寫字
 	SmartArt	SmartArt
 	Sort	排序
-	Source code: github.com/storytold/wordcraft	原始碼：github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/wordcraft	原始碼：github.com/TheLazyGeekGuy/wordcraft
 	Space	空格
 	Space before/after:	段落前/後間距：
 	Spacing	間距
@@ -960,7 +956,7 @@
 	Word Left	左移一個單字
 	Word Right	右移一個單字
 	WordArt	文字藝術師
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	字數
 	Words only	僅文字
 	Wrap Text	文繞圖
@@ -1209,7 +1205,6 @@
 	Insert a new equation (Alt+=)	插入新方程式 (Alt+=)
 	Leave the equation (Esc)	離開方程式 (Esc)
 	Preview	預覽
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Draw Ink	繪製筆跡
 	Erase Ink	擦除筆跡
 	Hide Ink	隱藏筆跡
@@ -1347,7 +1342,7 @@
 	The document will be saved with a password. Save it to protect it.	文件將以密碼儲存。儲存文件以保護它。
 	The password is removed. Save the document to keep the change.	密碼已移除。儲存文件以保留此變更。
 	The passwords don't match.	兩次輸入的密碼不一致。
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	請妥善保管密碼：沒有密碼，任何人（包括 WordCraft）都無法開啟文件。兩個方塊都留空可移除密碼。
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	請妥善保管密碼：沒有密碼，任何人（包括 Plume）都無法開啟文件。兩個方塊都留空可移除密碼。
 
 # Interface text routed through translation (#313)
 	Align Top Left	靠上靠左對齊
@@ -1738,7 +1733,7 @@
 	Word document	Word 文件
 	All files	所有檔案
 	Recipient lists	收件者清單
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	系統檔案對話方塊無法使用，因此 WordCraft 顯示自己的對話方塊。若要使用系統對話方塊，請安裝檔案選擇器入口（例如 xdg-desktop-portal-gtk）或 zenity。
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	系統檔案對話方塊無法使用，因此 Plume 顯示自己的對話方塊。若要使用系統對話方塊，請安裝檔案選擇器入口（例如 xdg-desktop-portal-gtk）或 zenity。
 	Up one level	上移一層
 	Home folder	個人資料夾
 	{name} wasn't found.	找不到 {name}。
@@ -1746,8 +1741,8 @@
 	This folder can't be read: {error}	無法讀取此資料夾：{error}
 	Showing the first {count} items.	僅顯示前 {count} 個項目。
 	File name:	檔案名稱:
-	Browse in WordCraft…	在 WordCraft 中瀏覽…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	當系統檔案對話方塊沒有出現時，使用 WordCraft 內建的瀏覽器開啟檔案。
+	Browse in Plume…	在 Plume 中瀏覽…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	當系統檔案對話方塊沒有出現時，使用 Plume 內建的瀏覽器開啟檔案。
 	Hide White Space	隱藏空白
 	All pages	所有頁面
 	Current page	目前頁面
@@ -2116,8 +2111,8 @@
 	Does not contain	不包含
 	{count} of {total} recipients will be merged.	將合併 {total} 位收件者中的 {count} 位。
 	Start-up	啟動
-	Show the Start screen when WordCraft starts	啟動 WordCraft 時顯示開始畫面
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	開：WordCraft 開啟時顯示「檔案 › 常用」，其中有空白文件、範本和最近使用的文件。關：直接開啟空白文件。
+	Show the Start screen when Plume starts	啟動 Plume 時顯示開始畫面
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	開：Plume 開啟時顯示「檔案 › 常用」，其中有空白文件、範本和最近使用的文件。關：直接開啟空白文件。
 	Copy to	複製到
 
 # Document naming and account controls.
@@ -2148,7 +2143,7 @@
 	{name}   {height} × {width} mm	{name}   {height} × {width} 公釐
 	{width} × {height} mm	{width} × {height} 公釐
 	{kind}, {columns} × {rows}, {size} ({paper})	{kind}，{columns} × {rows}，{size}（{paper}）
-	Researcher needs an online service; WordCraft keeps your documents offline.	研究工具需要連線；WordCraft 會將您的文件保留在本機。
+	Researcher needs an online service; Plume keeps your documents offline.	研究工具需要連線；Plume 會將您的文件保留在本機。
 	These settings will be used for new documents.	這些設定將用於新文件。
 	can't split at the first row	無法在第一列處分割表格
 	select two or more cells to merge	請選取兩個以上的儲存格進行合併

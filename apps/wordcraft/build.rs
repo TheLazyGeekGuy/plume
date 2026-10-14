@@ -7,17 +7,17 @@
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=../../assets/app-icon/wordcraft.ico");
+    println!("cargo:rerun-if-changed=../../assets/app-icon/plume.ico");
     println!("cargo:rerun-if-env-changed=WORDCRAFT_REQUIRE_WINRES");
     if std::env::var("CARGO_CFG_TARGET_OS").as_deref() != Ok("windows") {
         return;
     }
     let mut res = winresource::WindowsResource::new();
-    res.set_icon("../../assets/app-icon/wordcraft.ico")
-        .set("ProductName", "WordCraft")
-        .set("FileDescription", "WordCraft word processor")
-        .set("CompanyName", "Learning Machines LLC")
-        .set("LegalCopyright", "Copyright (c) the WordCraft authors. MIT OR Apache-2.0.")
+    res.set_icon("../../assets/app-icon/plume.ico")
+        .set("ProductName", wordcraft_brand::APP_NAME)
+        .set("FileDescription", &format!("{} word processor", wordcraft_brand::APP_NAME))
+        .set("CompanyName", wordcraft_brand::AUTHORS)
+        .set("LegalCopyright", &format!("Copyright (c) the {} and the WordCraft authors. MIT OR Apache-2.0.", wordcraft_brand::AUTHORS))
         .set("OriginalFilename", "wordcraft.exe")
         .set("InternalName", "wordcraft");
     if let Err(e) = res.compile() {

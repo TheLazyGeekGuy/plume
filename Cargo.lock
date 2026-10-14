@@ -5156,6 +5156,7 @@ dependencies = [
  "winit",
  "winresource",
  "wl-clipboard-rs",
+ "wordcraft-brand",
  "wordcraft-control-key",
  "wordcraft-doc",
  "wordcraft-engine",
@@ -5166,11 +5167,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "wordcraft-brand"
+version = "0.7.0"
+
+[[package]]
 name = "wordcraft-cli"
 version = "0.7.0"
 dependencies = [
  "serde_json",
  "sys-locale",
+ "wordcraft-brand",
  "wordcraft-doc",
  "wordcraft-engine",
  "wordcraft-mcp",
@@ -5181,6 +5187,9 @@ dependencies = [
 [[package]]
 name = "wordcraft-control-key"
 version = "0.7.0"
+dependencies = [
+ "wordcraft-brand",
+]
 
 [[package]]
 name = "wordcraft-doc"
@@ -5225,6 +5234,7 @@ dependencies = [
  "sha1",
  "sha2",
  "thiserror 2.0.21",
+ "wordcraft-brand",
  "wordcraft-doc",
  "wordcraft-geom",
  "zeroize",
@@ -5244,6 +5254,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.21",
+ "wordcraft-brand",
  "wordcraft-doc",
  "wordcraft-docbin",
  "wordcraft-docx",
@@ -5284,6 +5295,7 @@ dependencies = [
  "log",
  "proptest",
  "quick-xml",
+ "wordcraft-brand",
  "wordcraft-doc",
  "wordcraft-geom",
  "zip",
@@ -5321,6 +5333,7 @@ version = "0.7.0"
 dependencies = [
  "log",
  "serde_json",
+ "wordcraft-brand",
  "wordcraft-control-key",
  "wordcraft-doc",
  "wordcraft-engine",
@@ -5348,6 +5361,7 @@ dependencies = [
  "kurbo",
  "log",
  "thiserror 2.0.21",
+ "wordcraft-brand",
  "wordcraft-doc",
  "wordcraft-fonts",
  "wordcraft-geom",
@@ -5362,6 +5376,7 @@ dependencies = [
  "log",
  "miniz_oxide 0.8.9",
  "proptest",
+ "wordcraft-brand",
 ]
 
 [[package]]
@@ -5392,6 +5407,7 @@ dependencies = [
  "serde_json",
  "sys-locale",
  "toml",
+ "wordcraft-brand",
  "wordcraft-doc",
  "wordcraft-engine",
  "wordcraft-fonts",
@@ -5423,6 +5439,7 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
+ "wordcraft-brand",
  "wordcraft-doc",
  "wordcraft-engine",
  "wordcraft-fonts",
@@ -5437,6 +5454,7 @@ dependencies = [
  "proptest",
  "serde_json",
  "thiserror 2.0.21",
+ "wordcraft-brand",
  "wordcraft-doc",
  "wordcraft-docx",
  "wordcraft-engine",
