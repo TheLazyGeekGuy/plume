@@ -58,16 +58,16 @@ The prototype implements the **common base** of the three profiles (without foot
 | Quote / Intense Quote | `>` | kept | — |
 | Bulleted / numbered lists, 9 levels | `-`, `1.` 4-space indent | kept (numbering type i, a, A… normalised to 1.) | — |
 | External link | `[text](url)` | kept; dangerous schemes (`javascript:`…) are written as text | — |
-| Internal link to a heading | `[text](#slug)` | **to do**: rewrite `#_Toc123` to the heading's slug | — |
+| Internal link to a heading | `[text](#slug)` | done: `#_Toc123` rewritten to the heading's GitHub slug | — |
 | Bookmark not on a heading | — | removed | `Bookmark` |
 | Inline or floating image | `![alt](assets/img-….png)` | external file, floating → inline; **display size lost** in pure GFM (the image shows at its pixel size, shrunk to page width) | — (size: to add) |
-| Chart, SmartArt, shape | `*[alt text]*` | **to do**: render to PNG via `render` and write as an image | `Figure` |
-| Equation | linear text | **to do**: `$…$` in `gfm` | `Equation` |
+| Chart, SmartArt, diagram | `![alt](assets/img-….png)` | done: drawn to PNG (2 px/pt) and written as a picture; WMF/EMF/TIFF pictures converted to PNG too | — |
+| Equation | `$…$`, `$$…$$` | done: LaTeX from the equation's structure, read back as an equation; `$` in text escaped | — |
 | Simple table | pipe table | kept, 1st row = header | — |
 | Cell with several paragraphs | paragraphs joined by a space | flattened | `CellParagraphs` |
 | Merged cell | empty cells | flattened | `MergedCells` |
 | Nested table | text in the cell | flattened | `NestedTable` |
-| Layout table (no borders, used for positioning) | **to do**: unroll into paragraphs | — | — |
+| Layout table (no borders, or one column) | paragraphs | done: unrolled | `LayoutTable` |
 | Underline | plain text | lost | `Underline` |
 | Superscript / subscript | plain text | lost (Unicode ¹²³ possible for digits: **to study**) | `SupSub` |
 | Colour, highlighting | — | moved to the publishing profile | `Color` |
@@ -76,8 +76,8 @@ The prototype implements the **common base** of the three profiles (without foot
 | Justified | — | normalised by the theme (not reported) | — |
 | Page break | — | **to study**: `---` rule + "break before H1" profile setting | `PageBreak` |
 | Headers, footers, page numbers, margins, orientation | — | publishing profile (`publication/default.toml`) | — |
-| Footnotes | today: reference number only | **to do**: `[^n]` + definitions at the end of the file | — |
-| Comments | HTML comments | see §6 | `comments` counter |
+| Footnotes, endnotes | `[^n]` + definitions at the end | done (endnotes become footnotes) | `Endnote` |
+| Comments | `<!-- cN -->` markers + `<!-- plume:comments … -->` block | done, see §6 | `comments` counter |
 | Pending tracked changes | — | see §7 | — |
 | Fields (TOC, PAGE, REF…) | text result | TOC: removed (the site generates it) or `[[toc]]` | **to do** |
 
@@ -146,7 +146,7 @@ Markdown has no track changes: **tracking becomes the Git history**.
 | `export_native(&Document, &NativeOptions) -> Bundle` | text + `assets: Vec<(path, bytes)>` + `Report` |
 | `NativeOptions { assets_dir, comments }` | default `assets`, comments kept |
 | `Report { counts: BTreeMap<Adaptation, usize>, images, comments }`, `lines()`, `is_lossless()` | adaptation report |
-| `Adaptation` | `Underline`, `SupSub`, `Color`, `Alignment`, `PageBreak`, `Bookmark`, `CellParagraphs`, `NestedTable`, `MergedCells`, `Figure`, `Equation` |
+| `Adaptation` | `Underline`, `SupSub`, `Color`, `Alignment`, `PageBreak`, `Bookmark`, `CellParagraphs`, `NestedTable`, `MergedCells`, `Figure`, `Equation`, `Endnote`, `ImageFormat`, `LayoutTable` |
 | `import_with(text, page, resolve)` | import with resolution of relative images (two passes, thread-local state reset by a guard) |
 | `html_lines(&str) -> Vec<usize>` | lines containing HTML outside comments, code and autolinks |
 
@@ -159,3 +159,7 @@ Markdown has no track changes: **tracking becomes the Git history**.
 | `open_path_in` | a `.md` opened from disk resolves its relative images |
 
 `markdown::export` (the "legacy" copy used by `save_bytes`, the Web and the CLI to standard output) is **unchanged** byte for byte; its tests pass.
+
+## 10. Status (2026-10-15)
+
+Implemented since the first increment: footnotes, YAML front matter, anchored comments, heading-slug links, TIFF/EMF/WMF/charts/SmartArt as PNG, `$…$` mathematics, layout tables unrolled, the `gfm`/`vitepress` editing themes (`markdown::apply_theme`), publication profiles (`crates/engine/src/publication.rs`), strict mode (`markdown.strict`, File › Options › Save), Markdown as the document's own format (`Session::native_markdown`). Still open: picture display sizes (no GFM syntax), page breaks, GitHub alerts (`> [!NOTE]`) and VitePress containers, task lists on export, a richer import banner.

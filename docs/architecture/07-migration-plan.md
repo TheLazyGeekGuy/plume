@@ -43,10 +43,10 @@ Branding is being done now. The owner works in the cloud: every step below happe
 | Footnotes `[^n]` | ✅ done (endnotes written as footnotes) |
 | Anchored comments `<!-- cN -->` (03 §6) | ✅ done (block `<!-- plume:comments … -->`) |
 | Internal links to heading slugs | ✅ done |
-| PNG conversion of non-web images, charts/SmartArt rendered as images | ✅ TIFF and EMF/WMF → PNG; charts/SmartArt still alt text |
-| Strict/lenient command mode (03 §5) | to do |
-| `gfm` / `vitepress` visual themes (stylesheets applied on import) | to do |
-| Publishing profile `publication/default.toml` (page, margins, fonts) | to do |
+| PNG conversion of non-web images, charts/SmartArt rendered as images | ✅ done; equations as `$…$` too |
+| Strict/lenient command mode (03 §5) | ✅ done (`markdown.strict`) |
+| `gfm` / `vitepress` visual themes (stylesheets applied on import) | ✅ done |
+| Publishing profile `publication/default.toml` (page, margins, fonts) | ✅ done |
 
 ### Phase 3 — Word import and PDF — 5 to 8 d
 
@@ -60,7 +60,7 @@ Corpus (09 §2), import report, asset conversion, Word 6/95 (optional fallback),
 
 `forge` crate (GitHub, GitLab, Forgejo), authentication (device flow / PKCE / tokens), keychain, open from a forge, sync, conflicts via `compare`, review (PR/MR), forge comments ↔ Word comments, approval workflow.
 
-**Status 2026-10-14 (phases 4–5):** done — crate `wordcraft-vcs` (Git through the `git` program; GitHub/GitLab/Forgejo REST connectors), commands `vcs.*` and `forge.*`, Review › Versions ribbon group, Save Version and Version History dialogs, File › Open › Open from a Forge…, tokens in the macOS Keychain, macOS CI (`.github/workflows/plume-macos.yml`). Still to do: OAuth device-flow sign-in in the UI (needs a registered OAuth app id), review requests (PR/MR) and forge review comments, the web transport (async `fetch`), conflict merge beyond "reload or compare", a document explorer for folders.
+**Status 2026-10-14 (phases 4–5):** done — crate `wordcraft-vcs` (Git through the `git` program; GitHub/GitLab/Forgejo REST connectors), commands `vcs.*` and `forge.*`, Review › Versions ribbon group, Save Version and Version History dialogs, File › Open › Open from a Forge…, tokens in the macOS Keychain, macOS CI (`.github/workflows/plume-macos.yml`). Also done: Request Review (pull/merge request on a review branch), Get Review Comments (as Word comments on the right paragraph), review status, the Documents pane. Still to do: OAuth device-flow sign-in in the UI (needs a registered OAuth app id), the web transport (async `fetch`), conflict merge beyond "reload or compare", posting replies to forge comments.
 
 ### Phase 6 — Distribution — 5 to 10 d
 
