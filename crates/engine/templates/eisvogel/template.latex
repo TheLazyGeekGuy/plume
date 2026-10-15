@@ -675,18 +675,20 @@ $endif$
 %
 % Source Sans as the default font family
 % Source Code Pro for monospace text
+% (Plume: `sourcesans` since TeX Live 2024, `sourcesanspro` before and in Tectonic;
+% without either, the distribution's default fonts)
 %
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   $if(fontfamily)$
   $else$
-  \usepackage[default]{sourcesans}
-  \usepackage{sourcecodepro}
+  \IfFileExists{sourcesans.sty}{\usepackage[default]{sourcesans}}{\IfFileExists{sourcesanspro.sty}{\usepackage[default]{sourcesanspro}}{}}
+  \IfFileExists{sourcecodepro.sty}{\usepackage{sourcecodepro}}{}
   $endif$
 \else % if not pdftex (e.g. lualatex)
   $if(mainfont)$
   $else$
-  \usepackage[default]{sourcesans}
-  \usepackage{sourcecodepro}
+  \IfFileExists{sourcesans.sty}{\usepackage[default]{sourcesans}}{\IfFileExists{sourcesanspro.sty}{\usepackage[default]{sourcesanspro}}{}}
+  \IfFileExists{sourcecodepro.sty}{\usepackage{sourcecodepro}}{}
   $endif$
 \fi
 

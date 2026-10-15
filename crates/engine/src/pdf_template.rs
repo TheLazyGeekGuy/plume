@@ -187,6 +187,24 @@ pub fn templates_root() -> Option<PathBuf> {
     wordcraft_control_key::settings_dir().map(|d| d.join("templates"))
 }
 
+/// Eisvogel 3 loads Source Sans as `sourcesans`, its name since TeX Live 2024; older
+/// distributions — Tectonic's bundle among them — call it `sourcesanspro`, and some have neither.
+/// Templates written that way (copies made before Plume fixed its own, the user's variants) load
+/// whichever exists, else keep the distribution's default fonts, instead of stopping the PDF.
+fn portable_fonts(src: &str) -> String {
+    let mut out = src.to_string();
+    if !out.contains("\\IfFileExists{sourcesans.sty}") {
+        out = out.replace(
+            "\\usepackage[default]{sourcesans}",
+            "\\IfFileExists{sourcesans.sty}{\\usepackage[default]{sourcesans}}{\\IfFileExists{sourcesanspro.sty}{\\usepackage[default]{sourcesanspro}}{}}",
+        );
+    }
+    if !out.contains("\\IfFileExists{sourcecodepro.sty}") {
+        out = out.replace("\\usepackage{sourcecodepro}", "\\IfFileExists{sourcecodepro.sty}{\\usepackage{sourcecodepro}}{}");
+    }
+    out
+}
+
 fn write_builtin(dir: &Path) -> Result<(), CmdError> {
     write_text(&dir.join(TEMPLATE_FILE), EISVOGEL_LATEX)?;
     write_text(&dir.join(METADATA_FILE), EISVOGEL_METADATA)?;
@@ -366,7 +384,7 @@ fn variables(doc: &Document, doc_dir: Option<&Path>, tpl_dir: &Path, body: &late
 
 /// Write the filled template's pictures into `out_dir` and return the LaTeX source.
 pub fn build(doc: &Document, doc_path: Option<&Path>, tpl_dir: &Path, out_dir: &Path) -> Result<String, CmdError> {
-    let src = read_text(&tpl_dir.join(TEMPLATE_FILE))?;
+    let src = portable_fonts(&read_text(&tpl_dir.join(TEMPLATE_FILE))?);
     let tpl = Template::parse(&src).map_err(|e| CmdError::Failed(format!("the template can't be read: {e}")))?;
     let body = latex::export_body(doc);
     for (name, bytes) in &body.images {
@@ -525,6 +543,18 @@ fn tex_error(dir: &Path) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Tectonic's bundle has `sourcesanspro`, not `sourcesans`: a template asking for the latter
+    /// loads whichever exists (and the built-in one already does), once.
+    #[test]
+    fn source_fonts_load_under_either_name() {
+        let old = "\\usepackage[default]{sourcesans}\n\\usepackage{sourcecodepro}\n";
+        let fixed = portable_fonts(old);
+        assert!(fixed.contains("\\IfFileExists{sourcesanspro.sty}{\\usepackage[default]{sourcesanspro}}{}"), "{fixed}");
+        assert!(fixed.contains("\\IfFileExists{sourcecodepro.sty}{\\usepackage{sourcecodepro}}{}"), "{fixed}");
+        assert_eq!(portable_fonts(&fixed), fixed, "applied once");
+        assert_eq!(portable_fonts(EISVOGEL_LATEX), EISVOGEL_LATEX, "the built-in template already falls back");
+    }
 
     #[test]
     fn eisvogel_fills_with_a_document() {
