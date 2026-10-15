@@ -2761,3 +2761,4 @@ preview	Title	Naslov
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Preuređeno tablica: {applied} od {n}. Poništi (Ctrl+Z) vraća sve.
 	{n} models on the server.	Modela na poslužitelju: {n}.
 	{ready} of {n} tables can be sent to the model.	Tablica koje se mogu poslati modelu: {ready} od {n}.
+	Saved to {forge}	Spremljeno u {forge}

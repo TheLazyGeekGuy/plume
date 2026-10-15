@@ -2749,3 +2749,4 @@
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Преструктурирани таблици: {applied} от {n}. Отмяна (Ctrl+Z) ги връща всички.
 	{n} models on the server.	Модели на сървъра: {n}.
 	{ready} of {n} tables can be sent to the model.	Таблици, които могат да се изпратят към модела: {ready} от {n}.
+	Saved to {forge}	Записано в {forge}

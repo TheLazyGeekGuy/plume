@@ -2375,3 +2375,4 @@
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Преуређено табела: {applied} од {n}. Опозови (Ctrl+Z) их враћа све.
 	{n} models on the server.	Модела на серверу: {n}.
 	{ready} of {n} tables can be sent to the model.	Табела које се могу послати моделу: {ready} од {n}.
+	Saved to {forge}	Сачувано у {forge}

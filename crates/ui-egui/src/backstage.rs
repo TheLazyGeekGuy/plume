@@ -461,8 +461,10 @@ fn info_page(app: &mut WordApp, ui: &mut Ui) {
         for (l, k) in [("Pages", "pages"), ("Words", "words"), ("Paragraphs", "paragraphs"), ("Sections", "sections"), ("Comments", "comments")] {
             ui.label(format!("{}: {}", tl!(l), info.get(k).map(|v| v.to_string()).unwrap_or_default()));
         }
-        let path = info.get("path").and_then(|v| v.as_str()).unwrap_or(tl!("Not saved yet"));
-        ui.label(crate::i18n::fmt(tl!("Location: {path}"), &[("path", path)]));
+        // Plume: a forge document's place: forge, project, file and branch.
+        let in_forge = app.session.forge.as_ref().map(|r| format!("{} · {}/{} ({})", r.doc.forge.kind.name(), r.doc.repo, r.doc.path, r.doc.branch));
+        let path = info.get("path").and_then(|v| v.as_str()).map(str::to_string).or(in_forge).unwrap_or_else(|| tl!("Not saved yet").to_string());
+        ui.label(crate::i18n::fmt(tl!("Location: {path}"), &[("path", &path)]));
     });
 }
 

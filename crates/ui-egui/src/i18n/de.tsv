@@ -2360,3 +2360,4 @@
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{applied} von {n} Tabellen umstrukturiert. Rückgängig (Strg+Z) stellt alle wieder her.
 	{n} models on the server.	{n} Modelle auf dem Server.
 	{ready} of {n} tables can be sent to the model.	{ready} von {n} Tabellen können an das Modell gesendet werden.
+	Saved to {forge}	In {forge} gespeichert

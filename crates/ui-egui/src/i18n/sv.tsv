@@ -2776,3 +2776,4 @@ preview	Title	Titel
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{applied} av {n} tabeller omstrukturerade. Ångra (Ctrl+Z) återställer alla.
 	{n} models on the server.	{n} modeller på servern.
 	{ready} of {n} tables can be sent to the model.	{ready} av {n} tabeller kan skickas till modellen.
+	Saved to {forge}	Sparat i {forge}

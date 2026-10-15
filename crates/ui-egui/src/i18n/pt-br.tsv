@@ -2373,3 +2373,4 @@
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{applied} de {n} tabelas reestruturadas. Desfazer (Ctrl+Z) restaura todas.
 	{n} models on the server.	{n} modelos no servidor.
 	{ready} of {n} tables can be sent to the model.	{ready} de {n} tabelas podem ser enviadas ao modelo.
+	Saved to {forge}	Salvo no {forge}

@@ -2619,3 +2619,4 @@ preview	Title	제목
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	표 {n}개 중 {applied}개를 재구성했습니다. 실행 취소(Ctrl+Z)로 모두 되돌립니다.
 	{n} models on the server.	서버의 모델 {n}개.
 	{ready} of {n} tables can be sent to the model.	표 {n}개 중 {ready}개를 모델에 보낼 수 있습니다.
+	Saved to {forge}	{forge}에 저장됨

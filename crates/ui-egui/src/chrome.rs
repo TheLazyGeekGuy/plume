@@ -333,17 +333,18 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
                 // No document open (#1129): the app's name alone.
                 wordcraft_brand::APP_NAME.to_string()
             } else {
-                format!(
-                    "{} — {}",
-                    app.title_stem(),
-                    if app.session.dirty {
-                        tl!("Edited")
-                    } else if app.session.path.is_some() {
-                        tl!("Saved")
-                    } else {
-                        tl!("Not saved")
-                    }
-                )
+                // Plume: a document kept in a forge is saved there, with or without a local file.
+                let forge = app.session.forge.as_ref().filter(|_| app.session.path.is_none()).map(|r| r.doc.forge.kind.name());
+                let state = if app.session.dirty {
+                    tl!("Edited").to_string()
+                } else if app.session.path.is_some() {
+                    tl!("Saved").to_string()
+                } else if let Some(kind) = forge {
+                    crate::i18n::fmt(tl!("Saved to {forge}"), &[("forge", kind)])
+                } else {
+                    tl!("Not saved").to_string()
+                };
+                format!("{} — {state}", app.title_stem())
             };
             let font = TypeRung::Chrome.semibold();
             let track = TypeRung::Chrome.tracking();

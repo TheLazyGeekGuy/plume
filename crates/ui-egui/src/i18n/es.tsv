@@ -2727,3 +2727,4 @@ preview	Title	Título
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{applied} de {n} tablas reestructuradas. Deshacer (Ctrl+Z) las restaura todas.
 	{n} models on the server.	{n} modelos en el servidor.
 	{ready} of {n} tables can be sent to the model.	{ready} de {n} tablas pueden enviarse al modelo.
+	Saved to {forge}	Guardado en {forge}

@@ -2756,3 +2756,4 @@
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{n} táblázatból {applied} átszervezve. A Visszavonás (Ctrl+Z) mindet visszaállítja.
 	{n} models on the server.	{n} modell a kiszolgálón.
 	{ready} of {n} tables can be sent to the model.	{n} táblázatból {ready} küldhető a modellnek.
+	Saved to {forge}	Mentve ide: {forge}

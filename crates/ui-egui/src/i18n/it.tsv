@@ -2769,3 +2769,4 @@ preview	Title	Esempio
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{applied} tabelle su {n} ristrutturate. Annulla (Ctrl+Z) le ripristina tutte.
 	{n} models on the server.	{n} modelli sul server.
 	{ready} of {n} tables can be sent to the model.	{ready} tabelle su {n} possono essere inviate al modello.
+	Saved to {forge}	Salvato in {forge}

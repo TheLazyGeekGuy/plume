@@ -1606,8 +1606,9 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
                 return true;
             }
             if ok {
-                // An unsaved or non-Markdown document is saved as Markdown first.
-                if app.session.path.as_ref().is_none_or(|p| !crate::is_markdown_name(&p.to_string_lossy())) {
+                // An unsaved or non-Markdown document is saved as Markdown first; a forge
+                // document is Markdown already, its versions are the forge's commits.
+                if needs_markdown_file(app) {
                     *error = tl!("Save the document as Markdown first (File › Save As).").to_string();
                     return false;
                 }
@@ -4331,9 +4332,15 @@ fn forge_browser(app: &mut WordApp, ui: &mut Ui, fb: &mut ForgeBrowser) -> bool 
     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| ui.button(tl!("Cancel")).clicked()).inner
 }
 
+/// Versions need a Markdown file, unless the document lives in a forge (Plume): there they are
+/// the forge's commits.
+fn needs_markdown_file(app: &WordApp) -> bool {
+    app.session.forge.is_none() && app.session.path.as_ref().is_none_or(|p| !crate::is_markdown_name(&p.to_string_lossy()))
+}
+
 /// The document's versions for the Version History dialog, or why there are none.
 fn version_list(app: &mut WordApp) -> (Vec<Value>, String) {
-    if app.session.path.as_ref().is_none_or(|p| !crate::is_markdown_name(&p.to_string_lossy())) {
+    if needs_markdown_file(app) {
         return (Vec::new(), tl!("Save the document as Markdown first (File › Save As).").to_string());
     }
     let versioned = app.session.run("vcs.status", &json!({})).ok().and_then(|v| v.get("versioned").and_then(Value::as_bool));
@@ -4379,6 +4386,32 @@ mod tests {
     use wordcraft_doc::Pos;
     use wordcraft_doc::props::Align;
     use wordcraft_engine::Session;
+
+    /// A document opened from (or saved to) a forge has no local file, yet it is Markdown with
+    /// versions: Save Version and Version History must not ask to save it as Markdown first.
+    #[test]
+    fn forge_documents_keep_versions_without_a_local_file() {
+        use wordcraft_engine::vcs::forge::{DocRef, Forge};
+        let mut app = crate::WordApp::new(wordcraft_engine::Session::new(wordcraft_doc::Document::from_text("Hello")), crate::Services::default());
+        let markdown_first = tl!("Save the document as Markdown first (File › Save As).").to_string();
+        assert!(super::needs_markdown_file(&app), "a new document is saved first");
+        assert_eq!(super::version_list(&mut app).1, markdown_first);
+        app.session.forge = Some(wordcraft_engine::cmd::versions::Remote {
+            doc: DocRef {
+                forge: Forge::forgejo("forge.example.org"),
+                repo: "me/PlumeAppRepo".into(),
+                branch: "main".into(),
+                path: "The Open Studio Handbook.md".into(),
+            },
+            sha: "94f18e363a".into(),
+            review: None,
+            imported: Default::default(),
+            threads: Default::default(),
+            sent: Default::default(),
+        });
+        assert!(!super::needs_markdown_file(&app));
+        assert_ne!(super::version_list(&mut app).1, markdown_first, "the forge's history is asked for instead");
+    }
 
     /// Go To's page box (#712): a number, +n / -n from the current page (a typographic minus
     /// too), empty for the next page; anything else is refused.

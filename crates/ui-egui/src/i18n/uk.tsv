@@ -2373,3 +2373,4 @@
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Перебудовано таблиць: {applied} з {n}. Скасувати (Ctrl+Z) поверне їх усі.
 	{n} models on the server.	Моделей на сервері: {n}.
 	{ready} of {n} tables can be sent to the model.	Можна надіслати моделі таблиць: {ready} з {n}.
+	Saved to {forge}	Збережено в {forge}

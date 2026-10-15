@@ -2361,3 +2361,4 @@
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{n} 個中 {applied} 個の表を再構成しました。元に戻す (Ctrl+Z) ですべて戻ります。
 	{n} models on the server.	サーバー上のモデル: {n} 個。
 	{ready} of {n} tables can be sent to the model.	{n} 個中 {ready} 個の表をモデルに送れます。
+	Saved to {forge}	{forge} に保存済み

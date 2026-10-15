@@ -2750,3 +2750,4 @@ preview	Title	Tytuł
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Przebudowano tabele: {applied} z {n}. Cofnij (Ctrl+Z) przywraca wszystkie.
 	{n} models on the server.	Modele na serwerze: {n}.
 	{ready} of {n} tables can be sent to the model.	Do modelu można wysłać tabele: {ready} z {n}.
+	Saved to {forge}	Zapisano w {forge}

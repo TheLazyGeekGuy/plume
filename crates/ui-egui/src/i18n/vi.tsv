@@ -2800,3 +2800,4 @@ template	Letter	Thư
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Đã tái cấu trúc {applied}/{n} bảng. Hoàn tác (Ctrl+Z) khôi phục tất cả.
 	{n} models on the server.	{n} mô hình trên máy chủ.
 	{ready} of {n} tables can be sent to the model.	Có thể gửi {ready}/{n} bảng tới mô hình.
+	Saved to {forge}	Đã lưu vào {forge}

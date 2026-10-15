@@ -2395,3 +2395,4 @@
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Ümber struktureeritud {applied} tabelit {n}-st. Võta tagasi (Ctrl+Z) taastab kõik.
 	{n} models on the server.	Serveris on {n} mudelit.
 	{ready} of {n} tables can be sent to the model.	Mudelile saab saata {ready} tabelit {n}-st.
+	Saved to {forge}	Salvestatud: {forge}

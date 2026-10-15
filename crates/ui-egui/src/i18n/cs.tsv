@@ -2752,3 +2752,4 @@ preview	Title	Ukázka
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Přestavěno tabulek: {applied} z {n}. Zpět (Ctrl+Z) vrátí všechny.
 	{n} models on the server.	Modelů na serveru: {n}.
 	{ready} of {n} tables can be sent to the model.	Modelu lze odeslat tabulek: {ready} z {n}.
+	Saved to {forge}	Uloženo v {forge}

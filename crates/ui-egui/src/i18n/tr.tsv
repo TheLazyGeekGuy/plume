@@ -2757,3 +2757,4 @@ preview	Title	Örnek
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{n} tablodan {applied} tanesi yeniden yapılandırıldı. Geri Al (Ctrl+Z) hepsini geri getirir.
 	{n} models on the server.	Sunucuda {n} model var.
 	{ready} of {n} tables can be sent to the model.	{n} tablodan {ready} tanesi modele gönderilebilir.
+	Saved to {forge}	{forge} üzerine kaydedildi

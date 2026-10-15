@@ -2758,3 +2758,4 @@ preview	Title	Пример
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Перестроено таблиц: {applied} из {n}. Отменить (Ctrl+Z) вернёт их все.
 	{n} models on the server.	Моделей на сервере: {n}.
 	{ready} of {n} tables can be sent to the model.	Можно отправить модели таблиц: {ready} из {n}.
+	Saved to {forge}	Сохранено в {forge}

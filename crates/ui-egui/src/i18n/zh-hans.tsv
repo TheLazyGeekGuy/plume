@@ -2373,3 +2373,4 @@
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	已重构 {applied}/{n} 个表格。撤消（Ctrl+Z）可全部恢复。
 	{n} models on the server.	服务器上有 {n} 个模型。
 	{ready} of {n} tables can be sent to the model.	可将 {ready}/{n} 个表格发送给模型。
+	Saved to {forge}	已保存到 {forge}
