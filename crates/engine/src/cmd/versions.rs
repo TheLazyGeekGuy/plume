@@ -213,7 +213,7 @@ pub struct Remote {
     pub imported: std::collections::BTreeSet<String>,
 }
 
-pub use remote::parse_web_address;
+pub use remote::{ForgeListing, parse_web_address};
 
 /// Versions on a forge, through its REST API: the same commands, no clone.
 mod remote {
@@ -299,22 +299,51 @@ mod remote {
         }
     }
 
+    /// A `forge.repos` or `forge.files` listing, prepared on the session and run anywhere: the
+    /// app runs it on a worker thread so its window doesn't wait on the network.
+    pub struct ForgeListing {
+        transport: Arc<dyn Transport + Send + Sync>,
+        token: String,
+        forge: Forge,
+        /// `None`: the account's projects; else (repository, branch): its Markdown documents.
+        files: Option<(String, String)>,
+    }
+
+    impl ForgeListing {
+        /// `command` is `forge.repos` or `forge.files`, with that command's parameters.
+        pub fn prepare(s: &Session, command: &str, v: &Value) -> Result<Self, CmdError> {
+            let forge = forge_of(v)?;
+            let files = match command {
+                "forge.repos" => None,
+                "forge.files" => {
+                    Some((p::req_str(v, "repo")?.trim().trim_matches('/').to_string(), p::str(v, "branch").unwrap_or("main").trim().to_string()))
+                }
+                c => return Err(CmdError::Params(format!("{c:?} is not a forge listing"))),
+            };
+            Ok(Self { transport: transport(s)?, token: token(s, &forge)?, forge, files })
+        }
+
+        /// The command's result.
+        pub fn run(self) -> CmdResult {
+            let c = Client { transport: self.transport.as_ref(), token: self.token };
+            match &self.files {
+                None => {
+                    let list = c.list_repos(&self.forge).map_err(ferr)?;
+                    Ok(
+                        json!({"repos": list.iter().map(|r| json!({"name": r.name, "branch": r.branch, "description": r.description})).collect::<Vec<_>>()}),
+                    )
+                }
+                Some((repo, branch)) => Ok(json!({"files": c.list_markdown(&self.forge, repo, branch).map_err(ferr)?})),
+            }
+        }
+    }
+
     pub(super) fn repos(s: &mut Session, v: &Value) -> CmdResult {
-        let forge = forge_of(v)?;
-        let t = transport(s)?;
-        let c = Client { transport: t.as_ref(), token: token(s, &forge)? };
-        let list = c.list_repos(&forge).map_err(ferr)?;
-        Ok(json!({"repos": list.iter().map(|r| json!({"name": r.name, "branch": r.branch, "description": r.description})).collect::<Vec<_>>()}))
+        ForgeListing::prepare(s, "forge.repos", v)?.run()
     }
 
     pub(super) fn files(s: &mut Session, v: &Value) -> CmdResult {
-        let forge = forge_of(v)?;
-        let repo = p::req_str(v, "repo")?.trim().trim_matches('/');
-        let branch = p::str(v, "branch").unwrap_or("main").trim();
-        let t = transport(s)?;
-        let c = Client { transport: t.as_ref(), token: token(s, &forge)? };
-        let list = c.list_markdown(&forge, repo, branch).map_err(ferr)?;
-        Ok(json!({"files": list}))
+        ForgeListing::prepare(s, "forge.files", v)?.run()
     }
 
     pub(super) fn sign_in(s: &mut Session, v: &Value) -> CmdResult {

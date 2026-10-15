@@ -7261,3 +7261,21 @@ fn vertical_align_command_sets_justified() {
         assert_eq!(serde_json::to_value(crate::cmd::page::sect(&s)).unwrap()["valign"], json!(name));
     }
 }
+
+/// The forge lists the app loads on a worker thread: prepared on the session (signed in or not),
+/// run on another thread, the same answer as the command.
+#[test]
+fn forge_listing_runs_off_the_session() {
+    use crate::cmd::versions::ForgeListing;
+    let server = std::sync::Arc::new(fake_github::Server::new(&[("guide.md", b"# Guide\n")]));
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.forge_transport = Some(server.clone());
+    let files = json!({"forge": "github", "repo": "acme/docs", "branch": "main"});
+    assert!(ForgeListing::prepare(&s, "forge.files", &files).is_err(), "not signed in");
+    s.run("forge.signIn", &json!({"forge": "github", "token": "t"})).unwrap();
+    assert!(ForgeListing::prepare(&s, "doc.save", &files).is_err());
+    let job = ForgeListing::prepare(&s, "forge.files", &files).unwrap();
+    let off = std::thread::spawn(move || job.run().map_err(|e| e.to_string())).join().unwrap();
+    let here = s.run("forge.files", &files).map_err(|e| e.to_string());
+    assert_eq!(off, here);
+}
