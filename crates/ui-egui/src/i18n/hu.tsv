@@ -2695,3 +2695,22 @@
 # Reading Mode column widths (#1040)
 	Narrow	Keskeny
 	Medium	Közepes
+	(not saved)	(nincs mentve)
+	Edit template…	Sablon szerkesztése…
+	Export PDF…	Exportálás PDF-be…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	A dokumentum tördelése sablonnal: címlap, élőfejek és élőlábak, borítók és fejléces papír. A dokumentum YAML-fejléce állítja be a sablon beállításait.
+	Layout (LaTeX)	Elrendezés (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	PDF készítése… (első alkalommal a TeX-motor letöltheti, amire szüksége van)
+	New template created: it is the one exports use now.	Új sablon létrehozva: mostantól ezt használják az exportok.
+	New template from this one:	Új sablon ebből:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Nem található TeX-motor. Telepítse a Tectonicot (brew install tectonic) vagy a MacTeX-et, majd exportáljon újra.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Beállítások, például titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A dokumentum YAML-fejléce felülírja őket.
+	PDF with a template	PDF sablonnal
+	Restore the original	Eredeti visszaállítása
+	Save and preview	Mentés és előnézet
+	Settings (YAML)	Beállítások (YAML)
+	Template saved.	Sablon mentve.
+	Template:	Sablon:
+	Template: {name}	Sablon: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	A LaTeX-sablon a pandoc sablonnyelvén ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	másolat

@@ -2688,3 +2688,22 @@
 # Reading Mode column widths (#1040)
 	Narrow	Тясна
 	Medium	Средна
+	(not saved)	(не е записано)
+	Edit template…	Редактиране на шаблона…
+	Export PDF…	Експортиране в PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Оформяне на документа по шаблон: заглавна страница, горни и долни колонтитули, корици и бланка. Блокът YAML в началото на документа задава настройките на шаблона.
+	Layout (LaTeX)	Оформление (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Създаване на PDF… (първия път машината TeX може да изтегли нужното)
+	New template created: it is the one exports use now.	Създаден е нов шаблон: експортирането вече използва него.
+	New template from this one:	Нов шаблон от този:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Не е намерена машина TeX. Инсталирайте Tectonic (brew install tectonic) или MacTeX и експортирайте отново.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Настройки като titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Блокът YAML на документа ги заменя.
+	PDF with a template	PDF с шаблон
+	Restore the original	Възстановяване на оригинала
+	Save and preview	Записване и преглед
+	Settings (YAML)	Настройки (YAML)
+	Template saved.	Шаблонът е записан.
+	Template:	Шаблон:
+	Template: {name}	Шаблон: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Шаблонът LaTeX, на езика за шаблони на pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	копие

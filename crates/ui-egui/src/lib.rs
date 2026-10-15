@@ -66,6 +66,7 @@ pub mod objects;
 pub mod options;
 pub mod panes;
 pub mod paste_picture;
+pub mod pdf_templates;
 pub mod previews;
 pub mod print_page;
 pub mod printing;
@@ -449,6 +450,8 @@ pub struct WordApp {
     pub colors: Option<colors::ColorsDialog>,
     /// The Restrict Editing pane (#412).
     pub restrict: dialogs_review::RestrictPane,
+    /// File › Export › PDF with a template (Plume).
+    pub pdf_templates: pdf_templates::PdfTemplates,
     pub status_msg: Option<(String, f64)>,
     pub previews: previews::Previews,
     /// Media key of the picture a pending Change Picture replaces (#147).
@@ -599,6 +602,7 @@ impl WordApp {
             dialog: None,
             colors: None,
             restrict: Default::default(),
+            pdf_templates: Default::default(),
             status_msg: None,
             previews: previews::Previews::default(),
             integrated_titlebar: false,
@@ -1789,6 +1793,7 @@ impl WordApp {
 
     /// Per-frame logic before layout: control requests, screenshots, shortcuts, file drops.
     pub fn logic(&mut self, ctx: &egui::Context) {
+        pdf_templates::tick(self, ctx);
         let lang = i18n::Lang::from_pref(&self.ui.language);
         i18n::set_current(lang);
         // New documents are written in the interface's language when WordCraft can proof it

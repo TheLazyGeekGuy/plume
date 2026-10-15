@@ -2715,3 +2715,22 @@ preview	Title	Titel
 	Or paste the document's address	Eller klistra in dokumentets adress
 	Forge Repositories	Forge-arkiv
 	Forge Documents	Forge-dokument
+	(not saved)	(inte sparad)
+	Edit template…	Redigera mall…
+	Export PDF…	Exportera PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Gör dokumentets layout med en mall: titelsida, sidhuvuden och sidfötter, omslag och brevpapper. Dokumentets front matter ställer in mallens alternativ.
+	Layout (LaTeX)	Layout (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Skapar PDF… (första gången kan TeX-motorn hämta det den behöver)
+	New template created: it is the one exports use now.	Ny mall skapad: det är den som exporter använder nu.
+	New template from this one:	Ny mall utifrån den här:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Ingen TeX-motor hittades. Installera Tectonic (brew install tectonic) eller MacTeX och exportera igen.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Alternativ som titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Ett dokuments front matter ersätter dem.
+	PDF with a template	PDF med en mall
+	Restore the original	Återställ originalet
+	Save and preview	Spara och förhandsgranska
+	Settings (YAML)	Inställningar (YAML)
+	Template saved.	Mallen har sparats.
+	Template:	Mall:
+	Template: {name}	Mall: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX-mallen, i pandocs mallspråk ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	kopia

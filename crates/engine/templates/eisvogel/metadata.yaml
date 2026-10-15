@@ -1,0 +1,16 @@
+# Settings of the Eisvogel template. A document's front matter overrides them; every Eisvogel
+# variable works (https://github.com/Wandmalfarbe/pandoc-latex-template), plus Plume's
+# backcover, backcover-color, backcover-text and backcover-text-color.
+lang: fr-FR
+titlepage: true
+titlepage-rule-color: "435488"
+titlepage-rule-height: 4
+table-use-row-colors: true
+footnotes-pretty: true
+colorlinks: true
+# Links: the table of contents and cross-references in the text colour, web links in blue.
+linkcolor: "black"
+toccolor: "black"
+urlcolor: "blue"
+# Fonts: Source Sans and Source Code Pro from the TeX distribution unless set here, e.g.
+# mainfont: "Helvetica Neue"

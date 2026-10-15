@@ -2334,3 +2334,22 @@
 # Reading Mode column widths (#1040)
 	Narrow	Kitsas
 	Medium	Keskmine
+	(not saved)	(salvestamata)
+	Edit template…	Muuda malli…
+	Export PDF…	Ekspordi PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Küljenda dokument malliga: tiitelleht, päised ja jalused, kaaned ja kirjaplank. Dokumendi YAML-päis määrab malli suvandid.
+	Layout (LaTeX)	Paigutus (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	PDF-i loomine… (esimesel korral võib TeX-mootor vajaliku alla laadida)
+	New template created: it is the one exports use now.	Uus mall on loodud: eksport kasutab nüüd seda.
+	New template from this one:	Uus mall selle põhjal:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	TeX-mootorit ei leitud. Installige Tectonic (brew install tectonic) või MacTeX ja eksportige uuesti.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Suvandid nagu titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Dokumendi YAML-päis alistab need.
+	PDF with a template	PDF malliga
+	Restore the original	Taasta originaal
+	Save and preview	Salvesta ja kuva eelvaade
+	Settings (YAML)	Sätted (YAML)
+	Template saved.	Mall on salvestatud.
+	Template:	Mall:
+	Template: {name}	Mall: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX-mall pandoci mallikeeles ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	koopia

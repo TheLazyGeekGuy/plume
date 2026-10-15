@@ -2307,3 +2307,22 @@
 # Reading Mode column widths (#1040)
 	Narrow	Étroite
 	Medium	Moyenne
+	(not saved)	(non enregistré)
+	Edit template…	Modifier le modèle…
+	Export PDF…	Exporter en PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Mettre en page le document avec un modèle : page de titre, en-têtes et pieds de page, couvertures et papier à en-tête. L'en-tête YAML du document règle les options du modèle.
+	Layout (LaTeX)	Mise en page (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Création du PDF… (la première fois, le moteur TeX peut télécharger ce dont il a besoin)
+	New template created: it is the one exports use now.	Nouveau modèle créé : c'est celui qu'utilisent désormais les exports.
+	New template from this one:	Nouveau modèle à partir de celui-ci :
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Aucun moteur TeX trouvé. Installez Tectonic (brew install tectonic) ou MacTeX, puis exportez à nouveau.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Options comme titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. L'en-tête YAML d'un document les remplace.
+	PDF with a template	PDF avec un modèle
+	Restore the original	Restaurer l'original
+	Save and preview	Enregistrer et aperçu
+	Settings (YAML)	Réglages (YAML)
+	Template saved.	Modèle enregistré.
+	Template:	Modèle :
+	Template: {name}	Modèle : {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Le modèle LaTeX, dans le langage de modèles de pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	copie

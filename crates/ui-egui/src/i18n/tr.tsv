@@ -2696,3 +2696,22 @@ preview	Title	Örnek
 # Reading Mode column widths (#1040)
 	Narrow	Dar
 	Medium	Orta
+	(not saved)	(kaydedilmedi)
+	Edit template…	Şablonu düzenle…
+	Export PDF…	PDF olarak dışa aktar…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Belgeyi bir şablonla dizin: kapak sayfası, üst ve alt bilgiler, kapaklar ve antetli kâğıt. Belgenin YAML ön bilgisi şablonun seçeneklerini belirler.
+	Layout (LaTeX)	Düzen (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	PDF oluşturuluyor… (ilk seferde TeX motoru gerekenleri indirebilir)
+	New template created: it is the one exports use now.	Yeni şablon oluşturuldu: dışa aktarmalar artık bunu kullanıyor.
+	New template from this one:	Bundan yeni şablon:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	TeX motoru bulunamadı. Tectonic (brew install tectonic) veya MacTeX kurun, sonra yeniden dışa aktarın.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover gibi seçenekler. Belgenin YAML ön bilgisi bunları geçersiz kılar.
+	PDF with a template	Şablonla PDF
+	Restore the original	Orijinali geri yükle
+	Save and preview	Kaydet ve önizle
+	Settings (YAML)	Ayarlar (YAML)
+	Template saved.	Şablon kaydedildi.
+	Template:	Şablon:
+	Template: {name}	Şablon: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	pandoc şablon dilinde LaTeX şablonu ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	kopya

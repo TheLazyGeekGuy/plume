@@ -2558,3 +2558,22 @@ preview	Title	제목
 	Or paste the document's address	또는 문서 주소 붙여 넣기
 	Forge Repositories	포지 저장소
 	Forge Documents	포지 문서
+	(not saved)	(저장 안 됨)
+	Edit template…	템플릿 편집…
+	Export PDF…	PDF 내보내기…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	문서 템플릿으로 문서를 조판합니다: 표지, 머리글과 바닥글, 커버, 레터헤드. 문서의 프런트 매터가 템플릿 옵션을 설정합니다.
+	Layout (LaTeX)	레이아웃 (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	PDF 만드는 중… (처음에는 TeX 엔진이 필요한 것을 내려받을 수 있습니다)
+	New template created: it is the one exports use now.	새 템플릿을 만들었습니다: 이제 내보내기에 이 템플릿을 씁니다.
+	New template from this one:	이 템플릿에서 새로 만들기:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	TeX 엔진을 찾을 수 없습니다. Tectonic(brew install tectonic) 또는 MacTeX를 설치한 다음 다시 내보내세요.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover 같은 옵션. 문서의 프런트 매터가 우선합니다.
+	PDF with a template	템플릿으로 PDF
+	Restore the original	원본 복원
+	Save and preview	저장하고 미리 보기
+	Settings (YAML)	설정 (YAML)
+	Template saved.	템플릿을 저장했습니다.
+	Template:	템플릿:
+	Template: {name}	템플릿: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	pandoc 템플릿 언어로 된 LaTeX 템플릿 ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	사본

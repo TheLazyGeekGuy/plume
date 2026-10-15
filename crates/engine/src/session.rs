@@ -507,7 +507,8 @@ pub struct Prefs {
     pub count_notes: bool,
     /// Plume: in a Markdown document, the commands whose result Markdown can't keep (text
     /// colour, underline, text boxes, columns…) are disabled instead of being reported when the
-    /// document is saved (`markdown.strict`).
+    /// document is saved (`markdown.strict`). On by default: Plume edits Markdown, and the
+    /// Office-only features are opt-in (File › Options › Markdown).
     pub markdown_strict: bool,
     /// Track Changes Options: what markup shows and how revisions are drawn (per user, as in
     /// Word).
@@ -553,7 +554,7 @@ impl Default for Prefs {
     fn default() -> Self {
         Prefs {
             count_notes: true,
-            markdown_strict: false,
+            markdown_strict: true,
             markup: Default::default(),
             print_markup: false,
             typing_replaces_selection: true,

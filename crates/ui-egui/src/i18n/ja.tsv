@@ -2300,3 +2300,22 @@
 # Reading Mode column widths (#1040)
 	Narrow	狭い
 	Medium	中
+	(not saved)	(未保存)
+	Edit template…	テンプレートを編集…
+	Export PDF…	PDF をエクスポート…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	文書テンプレートで文書をレイアウトします: 表紙、ヘッダーとフッター、カバー、レターヘッド。文書のフロントマターでテンプレートのオプションを設定します。
+	Layout (LaTeX)	レイアウト (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	PDF を作成中… (初回は TeX エンジンが必要なものをダウンロードすることがあります)
+	New template created: it is the one exports use now.	新しいテンプレートを作成しました: 今後のエクスポートはこれを使います。
+	New template from this one:	このテンプレートから新規作成:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	TeX エンジンが見つかりません。Tectonic (brew install tectonic) または MacTeX をインストールしてから、もう一度エクスポートしてください。
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover などのオプション。文書のフロントマターが優先されます。
+	PDF with a template	テンプレートで PDF
+	Restore the original	元に戻す
+	Save and preview	保存してプレビュー
+	Settings (YAML)	設定 (YAML)
+	Template saved.	テンプレートを保存しました。
+	Template:	テンプレート:
+	Template: {name}	テンプレート: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	pandoc のテンプレート言語で書かれた LaTeX テンプレート ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$)。
+	copy	コピー

@@ -2299,3 +2299,22 @@
 # Reading Mode column widths (#1040)
 	Narrow	Schmal
 	Medium	Mittel
+	(not saved)	(nicht gespeichert)
+	Edit template…	Vorlage bearbeiten…
+	Export PDF…	Als PDF exportieren…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Das Dokument mit einer Dokumentvorlage setzen: Titelseite, Kopf- und Fußzeilen, Umschläge und Briefpapier. Der Vorspann (Front Matter) des Dokuments legt die Optionen der Vorlage fest.
+	Layout (LaTeX)	Layout (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	PDF wird erstellt… (beim ersten Mal lädt die TeX-Engine eventuell Benötigtes herunter)
+	New template created: it is the one exports use now.	Neue Vorlage erstellt: Exporte verwenden jetzt diese.
+	New template from this one:	Neue Vorlage auf Basis dieser:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Keine TeX-Engine gefunden. Installieren Sie Tectonic (brew install tectonic) oder MacTeX und exportieren Sie erneut.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Optionen wie titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Der Vorspann eines Dokuments überschreibt sie.
+	PDF with a template	PDF mit Vorlage
+	Restore the original	Original wiederherstellen
+	Save and preview	Speichern und Vorschau
+	Settings (YAML)	Einstellungen (YAML)
+	Template saved.	Vorlage gespeichert.
+	Template:	Vorlage:
+	Template: {name}	Vorlage: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Die LaTeX-Vorlage in der Vorlagensprache von pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	Kopie

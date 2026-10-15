@@ -85,12 +85,59 @@ pub fn export(doc: &Document) -> String {
     o
 }
 
+/// What a template needs to know about a body written by [`export_body`]: which of its parts to
+/// switch on (pandoc's template variables of the same names) and the pictures to write beside it.
+#[derive(Clone, Debug, Default)]
+pub struct Body {
+    pub latex: String,
+    pub tables: bool,
+    pub graphics: bool,
+    pub strikeout: bool,
+    pub multirow: bool,
+    pub math: bool,
+    /// The document's title paragraph, if it has one (LaTeX).
+    pub title: String,
+    /// Pictures, (file name relative to the `.tex` file, bytes).
+    pub images: Vec<(String, std::sync::Arc<Vec<u8>>)>,
+}
+
+/// Folder the pictures of an [`export_body`] go in, beside the `.tex` file.
+pub const IMAGES_DIR: &str = "images";
+/// Most pictures one body writes.
+const MAX_IMAGES: usize = 2_000;
+
+/// The body of `doc` as LaTeX for a pandoc-style template (Eisvogel): numbered-or-not sections
+/// with labels, `longtable` + `booktabs` tables, `lstlisting` code, footnotes, pictures as files.
+/// The document's title paragraph is left out: the template sets the title.
+pub fn export_body(doc: &Document) -> Body {
+    let flow = model::from_doc_markdown(doc);
+    let mut w = Writer { pandoc: true, math: flow.meta.math.clone(), ..Default::default() };
+    let title_at = flow.blocks.iter().position(|b| matches!(b, FBlock::Para(p) if p.kind == Kind::Title && !p.is_empty()));
+    let mut title = String::new();
+    if let Some(FBlock::Para(p)) = title_at.and_then(|i| flow.blocks.get(i)) {
+        title = w.inlines(&p.inlines).trim().to_string();
+    }
+    w.title_at = title_at;
+    w.blocks(&flow.blocks);
+    Body {
+        latex: w.out.trim_end().to_string(),
+        tables: w.uses.tables,
+        graphics: !w.images.is_empty(),
+        strikeout: w.uses.ulem,
+        multirow: w.uses.multirow,
+        math: w.uses.math,
+        title,
+        images: w.images,
+    }
+}
+
 #[derive(Default)]
 struct Uses {
     ulem: bool,
     color: bool,
     multirow: bool,
     math: bool,
+    tables: bool,
 }
 
 #[derive(Default)]
@@ -102,6 +149,11 @@ struct Writer {
     /// Inside a table cell: no `verbatim`, paragraphs separated by `\par`.
     in_cell: bool,
     depth: usize,
+    /// Writing for a pandoc-style template ([`export_body`]).
+    pandoc: bool,
+    images: Vec<(String, std::sync::Arc<Vec<u8>>)>,
+    /// Equations' source LaTeX by linear form ([`model::Meta::math`]).
+    math: std::collections::BTreeMap<String, String>,
 }
 
 const SECTIONS: [&str; 6] = ["section", "subsection", "subsubsection", "paragraph", "subparagraph", "subparagraph"];
@@ -121,6 +173,9 @@ impl Writer {
                     while lists.len() < depth {
                         let env = if li.ordered { "enumerate" } else { "itemize" };
                         self.out.push_str(&format!("{}\\begin{{{env}}}\n", "  ".repeat(lists.len())));
+                        if self.pandoc {
+                            self.out.push_str(&format!("{}\\tightlist\n", "  ".repeat(lists.len())));
+                        }
                         lists.push(li.ordered);
                     }
                 }
@@ -199,12 +254,18 @@ impl Writer {
 
     fn para(&mut self, p: &Para, top_title: bool) {
         self.page_break(p);
+        if p.kind == Kind::Rule && self.pandoc {
+            self.out.push_str("\\begin{center}\\rule{0.5\\linewidth}{0.5pt}\\end{center}\n\n");
+            return;
+        }
         if p.kind == Kind::Rule {
             self.out.push_str("\\noindent\\rule{\\linewidth}{0.4pt}\n\n");
             return;
         }
         if top_title {
-            self.out.push_str("\\maketitle\n\n");
+            if !self.pandoc {
+                self.out.push_str("\\maketitle\n\n");
+            }
             return;
         }
         let text = self.inlines(&p.inlines);
@@ -218,10 +279,19 @@ impl Writer {
                 let cmd = SECTIONS.get(usize::from(n.clamp(1, 6)) - 1).copied().unwrap_or("section");
                 // `\\` (a line break) isn't allowed in a heading.
                 let text = text.replace("\\\\\n", " ");
-                self.out.push_str(&format!("\\{cmd}*{{{text}}}\n\n"));
+                if self.pandoc {
+                    let label = escape_url(&crate::markdown::heading_slug(&p.text()));
+                    self.out.push_str(&format!("\\{cmd}{{{text}}}\\label{{{label}}}\n\n"));
+                } else {
+                    self.out.push_str(&format!("\\{cmd}*{{{text}}}\n\n"));
+                }
             }
             Kind::Title => self.out.push_str(&format!("\\begin{{center}}\n{{\\LARGE {text}\\par}}\n\\end{{center}}\n\n")),
             Kind::Heading(_) => self.out.push_str(&format!("\\textbf{{{text}}}{end}")),
+            _ if self.pandoc && self.in_cell => {
+                self.out.push_str(text);
+                self.out.push_str(end);
+            }
             _ => match p.align {
                 Some(Align::Center) => self.out.push_str(&format!("\\begin{{center}}\n{text}\n\\end{{center}}\n\n")),
                 Some(Align::Right) => self.out.push_str(&format!("\\begin{{flushright}}\n{text}\n\\end{{flushright}}\n\n")),
@@ -239,6 +309,17 @@ impl Writer {
             let v: Vec<String> = lines.iter().map(|l| format!("\\texttt{{{}}}", escape_text(&l.replace(' ', "\u{A0}")))).collect();
             self.out.push_str(&v.join("\\\\\n"));
             self.out.push_str("\\par\n");
+            return;
+        }
+        let env = if self.pandoc { "lstlisting" } else { "verbatim" };
+        if self.pandoc {
+            self.out.push_str("\\begin{lstlisting}\n");
+            for l in lines {
+                let l: String = l.replace("\\end{lstlisting}", "\\end {lstlisting}").chars().filter(|c| *c == '\t' || !c.is_control()).collect();
+                self.out.push_str(&l);
+                self.out.push('\n');
+            }
+            self.out.push_str(&format!("\\end{{{env}}}\n\n"));
             return;
         }
         self.out.push_str("\\begin{verbatim}\n");
@@ -260,6 +341,26 @@ impl Writer {
                     let s = self.span(t, f);
                     o.push_str(&s);
                 }
+                Inline::Image(img) if self.pandoc && self.images.len() < MAX_IMAGES => {
+                    let ext = if img.ext.is_empty() { "png" } else { img.ext.as_str() };
+                    let name = format!("{IMAGES_DIR}/image{}.{ext}", self.images.len() + 1);
+                    let size = if img.w.is_finite() && img.h.is_finite() && img.w > 1.0 && img.h > 1.0 {
+                        format!("width={}pt,height={}pt,", num(img.w.min(4000.0)), num(img.h.min(4000.0)))
+                    } else {
+                        String::new()
+                    };
+                    o.push_str(&format!("\\pandocbounded{{\\includegraphics[{size}keepaspectratio]{{{name}}}}}"));
+                    self.images.push((name, img.data.clone()));
+                }
+                Inline::Note { blocks, .. } if self.pandoc && self.depth < model::MAX_DEPTH => {
+                    let mut sub = Writer { pandoc: true, in_cell: true, depth: self.depth + 1, math: self.math.clone(), ..Default::default() };
+                    sub.images = std::mem::take(&mut self.images);
+                    sub.blocks(blocks);
+                    self.images = std::mem::take(&mut sub.images);
+                    self.merge_uses(&sub.uses);
+                    let text = sub.out.trim().trim_end_matches("\\par").trim_end().to_string();
+                    o.push_str(&format!("\\footnote{{{text}}}"));
+                }
                 Inline::Image(img) => {
                     let alt = if img.alt.trim().is_empty() { "Picture".to_string() } else { format!("Picture: {}", img.alt.trim()) };
                     o.push_str(&format!("\\textit{{[{}]}}", escape_text(&alt)));
@@ -268,7 +369,7 @@ impl Writer {
                 Inline::Figure(_) | Inline::Note { .. } | Inline::Comment { .. } => {}
                 Inline::Equation { linear, display } => {
                     self.uses.math = true;
-                    let src = linear_to_latex(linear);
+                    let src = self.math.get(linear).cloned().unwrap_or_else(|| linear_to_latex(linear));
                     if *display && !self.in_cell {
                         o.push_str(&format!("\n\\[ {src} \\]\n"));
                     } else {
@@ -302,11 +403,11 @@ impl Writer {
         }
         if f.underline {
             self.uses.ulem = true;
-            s = wrap(s, "uline");
+            s = wrap(s, if self.pandoc { "ul" } else { "uline" });
         }
         if f.strike {
             self.uses.ulem = true;
-            s = wrap(s, "sout");
+            s = wrap(s, if self.pandoc { "st" } else { "sout" });
         }
         if let Some(c) = f.color.filter(|c| *c != Rgb(0, 0, 0)) {
             self.uses.color = true;
@@ -329,6 +430,10 @@ impl Writer {
     }
 
     fn table(&mut self, t: &FTable) {
+        if self.pandoc && !self.in_cell {
+            self.long_table(t);
+            return;
+        }
         let cols = t.cols().clamp(1, wordcraft_doc::table::MAX_COLS);
         let widths: Vec<f32> = if t.widths.len() == cols && t.widths.iter().all(|w| w.is_finite() && *w > 1.0) {
             let total: f32 = t.widths.iter().sum();
@@ -374,19 +479,102 @@ impl Writer {
         self.out.push_str(if self.in_cell { "\\par\n" } else { "\n" });
     }
 
+    fn merge_uses(&mut self, u: &Uses) {
+        self.uses.ulem |= u.ulem;
+        self.uses.color |= u.color;
+        self.uses.multirow |= u.multirow;
+        self.uses.math |= u.math;
+        self.uses.tables |= u.tables;
+    }
+
+    /// A table as pandoc writes one: `longtable` with `booktabs` rules, the first row repeated on
+    /// every page; columns sized from the document when a cell holds more than a short line.
+    fn long_table(&mut self, t: &FTable) {
+        self.uses.tables = true;
+        let cols = t.cols().clamp(1, wordcraft_doc::table::MAX_COLS);
+        let long = t.rows.iter().flatten().any(|c| c.blocks.len() > 1 || c.text().chars().count() > 40);
+        let spec: String = if long {
+            let widths: Vec<f32> =
+                if t.widths.len() == cols && t.widths.iter().all(|w| w.is_finite() && *w > 1.0) { t.widths.clone() } else { vec![1.0; cols] };
+            let total: f32 = widths.iter().sum::<f32>().max(1.0);
+            widths
+                .iter()
+                .map(|w| format!(">{{\\raggedright\\arraybackslash}}p{{(\\linewidth - {}\\tabcolsep) * \\real{{{:.4}}}}}", 2 * cols, w / total))
+                .collect()
+        } else {
+            (0..cols).map(|k| column_align(t, k)).collect()
+        };
+        let mut o = format!("\\begin{{longtable}}[]{{@{{}}{spec}@{{}}}}\n\\toprule\\noalign{{}}\n");
+        for (r, row) in t.rows.iter().enumerate() {
+            let mut cells = Vec::new();
+            let mut g = 0usize;
+            for c in row {
+                let span = (c.colspan.clamp(1, 63) as usize).min(cols.saturating_sub(g).max(1));
+                let mut body = if c.covered { String::new() } else { self.cell(c).replace("\n\n", "\\par ") };
+                if c.rowspan > 1 && !c.covered {
+                    self.uses.multirow = true;
+                    body = format!("\\multirow{{{}}}{{*}}{{{body}}}", c.rowspan.min(1000));
+                }
+                if span > 1 {
+                    body = format!("\\multicolumn{{{span}}}{{l}}{{{body}}}");
+                }
+                cells.push(body);
+                g += span;
+            }
+            if cells.is_empty() {
+                continue;
+            }
+            o.push_str(&cells.join(" & "));
+            o.push_str(" \\\\\n");
+            if r == 0 && t.rows.len() > 1 {
+                o.push_str("\\midrule\\noalign{}\n\\endhead\n\\bottomrule\\noalign{}\n\\endlastfoot\n");
+            }
+        }
+        if t.rows.len() <= 1 {
+            o.push_str("\\bottomrule\\noalign{}\n");
+        }
+        o.push_str("\\end{longtable}\n\n");
+        self.out.push_str(&o);
+    }
+
     fn cell(&mut self, c: &Cell) -> String {
-        let mut sub = Writer { in_cell: true, depth: self.depth + 1, ..Default::default() };
+        let mut sub = Writer { in_cell: true, depth: self.depth + 1, pandoc: self.pandoc, math: self.math.clone(), ..Default::default() };
+        sub.images = std::mem::take(&mut self.images);
         if self.depth < model::MAX_DEPTH {
             sub.blocks(&c.blocks);
         } else {
             sub.out = escape_text(&c.text());
         }
-        self.uses.ulem |= sub.uses.ulem;
-        self.uses.color |= sub.uses.color;
-        self.uses.multirow |= sub.uses.multirow;
-        self.uses.math |= sub.uses.math;
+        self.images = std::mem::take(&mut sub.images);
+        self.merge_uses(&sub.uses);
         let s = sub.out.trim().trim_end_matches("\\par").trim_end().to_string();
         s.lines().filter(|l| !l.trim().is_empty()).collect::<Vec<_>>().join("\n")
+    }
+}
+
+/// A short-celled column's alignment (`l`, `c`, `r`): its body cells' (the header row is often
+/// centred whatever the column).
+fn column_align(t: &FTable, col: usize) -> char {
+    let mut counts = [0usize; 3];
+    for row in t.rows.iter().skip(1) {
+        let mut g = 0usize;
+        for c in row {
+            if g == col {
+                let a = c.blocks.iter().find_map(|b| if let FBlock::Para(p) = b { Some(p.align) } else { None }).flatten();
+                counts[match a {
+                    Some(Align::Center) => 1,
+                    Some(Align::Right) => 2,
+                    _ => 0,
+                }] += 1;
+                break;
+            }
+            g += c.colspan.clamp(1, 63) as usize;
+        }
+    }
+    match counts {
+        [l, c, r] if r > l && r >= c => 'r',
+        [l, c, _] if c > l => 'c',
+        _ => 'l',
     }
 }
 

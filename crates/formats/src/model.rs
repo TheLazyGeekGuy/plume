@@ -2,6 +2,7 @@
 //! quote, code…), list membership, alignment and formatted inline spans; tables of cells holding
 //! blocks. [`to_doc`] and [`from_doc`] convert between it and the full [`Document`].
 
+use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use wordcraft_doc::numbering::{AbstractNum, Level, ListKind, Num, levels_for};
@@ -348,7 +349,45 @@ pub struct Meta {
     pub keywords: String,
     pub description: String,
     pub created: String,
+    /// The front matter's other settings (a PDF template's, for instance), as their YAML lines,
+    /// kept as written so they survive opening and saving.
+    pub extra: String,
+    /// Equations' LaTeX as the source wrote it, by their linear form: written back as it was,
+    /// rather than as regenerated from the linear form.
+    pub math: BTreeMap<String, String>,
 }
+
+/// Where a document keeps its equations' source LaTeX ([`Meta::math`]): `linear\tlatex` lines.
+pub const MATH_PART: &str = "markdown/math.tsv";
+
+fn math_tsv(math: &BTreeMap<String, String>) -> String {
+    let esc = |s: &str| s.replace('\\', "\\\\").replace('\t', "\\t").replace('\n', "\\n");
+    math.iter().map(|(k, v)| format!("{}\t{}\n", esc(k), esc(v))).collect()
+}
+
+fn parse_math_tsv(s: &str) -> BTreeMap<String, String> {
+    let unesc = |s: &str| {
+        let mut o = String::new();
+        let mut it = s.chars();
+        while let Some(c) = it.next() {
+            if c == '\\' {
+                match it.next() {
+                    Some('t') => o.push('\t'),
+                    Some('n') => o.push('\n'),
+                    Some(n) => o.push(n),
+                    None => {}
+                }
+            } else {
+                o.push(c);
+            }
+        }
+        o
+    };
+    s.lines().filter_map(|l| l.split_once('\t')).map(|(k, v)| (unesc(k), unesc(v))).take(100_000).collect()
+}
+
+/// Where a document keeps its Markdown front matter's other settings ([`Meta::extra`]).
+pub const FRONT_MATTER_PART: &str = "markdown/front-matter.yaml";
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Flow {
@@ -759,6 +798,12 @@ pub fn to_doc_in(flow: &Flow, section: wordcraft_doc::SectionProps) -> Document 
     doc.core.keywords = m.keywords.clone();
     doc.core.description = m.description.clone();
     doc.core.created = m.created.clone();
+    if !m.extra.trim().is_empty() {
+        doc.passthrough.insert(FRONT_MATTER_PART.to_string(), std::sync::Arc::new(m.extra.clone().into_bytes()));
+    }
+    if !m.math.is_empty() {
+        doc.passthrough.insert(MATH_PART.to_string(), std::sync::Arc::new(math_tsv(&m.math).into_bytes()));
+    }
     doc.ensure_nonempty();
     doc
 }
@@ -1170,6 +1215,8 @@ fn flow_of(doc: &Document, tracked: FlowOpts) -> Flow {
             keywords: c.keywords.clone(),
             description: c.description.clone(),
             created: c.created.clone(),
+            extra: doc.passthrough.get(FRONT_MATTER_PART).map(|b| String::from_utf8_lossy(b).into_owned()).unwrap_or_default(),
+            math: doc.passthrough.get(MATH_PART).map(|b| parse_math_tsv(&String::from_utf8_lossy(b))).unwrap_or_default(),
         },
     }
 }

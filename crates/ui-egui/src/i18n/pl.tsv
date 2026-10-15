@@ -2689,3 +2689,22 @@ preview	Title	Tytuł
 # Reading Mode column widths (#1040)
 	Narrow	Wąska
 	Medium	Średnia
+	(not saved)	(niezapisany)
+	Edit template…	Edytuj szablon…
+	Export PDF…	Eksportuj PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Złóż dokument według szablonu: strona tytułowa, nagłówki i stopki, okładki i papier firmowy. Nagłówek YAML dokumentu ustawia opcje szablonu.
+	Layout (LaTeX)	Układ (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Tworzenie PDF… (za pierwszym razem silnik TeX może pobrać potrzebne pliki)
+	New template created: it is the one exports use now.	Utworzono nowy szablon: teraz używają go eksporty.
+	New template from this one:	Nowy szablon na podstawie tego:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Nie znaleziono silnika TeX. Zainstaluj Tectonic (brew install tectonic) lub MacTeX i wyeksportuj ponownie.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Opcje takie jak titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Nagłówek YAML dokumentu je zastępuje.
+	PDF with a template	PDF z szablonem
+	Restore the original	Przywróć oryginał
+	Save and preview	Zapisz i podgląd
+	Settings (YAML)	Ustawienia (YAML)
+	Template saved.	Szablon zapisany.
+	Template:	Szablon:
+	Template: {name}	Szablon: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Szablon LaTeX w języku szablonów pandoca ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	kopia

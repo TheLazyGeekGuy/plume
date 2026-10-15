@@ -972,7 +972,8 @@ fn markdown_math() {
     assert!(eqs[0].0.contains("mc") && !eqs[0].1 && eqs[1].1, "{eqs:?}");
     assert!(d.plain_text(wordcraft_doc::StoryRef::Body).contains("It costs $5 and $10, or $3."));
     let out = export_native(&d, &NativeOptions::default());
-    assert!(out.text.contains("Energy $E=m") && out.text.contains("^{2}$ and"), "{}", out.text);
+    // Equations are written back as their source wrote them.
+    assert!(out.text.contains("Energy $E=mc^2$ and") && out.text.contains("$$x=\\frac{-b}{2a}$$"), "{}", out.text);
     assert!(out.text.contains("$$") && out.text.contains("It costs \\$5 and \\$10, or \\$3."), "{}", out.text);
     assert!(!out.report.counts.contains_key(&Adaptation::Equation));
     let again = export_native(&import(&out.text), &NativeOptions::default());
@@ -993,4 +994,21 @@ fn markdown_task_lists_and_alerts() {
     assert!(out.text.contains("> [!WARNING]\n> Back up first.\n>\n> Twice."), "{}", out.text);
     assert!(out.text.contains("> A plain quote."), "{}", out.text);
     assert_eq!(export_native(&import(&out.text), &NativeOptions::default()).text, out.text);
+}
+
+#[test]
+fn front_matter_settings_survive_open_and_save() {
+    use crate::markdown::{NativeOptions, export_native, import};
+    let src = "---\ntitle: \"Rapport\"\nauthor:\n  - Ada\n  - Grace\ntitlepage: true\n# Header and footer\nheader-includes:\n  - \\usepackage{lipsum}\ngeometry: \"top=3cm, bottom=2.5cm\"\n---\n\nTexte.\n";
+    let doc = import(src);
+    assert_eq!(doc.core.title, "Rapport");
+    assert_eq!(doc.core.creator, "Ada, Grace");
+    let out = export_native(&doc, &NativeOptions::default()).text;
+    assert!(out.starts_with("---\ntitle: \"Rapport\"\nauthor: \"Ada, Grace\"\ntitlepage: true\n# Header and footer\nheader-includes:\n  - \\usepackage{lipsum}\ngeometry: \"top=3cm, bottom=2.5cm\"\n---\n"), "{out}");
+    assert!(!out.contains("titlepage: true\n\n"), "{out}");
+    // Stable: a second round trip writes the same text.
+    assert_eq!(export_native(&import(&out), &NativeOptions::default()).text, out);
+    // A thematic break at the start is not front matter.
+    let doc = import("---\n\n- item\n");
+    assert!(doc.passthrough.is_empty());
 }

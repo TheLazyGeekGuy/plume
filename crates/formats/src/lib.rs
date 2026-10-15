@@ -18,6 +18,7 @@ pub mod model;
 pub mod odt;
 pub mod rtf;
 pub mod sheet;
+pub mod template;
 pub mod txt;
 
 use wordcraft_doc::Document;

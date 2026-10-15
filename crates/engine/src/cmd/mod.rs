@@ -102,6 +102,7 @@ pub fn registry() -> Registry {
     v.extend(speech::specs());
     v.extend(controls::specs());
     v.extend(versions::specs());
+    v.extend(crate::pdf_template::specs());
     Registry::new(v)
 }
 

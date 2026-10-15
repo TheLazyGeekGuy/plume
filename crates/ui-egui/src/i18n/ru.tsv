@@ -2697,3 +2697,22 @@ preview	Title	Пример
 # Reading Mode column widths (#1040)
 	Narrow	Узкая
 	Medium	Средняя
+	(not saved)	(не сохранено)
+	Edit template…	Изменить шаблон…
+	Export PDF…	Экспорт в PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Сверстать документ по шаблону: титульная страница, колонтитулы, обложки и фирменный бланк. Блок YAML в начале документа задаёт параметры шаблона.
+	Layout (LaTeX)	Макет (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Создание PDF… (в первый раз движок TeX может загрузить нужные файлы)
+	New template created: it is the one exports use now.	Новый шаблон создан: теперь экспорт использует его.
+	New template from this one:	Новый шаблон на основе этого:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Движок TeX не найден. Установите Tectonic (brew install tectonic) или MacTeX и повторите экспорт.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Параметры, например titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Блок YAML документа их переопределяет.
+	PDF with a template	PDF по шаблону
+	Restore the original	Восстановить исходный
+	Save and preview	Сохранить и просмотреть
+	Settings (YAML)	Параметры (YAML)
+	Template saved.	Шаблон сохранён.
+	Template:	Шаблон:
+	Template: {name}	Шаблон: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Шаблон LaTeX на языке шаблонов pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	копия

@@ -2739,3 +2739,22 @@ template	Letter	Thư
 # Reading Mode column widths (#1040)
 	Narrow	Hẹp
 	Medium	Trung bình
+	(not saved)	(chưa lưu)
+	Edit template…	Sửa mẫu…
+	Export PDF…	Xuất PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Dàn trang tài liệu theo mẫu: trang tiêu đề, đầu trang và chân trang, bìa và giấy tiêu đề. Phần YAML đầu tài liệu đặt các tùy chọn của mẫu.
+	Layout (LaTeX)	Bố cục (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Đang tạo PDF… (lần đầu, công cụ TeX có thể tải xuống những gì cần thiết)
+	New template created: it is the one exports use now.	Đã tạo mẫu mới: các lần xuất giờ dùng mẫu này.
+	New template from this one:	Mẫu mới từ mẫu này:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Không tìm thấy công cụ TeX. Hãy cài Tectonic (brew install tectonic) hoặc MacTeX rồi xuất lại.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Các tùy chọn như titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Phần YAML đầu tài liệu sẽ ghi đè chúng.
+	PDF with a template	PDF theo mẫu
+	Restore the original	Khôi phục bản gốc
+	Save and preview	Lưu và xem trước
+	Settings (YAML)	Cài đặt (YAML)
+	Template saved.	Đã lưu mẫu.
+	Template:	Mẫu:
+	Template: {name}	Mẫu: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Mẫu LaTeX, viết bằng ngôn ngữ mẫu của pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	bản sao

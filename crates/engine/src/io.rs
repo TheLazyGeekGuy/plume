@@ -4,6 +4,7 @@ use wordcraft_doc::Document;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod safe_save;
+pub mod templates;
 
 /// Formats WordCraft opens.
 pub const OPEN_EXTS: &[&str] = &[

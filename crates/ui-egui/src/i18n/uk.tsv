@@ -2312,3 +2312,22 @@
 # Reading Mode column widths (#1040)
 	Narrow	Вузька
 	Medium	Середня
+	(not saved)	(не збережено)
+	Edit template…	Змінити шаблон…
+	Export PDF…	Експорт у PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Зверстати документ за шаблоном: титульна сторінка, колонтитули, обкладинки й фірмовий бланк. Блок YAML на початку документа задає параметри шаблону.
+	Layout (LaTeX)	Макет (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Створення PDF… (першого разу рушій TeX може завантажити потрібні файли)
+	New template created: it is the one exports use now.	Новий шаблон створено: тепер експорт використовує його.
+	New template from this one:	Новий шаблон на основі цього:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Рушій TeX не знайдено. Установіть Tectonic (brew install tectonic) або MacTeX і повторіть експорт.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Параметри, наприклад titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Блок YAML документа їх перевизначає.
+	PDF with a template	PDF за шаблоном
+	Restore the original	Відновити початковий
+	Save and preview	Зберегти й переглянути
+	Settings (YAML)	Параметри (YAML)
+	Template saved.	Шаблон збережено.
+	Template:	Шаблон:
+	Template: {name}	Шаблон: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Шаблон LaTeX мовою шаблонів pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	копія

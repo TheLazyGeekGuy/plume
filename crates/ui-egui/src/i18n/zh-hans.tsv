@@ -2312,3 +2312,22 @@
 # Reading Mode column widths (#1040)
 	Narrow	窄
 	Medium	中等
+	(not saved)	(未保存)
+	Edit template…	编辑模板…
+	Export PDF…	导出 PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	用文档模板排版文档：标题页、页眉和页脚、封面和信纸。文档的前置元数据设置模板的选项。
+	Layout (LaTeX)	版式 (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	正在生成 PDF…（首次使用时，TeX 引擎可能会下载所需内容）
+	New template created: it is the one exports use now.	已创建新模板：导出现在使用它。
+	New template from this one:	基于此模板新建：
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	未找到 TeX 引擎。请安装 Tectonic (brew install tectonic) 或 MacTeX，然后重新导出。
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	诸如 titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover 的选项。文档的前置元数据会覆盖它们。
+	PDF with a template	使用模板生成 PDF
+	Restore the original	恢复原始模板
+	Save and preview	保存并预览
+	Settings (YAML)	设置 (YAML)
+	Template saved.	模板已保存。
+	Template:	模板：
+	Template: {name}	模板：{name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX 模板，使用 pandoc 的模板语言 ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$)。
+	copy	副本

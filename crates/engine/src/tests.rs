@@ -7704,6 +7704,10 @@ fn strict_markdown_mode() {
     let mut s = Session::new(wordcraft_doc::Document::from_text("Some text"));
     s.native_markdown = true;
     s.run("select.all", &json!({})).unwrap();
+    // On by default: Office-only formatting is opt-in.
+    assert!(s.prefs.markdown_strict);
+    assert!(matches!(s.run("format.underline", &json!({})), Err(crate::CmdError::Disabled(_))));
+    s.run("markdown.strict", &json!({"value": false})).unwrap();
     s.run("format.underline", &json!({})).unwrap();
     s.run("markdown.strict", &json!({"value": true})).unwrap();
     assert!(matches!(s.run("format.color", &json!({"color": "FF0000"})), Err(crate::CmdError::Disabled(_))));

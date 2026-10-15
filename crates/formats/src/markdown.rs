@@ -121,13 +121,15 @@ pub fn import_with(text: &str, page: &wordcraft_doc::SectionProps, resolve: &dyn
 pub fn parse(text: &str) -> model::Flow {
     let text = text.strip_prefix('\u{FEFF}').unwrap_or(text);
     let mut lines: Vec<String> = text.split('\n').map(|l| expand_tabs(l.trim_end_matches('\r'))).collect();
-    let meta = take_front_matter(&mut lines).unwrap_or_default();
+    let mut meta = take_front_matter(&mut lines).unwrap_or_default();
+    let _ = MATH.with(|m| m.try_borrow_mut().map(|mut m| m.clear()));
     let comments = take_comment_block(&mut lines);
     // Footnote definitions are parsed first (a reference inside one stays text), then the body
     // resolves `[^label]` against them.
     let notes: BTreeMap<String, Vec<FBlock>> = take_footnote_defs(&mut lines).into_iter().map(|(l, body)| (l, parse_blocks(&body, 1, 0))).collect();
     let _guard = NotesGuard::set(notes);
     let mut blocks = parse_blocks(&lines, 0, 0);
+    meta.math = MATH.with(|m| m.try_borrow_mut().map(|mut m| std::mem::take(&mut *m)).unwrap_or_default());
     if blocks.is_empty() {
         blocks.push(FBlock::Para(Para::default()));
     }
@@ -234,8 +236,10 @@ const MAX_FRONT_MATTER: usize = 200;
 const MAX_NOTES: usize = 10_000;
 
 /// YAML front matter (`---` … `---`) at the very start: the document properties it gives
-/// (`title`, `author`, `subject`, `keywords`, `description`, `date`), its lines removed. Only a
-/// block of `key: value` lines counts, so a document opening with a thematic break isn't eaten.
+/// (`title`, `author`, `subject`, `keywords`, `description`), its lines removed. Other
+/// settings (a PDF template's: `titlepage: true`, `header-includes:` with a list…) are kept as
+/// written in [`model::Meta::extra`]. Only a block that starts with a `key: value` line counts,
+/// so a document opening with a thematic break isn't eaten.
 fn take_front_matter(lines: &mut Vec<String>) -> Option<model::Meta> {
     if lines.first().map(|l| l.trim_end()) != Some("---") {
         return None;
@@ -243,32 +247,75 @@ fn take_front_matter(lines: &mut Vec<String>) -> Option<model::Meta> {
     let close = lines.iter().enumerate().skip(1).take(MAX_FRONT_MATTER).find(|(_, l)| matches!(l.trim_end(), "---" | "...")).map(|(k, _)| k)?;
     let body = lines.get(1..close)?;
     let mut meta = model::Meta::default();
+    let mut extra: Vec<&str> = Vec::new();
+    // The key being read, for its indented or `- item` lines.
+    let mut current: Option<String> = None;
     let mut any = false;
     for l in body {
-        if l.trim().is_empty() || l.trim_start().starts_with('#') {
+        let nested = l.starts_with([' ', '\t', '-']);
+        if !nested && (l.trim().is_empty() || l.starts_with('#')) {
+            // Comments are kept with the other settings; blank lines only between them.
+            if l.starts_with('#') || !extra.is_empty() {
+                extra.push(l);
+            }
+            continue;
+        }
+        if nested {
+            let key = current.as_deref()?;
+            if is_meta_key(key) {
+                // A list under a known key (`author:` then `  - Ada`): its items, joined.
+                let item = l.trim().trim_start_matches('-').trim();
+                if !item.is_empty() {
+                    let v = meta_field(&mut meta, key);
+                    if !v.is_empty() {
+                        v.push_str(", ");
+                    }
+                    v.push_str(&yaml_scalar(item));
+                }
+            } else {
+                extra.push(l);
+            }
             continue;
         }
         let (key, value) = l.split_once(':')?;
-        if key.starts_with([' ', '-']) || key.trim().is_empty() || key.contains(' ') {
+        if key.trim().is_empty() || key.contains(' ') {
             return None;
         }
-        let value = yaml_scalar(value.trim());
         any = true;
-        match key.trim().to_ascii_lowercase().as_str() {
-            "title" => meta.title = value,
-            "author" => meta.author = value,
-            "subject" => meta.subject = value,
-            "keywords" | "tags" => meta.keywords = value,
-            "description" => meta.description = value,
-            "date" => meta.created = value,
-            _ => {}
+        let key = key.trim().to_ascii_lowercase();
+        if is_meta_key(&key) {
+            *meta_field(&mut meta, &key) = yaml_scalar(value.trim());
+        } else {
+            extra.push(l);
         }
+        current = Some(key);
     }
     if !any {
         return None;
     }
+    while extra.last().is_some_and(|l| l.trim().is_empty()) {
+        extra.pop();
+    }
+    meta.extra = extra.join("\n");
     lines.drain(..=close);
     Some(meta)
+}
+
+/// Front matter keys that are document properties.
+fn is_meta_key(key: &str) -> bool {
+    // `date` stays with the other settings, as written: the document's creation time is a
+    // property Plume sets itself, and writing it would add a line to every saved document.
+    matches!(key, "title" | "author" | "subject" | "keywords" | "tags" | "description")
+}
+
+fn meta_field<'a>(meta: &'a mut model::Meta, key: &str) -> &'a mut String {
+    match key {
+        "title" => &mut meta.title,
+        "author" => &mut meta.author,
+        "subject" => &mut meta.subject,
+        "keywords" | "tags" => &mut meta.keywords,
+        _ => &mut meta.description,
+    }
 }
 
 /// A YAML scalar as written by [`front_matter_md`] (double-quoted with `\"` and `\\`), single-quoted
@@ -376,7 +423,12 @@ fn take_footnote_defs(lines: &mut Vec<String>) -> Vec<(String, Vec<String>)> {
 
 thread_local! {
     static NOTES: RefCell<BTreeMap<String, Vec<FBlock>>> = const { RefCell::new(BTreeMap::new()) };
+    /// Equations met while parsing: linear form → the LaTeX written ([`model::Meta::math`]).
+    static MATH: RefCell<BTreeMap<String, String>> = const { RefCell::new(BTreeMap::new()) };
 }
+
+/// Most equation sources one document keeps.
+const MAX_MATH: usize = 10_000;
 
 /// The footnote definitions of the document being parsed; the previous ones come back when it
 /// ends, however it ends.
@@ -1249,6 +1301,13 @@ fn tokenize(s: &str, base: &Fmt, depth: usize) -> Vec<Node> {
                 flush!();
                 if let Some((latex, display, end)) = math_span(s, i) {
                     let linear = wordcraft_doc::math::to_linear(&wordcraft_doc::math_latex::parse_latex(&latex));
+                    MATH.with(|m| {
+                        if let Ok(mut m) = m.try_borrow_mut()
+                            && m.len() < MAX_MATH
+                        {
+                            m.insert(linear.clone(), latex.trim().to_string());
+                        }
+                    });
                     nodes.push(Node::Inl(Inline::Equation { linear, display }));
                     i = end;
                 } else {
@@ -1727,6 +1786,8 @@ struct Ctx {
     comments: bool,
     /// Document comment id → its thread number (`c1`…), for the threads written.
     comment_keys: BTreeMap<u32, u32>,
+    /// Equations' LaTeX as the source wrote it ([`model::Meta::math`]).
+    math: BTreeMap<String, String>,
 }
 
 impl Ctx {
@@ -1903,7 +1964,10 @@ fn inlines_md_impl(inlines: &[Inline], in_table: bool, ctx: &mut Ctx) -> String 
             }
             Inline::Figure(alt) => pieces.push((String::new(), Fmt::default(), Some(format!("![{}]()", escape(alt))))),
             Inline::Equation { linear, display } => {
-                let latex = wordcraft_doc::math_latex::to_latex(&wordcraft_doc::math::parse_linear(linear));
+                let latex = match ctx.math.get(linear) {
+                    Some(src) => src.clone(),
+                    None => wordcraft_doc::math_latex::to_latex(&wordcraft_doc::math::parse_linear(linear)),
+                };
                 let latex = latex.trim().replace('$', "\\$").replace('\n', " ");
                 if latex.is_empty() {
                     ctx.note(Adaptation::Equation);
@@ -2062,6 +2126,7 @@ pub fn export(doc: &Document) -> String {
 
 fn write_doc(doc: &Document, ctx: &mut Ctx) -> String {
     let flow = model::from_doc_markdown(doc);
+    ctx.math = flow.meta.math.clone();
     let mut out: Vec<String> = Vec::new();
     if ctx.native {
         ctx.slugs = heading_slugs(&flow.blocks);
@@ -2270,15 +2335,8 @@ pub fn bundle_zip(md_name: &str, bundle: &Bundle) -> Result<Vec<u8>, String> {
 
 /// YAML front matter for the document properties that are set (none: nothing written).
 fn front_matter_md(m: &model::Meta, out: &mut Vec<String>) {
-    let fields = [
-        ("title", &m.title),
-        ("author", &m.author),
-        ("subject", &m.subject),
-        ("keywords", &m.keywords),
-        ("description", &m.description),
-        ("date", &m.created),
-    ];
-    if fields.iter().all(|(_, v)| v.trim().is_empty()) {
+    let fields = [("title", &m.title), ("author", &m.author), ("subject", &m.subject), ("keywords", &m.keywords), ("description", &m.description)];
+    if fields.iter().all(|(_, v)| v.trim().is_empty()) && m.extra.trim().is_empty() {
         return;
     }
     out.push("---".into());
@@ -2289,6 +2347,7 @@ fn front_matter_md(m: &model::Meta, out: &mut Vec<String>) {
             out.push(format!("{k}: \"{q}\""));
         }
     }
+    out.extend(m.extra.lines().map(|l| l.trim_end().to_string()));
     out.push("---".into());
     out.push(String::new());
 }

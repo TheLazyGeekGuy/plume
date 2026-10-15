@@ -2691,3 +2691,22 @@ preview	Title	Ukázka
 # Reading Mode column widths (#1040)
 	Narrow	Úzká
 	Medium	Střední
+	(not saved)	(neuloženo)
+	Edit template…	Upravit šablonu…
+	Export PDF…	Exportovat PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Vysázet dokument podle šablony: titulní strana, záhlaví a zápatí, obálky a hlavičkový papír. Úvodní blok YAML dokumentu nastavuje možnosti šablony.
+	Layout (LaTeX)	Rozvržení (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Vytváření PDF… (poprvé si modul TeX může stáhnout, co potřebuje)
+	New template created: it is the one exports use now.	Nová šablona vytvořena: exporty teď používají ji.
+	New template from this one:	Nová šablona z této:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Nebyl nalezen žádný modul TeX. Nainstalujte Tectonic (brew install tectonic) nebo MacTeX a exportujte znovu.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Možnosti jako titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Úvodní blok YAML dokumentu je přepíše.
+	PDF with a template	PDF se šablonou
+	Restore the original	Obnovit původní
+	Save and preview	Uložit a zobrazit náhled
+	Settings (YAML)	Nastavení (YAML)
+	Template saved.	Šablona uložena.
+	Template:	Šablona:
+	Template: {name}	Šablona: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Šablona LaTeX v jazyce šablon pandocu ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	kopie

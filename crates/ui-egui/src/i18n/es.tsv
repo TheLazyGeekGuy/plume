@@ -2666,3 +2666,22 @@ preview	Title	Título
 # Reading Mode column widths (#1040)
 	Narrow	Estrecha
 	Medium	Media
+	(not saved)	(sin guardar)
+	Edit template…	Editar plantilla…
+	Export PDF…	Exportar PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Maquetar el documento con una plantilla: portada, encabezados y pies de página, cubiertas y papel con membrete. El preámbulo (front matter) del documento define las opciones de la plantilla.
+	Layout (LaTeX)	Diseño (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Creando el PDF… (la primera vez, el motor TeX puede descargar lo que necesite)
+	New template created: it is the one exports use now.	Plantilla nueva creada: es la que usan ahora las exportaciones.
+	New template from this one:	Plantilla nueva a partir de esta:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	No se encontró ningún motor TeX. Instale Tectonic (brew install tectonic) o MacTeX y vuelva a exportar.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Opciones como titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. El preámbulo de un documento las sustituye.
+	PDF with a template	PDF con plantilla
+	Restore the original	Restaurar el original
+	Save and preview	Guardar y previsualizar
+	Settings (YAML)	Ajustes (YAML)
+	Template saved.	Plantilla guardada.
+	Template:	Plantilla:
+	Template: {name}	Plantilla: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	La plantilla LaTeX, en el lenguaje de plantillas de pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	copia

@@ -2312,3 +2312,22 @@
 # Reading Mode column widths (#1040)
 	Narrow	Estreita
 	Medium	Média
+	(not saved)	(não salvo)
+	Edit template…	Editar modelo…
+	Export PDF…	Exportar PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Diagramar o documento com um modelo: página de título, cabeçalhos e rodapés, capas e papel timbrado. O front matter do documento define as opções do modelo.
+	Layout (LaTeX)	Layout (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Gerando o PDF… (na primeira vez, o mecanismo TeX pode baixar o que precisar)
+	New template created: it is the one exports use now.	Novo modelo criado: é o que as exportações usam agora.
+	New template from this one:	Novo modelo a partir deste:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Nenhum mecanismo TeX encontrado. Instale o Tectonic (brew install tectonic) ou o MacTeX e exporte novamente.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Opções como titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. O front matter de um documento as substitui.
+	PDF with a template	PDF com modelo
+	Restore the original	Restaurar o original
+	Save and preview	Salvar e visualizar
+	Settings (YAML)	Configurações (YAML)
+	Template saved.	Modelo salvo.
+	Template:	Modelo:
+	Template: {name}	Modelo: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	O modelo LaTeX, na linguagem de modelos do pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	cópia

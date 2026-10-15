@@ -56,6 +56,8 @@ pub(crate) enum AfterPick {
     SaveAs(AfterSave),
     /// Save a copy there in this format (`pdf`, `docx`, `png`…).
     Export { ext: String },
+    /// Export a PDF through the chosen document template there (Plume).
+    ExportTemplate,
     /// Write the PDF of these print settings there (File › Print › Save these pages as PDF).
     PrintPdf { settings: Value },
     /// Load the picked CSV/TSV/text file or spreadsheet as the mail-merge recipients (#240, #334).
@@ -226,6 +228,12 @@ impl WordApp {
                     self.status(crate::i18n::fmt(tl!("Exported {path}"), &[("path", &path)]));
                 }
                 r
+            }
+            AfterPick::ExportTemplate => {
+                let Some(path) = picked else { return Ok(json!({"cancelled": true})) };
+                // Started on the next frame, which has the window to wake when it's done.
+                self.pdf_templates.pending = Some(path);
+                Ok(json!({"started": true}))
             }
             AfterPick::PrintPdf { settings } => {
                 let Some(path) = picked else { return Ok(json!({"cancelled": true})) };

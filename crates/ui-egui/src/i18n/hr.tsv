@@ -2700,3 +2700,22 @@ preview	Title	Naslov
 	Or paste the document's address	Ili zalijepite adresu dokumenta
 	Forge Repositories	Repozitoriji forgea
 	Forge Documents	Dokumenti forgea
+	(not saved)	(nije spremljeno)
+	Edit template…	Uredi predložak…
+	Export PDF…	Izvezi PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Složi dokument po predlošku: naslovna stranica, zaglavlja i podnožja, korice i memorandum. YAML blok na početku dokumenta postavlja mogućnosti predloška.
+	Layout (LaTeX)	Raspored (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Izrada PDF-a… (prvi put TeX pogon može preuzeti što mu treba)
+	New template created: it is the one exports use now.	Stvoren je novi predložak: izvozi sada koriste njega.
+	New template from this one:	Novi predložak iz ovoga:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	TeX pogon nije pronađen. Instalirajte Tectonic (brew install tectonic) ili MacTeX pa ponovno izvezite.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Mogućnosti poput titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. YAML blok dokumenta ih zamjenjuje.
+	PDF with a template	PDF s predloškom
+	Restore the original	Vrati izvornik
+	Save and preview	Spremi i pregledaj
+	Settings (YAML)	Postavke (YAML)
+	Template saved.	Predložak je spremljen.
+	Template:	Predložak:
+	Template: {name}	Predložak: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX predložak, na jeziku predložaka programa pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	kopija
