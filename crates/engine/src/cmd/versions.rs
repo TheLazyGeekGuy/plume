@@ -70,7 +70,7 @@ pub fn specs() -> Vec<CommandSpec> {
             s.prefs.markdown_strict = on;
             Ok(json!({"value": on}))
         })
-        .params(r#"{"value"?: bool} → {value}: on, a Markdown document's commands whose result Markdown can't keep (colour, underline, text boxes…) are disabled; off (default), they work and the save report lists what Markdown didn't keep"#)
+        .params(r#"{"value"?: bool} → {value}: on (default), a Markdown document's commands whose result Markdown can't keep (colour, underline, text boxes…) are disabled; off, they work and the save report lists what Markdown didn't keep"#)
         .pure(),
         CommandSpec::new("file.documents", "Documents", "View › Show", documents)
             .params(r#"{} → {root, current?, documents: [path relative to root]}: the Markdown documents in this document's repository (or folder)"#)

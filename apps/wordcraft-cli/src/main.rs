@@ -1,6 +1,7 @@
 //! `wordcraft-cli`: WordCraft from the command line.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
+mod ai_cmd;
 mod automation_args;
 
 use std::ffi::{OsStr, OsString};
@@ -44,6 +45,17 @@ USAGE:
                                               running): addEditCitation, addEditBibliography,
                                               addNote, refresh, removeCodes, setDocPrefs
                                               (--cmd runs first, e.g. --cmd caret.docEnd)
+  wordcraft-cli ai-tables <in> <out> --model M [--url ollama|lmstudio|URL] [--key-env VAR]
+                    [--reasoning low|medium|high] [--force]
+                                              restructure nested and merged tables with a language
+                                              model (Ollama by default; the key, for a service that
+                                              needs one, is read from environment variable VAR); a
+                                              table changes only when every word is kept (--force:
+                                              always)
+  wordcraft-cli ai-bench <dir> --model A [--model B …] [--url …] [--key-env VAR] [--reasoning …]
+                    [--save DIR] [--report FILE.tsv]
+                                              compare models on the Word documents of <dir>
+                                              (cargo xtask corpus --tables fetches a set)
   wordcraft-cli [<command>] -h | --help       this help
   wordcraft-cli --version
 
@@ -54,7 +66,7 @@ same output on every machine.
 ";
 
 /// The subcommands, in `USAGE` order; `--help` or `-h` after any of them prints `USAGE` (#968).
-const SUBCOMMANDS: &[&str] = &["convert", "info", "text", "inspect", "render", "run", "commands", "parity", "mcp", "zotero"];
+const SUBCOMMANDS: &[&str] = &["convert", "info", "text", "inspect", "render", "run", "commands", "parity", "mcp", "zotero", "ai-tables", "ai-bench"];
 
 fn wants_help(cmd: &str, rest: &[String]) -> bool {
     SUBCOMMANDS.contains(&cmd) && rest.iter().any(|a| a == "--help" || a == "-h")
@@ -72,7 +84,7 @@ fn open(path: &Path) -> Result<Session, String> {
 
 /// The commands that open a file, and which of their arguments not starting with `--` it is (as
 /// `pos` counts). `run` opens the value of `--file`.
-const OPENS_FILE: &[(&str, usize)] = &[("convert", 0), ("info", 0), ("text", 0), ("inspect", 0), ("render", 0), ("zotero", 1)];
+const OPENS_FILE: &[(&str, usize)] = &[("ai-tables", 0), ("convert", 0), ("info", 0), ("text", 0), ("inspect", 0), ("render", 0), ("zotero", 1)];
 
 /// The arguments as text. Only the file the command opens may have a name that isn't valid Unicode,
 /// such as a Latin-1 one (#1440): it comes back as the path to open, and lossy among the arguments.
@@ -238,6 +250,32 @@ const RUN_OPTIONS: &[OptionSpec] = &[
 const COMMANDS_OPTIONS: &[OptionSpec] = &[OptionSpec { name: "--json", takes_value: false }];
 const PARITY_OPTIONS: &[OptionSpec] = &[OptionSpec { name: "--markdown", takes_value: false }];
 const MCP_OPTIONS: &[OptionSpec] = &[OptionSpec { name: "--connect", takes_value: true }, OptionSpec { name: "--author", takes_value: true }];
+const AI_OPTIONS: &[OptionSpec] = &[
+    OptionSpec { name: "--model", takes_value: true },
+    OptionSpec { name: "--url", takes_value: true },
+    OptionSpec { name: "--key-env", takes_value: true },
+    OptionSpec { name: "--reasoning", takes_value: true },
+    OptionSpec { name: "--force", takes_value: false },
+    OptionSpec { name: "--save", takes_value: true },
+    OptionSpec { name: "--report", takes_value: true },
+];
+
+/// The arguments that are neither options nor option values.
+fn positional<'a>(args: &'a [String], specs: &[OptionSpec]) -> Vec<&'a String> {
+    let mut out = Vec::new();
+    let mut skip = false;
+    for a in args {
+        if skip {
+            skip = false;
+        } else if a.starts_with("--") {
+            skip = specs.iter().any(|o| o.name == a && o.takes_value);
+        } else {
+            out.push(a);
+        }
+    }
+    out
+}
+
 const ZOTERO_OPTIONS: &[OptionSpec] = &[
     OptionSpec { name: "--cmd", takes_value: true },
     OptionSpec { name: "--save", takes_value: true },
@@ -423,6 +461,26 @@ fn run<S: AsRef<OsStr>>(args: &[S]) -> Result<(), Failure> {
                 })
             }
         }
+        "ai-tables" | "ai-bench" => {
+            validate_options(cmd, &rest, AI_OPTIONS)?;
+            let paths = positional(&rest, AI_OPTIONS);
+            let missing = || format!("missing argument\n\n{USAGE}");
+            let provider = ai_cmd::provider(|name| arg_value(&rest, name))?;
+            let models: Vec<String> = rest.windows(2).filter(|w| w[0] == "--model").map(|w| w[1].clone()).collect();
+            if cmd == "ai-tables" {
+                let input = paths.first().ok_or_else(missing)?;
+                let output = paths.get(1).ok_or_else(missing)?;
+                ai_cmd::ai_tables(Path::new(input.as_str()), output, provider, models.first().cloned(), rest.iter().any(|a| a == "--force"), |_| {
+                    open(input)
+                })?;
+            } else {
+                let dir = paths.first().ok_or_else(missing)?;
+                let save = arg_value(&rest, "--save").map(PathBuf::from);
+                let report = arg_value(&rest, "--report").map(PathBuf::from);
+                ai_cmd::ai_bench(Path::new(dir.as_str()), provider, &models, save.as_deref(), report.as_deref(), self::open)?;
+            }
+            Ok(())
+        }
         "parity" => {
             validate_options("parity", &rest, PARITY_OPTIONS)?;
             let s = session(wordcraft_doc::Document::new());
@@ -582,6 +640,10 @@ mod tests {
         assert!(validate_options("run", &args(&["--cmd", "text.insert={}", "--cmd", "edit.undo", "--print"]), RUN_OPTIONS).is_ok());
         assert!(validate_options("commands", &args(&["--json"]), COMMANDS_OPTIONS).is_ok());
         assert!(validate_options("parity", &args(&["--markdown"]), PARITY_OPTIONS).is_ok());
+        let ai = args(&["in.docx", "--model", "gpt-oss:20b", "out.md", "--force", "--url", "lmstudio"]);
+        assert!(validate_options("ai-tables", &ai, AI_OPTIONS).is_ok());
+        assert_eq!(positional(&ai, AI_OPTIONS), ["in.docx", "out.md"]);
+        assert!(validate_options("ai-tables", &args(&["--key", "secret"]), AI_OPTIONS).is_err(), "keys come from the environment");
         assert!(validate_options("mcp", &args(&["--connect", "127.0.0.1:9000"]), MCP_OPTIONS).is_ok());
         assert!(validate_options("render", &args(&["in.docx", "out.png", "--page"]), RENDER_OPTIONS).is_ok());
         assert!(

@@ -103,6 +103,7 @@ pub fn registry() -> Registry {
     v.extend(controls::specs());
     v.extend(versions::specs());
     v.extend(crate::pdf_template::specs());
+    v.extend(crate::ai::specs());
     Registry::new(v)
 }
 

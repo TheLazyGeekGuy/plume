@@ -20,5 +20,7 @@ wordcraft-engine = { workspace = true }
 wordcraft-render = { workspace = true }
 wordcraft-mcp = { workspace = true }
 wordcraft-zotero = { workspace = true }
+wordcraft-vcs = { workspace = true }
+ureq = { version = "3.4", default-features = false, features = ["rustls", "platform-verifier"] }
 serde_json = { workspace = true }
 sys-locale = "0.3"
