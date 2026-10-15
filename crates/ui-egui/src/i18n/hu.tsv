@@ -2609,3 +2609,15 @@
 	Save the document as Markdown to see the documents beside it.	Mentse a dokumentumot Markdownként a mellette lévő dokumentumok megtekintéséhez.
 	No Markdown documents here yet.	Itt még nincsenek Markdown-dokumentumok.
 	save the document first	előbb mentse a dokumentumot
+	Address of the Markdown file (copy it from your browser)	A Markdown-fájl címe (másolja ki a böngészőből)
+	Paste the address of the Markdown file's page (it ends in .md).	Illessze be a Markdown-fájl oldalának címét (.md-re végződik).
+	Accounts	Fiókok
+	New connection	Új kapcsolat
+	Connect	Csatlakozás
+	Projects	Projektek
+	Filter	Szűrő
+	No projects on this account.	Ebben a fiókban nincs projekt.
+	No Markdown documents in this project.	Ebben a projektben nincs Markdown-dokumentum.
+	Or paste the document's address	Vagy illessze be a dokumentum címét
+	Forge Repositories	Forge-tárolók
+	Forge Documents	Forge-dokumentumok

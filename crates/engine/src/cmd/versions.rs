@@ -83,8 +83,14 @@ pub fn specs() -> Vec<CommandSpec> {
             Ok(json!({"signedOut": true}))
         })
         .pure(),
+        CommandSpec::new("forge.repos", "Forge Repositories", "File › Open", remote::repos)
+            .params(r#"{"forge": "github|gitlab|forgejo", "host"?: string} → {repos: [{name, branch, description}]}: the signed-in user's repositories, most recently active first"#)
+            .pure(),
+        CommandSpec::new("forge.files", "Forge Documents", "File › Open", remote::files)
+            .params(r#"{"forge": "github|gitlab|forgejo", "host"?: string, "repo": string, "branch"?: string} → {files: [path]}: the repository's Markdown documents"#)
+            .pure(),
         CommandSpec::new("forge.open", "Open from a Forge", "File › Open", remote::open)
-            .params(r#"{"forge": "github|gitlab|forgejo", "host"?: string, "repo": "owner/name" (GitLab: group/…/project), "branch"?: string (default main), "path": "docs/guide.md"} → {opened, version}: the Markdown document and its pictures, read from the forge; Save Version records a version there"#)
+            .params(r#"{"url"?: the file's page on the forge (https://github.com/o/r/blob/main/a.md, …/-/blob/…, …/src/branch/…), or "forge": "github|gitlab|forgejo", "host"?: string, "repo": "owner/name" (GitLab: group/…/project), "branch"?: string (default main), "path": "docs/guide.md"} → {opened, version}: the Markdown document and its pictures, read from the forge; Save Version records a version there"#)
             .pure(),
         CommandSpec::new("vcs.status", "Version Status", "Review › Versions", |s, v| if s.forge.is_some() { remote::status(s, v) } else { status(s, v) })
             .params(r#"{} → {versioned: bool, root?, file?, modified?, servers?: [name], reason?}"#)
@@ -207,6 +213,8 @@ pub struct Remote {
     pub imported: std::collections::BTreeSet<String>,
 }
 
+pub use remote::parse_web_address;
+
 /// Versions on a forge, through its REST API: the same commands, no clone.
 mod remote {
     use std::sync::Arc;
@@ -252,6 +260,63 @@ mod remote {
         s.forge.clone().ok_or_else(|| CmdError::Failed("this document wasn't opened from a forge".into()))
     }
 
+    /// A file's page on a forge → (forge, server, repository, branch, path in the repository):
+    /// `https://github.com/owner/repo/blob/main/docs/a.md`,
+    /// `https://gitlab.com/group/sub/project/-/blob/main/docs/a.md`,
+    /// `https://codeberg.org/owner/repo/src/branch/main/docs/a.md` (Forgejo, Gitea). `hint` names
+    /// the forge when the server's name doesn't (a self-hosted GitLab or Forgejo).
+    pub fn parse_web_address(url: &str, hint: Option<&str>) -> Result<(String, String, String, String, String), CmdError> {
+        let bad = || CmdError::Params(format!("{url:?}: paste the address of the Markdown file's page on the forge"));
+        let rest = url.trim().trim_start_matches("https://").trim_start_matches("http://");
+        let rest = rest.split(['?', '#']).next().unwrap_or("");
+        let (host, path) = rest.split_once('/').ok_or_else(bad)?;
+        let host = host.to_ascii_lowercase();
+        let decode = |p: &str| String::from_utf8(wordcraft_formats::model::percent_decode(p)).unwrap_or_else(|_| p.to_string());
+        let parts: Vec<&str> = path.split('/').filter(|p| !p.is_empty()).collect();
+        let join = |p: &[&str]| p.iter().map(|x| decode(x)).collect::<Vec<_>>().join("/");
+        // GitLab: …/-/blob/<branch>/<path>
+        if let Some(k) = parts.iter().position(|p| *p == "-")
+            && parts.get(k + 1) == Some(&"blob")
+            && k >= 2
+        {
+            let branch = parts.get(k + 2).ok_or_else(bad)?;
+            return Ok(("gitlab".into(), host, join(&parts[..k]), decode(branch), join(parts.get(k + 3..).unwrap_or(&[]))));
+        }
+        let (owner, repo) = (parts.first().ok_or_else(bad)?, parts.get(1).ok_or_else(bad)?);
+        let repo_name = format!("{}/{}", decode(owner), decode(repo.trim_end_matches(".git")));
+        match parts.get(2).copied() {
+            // GitHub: owner/repo/blob/<branch>/<path>
+            Some("blob") | Some("raw") if host == "github.com" || hint == Some("github") => {
+                let branch = parts.get(3).ok_or_else(bad)?;
+                Ok(("github".into(), host, repo_name, decode(branch), join(parts.get(4..).unwrap_or(&[]))))
+            }
+            // Forgejo, Gitea: owner/repo/src/branch/<branch>/<path>
+            Some("src") | Some("raw") if parts.get(3) == Some(&"branch") => {
+                let branch = parts.get(4).ok_or_else(bad)?;
+                Ok(("forgejo".into(), host, repo_name, decode(branch), join(parts.get(5..).unwrap_or(&[]))))
+            }
+            _ => Err(bad()),
+        }
+    }
+
+    pub(super) fn repos(s: &mut Session, v: &Value) -> CmdResult {
+        let forge = forge_of(v)?;
+        let t = transport(s)?;
+        let c = Client { transport: t.as_ref(), token: token(s, &forge)? };
+        let list = c.list_repos(&forge).map_err(ferr)?;
+        Ok(json!({"repos": list.iter().map(|r| json!({"name": r.name, "branch": r.branch, "description": r.description})).collect::<Vec<_>>()}))
+    }
+
+    pub(super) fn files(s: &mut Session, v: &Value) -> CmdResult {
+        let forge = forge_of(v)?;
+        let repo = p::req_str(v, "repo")?.trim().trim_matches('/');
+        let branch = p::str(v, "branch").unwrap_or("main").trim();
+        let t = transport(s)?;
+        let c = Client { transport: t.as_ref(), token: token(s, &forge)? };
+        let list = c.list_markdown(&forge, repo, branch).map_err(ferr)?;
+        Ok(json!({"files": list}))
+    }
+
     pub(super) fn sign_in(s: &mut Session, v: &Value) -> CmdResult {
         let forge = forge_of(v)?;
         let token = p::req_str(v, "token")?.trim();
@@ -288,6 +353,16 @@ mod remote {
     }
 
     pub(super) fn open(s: &mut Session, v: &Value) -> CmdResult {
+        // A document's web address (copied from the browser) says it all.
+        let parsed;
+        let v = match p::str(v, "url").filter(|u| !u.trim().is_empty()) {
+            Some(u) => {
+                let (forge, host, repo, branch, path) = parse_web_address(u, p::str(v, "forge"))?;
+                parsed = json!({"forge": forge, "host": host, "repo": repo, "branch": branch, "path": path});
+                &parsed
+            }
+            None => v,
+        };
         let forge = forge_of(v)?;
         let path = p::req_str(v, "path")?.trim().trim_start_matches('/').to_string();
         let ext = path.rsplit_once('.').map(|(_, e)| e.to_ascii_lowercase()).unwrap_or_default();

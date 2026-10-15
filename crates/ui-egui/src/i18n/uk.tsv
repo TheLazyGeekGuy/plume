@@ -2226,3 +2226,15 @@
 	Save the document as Markdown to see the documents beside it.	Збережіть документ як Markdown, щоб побачити документи поруч із ним.
 	No Markdown documents here yet.	Тут ще немає документів Markdown.
 	save the document first	спочатку збережіть документ
+	Address of the Markdown file (copy it from your browser)	Адреса файлу Markdown (скопіюйте її з браузера)
+	Paste the address of the Markdown file's page (it ends in .md).	Вставте адресу сторінки файлу Markdown (вона закінчується на .md).
+	Accounts	Облікові записи
+	New connection	Нове підключення
+	Connect	Підключити
+	Projects	Проєкти
+	Filter	Фільтр
+	No projects on this account.	У цьому обліковому записі немає проєктів.
+	No Markdown documents in this project.	У цьому проєкті немає документів Markdown.
+	Or paste the document's address	Або вставте адресу документа
+	Forge Repositories	Репозиторії forge
+	Forge Documents	Документи forge

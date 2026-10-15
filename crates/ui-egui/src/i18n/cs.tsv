@@ -2605,3 +2605,15 @@ preview	Title	Ukázka
 	Save the document as Markdown to see the documents beside it.	Uložte dokument jako Markdown, abyste viděli dokumenty vedle něj.
 	No Markdown documents here yet.	Zatím tu nejsou žádné dokumenty Markdown.
 	save the document first	nejprve dokument uložte
+	Address of the Markdown file (copy it from your browser)	Adresa souboru Markdown (zkopírujte ji z prohlížeče)
+	Paste the address of the Markdown file's page (it ends in .md).	Vložte adresu stránky souboru Markdown (končí na .md).
+	Accounts	Účty
+	New connection	Nové připojení
+	Connect	Připojit
+	Projects	Projekty
+	Filter	Filtr
+	No projects on this account.	Tento účet nemá žádné projekty.
+	No Markdown documents in this project.	V tomto projektu nejsou žádné dokumenty Markdown.
+	Or paste the document's address	Nebo vložte adresu dokumentu
+	Forge Repositories	Repozitáře forge
+	Forge Documents	Dokumenty forge

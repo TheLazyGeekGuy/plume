@@ -2221,3 +2221,15 @@
 	Save the document as Markdown to see the documents beside it.	Enregistrez le document en Markdown pour voir les documents à côté.
 	No Markdown documents here yet.	Aucun document Markdown ici pour l'instant.
 	save the document first	enregistrez d'abord le document
+	Address of the Markdown file (copy it from your browser)	Adresse du fichier Markdown (copiez-la depuis votre navigateur)
+	Paste the address of the Markdown file's page (it ends in .md).	Collez l'adresse de la page du fichier Markdown (elle se termine par .md).
+	Accounts	Comptes
+	New connection	Nouvelle connexion
+	Connect	Se connecter
+	Projects	Projets
+	Filter	Filtrer
+	No projects on this account.	Aucun projet sur ce compte.
+	No Markdown documents in this project.	Aucun document Markdown dans ce projet.
+	Or paste the document's address	Ou collez l'adresse du document
+	Forge Repositories	Dépôts de la forge
+	Forge Documents	Documents de la forge

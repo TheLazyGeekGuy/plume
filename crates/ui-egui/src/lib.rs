@@ -238,6 +238,8 @@ pub struct UiState {
     pub print: print_page::PrintSettings,
     pub ribbon_collapsed: bool,
     pub recent: Vec<String>,
+    /// Plume: forges signed in to (their tokens are in the keychain), most recent first.
+    pub forge_accounts: Vec<dialogs::ForgeAccount>,
     /// Symbols inserted from the Symbol dialog, most recent first (#321).
     pub recent_symbols: Vec<dialogs_insert::RecentSymbol>,
     /// Colours picked in the Colors dialog (More Colors…), most recent first (#606).
@@ -342,6 +344,7 @@ impl Default for UiState {
             print: print_page::PrintSettings::default(),
             ribbon_collapsed: false,
             recent: Vec::new(),
+            forge_accounts: Vec::new(),
             recent_symbols: Vec::new(),
             recent_colors: Vec::new(),
             theme: theme::Appearance::default(),
@@ -2213,6 +2216,10 @@ pub(crate) fn works_without_document(id: &str) -> bool {
         id,
         "file.new"
             | "file.open"
+            | "forge.open"
+            | "forge.signIn"
+            | "forge.signOut"
+            | "markdown.strict"
             | "file.close"
             | "file.options"
             | "file.setAuthor"

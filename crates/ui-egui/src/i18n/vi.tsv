@@ -2637,3 +2637,15 @@
 	Save the document as Markdown to see the documents beside it.	Lưu tài liệu dưới dạng Markdown để xem các tài liệu bên cạnh.
 	No Markdown documents here yet.	Chưa có tài liệu Markdown nào ở đây.
 	save the document first	hãy lưu tài liệu trước
+	Address of the Markdown file (copy it from your browser)	Địa chỉ tệp Markdown (sao chép từ trình duyệt)
+	Paste the address of the Markdown file's page (it ends in .md).	Dán địa chỉ trang của tệp Markdown (kết thúc bằng .md).
+	Accounts	Tài khoản
+	New connection	Kết nối mới
+	Connect	Kết nối
+	Projects	Dự án
+	Filter	Lọc
+	No projects on this account.	Tài khoản này không có dự án nào.
+	No Markdown documents in this project.	Dự án này không có tài liệu Markdown.
+	Or paste the document's address	Hoặc dán địa chỉ tài liệu
+	Forge Repositories	Kho mã trên forge
+	Forge Documents	Tài liệu trên forge

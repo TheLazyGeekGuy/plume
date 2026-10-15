@@ -2226,3 +2226,15 @@
 	Save the document as Markdown to see the documents beside it.	将文档保存为 Markdown 以查看其旁边的文档。
 	No Markdown documents here yet.	这里还没有 Markdown 文档。
 	save the document first	请先保存文档
+	Address of the Markdown file (copy it from your browser)	Markdown 文件的地址（从浏览器复制）
+	Paste the address of the Markdown file's page (it ends in .md).	粘贴 Markdown 文件页面的地址（以 .md 结尾）。
+	Accounts	帐户
+	New connection	新建连接
+	Connect	连接
+	Projects	项目
+	Filter	筛选
+	No projects on this account.	此帐户没有项目。
+	No Markdown documents in this project.	此项目中没有 Markdown 文档。
+	Or paste the document's address	或粘贴文档地址
+	Forge Repositories	托管平台仓库
+	Forge Documents	托管平台文档

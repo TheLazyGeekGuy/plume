@@ -2228,3 +2228,15 @@
 	Save the document as Markdown to see the documents beside it.	Сачувајте документ као Markdown да бисте видели документе поред њега.
 	No Markdown documents here yet.	Овде још нема Markdown докумената.
 	save the document first	прво сачувајте документ
+	Address of the Markdown file (copy it from your browser)	Адреса Markdown датотеке (копирајте је из прегледача)
+	Paste the address of the Markdown file's page (it ends in .md).	Налепите адресу странице Markdown датотеке (завршава се на .md).
+	Accounts	Налози
+	New connection	Нова веза
+	Connect	Повежи
+	Projects	Пројекти
+	Filter	Филтер
+	No projects on this account.	На овом налогу нема пројеката.
+	No Markdown documents in this project.	У овом пројекту нема Markdown докумената.
+	Or paste the document's address	Или налепите адресу документа
+	Forge Repositories	Forge репозиторијуми
+	Forge Documents	Forge документи

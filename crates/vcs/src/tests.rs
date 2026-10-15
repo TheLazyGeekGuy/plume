@@ -334,4 +334,87 @@ mod forges {
         let st = c.review_state(&d, 3).unwrap();
         assert_eq!(st.changes_requested_by, ["eve"]);
     }
+
+    #[test]
+    fn listing_projects_and_documents() {
+        let gh = Fake {
+            routes: vec![
+                (
+                    "GET",
+                    "https://api.github.com/user/repos?per_page=100&sort=updated&page=1".into(),
+                    200,
+                    json!([
+                        {"full_name": "acme/handbook", "default_branch": "main", "description": "Team handbook"},
+                        {"full_name": "acme/old", "default_branch": "master", "archived": true},
+                        {"full_name": "acme/site", "default_branch": "bad..branch"},
+                    ]),
+                ),
+                (
+                    "GET",
+                    "https://api.github.com/repos/acme/handbook/git/trees/main?recursive=1".into(),
+                    200,
+                    json!({"tree": [
+                        {"path": "README.md", "type": "blob"},
+                        {"path": "docs", "type": "tree"},
+                        {"path": "docs/guide.markdown", "type": "blob"},
+                        {"path": "docs/logo.png", "type": "blob"},
+                        {"path": "../evil.md", "type": "blob"},
+                    ]}),
+                ),
+            ],
+            seen: RefCell::new(Vec::new()),
+        };
+        let c = Client { transport: &gh, token: "t".into() };
+        let repos = c.list_repos(&Forge::github()).unwrap();
+        assert_eq!(
+            repos.iter().map(|r| (r.name.as_str(), r.branch.as_str())).collect::<Vec<_>>(),
+            [("acme/handbook", "main"), ("acme/site", "main")]
+        );
+        assert_eq!(c.list_markdown(&Forge::github(), "acme/handbook", "main").unwrap(), ["README.md", "docs/guide.markdown"]);
+        assert!(c.list_markdown(&Forge::github(), "acme/handbook", "-x").is_err());
+
+        let fj = Fake {
+            routes: vec![
+                (
+                    "GET",
+                    "https://forge.example/api/v1/user/repos?limit=50&page=1".into(),
+                    200,
+                    json!([{"full_name": "me/notes", "default_branch": "main"}]),
+                ),
+                (
+                    "GET",
+                    "https://forge.example/api/v1/repos/me/notes/git/trees/main?recursive=true".into(),
+                    200,
+                    json!({"tree": [{"path": "CHANGELOG.md", "type": "blob"}]}),
+                ),
+            ],
+            seen: RefCell::new(Vec::new()),
+        };
+        let c = Client { transport: &fj, token: "t".into() };
+        let f = Forge::forgejo("forge.example");
+        assert_eq!(c.list_repos(&f).unwrap()[0].name, "me/notes");
+        assert_eq!(c.list_markdown(&f, "me/notes", "main").unwrap(), ["CHANGELOG.md"]);
+
+        let gl = Fake {
+            routes: vec![
+                (
+                    "GET",
+                    "https://gitlab.com/api/v4/projects?membership=true".into(),
+                    200,
+                    json!([{"path_with_namespace": "grp/sub/proj", "default_branch": "main"}]),
+                ),
+                (
+                    "GET",
+                    "https://gitlab.com/api/v4/projects/grp%2Fsub%2Fproj/repository/tree?recursive=true&per_page=100&page=1&ref=main".into(),
+                    200,
+                    json!([{"path": "a/b.md", "type": "blob"}]),
+                ),
+            ],
+            seen: RefCell::new(Vec::new()),
+        };
+        let c = Client { transport: &gl, token: "t".into() };
+        let f = Forge::gitlab("gitlab.com");
+        assert_eq!(c.list_repos(&f).unwrap()[0].name, "grp/sub/proj");
+        assert_eq!(c.list_markdown(&f, "grp/sub/proj", "main").unwrap(), ["a/b.md"]);
+    }
 }

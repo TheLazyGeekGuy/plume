@@ -2214,3 +2214,15 @@
 	Save the document as Markdown to see the documents beside it.	Markdown として保存すると、隣にある文書が表示されます。
 	No Markdown documents here yet.	ここにはまだ Markdown 文書がありません。
 	save the document first	まず文書を保存してください
+	Address of the Markdown file (copy it from your browser)	Markdown ファイルのアドレス (ブラウザーからコピー)
+	Paste the address of the Markdown file's page (it ends in .md).	Markdown ファイルのページのアドレスを貼り付けてください (.md で終わります)。
+	Accounts	アカウント
+	New connection	新しい接続
+	Connect	接続
+	Projects	プロジェクト
+	Filter	フィルター
+	No projects on this account.	このアカウントにはプロジェクトがありません。
+	No Markdown documents in this project.	このプロジェクトには Markdown 文書がありません。
+	Or paste the document's address	または文書のアドレスを貼り付け
+	Forge Repositories	フォージのリポジトリ
+	Forge Documents	フォージの文書

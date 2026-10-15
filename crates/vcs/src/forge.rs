@@ -495,6 +495,110 @@ impl Client<'_> {
     }
 }
 
+/// A repository the signed-in user can open: its full name and default branch.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct RepoInfo {
+    pub name: String,
+    pub branch: String,
+    pub description: String,
+}
+
+/// Most repositories listed, and most files listed from one repository.
+pub const MAX_REPOS: usize = 1_000;
+pub const MAX_FILES: usize = 5_000;
+/// Pages read for one list.
+const MAX_PAGES: usize = 10;
+
+impl Client<'_> {
+    /// The repositories the signed-in user owns or belongs to, most recently active first.
+    pub fn list_repos(&self, forge: &Forge) -> Result<Vec<RepoInfo>, ForgeError> {
+        let k = forge.kind;
+        let mut out = Vec::new();
+        for page in 1..=MAX_PAGES {
+            let url = match k {
+                Kind::GitHub => format!("{}/user/repos?per_page=100&sort=updated&page={page}", forge.api),
+                Kind::GitLab => format!("{}/projects?membership=true&simple=true&order_by=last_activity_at&per_page=100&page={page}", forge.api),
+                Kind::Forgejo => format!("{}/user/repos?limit=50&page={page}", forge.api),
+            };
+            let list = self.call(k, Method::Get, url, None)?.as_array().cloned().unwrap_or_default();
+            let n = list.len();
+            for r in list {
+                let name = match k {
+                    Kind::GitLab => r.get("path_with_namespace"),
+                    _ => r.get("full_name"),
+                }
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .to_string();
+                if name.is_empty() || r.get("archived").and_then(Value::as_bool) == Some(true) {
+                    continue;
+                }
+                let branch = r.get("default_branch").and_then(Value::as_str).filter(|b| check_branch(b).is_ok()).unwrap_or("main").to_string();
+                let description: String =
+                    r.get("description").and_then(Value::as_str).unwrap_or("").chars().filter(|c| !c.is_control()).take(200).collect();
+                out.push(RepoInfo { name, branch, description });
+            }
+            if n == 0 || out.len() >= MAX_REPOS || n < if k == Kind::Forgejo { 50 } else { 100 } {
+                break;
+            }
+        }
+        out.truncate(MAX_REPOS);
+        Ok(out)
+    }
+
+    /// The Markdown files of `repo` on `branch`, by path.
+    pub fn list_markdown(&self, forge: &Forge, repo: &str, branch: &str) -> Result<Vec<String>, ForgeError> {
+        check_branch(branch)?;
+        let doc = DocRef { forge: forge.clone(), repo: repo.to_string(), branch: branch.to_string(), path: "x.md".into() };
+        check_doc(&doc)?;
+        let base = Self::repo_url(&doc);
+        let k = forge.kind;
+        let is_md = |p: &str| {
+            let l = p.to_ascii_lowercase();
+            (l.ends_with(".md") || l.ends_with(".markdown")) && check_path(p).is_ok()
+        };
+        let mut out = Vec::new();
+        match k {
+            Kind::GitHub | Kind::Forgejo => {
+                let url = match k {
+                    Kind::GitHub => format!("{base}/git/trees/{}?recursive=1", encode_path(branch)),
+                    _ => format!("{base}/git/trees/{}?recursive=true&per_page=10000", encode_path(branch)),
+                };
+                let v = self.call(k, Method::Get, url, None)?;
+                for e in v.get("tree").and_then(Value::as_array).cloned().unwrap_or_default() {
+                    if e.get("type").and_then(Value::as_str) == Some("blob")
+                        && let Some(p) = e.get("path").and_then(Value::as_str)
+                        && is_md(p)
+                    {
+                        out.push(p.to_string());
+                    }
+                }
+            }
+            Kind::GitLab => {
+                for page in 1..=MAX_PAGES {
+                    let url = format!("{base}/repository/tree?recursive=true&per_page=100&page={page}&ref={}", encode_component(branch));
+                    let list = self.call(k, Method::Get, url, None)?.as_array().cloned().unwrap_or_default();
+                    let n = list.len();
+                    for e in list {
+                        if e.get("type").and_then(Value::as_str) == Some("blob")
+                            && let Some(p) = e.get("path").and_then(Value::as_str)
+                            && is_md(p)
+                        {
+                            out.push(p.to_string());
+                        }
+                    }
+                    if n < 100 {
+                        break;
+                    }
+                }
+            }
+        }
+        out.sort();
+        out.truncate(MAX_FILES);
+        Ok(out)
+    }
+}
+
 /// A review request: a pull request (GitHub, Forgejo) or merge request (GitLab).
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Review {

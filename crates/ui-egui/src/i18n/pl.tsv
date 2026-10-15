@@ -2603,3 +2603,15 @@ preview	Title	Tytuł
 	Save the document as Markdown to see the documents beside it.	Zapisz dokument jako Markdown, aby zobaczyć dokumenty obok niego.
 	No Markdown documents here yet.	Nie ma tu jeszcze dokumentów Markdown.
 	save the document first	najpierw zapisz dokument
+	Address of the Markdown file (copy it from your browser)	Adres pliku Markdown (skopiuj go z przeglądarki)
+	Paste the address of the Markdown file's page (it ends in .md).	Wklej adres strony pliku Markdown (kończy się na .md).
+	Accounts	Konta
+	New connection	Nowe połączenie
+	Connect	Połącz
+	Projects	Projekty
+	Filter	Filtruj
+	No projects on this account.	Brak projektów na tym koncie.
+	No Markdown documents in this project.	Brak dokumentów Markdown w tym projekcie.
+	Or paste the document's address	Lub wklej adres dokumentu
+	Forge Repositories	Repozytoria forge
+	Forge Documents	Dokumenty forge

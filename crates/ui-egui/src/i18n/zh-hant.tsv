@@ -2215,3 +2215,15 @@
 	Save the document as Markdown to see the documents beside it.	將文件儲存為 Markdown 以查看其旁邊的文件。
 	No Markdown documents here yet.	這裡還沒有 Markdown 文件。
 	save the document first	請先儲存文件
+	Address of the Markdown file (copy it from your browser)	Markdown 檔案的位址（從瀏覽器複製）
+	Paste the address of the Markdown file's page (it ends in .md).	貼上 Markdown 檔案頁面的位址（以 .md 結尾）。
+	Accounts	帳戶
+	New connection	新增連線
+	Connect	連線
+	Projects	專案
+	Filter	篩選
+	No projects on this account.	此帳戶沒有專案。
+	No Markdown documents in this project.	此專案中沒有 Markdown 文件。
+	Or paste the document's address	或貼上文件位址
+	Forge Repositories	託管平台存放庫
+	Forge Documents	託管平台文件

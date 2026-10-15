@@ -2596,3 +2596,15 @@ preview	Title	Esempio
 	Save the document as Markdown to see the documents beside it.	Salva il documento come Markdown per vedere i documenti accanto.
 	No Markdown documents here yet.	Ancora nessun documento Markdown qui.
 	save the document first	salva prima il documento
+	Address of the Markdown file (copy it from your browser)	Indirizzo del file Markdown (copialo dal browser)
+	Paste the address of the Markdown file's page (it ends in .md).	Incolla l'indirizzo della pagina del file Markdown (termina con .md).
+	Accounts	Account
+	New connection	Nuova connessione
+	Connect	Connetti
+	Projects	Progetti
+	Filter	Filtra
+	No projects on this account.	Nessun progetto in questo account.
+	No Markdown documents in this project.	Nessun documento Markdown in questo progetto.
+	Or paste the document's address	Oppure incolla l'indirizzo del documento
+	Forge Repositories	Repository della forge
+	Forge Documents	Documenti della forge

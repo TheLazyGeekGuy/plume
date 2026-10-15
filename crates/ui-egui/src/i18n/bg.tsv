@@ -2601,3 +2601,15 @@
 	Save the document as Markdown to see the documents beside it.	Запишете документа като Markdown, за да видите документите до него.
 	No Markdown documents here yet.	Тук все още няма Markdown документи.
 	save the document first	първо запишете документа
+	Address of the Markdown file (copy it from your browser)	Адрес на Markdown файла (копирайте го от браузъра)
+	Paste the address of the Markdown file's page (it ends in .md).	Поставете адреса на страницата на Markdown файла (завършва на .md).
+	Accounts	Акаунти
+	New connection	Нова връзка
+	Connect	Свързване
+	Projects	Проекти
+	Filter	Филтър
+	No projects on this account.	Няма проекти в този акаунт.
+	No Markdown documents in this project.	В този проект няма Markdown документи.
+	Or paste the document's address	Или поставете адреса на документа
+	Forge Repositories	Хранилища във форжа
+	Forge Documents	Документи във форжа

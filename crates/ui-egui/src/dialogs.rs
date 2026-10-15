@@ -160,17 +160,7 @@ pub enum Dialog {
         focus: bool,
     },
     /// File › Open › Open from a Forge (Plume): a Markdown document on GitHub, GitLab or Forgejo.
-    OpenFromForge {
-        /// 0 GitHub, 1 GitLab, 2 Forgejo.
-        forge: usize,
-        host: String,
-        repo: String,
-        branch: String,
-        path: String,
-        token: String,
-        remember: bool,
-        error: String,
-    },
+    OpenFromForge(#[serde(skip)] Box<ForgeBrowser>),
     /// Review › Versions › Version History (Plume): the document's versions, newest first.
     Versions {
         list: Vec<Value>,
@@ -980,7 +970,7 @@ impl Dialog {
         match self {
             Dialog::RenameDocument { .. } => "renameDocument",
             Dialog::SaveVersion { .. } => "saveVersion",
-            Dialog::OpenFromForge { .. } => "openFromForge",
+            Dialog::OpenFromForge(_) => "openFromForge",
             Dialog::RequestReview { .. } => "requestReview",
             Dialog::Versions { .. } => "versions",
             Dialog::Font { .. } => "font",
@@ -1256,16 +1246,7 @@ impl Dialog {
             "renameDocument" => Dialog::RenameDocument { name: app.title_stem(), message: String::new(), focus: true },
             "saveVersion" => Dialog::SaveVersion { message: String::new(), error: String::new(), focus: true },
             "requestReview" => Dialog::RequestReview { title: String::new(), message: String::new(), error: String::new(), focus: true },
-            "openFromForge" => Dialog::OpenFromForge {
-                forge: 0,
-                host: String::new(),
-                repo: String::new(),
-                branch: "main".into(),
-                path: String::new(),
-                token: String::new(),
-                remember: true,
-                error: String::new(),
-            },
+            "openFromForge" => Dialog::OpenFromForge(Box::new(ForgeBrowser { remember: true, ..Default::default() })),
             "versions" => {
                 let (list, error) = version_list(app);
                 Dialog::Versions { list, error }
@@ -1464,7 +1445,7 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
     let title = match &d {
         Dialog::RenameDocument { .. } => "Rename Document",
         Dialog::SaveVersion { .. } => "Save Version",
-        Dialog::OpenFromForge { .. } => "Open from a Forge",
+        Dialog::OpenFromForge(_) => "Open from a Forge",
         Dialog::RequestReview { .. } => "Request Review",
         Dialog::Versions { .. } => "Version History",
         Dialog::Font { .. } => "Font",
@@ -1805,76 +1786,7 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
             }
             false
         }
-        Dialog::OpenFromForge { forge, host, repo, branch, path, token, remember, error } => {
-            const FORGES: [(&str, &str, &str); 3] =
-                [("GitHub", "github", ""), ("GitLab", "gitlab", "gitlab.com"), ("Forgejo", "forgejo", "codeberg.org")];
-            ui.horizontal(|ui| {
-                for (k, (name, _, _)) in FORGES.iter().enumerate() {
-                    ui.radio_value(forge, k, *name);
-                }
-            });
-            let (_, id, default_host) = FORGES.get(*forge).copied().unwrap_or(FORGES[0]);
-            egui::Grid::new("forge").num_columns(2).spacing(vec2(12.0, 6.0)).show(ui, |ui| {
-                if *forge != 0 {
-                    ui.label(tl!("Server"));
-                    ui.add(egui::TextEdit::singleline(host).hint_text(default_host).desired_width(300.0));
-                    ui.end_row();
-                }
-                ui.label(tl!("Repository"));
-                ui.add(egui::TextEdit::singleline(repo).hint_text("owner/name").desired_width(300.0));
-                ui.end_row();
-                ui.label(tl!("Branch"));
-                ui.add(egui::TextEdit::singleline(branch).desired_width(300.0));
-                ui.end_row();
-                ui.label(tl!("Document"));
-                ui.add(egui::TextEdit::singleline(path).hint_text("docs/guide.md").desired_width(300.0));
-                ui.end_row();
-                ui.label(tl!("Access token"));
-                ui.add(egui::TextEdit::singleline(token).password(true).hint_text(tl!("kept in the keychain")).desired_width(300.0));
-                ui.end_row();
-            });
-            if app.services.secrets.is_some() {
-                ui.checkbox(remember, tl!("Remember the token in the keychain"));
-            }
-            if !error.is_empty() {
-                ui.colored_label(ui.visuals().error_fg_color, error.as_str());
-            }
-            let (ok, cancel) = buttons(ui, tl!("Open"));
-            if cancel {
-                return true;
-            }
-            if ok {
-                let host_or_default = if host.trim().is_empty() { default_host.to_string() } else { host.trim().to_string() };
-                let api = match *forge {
-                    1 => format!("https://{host_or_default}/api/v4"),
-                    2 => format!("https://{host_or_default}/api/v1"),
-                    _ => "https://api.github.com".to_string(),
-                };
-                let typed = token.trim().to_string();
-                let stored = if typed.is_empty() { app.services.secrets.as_ref().and_then(|s| (s.get)(&api)) } else { None };
-                let tok = if typed.is_empty() { stored.unwrap_or_default() } else { typed.clone() };
-                if tok.is_empty() {
-                    *error = tl!("Enter an access token for this forge.").to_string();
-                    return false;
-                }
-                let target = json!({"forge": id, "host": host_or_default, "repo": repo.trim(), "branch": branch.trim(), "path": path.trim()});
-                let signed = app.session.run("forge.signIn", &json!({"forge": id, "host": host_or_default, "token": tok}));
-                match signed.map_err(|e| e.to_string()).and_then(|_| app.run("forge.open", target)) {
-                    Ok(_) => {
-                        if *remember
-                            && !typed.is_empty()
-                            && let Some(s) = &app.services.secrets
-                            && let Err(e) = (s.set)(&api, &typed)
-                        {
-                            log::warn!("keychain: {e}");
-                        }
-                        return true;
-                    }
-                    Err(e) => *error = e,
-                }
-            }
-            false
-        }
+        Dialog::OpenFromForge(fb) => forge_browser(app, ui, fb),
         Dialog::RequestReview { title, message, error, focus } => {
             ui.label(tl!("What should your colleagues review?"));
             let r = ui.add(egui::TextEdit::singleline(title).desired_width(360.0).char_limit(200));
@@ -3893,6 +3805,239 @@ fn enclose_preview(ui: &mut Ui, style: &str, text: &str, shape: &str) {
     };
     let dy = if shape == "triangle" && box_h > 0.0 { h * 0.3 } else { 0.0 };
     p.text(c + vec2(0.0, dy), egui::Align2::CENTER_CENTER, text, egui::FontId::proportional(px), ink);
+}
+
+/// A forge signed in to: its kind (`github`, `gitlab`, `forgejo`) and server. The token is in
+/// the keychain (or, without one, in the session).
+#[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct ForgeAccount {
+    pub kind: String,
+    pub host: String,
+}
+
+impl ForgeAccount {
+    fn api(&self) -> String {
+        match self.kind.as_str() {
+            "gitlab" => format!("https://{}/api/v4", self.host),
+            "forgejo" => format!("https://{}/api/v1", self.host),
+            _ => "https://api.github.com".to_string(),
+        }
+    }
+    fn label(&self) -> String {
+        let name = match self.kind.as_str() {
+            "gitlab" => "GitLab",
+            "forgejo" => "Forgejo",
+            _ => "GitHub",
+        };
+        if self.kind == "github" { name.to_string() } else { format!("{name} — {}", self.host) }
+    }
+}
+
+/// File › Open › Open from a Forge: sign in once, pick a project, pick its document.
+#[derive(Clone, Debug, Default)]
+pub struct ForgeBrowser {
+    /// New connection: 0 GitHub, 1 GitLab, 2 Forgejo; its server and token.
+    forge: usize,
+    host: String,
+    token: String,
+    remember: bool,
+    /// The account the lists come from.
+    account: Option<ForgeAccount>,
+    /// Its projects: (name, default branch, description).
+    repos: Vec<(String, String, String)>,
+    filter: String,
+    /// The project picked, and its Markdown documents.
+    repo: Option<(String, String)>,
+    files: Vec<String>,
+    /// Or a pasted web address.
+    address: String,
+    error: String,
+}
+
+/// Sign in to `acc` (with `typed`, else the keychain's token, else the session's) and list its
+/// projects.
+fn forge_connect(app: &mut WordApp, acc: &ForgeAccount, typed: &str, remember: bool) -> Result<Vec<(String, String, String)>, String> {
+    let stored = if typed.is_empty() { app.services.secrets.as_ref().and_then(|s| (s.get)(&acc.api())) } else { None };
+    let token = if typed.is_empty() { stored.unwrap_or_default() } else { typed.to_string() };
+    if !token.is_empty() {
+        app.session.run("forge.signIn", &json!({"forge": acc.kind, "host": acc.host, "token": token})).map_err(|e| e.to_string())?;
+    }
+    let v = app.session.run("forge.repos", &json!({"forge": acc.kind, "host": acc.host})).map_err(|e| e.to_string())?;
+    if remember
+        && !typed.is_empty()
+        && let Some(s) = &app.services.secrets
+        && let Err(e) = (s.set)(&acc.api(), typed)
+    {
+        log::warn!("keychain: {e}");
+    }
+    app.ui.forge_accounts.retain(|a| a != acc);
+    app.ui.forge_accounts.insert(0, acc.clone());
+    app.ui.forge_accounts.truncate(10);
+    let repos = v.get("repos").and_then(Value::as_array).cloned().unwrap_or_default();
+    Ok(repos
+        .iter()
+        .map(|r| {
+            let f = |k: &str| r.get(k).and_then(Value::as_str).unwrap_or("").to_string();
+            (f("name"), f("branch"), f("description"))
+        })
+        .collect())
+}
+
+fn forge_browser(app: &mut WordApp, ui: &mut Ui, fb: &mut ForgeBrowser) -> bool {
+    const FORGES: [(&str, &str, &str); 3] =
+        [("GitHub", "github", "github.com"), ("GitLab", "gitlab", "gitlab.com"), ("Forgejo", "forgejo", "codeberg.org")];
+    let mut connect: Option<(ForgeAccount, String)> = None;
+    ui.set_min_width(520.0);
+    // 1. Accounts: the ones used before, or a new connection.
+    let accounts = app.ui.forge_accounts.clone();
+    if !accounts.is_empty() {
+        ui.label(egui::RichText::new(tl!("Accounts")).strong());
+        ui.horizontal_wrapped(|ui| {
+            for acc in &accounts {
+                if ui.selectable_label(fb.account.as_ref() == Some(acc), acc.label()).clicked() {
+                    connect = Some((acc.clone(), String::new()));
+                }
+            }
+        });
+    }
+    egui::CollapsingHeader::new(tl!("New connection")).default_open(accounts.is_empty()).show(ui, |ui| {
+        ui.horizontal(|ui| {
+            for (k, (name, _, _)) in FORGES.iter().enumerate() {
+                ui.radio_value(&mut fb.forge, k, *name);
+            }
+        });
+        let (_, kind, default_host) = FORGES.get(fb.forge).copied().unwrap_or(FORGES[0]);
+        egui::Grid::new("forge_conn").num_columns(2).spacing(vec2(12.0, 6.0)).show(ui, |ui| {
+            if kind != "github" {
+                ui.label(tl!("Server"));
+                ui.add(egui::TextEdit::singleline(&mut fb.host).hint_text(default_host).desired_width(320.0));
+                ui.end_row();
+            }
+            ui.label(tl!("Access token"));
+            ui.add(egui::TextEdit::singleline(&mut fb.token).password(true).desired_width(320.0));
+            ui.end_row();
+        });
+        if app.services.secrets.is_some() {
+            ui.checkbox(&mut fb.remember, tl!("Remember the token in the keychain"));
+        }
+        if ui.button(tl!("Connect")).clicked() {
+            // A pasted address works as a server name too.
+            let host =
+                fb.host.trim().trim_start_matches("https://").trim_start_matches("http://").split('/').next().unwrap_or("").to_ascii_lowercase();
+            let host = if kind == "github" {
+                "github.com".to_string()
+            } else if host.is_empty() {
+                default_host.to_string()
+            } else {
+                host
+            };
+            connect = Some((ForgeAccount { kind: kind.into(), host }, fb.token.trim().to_string()));
+        }
+    });
+    if let Some((acc, typed)) = connect {
+        match forge_connect(app, &acc, &typed, fb.remember) {
+            Ok(repos) => {
+                fb.repos = repos;
+                fb.account = Some(acc);
+                fb.repo = None;
+                fb.files.clear();
+                fb.token.clear();
+                fb.error.clear();
+            }
+            Err(e) => fb.error = e,
+        }
+    }
+    let mut open: Option<Value> = None;
+    // 2. Projects, then 3. their documents.
+    if let Some(acc) = fb.account.clone() {
+        ui.separator();
+        match fb.repo.clone() {
+            None => {
+                ui.horizontal(|ui| {
+                    ui.label(egui::RichText::new(tl!("Projects")).strong());
+                    ui.add(egui::TextEdit::singleline(&mut fb.filter).hint_text(tl!("Filter")).desired_width(240.0));
+                });
+                let needle = fb.filter.to_lowercase();
+                let mut pick = None;
+                egui::ScrollArea::vertical().max_height(260.0).id_salt("forge_repos").show(ui, |ui| {
+                    for (name, branch, desc) in
+                        fb.repos.iter().filter(|r| needle.is_empty() || r.0.to_lowercase().contains(&needle) || r.2.to_lowercase().contains(&needle))
+                    {
+                        let r = ui.selectable_label(false, name);
+                        let r = if desc.is_empty() { r } else { r.on_hover_text(desc) };
+                        if r.clicked() {
+                            pick = Some((name.clone(), branch.clone()));
+                        }
+                    }
+                    if fb.repos.is_empty() {
+                        ui.label(tl!("No projects on this account."));
+                    }
+                });
+                if let Some((name, branch)) = pick {
+                    match app.session.run("forge.files", &json!({"forge": acc.kind, "host": acc.host, "repo": name, "branch": branch})) {
+                        Ok(v) => {
+                            fb.files = v
+                                .get("files")
+                                .and_then(Value::as_array)
+                                .map(|a| a.iter().filter_map(|f| f.as_str().map(str::to_string)).collect())
+                                .unwrap_or_default();
+                            fb.repo = Some((name, branch));
+                            fb.error.clear();
+                        }
+                        Err(e) => fb.error = e.to_string(),
+                    }
+                }
+            }
+            Some((name, branch)) => {
+                ui.horizontal(|ui| {
+                    if ui.button("←").on_hover_text(tl!("Projects")).clicked() {
+                        fb.repo = None;
+                    }
+                    ui.label(egui::RichText::new(format!("{name} › {branch}")).strong());
+                });
+                egui::ScrollArea::vertical().max_height(260.0).id_salt("forge_files").show(ui, |ui| {
+                    for f in &fb.files {
+                        if ui.selectable_label(false, f).clicked() {
+                            open = Some(json!({"forge": acc.kind, "host": acc.host, "repo": name, "branch": branch, "path": f}));
+                        }
+                    }
+                    if fb.files.is_empty() {
+                        ui.label(tl!("No Markdown documents in this project."));
+                    }
+                });
+            }
+        }
+    }
+    // Or a pasted address.
+    egui::CollapsingHeader::new(tl!("Or paste the document's address")).show(ui, |ui| {
+        ui.horizontal(|ui| {
+            ui.add(egui::TextEdit::singleline(&mut fb.address).hint_text("https://…/docs/guide.md").desired_width(400.0));
+            if ui.button(tl!("Open")).clicked() {
+                match wordcraft_engine::cmd::versions::parse_web_address(&fb.address, None) {
+                    Ok((kind, host, repo, branch, path)) => {
+                        let acc = ForgeAccount { kind: kind.clone(), host: host.clone() };
+                        let typed = fb.token.trim().to_string();
+                        match forge_connect(app, &acc, &typed, fb.remember) {
+                            Ok(_) => open = Some(json!({"forge": kind, "host": host, "repo": repo, "branch": branch, "path": path})),
+                            Err(e) => fb.error = e,
+                        }
+                    }
+                    Err(_) => fb.error = tl!("Paste the address of the Markdown file's page (it ends in .md).").to_string(),
+                }
+            }
+        });
+    });
+    if !fb.error.is_empty() {
+        ui.colored_label(ui.visuals().error_fg_color, fb.error.as_str());
+    }
+    if let Some(target) = open {
+        match app.run("forge.open", target) {
+            Ok(_) => return true,
+            Err(e) => fb.error = e,
+        }
+    }
+    ui.add_space(6.0);
+    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| ui.button(tl!("Cancel")).clicked()).inner
 }
 
 /// The document's versions for the Version History dialog, or why there are none.

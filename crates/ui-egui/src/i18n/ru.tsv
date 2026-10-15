@@ -2611,3 +2611,15 @@ preview	Title	Пример
 	Save the document as Markdown to see the documents beside it.	Сохраните документ в Markdown, чтобы увидеть документы рядом с ним.
 	No Markdown documents here yet.	Здесь пока нет документов Markdown.
 	save the document first	сначала сохраните документ
+	Address of the Markdown file (copy it from your browser)	Адрес файла Markdown (скопируйте его из браузера)
+	Paste the address of the Markdown file's page (it ends in .md).	Вставьте адрес страницы файла Markdown (он заканчивается на .md).
+	Accounts	Учётные записи
+	New connection	Новое подключение
+	Connect	Подключить
+	Projects	Проекты
+	Filter	Фильтр
+	No projects on this account.	В этой учётной записи нет проектов.
+	No Markdown documents in this project.	В этом проекте нет документов Markdown.
+	Or paste the document's address	Или вставьте адрес документа
+	Forge Repositories	Репозитории forge
+	Forge Documents	Документы forge

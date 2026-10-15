@@ -6851,3 +6851,21 @@ fn documents_beside_this_one() {
     assert_eq!(r["current"], json!("guide/install.md"));
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// A file's web address names the forge, server, repository, branch and path.
+#[test]
+fn forge_web_addresses() {
+    use crate::cmd::versions::parse_web_address as parse;
+    let t = |u: &str, h: Option<&str>| parse(u, h).map(|(f, h, r, b, p)| [f, h, r, b, p].join(" ")).unwrap_or_else(|e| format!("ERR {e}"));
+    assert_eq!(
+        t("https://forge.prozium.net/TheLazyGeekGuy/notes/src/branch/main/CHANGELOG.md", Some("forgejo")),
+        "forgejo forge.prozium.net TheLazyGeekGuy/notes main CHANGELOG.md"
+    );
+    assert_eq!(t("https://github.com/acme/docs/blob/dev/guide/intro%20page.md?plain=1", None), "github github.com acme/docs dev guide/intro page.md");
+    assert_eq!(
+        t("https://gitlab.example.org/team/sub/handbook/-/blob/main/a/b.md#L3", None),
+        "gitlab gitlab.example.org team/sub/handbook main a/b.md"
+    );
+    assert!(t("https://forge.prozium.net/TheLazyGeekGuy", None).starts_with("ERR"));
+    assert!(t("not a url", None).starts_with("ERR"));
+}

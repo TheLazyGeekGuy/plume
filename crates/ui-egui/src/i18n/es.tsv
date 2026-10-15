@@ -2580,3 +2580,15 @@ preview	Title	Título
 	Save the document as Markdown to see the documents beside it.	Guarde el documento como Markdown para ver los documentos junto a él.
 	No Markdown documents here yet.	Aún no hay documentos Markdown aquí.
 	save the document first	guarde primero el documento
+	Address of the Markdown file (copy it from your browser)	Dirección del archivo Markdown (cópiela del navegador)
+	Paste the address of the Markdown file's page (it ends in .md).	Pegue la dirección de la página del archivo Markdown (termina en .md).
+	Accounts	Cuentas
+	New connection	Nueva conexión
+	Connect	Conectar
+	Projects	Proyectos
+	Filter	Filtrar
+	No projects on this account.	No hay proyectos en esta cuenta.
+	No Markdown documents in this project.	No hay documentos Markdown en este proyecto.
+	Or paste the document's address	O pegue la dirección del documento
+	Forge Repositories	Repositorios de la forja
+	Forge Documents	Documentos de la forja
