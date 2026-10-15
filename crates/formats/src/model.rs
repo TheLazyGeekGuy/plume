@@ -88,6 +88,10 @@ pub enum Inline {
         endnote: bool,
         blocks: Vec<FBlock>,
     },
+    /// A drawing's text (shapes and text boxes, alone or grouped), as blocks in reading order.
+    /// Only Markdown carries it: the drawing itself has no Markdown form, its words must not be
+    /// lost.
+    Drawing(Vec<FBlock>),
     /// The start (`end: false`) or end of a commented range. `id` is the comment's id in a flow
     /// read from a document ([`from_doc_markdown`]), and its number (`cN`) in [`Flow::comments`]
     /// in a flow parsed from Markdown.
@@ -162,6 +166,8 @@ pub struct Para {
     /// Tracked deletion of the paragraph mark (only [`from_doc_tracked`] and formats that keep
     /// revisions set it).
     pub mark_del: Option<Box<RevMark>>,
+    /// A table of contents entry, at this level (Markdown writes the contents from its headings).
+    pub toc: Option<u8>,
 }
 
 impl Para {
@@ -187,7 +193,7 @@ impl Para {
         for i in &self.inlines {
             match i {
                 Inline::Text(t, _) | Inline::Equation { linear: t, .. } => s.push_str(t),
-                Inline::Image(_) | Inline::Anchor(_) | Inline::Figure(_) | Inline::Note { .. } | Inline::Comment { .. } => {}
+                Inline::Image(_) | Inline::Anchor(_) | Inline::Figure(_) | Inline::Note { .. } | Inline::Comment { .. } | Inline::Drawing(_) => {}
             }
         }
         s
@@ -203,7 +209,7 @@ impl Para {
                     _ => s.push_str(t),
                 },
                 Inline::Equation { linear: t, .. } => s.push_str(t),
-                Inline::Image(_) | Inline::Anchor(_) | Inline::Figure(_) | Inline::Note { .. } | Inline::Comment { .. } => {}
+                Inline::Image(_) | Inline::Anchor(_) | Inline::Figure(_) | Inline::Note { .. } | Inline::Comment { .. } | Inline::Drawing(_) => {}
             }
         }
         s
@@ -579,7 +585,7 @@ impl<'a> Builder<'a> {
                     append(&mut out, "", &CharProps::default(), Some(InlineObject::BookmarkStart { name: name.clone() }));
                     append(&mut out, "", &CharProps::default(), Some(InlineObject::BookmarkEnd { name: name.clone() }));
                 }
-                Inline::Figure(_) => {}
+                Inline::Figure(_) | Inline::Drawing(_) => {}
                 Inline::Comment { id, end } => {
                     if let Some(doc_id) = self.comment_ids.get(id) {
                         let obj = if *end { InlineObject::CommentEnd { id: *doc_id } } else { InlineObject::CommentStart { id: *doc_id } };
@@ -872,10 +878,23 @@ fn uses_kind(blocks: &[FBlock], k: Kind, depth: usize) -> bool {
 // ---------------------------------------------------------------------------------------------
 // Document → Flow
 
-/// Is this a monospace family name?
+/// Is this a monospace family name? Whole words count, so "Arial Unicode MS" and "Monotype
+/// Corsiva" are not code fonts while "Source Code Pro" and "Noto Sans Mono" are.
 pub fn is_mono(font: &str) -> bool {
     let f = font.to_ascii_lowercase();
-    f.contains("courier") || f.contains("mono") || f.contains("consolas") || f.contains("menlo") || f.contains("code") || f == "monaco"
+    let words: Vec<&str> = f.split(|c: char| !c.is_ascii_alphanumeric()).filter(|w| !w.is_empty()).collect();
+    words.iter().any(|w| matches!(*w, "mono" | "monospace" | "monospaced" | "code" | "courier" | "consolas" | "menlo" | "monaco" | "inconsolata"))
+        || f.starts_with("lucida console")
+        || f.starts_with("lucida sans typewriter")
+        || f.ends_with("mono")
+}
+
+/// A character style meant for code ("Code", "HTML Code", "Source Code"…).
+fn is_code_char_style(doc: &Document, id: &str) -> bool {
+    doc.styles.chain(id).iter().filter(|s| s.kind == StyleKind::Character).any(|s| {
+        let name = format!("{} {}", s.id, s.name).to_ascii_lowercase();
+        name.split(|c: char| !c.is_ascii_alphanumeric()).any(|w| w == "code" || w == "verbatim")
+    })
 }
 
 fn is_code_style(doc: &Document, id: &str) -> bool {
@@ -905,7 +924,7 @@ fn effective(doc: &Document, cp: &CharProps) -> CharProps {
 
 fn fmt_of(doc: &Document, cp: &CharProps, in_code: bool) -> Fmt {
     let e = effective(doc, cp);
-    let code = !in_code && e.font.as_deref().is_some_and(is_mono);
+    let code = !in_code && (e.font.as_deref().is_some_and(is_mono) || cp.style.as_deref().is_some_and(|cs| is_code_char_style(doc, cs)));
     Fmt {
         bold: e.bold.unwrap_or(false),
         italic: e.italic.unwrap_or(false),
@@ -935,12 +954,41 @@ fn rev_marks(doc: &Document, cp: &CharProps) -> (Option<RevMark>, Option<RevMark
     (mark(cp.ins), mark(cp.del))
 }
 
+/// "heading 1" … "heading 9" in the style's chain: the heading level.
+fn named_heading(doc: &Document, style: &str) -> Option<u8> {
+    let chain = doc.styles.chain(style);
+    // A style that states its outline level ("body text", as a TOC Heading does) has the last word.
+    if chain.iter().any(|s| s.para.outline_level.is_some()) {
+        return None;
+    }
+    chain.iter().find_map(|s| {
+        let n = s.name.to_ascii_lowercase();
+        let rest = n.strip_prefix("heading ")?;
+        rest.trim().parse::<u8>().ok().filter(|l| (1..=9).contains(l)).map(|l| l.min(6))
+    })
+}
+
+/// A table of contents entry's level: its style is "toc 1" … "toc 9" (Word's built-in names), or
+/// one based on them.
+pub fn toc_level(doc: &Document, style: &str) -> Option<u8> {
+    doc.styles.chain(style).iter().find_map(|s| {
+        let n = s.name.to_ascii_lowercase();
+        let lvl =
+            n.strip_prefix("toc ").and_then(|r| r.trim().parse::<u8>().ok()).or_else(|| s.id.strip_prefix("TOC").and_then(|r| r.parse::<u8>().ok()));
+        lvl.filter(|l| (1..=9).contains(l))
+    })
+}
+
 /// Paragraph kind and list membership of a document paragraph.
 pub fn para_kind(doc: &Document, p: &Paragraph) -> (Kind, Option<ListInfo>) {
     let rp = doc.styles.resolve_para(&p.props);
     let style = p.props.style.as_deref().unwrap_or("Normal");
     let kind = if let Some(l) = rp.outline_level {
         Kind::Heading((l + 1).min(6))
+    } else if let Some(l) = named_heading(doc, style) {
+        // A style named "heading N" (Word keeps the built-in names in English) whose outline
+        // level the file doesn't state.
+        Kind::Heading(l)
     } else if doc.styles.chain(style).iter().any(|s| s.id == "Title") {
         Kind::Title
     } else if doc.styles.chain(style).iter().any(|s| s.id == "Quote" || s.id == "IntenseQuote") {
@@ -1006,6 +1054,7 @@ fn flow_paras_in(doc: &Document, p: &Paragraph, opts: FlowOpts) -> Vec<Para> {
         section: None,
         mark_ins: None,
         mark_del: None,
+        toc: toc_level(doc, p.props.style.as_deref().unwrap_or("Normal")),
     };
     let in_code = kind == Kind::Code;
     let mut k = 0usize;
@@ -1034,6 +1083,7 @@ fn flow_paras_in(doc: &Document, p: &Paragraph, opts: FlowOpts) -> Vec<Para> {
                         section: None,
                         mark_ins: None,
                         mark_del: None,
+                        toc: None,
                     };
                     let prev = std::mem::replace(&mut out, next);
                     if prev.inlines.is_empty() {
@@ -1109,6 +1159,24 @@ fn flow_paras_in(doc: &Document, p: &Paragraph, opts: FlowOpts) -> Vec<Para> {
                 Some(InlineObject::CommentEnd { id }) if opts.notes => {
                     out.push_text(&std::mem::take(&mut buf), &f);
                     out.inlines.push(Inline::Comment { id: *id, end: true });
+                }
+                Some(o @ (InlineObject::Shape { .. } | InlineObject::Group { .. })) if opts.notes => {
+                    let mut blocks = Vec::new();
+                    for id in o.text_boxes() {
+                        if let Some(part) = doc.parts.get(&id) {
+                            let inner = FlowOpts { notes: false, ..opts };
+                            blocks.extend(flow_blocks(doc, &part.blocks, MAX_DEPTH.saturating_sub(2), inner));
+                        }
+                    }
+                    blocks.retain(|b| !matches!(b, FBlock::Para(q) if q.is_empty()));
+                    if !blocks.is_empty() {
+                        if !buf.is_empty() {
+                            out.push_text(&std::mem::take(&mut buf), &f);
+                        }
+                        out.inlines.push(Inline::Drawing(blocks));
+                    } else {
+                        out.inlines.push(Inline::Drawing(Vec::new()));
+                    }
                 }
                 Some(InlineObject::BookmarkStart { name }) if name != "_GoBack" => {
                     if !buf.is_empty() {

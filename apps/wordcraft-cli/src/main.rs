@@ -364,8 +364,16 @@ fn run<S: AsRef<OsStr>>(args: &[S]) -> Result<(), Failure> {
                 }
                 s.run("file.save", &params)
             };
-            r.map_err(|e| e.to_string())?;
+            let r = r.map_err(|e| e.to_string())?;
             eprintln!("wrote {o}");
+            // What the format couldn't keep as it was: never a silent change.
+            let adapted: Vec<&str> = r["adapted"].as_array().into_iter().flatten().filter_map(Value::as_str).collect();
+            if !adapted.is_empty() {
+                eprintln!("adapted:");
+                for a in adapted {
+                    eprintln!("  {a}");
+                }
+            }
             Ok(())
         }
         "info" => {

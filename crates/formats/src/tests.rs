@@ -923,14 +923,20 @@ fn markdown_comments_round_trip() {
     assert_eq!(crate::comments::notes(&back)[0].quote, "budget prévisionnel");
     assert_eq!(export_native(&back, &NativeOptions::default()).text, out.text);
 
-    // A range starting the paragraph: the marker moves after the first word (no HTML block).
+    // A marker inside a line stays where it is.
     let md = "First<!-- c1 --> words<!-- /c1 -->.\n\n<!-- plume:comments\nc1 | A | \n    x\n-->\n";
     let again = export_native(&import(md), &NativeOptions::default());
     assert!(again.text.starts_with("First<!-- c1 --> words<!-- /c1 -->.\n"), "{}", again.text);
+    // A range starting the paragraph starts there: an invisible zero-width space keeps the line
+    // from opening with `<!--` (an HTML block), and reading drops it.
     let d = import("<!-- c1 -->Start here<!-- /c1 -->\n\n<!-- plume:comments\nc1 | A | \n    x\n-->\n");
     assert_eq!(d.comments.len(), 1);
     let out = export_native(&d, &NativeOptions::default());
-    assert!(out.text.starts_with("Start<!-- c1 --> here<!-- /c1 -->\n"), "{}", out.text);
+    assert!(out.text.starts_with("&#8203;<!-- c1 -->Start here<!-- /c1 -->\n"), "{}", out.text);
+    let back = import(&out.text);
+    assert_eq!(crate::comments::notes(&back)[0].quote, "Start here");
+    assert!(!back.plain_text(wordcraft_doc::StoryRef::Body).contains('\u{200B}'));
+    assert_eq!(export_native(&back, &NativeOptions::default()).text, out.text);
     // Other HTML comments are not content.
     let d = import("<!-- a note\nfor editors -->\n\nText <!-- inline --> here\n");
     assert_eq!(d.plain_text(wordcraft_doc::StoryRef::Body).trim(), "Text  here");

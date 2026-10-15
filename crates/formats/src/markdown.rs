@@ -124,6 +124,13 @@ pub fn parse(text: &str) -> model::Flow {
     let mut meta = take_front_matter(&mut lines).unwrap_or_default();
     let _ = MATH.with(|m| m.try_borrow_mut().map(|mut m| m.clear()));
     let comments = take_comment_block(&mut lines);
+    take_comments_view(&mut lines);
+    // A comment marker opening a line comes after an invisible guard (see `MARKER_GUARD`).
+    for l in lines.iter_mut() {
+        if l.contains(MARKER_GUARD) {
+            *l = l.replace(&format!("{MARKER_GUARD}<!-- c"), "<!-- c").replace(&format!("{MARKER_GUARD}<!-- /c"), "<!-- /c");
+        }
+    }
     // Footnote definitions are parsed first (a reference inside one stays text), then the body
     // resolves `[^label]` against them.
     let notes: BTreeMap<String, Vec<FBlock>> = take_footnote_defs(&mut lines).into_iter().map(|(l, body)| (l, parse_blocks(&body, 1, 0))).collect();
@@ -138,6 +145,17 @@ pub fn parse(text: &str) -> model::Flow {
 
 /// First line of the comment block [`export_native`] writes.
 pub const COMMENTS_OPEN: &str = "<!-- plume:comments";
+/// The comments as readers see them (after the block): between these two lines, rebuilt from
+/// the block at every save and dropped when reading.
+const COMMENTS_VIEW_OPEN: &str = "<!-- plume:comments-view -->";
+const COMMENTS_VIEW_CLOSE: &str = "<!-- /plume:comments-view -->";
+
+/// Drop the comments' reader view ([`COMMENTS_VIEW_OPEN`] … [`COMMENTS_VIEW_CLOSE`]).
+fn take_comments_view(lines: &mut Vec<String>) {
+    let Some(start) = lines.iter().position(|l| l.trim() == COMMENTS_VIEW_OPEN) else { return };
+    let end = lines.iter().skip(start).position(|l| l.trim() == COMMENTS_VIEW_CLOSE).map_or(lines.len() - 1, |k| start + k);
+    lines.drain(start..=end);
+}
 /// The block's first line in the first prototype (read and dropped: it held no anchors).
 const OLD_COMMENTS_OPEN: &str = "<!-- wordcraft:comments";
 
@@ -1699,6 +1717,15 @@ pub enum Adaptation {
     LayoutTable,
     /// A picture in a format browsers don't show (EMF, WMF…) kept as is.
     ImageFormat,
+    /// A drawing's text (shapes, text boxes, grouped diagrams): kept as a quote after its
+    /// paragraph; the drawing itself has no Markdown form.
+    DrawingText,
+    /// A drawing with no text and no picture of it: left out (listed so the loss is never silent).
+    DrawingLeftOut,
+    /// A numbered heading: a Markdown heading, its number left to the reader.
+    HeadingNumbers,
+    /// A table of contents: written from the headings, without page numbers.
+    TableOfContents,
 }
 
 impl Adaptation {
@@ -1712,12 +1739,16 @@ impl Adaptation {
             Adaptation::Bookmark => "bookmarks (not on a heading) left out",
             Adaptation::CellParagraphs => "table cells with several lines joined on one line",
             Adaptation::NestedTable => "nested tables flattened into their cell",
-            Adaptation::MergedCells => "merged cells written as empty cells",
+            Adaptation::MergedCells => "merged cells: their value repeated in each row and column they cover",
             Adaptation::Figure => "charts and drawings kept as their alt text",
             Adaptation::Equation => "equations written as linear text",
             Adaptation::Endnote => "endnotes written as footnotes",
             Adaptation::LayoutTable => "layout tables written as paragraphs",
             Adaptation::ImageFormat => "pictures in formats browsers can't show (EMF, WMF…)",
+            Adaptation::DrawingText => "drawings' text kept as quotes (the drawings themselves left out)",
+            Adaptation::DrawingLeftOut => "drawings without text left out",
+            Adaptation::HeadingNumbers => "numbered headings written as headings, their numbers left to the reader",
+            Adaptation::TableOfContents => "table of contents rewritten from the headings, without page numbers",
         }
     }
 }
@@ -1788,6 +1819,11 @@ struct Ctx {
     comment_keys: BTreeMap<u32, u32>,
     /// Equations' LaTeX as the source wrote it ([`model::Meta::math`]).
     math: BTreeMap<String, String>,
+    /// The headings in order — (level, text, slug) — for the table of contents.
+    headings: Vec<(u8, String, String)>,
+    /// Comment threads whose range is open while writing, and the text each one covers.
+    open_comments: Vec<u32>,
+    covered: BTreeMap<u32, String>,
 }
 
 impl Ctx {
@@ -1850,16 +1886,24 @@ pub fn heading_slug(text: &str) -> String {
         .collect()
 }
 
-/// Bookmarks inside headings → their heading's slug (`-1`, `-2`… for repeated headings).
-fn heading_slugs(blocks: &[FBlock]) -> BTreeMap<String, String> {
+/// [`heading_slugs`], and the headings in order: (level, text, slug), the table of contents'
+/// entries. One function computes both, so the contents' links always land.
+fn headings_and_slugs(blocks: &[FBlock]) -> (BTreeMap<String, String>, Vec<(u8, String, String)>) {
     let mut seen: BTreeMap<String, usize> = BTreeMap::new();
     let mut out = BTreeMap::new();
+    let mut list = Vec::new();
     for b in blocks {
         let FBlock::Para(p) = b else { continue };
-        if !matches!(p.kind, Kind::Heading(_) | Kind::Title) {
+        let level = match p.kind {
+            Kind::Heading(n) => n,
+            Kind::Title => 1,
+            _ => continue,
+        };
+        let text = p.text().split_whitespace().collect::<Vec<_>>().join(" ");
+        if text.is_empty() {
             continue;
         }
-        let base = heading_slug(&p.text());
+        let base = heading_slug(&text);
         let n = seen.entry(base.clone()).or_insert(0);
         let slug = if *n == 0 { base.clone() } else { format!("{base}-{n}") };
         *n += 1;
@@ -1868,8 +1912,11 @@ fn heading_slugs(blocks: &[FBlock]) -> BTreeMap<String, String> {
                 out.insert(a.clone(), slug.clone());
             }
         }
+        if p.kind != Kind::Title {
+            list.push((level, text, slug));
+        }
     }
-    out
+    (out, list)
 }
 
 /// FNV-1a, 64 bits: a stable content hash for asset names (not for security).
@@ -1894,7 +1941,25 @@ fn inlines_md_impl(inlines: &[Inline], in_table: bool, ctx: &mut Ctx) -> String 
     // A native copy writes equations as LaTeX between dollars (GitHub's mathematics); the
     // legacy copy as their linear text.
     let inlines: std::borrow::Cow<'_, [Inline]> = if ctx.native { inlines.into() } else { crate::model::equations_as_text(inlines) };
+    // A commented range going on from the previous paragraph: a space between them.
+    for n in ctx.open_comments.clone() {
+        if let Some(c) = ctx.covered.get_mut(&n)
+            && !c.is_empty()
+            && !c.ends_with(' ')
+        {
+            c.push(' ');
+        }
+    }
     for i in inlines.iter() {
+        if let Inline::Text(t, _) = i {
+            for n in ctx.open_comments.clone() {
+                if let Some(c) = ctx.covered.get_mut(&n)
+                    && c.len() < 4_000
+                {
+                    c.push_str(t);
+                }
+            }
+        }
         if ctx.native
             && let Inline::Text(t, f) = i
             && !t.trim().is_empty()
@@ -1942,11 +2007,29 @@ fn inlines_md_impl(inlines: &[Inline], in_table: bool, ctx: &mut Ctx) -> String 
                 }
             }
             Inline::Comment { id, end } => {
-                if let Some(n) = ctx.comment_keys.get(id).filter(|_| ctx.native) {
+                if let Some(n) = ctx.comment_keys.get(id).copied().filter(|_| ctx.native) {
                     let slash = if *end { "/" } else { "" };
                     pieces.push((String::new(), Fmt::default(), Some(format!("<!-- {slash}c{n} -->"))));
+                    if *end {
+                        ctx.open_comments.retain(|o| *o != n);
+                    } else if !ctx.open_comments.contains(&n) {
+                        ctx.open_comments.push(n);
+                        ctx.covered.entry(n).or_default();
+                    }
                 }
             }
+            // A drawing's text in a table cell joins the cell's; elsewhere it follows the
+            // paragraph as a quote ([`write_drawings`]).
+            Inline::Drawing(blocks) if in_table && ctx.native => {
+                let text: Vec<String> = blocks.iter().map(block_plain).filter(|t| !t.trim().is_empty()).collect();
+                if !text.is_empty() {
+                    ctx.note(Adaptation::DrawingText);
+                    pieces.push((format!(" {} ", text.join(" / ")), Fmt::default(), None));
+                } else {
+                    ctx.note(Adaptation::DrawingLeftOut);
+                }
+            }
+            Inline::Drawing(_) => {}
             Inline::Note { endnote, blocks } => {
                 if *endnote {
                     ctx.note(Adaptation::Endnote);
@@ -2081,41 +2164,87 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
         parts.join(br).replace('\n', " ")
     };
     let align_of = |c: &Cell| c.blocks.iter().find_map(|b| if let FBlock::Para(p) = b { Some(p.align) } else { None }).flatten();
-    let row_md = |r: &Vec<Cell>, ctx: &mut Ctx| -> Vec<String> {
+    // The logical grid: one string per grid column. A native copy repeats a merged cell's value
+    // in every row and column it covers, so each value keeps its category (a pipe table has no
+    // merges); the legacy copy leaves them empty.
+    let mut grid: Vec<Vec<String>> = Vec::new();
+    let mut aligns: Vec<Option<Align>> = Vec::new();
+    for (ri, r) in t.rows.iter().enumerate() {
         let mut v: Vec<String> = Vec::new();
         for c in r {
-            v.push(if c.covered { String::new() } else { cell_md(c, ctx) });
             if c.covered || c.colspan > 1 || c.rowspan > 1 {
                 ctx.note(Adaptation::MergedCells);
             }
+            let text = if c.covered {
+                let above = grid.get(ri.wrapping_sub(1)).and_then(|row| row.get(v.len())).cloned().unwrap_or_default();
+                if ctx.native { above } else { String::new() }
+            } else {
+                cell_md(c, ctx)
+            };
+            if ri == 0 {
+                aligns.push(align_of(c));
+            }
+            v.push(text.clone());
             for _ in 1..c.colspan.clamp(1, 63) {
-                v.push(String::new());
+                v.push(if ctx.native { text.clone() } else { String::new() });
+                if ri == 0 {
+                    aligns.push(None);
+                }
             }
         }
         v.resize(cols, String::new());
-        v
-    };
-    let Some(head) = t.rows.first() else { return };
-    out.push(format!("| {} |", row_md(head, ctx).join(" | ")));
-    let mut aligns: Vec<Option<Align>> = Vec::new();
-    for c in head {
-        aligns.push(align_of(c));
-        for _ in 1..c.colspan.clamp(1, 63) {
-            aligns.push(None);
-        }
+        grid.push(v);
     }
     aligns.resize(cols, None);
+    if grid.is_empty() {
+        return;
+    }
+    // Header rows: the first, and the next while the one above spans columns (a two-level
+    // header: "Booking" over "Weekday" and "Weekend" → "Booking – Weekday", "Booking – Weekend").
+    let mut head_rows = 1;
+    if ctx.native {
+        while head_rows < grid.len() - 1 && t.rows.get(head_rows - 1).is_some_and(|r| r.iter().any(|c| c.colspan > 1)) {
+            head_rows += 1;
+        }
+    }
+    let mut head: Vec<String> = Vec::new();
+    for c in 0..cols {
+        let mut parts: Vec<&str> = Vec::new();
+        for row in grid.iter().take(head_rows) {
+            let x = row.get(c).map(String::as_str).unwrap_or("").trim();
+            if !x.is_empty() && parts.last() != Some(&x) {
+                parts.push(x);
+            }
+        }
+        head.push(parts.join(" – "));
+    }
+    let mut body: Vec<Vec<String>> = grid.into_iter().skip(head_rows).collect();
+    let mut keep: Vec<bool> = vec![true; cols];
+    if ctx.native {
+        // Rows and columns with nothing in them are the grid's, not the document's.
+        body.retain(|r| r.iter().any(|x| !x.trim().is_empty()));
+        for (c, k) in keep.iter_mut().enumerate() {
+            *k = !head.get(c).is_some_and(|h| h.trim().is_empty()) || body.iter().any(|r| r.get(c).is_some_and(|x| !x.trim().is_empty()));
+        }
+        if !keep.iter().any(|k| *k) {
+            keep = vec![true; cols];
+        }
+    }
+    let pick = |r: &[String]| -> Vec<String> { r.iter().zip(&keep).filter(|(_, k)| **k).map(|(x, _)| x.clone()).collect() };
+    out.push(format!("| {} |", pick(&head).join(" | ")));
     let delim: Vec<&str> = aligns
         .iter()
-        .map(|a| match a {
+        .zip(&keep)
+        .filter(|(_, k)| **k)
+        .map(|(a, _)| match a {
             Some(Align::Center) => ":---:",
             Some(Align::Right) => "---:",
             _ => "---",
         })
         .collect();
     out.push(format!("| {} |", delim.join(" | ")));
-    for r in t.rows.iter().skip(1) {
-        out.push(format!("| {} |", row_md(r, ctx).join(" | ")));
+    for r in &body {
+        out.push(format!("| {} |", pick(r).join(" | ")));
     }
 }
 
@@ -2129,7 +2258,7 @@ fn write_doc(doc: &Document, ctx: &mut Ctx) -> String {
     ctx.math = flow.meta.math.clone();
     let mut out: Vec<String> = Vec::new();
     if ctx.native {
-        ctx.slugs = heading_slugs(&flow.blocks);
+        (ctx.slugs, ctx.headings) = headings_and_slugs(&flow.blocks);
         if ctx.comments {
             ctx.comment_keys = comment_keys(doc, &flow.blocks);
         }
@@ -2172,6 +2301,8 @@ pub fn export_native(doc: &Document, opts: &NativeOptions) -> Bundle {
         ctx.report.comments = ctx.comment_keys.len();
         text.push('\n');
         text.push_str(&comments_block(doc, &ctx.comment_keys));
+        text.push('\n');
+        text.push_str(&comments_view(doc, &ctx.comment_keys, &ctx.covered));
     }
     Bundle { text, assets: ctx.assets, report: ctx.report }
 }
@@ -2436,29 +2567,107 @@ fn comments_block(doc: &Document, keys: &BTreeMap<u32, u32>) -> String {
     s
 }
 
-/// A paragraph line must not start with a comment marker: CommonMark would read the line as an
-/// HTML block. Leading markers move after the first word (or to the end of a line whose first
-/// word is code).
-fn shift_leading_markers(line: &str) -> String {
-    let mut markers = String::new();
-    let mut rest = line;
-    while let Some(r) = rest.strip_prefix("<!-- ") {
-        let Some(k) = r.find(" -->") else { break };
-        if r.get(..k).and_then(comment_marker).is_none() {
-            break;
+/// Put before a comment marker that would start a line: CommonMark reads a line starting with
+/// `<!--` as an HTML block (the rest of the line would show raw, or vanish), so the line starts
+/// with an invisible zero-width space instead. The marker stays exactly where its range begins;
+/// the importer removes the space ([`parse`]).
+const MARKER_GUARD: &str = "&#8203;";
+
+/// A line that starts with a comment marker gets [`MARKER_GUARD`] first.
+fn guard_leading_marker(line: &str) -> String {
+    let t = line.trim_start();
+    let starts = t.strip_prefix("<!-- ").and_then(|r| r.find(" -->").and_then(|k| r.get(..k))).and_then(comment_marker).is_some();
+    if starts { format!("{}{MARKER_GUARD}{t}", &line[..line.len() - t.len()]) } else { line.to_string() }
+}
+
+/// Every line of `body` guarded ([`guard_leading_marker`]).
+fn guard_lines(body: &str) -> String {
+    body.split('\n').map(guard_leading_marker).collect::<Vec<_>>().join("\n")
+}
+
+/// A block's plain text (a table's cells joined).
+fn block_plain(b: &FBlock) -> String {
+    match b {
+        FBlock::Para(p) => p.text(),
+        FBlock::Table(t) => t.rows.iter().flat_map(|r| r.iter().map(Cell::text)).collect::<Vec<_>>().join(" "),
+    }
+}
+
+/// The text of the drawings in `p` (shapes and text boxes have no Markdown form): written after
+/// the paragraph as a quote, so no word is lost; a drawing with no text is reported.
+fn write_drawings(p: &Para, out: &mut Vec<String>, ctx: &mut Ctx) {
+    for i in &p.inlines {
+        let Inline::Drawing(blocks) = i else { continue };
+        if !ctx.native {
+            continue;
         }
-        markers.push_str(rest.get(..5 + k + 4).unwrap_or(""));
-        rest = r.get(k + 4..).unwrap_or("");
+        if blocks.is_empty() {
+            ctx.note(Adaptation::DrawingLeftOut);
+            continue;
+        }
+        ctx.note(Adaptation::DrawingText);
+        let mut inner = Vec::new();
+        write_blocks(blocks, &mut inner, ctx);
+        while inner.last().is_some_and(|l| l.is_empty()) {
+            inner.pop();
+        }
+        // One quote per paragraph, as quotes are written: reading the copy back gives it again.
+        for l in inner {
+            out.push(if l.is_empty() { l } else { format!("> {l}") });
+        }
+        out.push(String::new());
     }
-    if markers.is_empty() || rest.is_empty() {
-        return line.to_string();
+}
+
+/// The table of contents, written from the headings (a Word contents field holds page numbers
+/// and links to bookmarks Markdown has no use for): one item per heading up to `depth`, linked
+/// with the same slugs the headings get.
+fn write_toc(depth: u8, out: &mut Vec<String>, ctx: &mut Ctx) {
+    let entries: Vec<(u8, String, String)> = ctx.headings.iter().filter(|(l, _, _)| *l <= depth).cloned().collect();
+    let Some(top) = entries.iter().map(|(l, _, _)| *l).min() else { return };
+    let mut prev = 0usize;
+    for (level, text, slug) in entries {
+        // A level never deeper than one below the previous item (a list can't skip levels).
+        let lv = usize::from(level - top).min(prev + 1);
+        prev = lv;
+        out.push(format!("{}- [{}](#{slug})", " ".repeat(4 * lv), escape(&text)));
     }
-    let cut = rest.find(char::is_whitespace).unwrap_or(rest.len());
-    let word = rest.get(..cut).unwrap_or("");
-    if word.contains('`') {
-        return format!("{rest}{markers}");
+    out.push(String::new());
+    ctx.note(Adaptation::TableOfContents);
+}
+
+/// The comments as readers see them: a renderer hides the comment block, so an ordinary
+/// Markdown reader (a forge's page, a PDF) would never see a comment that qualifies the text.
+/// One item per thread — author, date, its text — with the passage it is about quoted; replies
+/// nested. The author's text itself is not touched.
+fn comments_view(doc: &Document, keys: &BTreeMap<u32, u32>, covered: &BTreeMap<u32, String>) -> String {
+    let mut threads: Vec<(u32, u32)> = keys.iter().map(|(id, n)| (*n, *id)).collect();
+    threads.sort();
+    // As the block writes it (`--` can't be in an HTML comment): what reading it back gives.
+    let one_line = |s: String| s.split_whitespace().collect::<Vec<_>>().join(" ").replace("--", "‑‑");
+    let item = |c: &wordcraft_doc::Comment, pad: &str| -> String {
+        let author = if c.author.trim().is_empty() { "Author".to_string() } else { c.author.trim().to_string() };
+        let date = c.date.get(..10).unwrap_or(&c.date).to_string();
+        let text = one_line(doc.plain_text(wordcraft_doc::StoryRef::Part(c.part)));
+        let done = if c.resolved { " ✓" } else { "" };
+        format!("{pad}- **{}** · {date}{done} — {}", escape(&author), escape(&text))
+    };
+    let mut out = vec![COMMENTS_VIEW_OPEN.to_string(), String::new(), "---".to_string(), String::new()];
+    for (n, id) in threads {
+        let Some(c) = doc.comments.get(&id) else { continue };
+        out.push(item(c, ""));
+        if let Some(q) = covered.get(&n).map(|q| one_line(q.clone())).filter(|q| !q.is_empty()) {
+            let q: String = if q.chars().count() > 240 { q.chars().take(240).collect::<String>() + "…" } else { q };
+            out.push(format!("    > {}", escape(&q)));
+        }
+        let replies = doc.comments.iter().filter(|(rid, _)| **rid != id && comment_root(doc, **rid) == id).take(200);
+        for (_, r) in replies {
+            out.push(item(r, "    "));
+        }
     }
-    format!("{word}{markers}{}", rest.get(cut..).unwrap_or(""))
+    out.push(String::new());
+    out.push(COMMENTS_VIEW_CLOSE.to_string());
+    out.join("\n") + "\n"
 }
 
 /// Lines (1-based) of `md` that hold HTML other than comments: what a native copy must never
@@ -2527,7 +2736,26 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
     let mut counters = [0u32; 9];
     let mut prev_list = false;
     let mut prev_top_ordered = false;
+    // The level of the previous list item: an item can't sit deeper than one level below it
+    // (four spaces before a marker with no parent item read as a code block).
+    let mut prev_level = 0usize;
     while let Some(b) = blocks.get(i) {
+        // Plume: a Word table of contents becomes one written from the headings.
+        if ctx.native
+            && let FBlock::Para(p) = b
+            && p.toc.is_some()
+        {
+            let mut depth = 0u8;
+            while let Some(FBlock::Para(q)) = blocks.get(i)
+                && let Some(l) = q.toc
+            {
+                depth = depth.max(l);
+                i += 1;
+            }
+            write_toc(depth.max(1), out, ctx);
+            prev_list = false;
+            continue;
+        }
         if let FBlock::Para(p) = b {
             if p.page_break {
                 ctx.note(Adaptation::PageBreak);
@@ -2570,9 +2798,17 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
             }
             FBlock::Para(p) => {
                 let body = inlines_md_impl(&p.inlines, false, ctx);
-                match p.list {
+                // A heading stays a heading when Word numbers it (numbered chapters): its
+                // level comes from its style, the numbers from the reader (Pandoc's
+                // `numbersections`, a PDF template's).
+                let list = p.list.filter(|_| !matches!(p.kind, Kind::Heading(_) | Kind::Title));
+                if p.list.is_some() && list.is_none() {
+                    ctx.note(Adaptation::HeadingNumbers);
+                }
+                match list {
                     Some(li) => {
-                        let lv = li.level.min(8) as usize;
+                        let lv = (li.level.min(8) as usize).min(if prev_list { prev_level + 1 } else { 0 });
+                        prev_level = lv;
                         if !prev_list || (lv == 0 && prev_top_ordered != li.ordered) {
                             counters = [0; 9];
                         }
@@ -2607,11 +2843,17 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
                             // The bullet marker can turn a short run of hyphens into a rule.
                             if thematic_break(&format!("{marker} {body}")) { format!("\\{body}") } else { body }
                         };
-                        out.push(format!("{pad}{marker} {body}").trim_end().to_string());
+                        out.push(format!("{pad}{marker} {}", guard_lines(&body)).trim_end().to_string());
                         prev_list = true;
-                        let next_is_list = matches!(blocks.get(i + 1), Some(FBlock::Para(q)) if q.list.is_some());
+                        let has_drawing = p.inlines.iter().any(|x| matches!(x, Inline::Drawing(_)));
+                        let next_is_list = !has_drawing
+                            && matches!(blocks.get(i + 1), Some(FBlock::Para(q)) if q.list.is_some() && !matches!(q.kind, Kind::Heading(_) | Kind::Title));
                         if !next_is_list {
                             out.push(String::new());
+                        }
+                        if has_drawing {
+                            write_drawings(p, out, ctx);
+                            prev_list = false;
                         }
                     }
                     None => {
@@ -2642,20 +2884,22 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
                                     }
                                     lines.join("\n")
                                 } else {
-                                    let b = escape_line_start(body);
+                                    let b = guard_lines(&escape_line_start(body));
                                     format!("> {}", b.replace("\\\n", "\\\n> "))
                                 }
                             }
                             _ => {
                                 if body.is_empty() {
+                                    write_drawings(p, out, ctx);
                                     i += 1;
                                     continue;
                                 }
-                                escape_line_start(body).split('\n').map(shift_leading_markers).collect::<Vec<_>>().join("\n")
+                                guard_lines(&escape_line_start(body))
                             }
                         };
                         out.push(line);
                         out.push(String::new());
+                        write_drawings(p, out, ctx);
                     }
                 }
             }

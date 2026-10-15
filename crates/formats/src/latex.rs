@@ -366,7 +366,7 @@ impl Writer {
                     o.push_str(&format!("\\textit{{[{}]}}", escape_text(&alt)));
                 }
                 Inline::Anchor(name) => o.push_str(&format!("\\hypertarget{{{}}}{{}}", escape_url(name))),
-                Inline::Figure(_) | Inline::Note { .. } | Inline::Comment { .. } => {}
+                Inline::Figure(_) | Inline::Note { .. } | Inline::Comment { .. } | Inline::Drawing(_) => {}
                 Inline::Equation { linear, display } => {
                     self.uses.math = true;
                     let src = self.math.get(linear).cloned().unwrap_or_else(|| linear_to_latex(linear));
