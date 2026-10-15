@@ -2707,3 +2707,11 @@
 	Template: {name}	Шаблон: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Шаблонът LaTeX, на езика за шаблони на pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	копие
+	Export LaTeX with a Template	Експортиране на LaTeX с шаблон
+	Export PDF with a Template	Експортиране на PDF с шаблон
+	New PDF Template	Нов шаблон за PDF
+	PDF Engine	Машина за PDF
+	PDF Templates	Шаблони за PDF
+	Read PDF Template	Четене на шаблон за PDF
+	Restore PDF Template	Възстановяване на шаблон за PDF
+	Save PDF Template	Записване на шаблон за PDF

@@ -2320,3 +2320,11 @@
 	Template: {name}	範本：{name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX 範本，使用 pandoc 的範本語言 ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$)。
 	copy	副本
+	Export LaTeX with a Template	使用範本匯出 LaTeX
+	Export PDF with a Template	使用範本匯出 PDF
+	New PDF Template	新增 PDF 範本
+	PDF Engine	PDF 引擎
+	PDF Templates	PDF 範本
+	Read PDF Template	讀取 PDF 範本
+	Restore PDF Template	還原 PDF 範本
+	Save PDF Template	儲存 PDF 範本

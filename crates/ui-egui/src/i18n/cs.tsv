@@ -2710,3 +2710,11 @@ preview	Title	Ukázka
 	Template: {name}	Šablona: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Šablona LaTeX v jazyce šablon pandocu ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	kopie
+	Export LaTeX with a Template	Exportovat LaTeX se šablonou
+	Export PDF with a Template	Exportovat PDF se šablonou
+	New PDF Template	Nová šablona PDF
+	PDF Engine	Modul PDF
+	PDF Templates	Šablony PDF
+	Read PDF Template	Načíst šablonu PDF
+	Restore PDF Template	Obnovit šablonu PDF
+	Save PDF Template	Uložit šablonu PDF

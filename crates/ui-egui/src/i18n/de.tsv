@@ -2318,3 +2318,11 @@
 	Template: {name}	Vorlage: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Die LaTeX-Vorlage in der Vorlagensprache von pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	Kopie
+	Export LaTeX with a Template	LaTeX mit Vorlage exportieren
+	Export PDF with a Template	PDF mit Vorlage exportieren
+	New PDF Template	Neue PDF-Vorlage
+	PDF Engine	PDF-Engine
+	PDF Templates	PDF-Vorlagen
+	Read PDF Template	PDF-Vorlage lesen
+	Restore PDF Template	PDF-Vorlage wiederherstellen
+	Save PDF Template	PDF-Vorlage speichern

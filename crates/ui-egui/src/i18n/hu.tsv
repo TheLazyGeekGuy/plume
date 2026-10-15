@@ -2714,3 +2714,11 @@
 	Template: {name}	Sablon: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	A LaTeX-sablon a pandoc sablonnyelvén ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	másolat
+	Export LaTeX with a Template	LaTeX exportálása sablonnal
+	Export PDF with a Template	PDF exportálása sablonnal
+	New PDF Template	Új PDF-sablon
+	PDF Engine	PDF-motor
+	PDF Templates	PDF-sablonok
+	Read PDF Template	PDF-sablon beolvasása
+	Restore PDF Template	PDF-sablon visszaállítása
+	Save PDF Template	PDF-sablon mentése

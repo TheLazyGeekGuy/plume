@@ -2734,3 +2734,11 @@ preview	Title	Titel
 	Template: {name}	Mall: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX-mallen, i pandocs mallspråk ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	kopia
+	Export LaTeX with a Template	Exportera LaTeX med mall
+	Export PDF with a Template	Exportera PDF med mall
+	New PDF Template	Ny PDF-mall
+	PDF Engine	PDF-motor
+	PDF Templates	PDF-mallar
+	Read PDF Template	Läs PDF-mall
+	Restore PDF Template	Återställ PDF-mall
+	Save PDF Template	Spara PDF-mall

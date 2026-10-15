@@ -2716,3 +2716,11 @@ preview	Title	Пример
 	Template: {name}	Шаблон: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Шаблон LaTeX на языке шаблонов pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	копия
+	Export LaTeX with a Template	Экспорт LaTeX по шаблону
+	Export PDF with a Template	Экспорт PDF по шаблону
+	New PDF Template	Новый шаблон PDF
+	PDF Engine	Движок PDF
+	PDF Templates	Шаблоны PDF
+	Read PDF Template	Прочитать шаблон PDF
+	Restore PDF Template	Восстановить шаблон PDF
+	Save PDF Template	Сохранить шаблон PDF

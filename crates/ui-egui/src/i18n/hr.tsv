@@ -2719,3 +2719,11 @@ preview	Title	Naslov
 	Template: {name}	Predložak: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX predložak, na jeziku predložaka programa pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	kopija
+	Export LaTeX with a Template	Izvezi LaTeX s predloškom
+	Export PDF with a Template	Izvezi PDF s predloškom
+	New PDF Template	Novi PDF predložak
+	PDF Engine	PDF pogon
+	PDF Templates	PDF predlošci
+	Read PDF Template	Pročitaj PDF predložak
+	Restore PDF Template	Vrati PDF predložak
+	Save PDF Template	Spremi PDF predložak

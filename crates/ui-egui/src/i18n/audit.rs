@@ -144,6 +144,8 @@ impl Exempt {
             names.extend(c.categories.iter().cloned());
             names.extend(c.series.iter().map(|s| s.name.clone()));
         }
+        // Document templates' names (File › Export): the user's own, or a template's.
+        names.extend(app.pdf_templates.names().map(str::to_string));
         for m in crate::credits::MODELS {
             names.extend([m.company, m.model, m.version].map(str::to_string));
         }

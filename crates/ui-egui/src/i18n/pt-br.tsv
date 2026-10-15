@@ -2331,3 +2331,11 @@
 	Template: {name}	Modelo: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	O modelo LaTeX, na linguagem de modelos do pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	cópia
+	Export LaTeX with a Template	Exportar LaTeX com modelo
+	Export PDF with a Template	Exportar PDF com modelo
+	New PDF Template	Novo modelo de PDF
+	PDF Engine	Mecanismo de PDF
+	PDF Templates	Modelos de PDF
+	Read PDF Template	Ler modelo de PDF
+	Restore PDF Template	Restaurar modelo de PDF
+	Save PDF Template	Salvar modelo de PDF

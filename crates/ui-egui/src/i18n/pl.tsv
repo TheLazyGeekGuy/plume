@@ -2708,3 +2708,11 @@ preview	Title	Tytuł
 	Template: {name}	Szablon: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Szablon LaTeX w języku szablonów pandoca ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	kopia
+	Export LaTeX with a Template	Eksportuj LaTeX z szablonem
+	Export PDF with a Template	Eksportuj PDF z szablonem
+	New PDF Template	Nowy szablon PDF
+	PDF Engine	Silnik PDF
+	PDF Templates	Szablony PDF
+	Read PDF Template	Odczytaj szablon PDF
+	Restore PDF Template	Przywróć szablon PDF
+	Save PDF Template	Zapisz szablon PDF

@@ -2329,3 +2329,11 @@
 	Template: {name}	Šablon: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX šablon, na jeziku šablona programa pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	kopija
+	Export LaTeX with a Template	Izvezi LaTeX sa šablonom
+	Export PDF with a Template	Izvezi PDF sa šablonom
+	New PDF Template	Novi PDF šablon
+	PDF Engine	PDF mašina
+	PDF Templates	PDF šabloni
+	Read PDF Template	Pročitaj PDF šablon
+	Restore PDF Template	Vrati PDF šablon
+	Save PDF Template	Sačuvaj PDF šablon

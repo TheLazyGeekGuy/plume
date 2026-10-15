@@ -2715,3 +2715,11 @@ preview	Title	Örnek
 	Template: {name}	Şablon: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	pandoc şablon dilinde LaTeX şablonu ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	kopya
+	Export LaTeX with a Template	Şablonla LaTeX dışa aktar
+	Export PDF with a Template	Şablonla PDF dışa aktar
+	New PDF Template	Yeni PDF şablonu
+	PDF Engine	PDF motoru
+	PDF Templates	PDF şablonları
+	Read PDF Template	PDF şablonunu oku
+	Restore PDF Template	PDF şablonunu geri yükle
+	Save PDF Template	PDF şablonunu kaydet

@@ -2685,3 +2685,11 @@ preview	Title	Título
 	Template: {name}	Plantilla: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	La plantilla LaTeX, en el lenguaje de plantillas de pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	copia
+	Export LaTeX with a Template	Exportar LaTeX con plantilla
+	Export PDF with a Template	Exportar PDF con plantilla
+	New PDF Template	Nueva plantilla PDF
+	PDF Engine	Motor PDF
+	PDF Templates	Plantillas PDF
+	Read PDF Template	Leer plantilla PDF
+	Restore PDF Template	Restaurar plantilla PDF
+	Save PDF Template	Guardar plantilla PDF

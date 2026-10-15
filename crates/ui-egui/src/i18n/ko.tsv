@@ -2577,3 +2577,11 @@ preview	Title	제목
 	Template: {name}	템플릿: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	pandoc 템플릿 언어로 된 LaTeX 템플릿 ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	사본
+	Export LaTeX with a Template	템플릿으로 LaTeX 내보내기
+	Export PDF with a Template	템플릿으로 PDF 내보내기
+	New PDF Template	새 PDF 템플릿
+	PDF Engine	PDF 엔진
+	PDF Templates	PDF 템플릿
+	Read PDF Template	PDF 템플릿 읽기
+	Restore PDF Template	PDF 템플릿 복원
+	Save PDF Template	PDF 템플릿 저장

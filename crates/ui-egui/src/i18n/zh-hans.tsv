@@ -2331,3 +2331,11 @@
 	Template: {name}	模板：{name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX 模板，使用 pandoc 的模板语言 ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$)。
 	copy	副本
+	Export LaTeX with a Template	使用模板导出 LaTeX
+	Export PDF with a Template	使用模板导出 PDF
+	New PDF Template	新建 PDF 模板
+	PDF Engine	PDF 引擎
+	PDF Templates	PDF 模板
+	Read PDF Template	读取 PDF 模板
+	Restore PDF Template	恢复 PDF 模板
+	Save PDF Template	保存 PDF 模板

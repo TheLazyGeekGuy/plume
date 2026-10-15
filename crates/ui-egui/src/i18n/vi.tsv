@@ -2758,3 +2758,11 @@ template	Letter	Thư
 	Template: {name}	Mẫu: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Mẫu LaTeX, viết bằng ngôn ngữ mẫu của pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	bản sao
+	Export LaTeX with a Template	Xuất LaTeX theo mẫu
+	Export PDF with a Template	Xuất PDF theo mẫu
+	New PDF Template	Mẫu PDF mới
+	PDF Engine	Công cụ PDF
+	PDF Templates	Mẫu PDF
+	Read PDF Template	Đọc mẫu PDF
+	Restore PDF Template	Khôi phục mẫu PDF
+	Save PDF Template	Lưu mẫu PDF

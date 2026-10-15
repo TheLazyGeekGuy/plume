@@ -39,6 +39,11 @@ pub struct Editor {
 }
 
 impl PdfTemplates {
+    /// The templates' names (the user's own, shown untranslated).
+    pub fn names(&self) -> impl Iterator<Item = &str> {
+        self.list.iter().map(|(_, n)| n.as_str())
+    }
+
     fn id(&self) -> &str {
         if self.selected.is_empty() { wordcraft_engine::pdf_template::DEFAULT_TEMPLATE } else { &self.selected }
     }

@@ -2319,3 +2319,11 @@
 	Template: {name}	テンプレート: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	pandoc のテンプレート言語で書かれた LaTeX テンプレート ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$)。
 	copy	コピー
+	Export LaTeX with a Template	テンプレートで LaTeX をエクスポート
+	Export PDF with a Template	テンプレートで PDF をエクスポート
+	New PDF Template	新しい PDF テンプレート
+	PDF Engine	PDF エンジン
+	PDF Templates	PDF テンプレート
+	Read PDF Template	PDF テンプレートを読み込む
+	Restore PDF Template	PDF テンプレートを元に戻す
+	Save PDF Template	PDF テンプレートを保存

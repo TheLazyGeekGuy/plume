@@ -2353,3 +2353,11 @@
 	Template: {name}	Mall: {name}
 	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX-mall pandoci mallikeeles ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
 	copy	koopia
+	Export LaTeX with a Template	Ekspordi LaTeX malliga
+	Export PDF with a Template	Ekspordi PDF malliga
+	New PDF Template	Uus PDF-mall
+	PDF Engine	PDF-mootor
+	PDF Templates	PDF-mallid
+	Read PDF Template	Loe PDF-malli
+	Restore PDF Template	Taasta PDF-mall
+	Save PDF Template	Salvesta PDF-mall
