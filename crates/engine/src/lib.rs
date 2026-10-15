@@ -15,6 +15,7 @@ pub mod keymap;
 pub mod math_gallery;
 pub mod print;
 pub mod publication;
+pub mod recovery;
 pub mod ribbon;
 pub mod sample;
 mod session;
