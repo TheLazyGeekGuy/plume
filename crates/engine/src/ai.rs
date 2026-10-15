@@ -21,6 +21,36 @@ pub const LM_STUDIO: &str = "http://localhost:1234/v1";
 /// Largest answer accepted from a model, in bytes.
 const MAX_ANSWER: usize = 4 << 20;
 
+/// The user's choice of model (File › Options › Artificial intelligence), saved with the
+/// preferences. Off by default.
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Settings {
+    pub enabled: bool,
+    /// The server's address ([`OLLAMA`], [`LM_STUDIO`] or another).
+    pub url: String,
+    pub model: String,
+    /// `""` (the model's default), `low`, `medium` or `high`.
+    pub reasoning: String,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Settings { enabled: false, url: OLLAMA.into(), model: String::new(), reasoning: String::new() }
+    }
+}
+
+impl Settings {
+    pub fn provider(&self) -> Provider {
+        Provider {
+            base_url: self.url.clone(),
+            model: self.model.clone(),
+            api_key: None,
+            reasoning: Some(self.reasoning.clone()).filter(|r| !r.is_empty()),
+        }
+    }
+}
+
 /// Where to send requests and with which model.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Provider {

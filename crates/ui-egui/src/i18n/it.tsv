@@ -2738,3 +2738,34 @@ preview	Title	Esempio
 	Tables for AI	Tabelle per l'IA
 	AI Request for a Table	Richiesta IA per una tabella
 	Restructure Tables	Ristruttura tabelle
+	A language model can't be reached from here.	Da qui non si raggiunge alcun modello linguistico.
+	A language model can't be reached from the browser.	Dal browser non si raggiunge alcun modello linguistico.
+	AI	IA
+	Artificial intelligence	Intelligenza artificiale
+	Block	Blocco
+	Block {index}: {rows} × {cols}, {words} words	Blocco {index}: {rows} × {cols}, {words} parole
+	Changed	Modificata
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Scegli prima un modello linguistico: File › Opzioni › Salvataggio › Intelligenza artificiale.
+	Choose a model	Scegli un modello
+	High	Alto
+	Low	Basso
+	Model's default	Predefinito del modello
+	Model:	Modello:
+	Model: {model} at {url}	Modello: {model} su {url}
+	No table to restructure.	Nessuna tabella da ristrutturare.
+	No table was changed.	Nessuna tabella è stata modificata.
+	Other server	Altro server
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume gli chiede di ristrutturare le tabelle che Markdown non può contenere (moduli e pagine impaginate in tabelle) e conserva una riscrittura solo se ogni parola c'è ancora. Ollama e LM Studio girano su questo computer: nulla esce.
+	Reasoning:	Ragionamento:
+	Restructure	Ristruttura
+	Restructure\nTables	Ristruttura\ntabelle
+	Server:	Server:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Consigliato in Ollama: gpt-oss:20b con 16 GB di memoria o più, qwen3:4b con 8 GB (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tabella {i} di {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Il server non ha ancora modelli: scaricane prima uno (ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Questo documento non ha tabelle nelle tabelle né celle unite: Markdown conserva le sue tabelle così come sono.
+	Unchanged	Invariata
+	Use a language model	Usa un modello linguistico
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{applied} tabelle su {n} ristrutturate. Annulla (Ctrl+Z) le ripristina tutte.
+	{n} models on the server.	{n} modelli sul server.
+	{ready} of {n} tables can be sent to the model.	{ready} tabelle su {n} possono essere inviate al modello.

@@ -2342,3 +2342,34 @@
 	Tables for AI	Таблиці для ШІ
 	AI Request for a Table	Запит ШІ для таблиці
 	Restructure Tables	Перебудувати таблиці
+	A language model can't be reached from here.	Звідси не можна зв'язатися з мовною моделлю.
+	A language model can't be reached from the browser.	З браузера не можна зв'язатися з мовною моделлю.
+	AI	ШІ
+	Artificial intelligence	Штучний інтелект
+	Block	Блок
+	Block {index}: {rows} × {cols}, {words} words	Блок {index}: {rows} × {cols}, слів: {words}
+	Changed	Змінено
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Спершу виберіть мовну модель: Файл › Параметри › Збереження › Штучний інтелект.
+	Choose a model	Виберіть модель
+	High	Високий
+	Low	Низький
+	Model's default	Типово для моделі
+	Model:	Модель:
+	Model: {model} at {url}	Модель: {model} на {url}
+	No table to restructure.	Немає таблиць для перебудови.
+	No table was changed.	Жодну таблицю не змінено.
+	Other server	Інший сервер
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume просить її перебудувати таблиці, яких Markdown не може вмістити (форми й сторінки, зверстані таблицями), і зберігає новий варіант, лише якщо в ньому лишилося кожне слово. Ollama і LM Studio працюють на цьому комп'ютері: ніщо не виходить назовні.
+	Reasoning:	Міркування:
+	Restructure	Перебудувати
+	Restructure\nTables	Перебудувати\nтаблиці
+	Server:	Сервер:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Рекомендовано в Ollama: gpt-oss:20b для 16 ГБ пам'яті й більше, qwen3:4b для 8 ГБ (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Таблиця {i} з {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	На сервері ще немає моделей: спершу завантажте одну (ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	У цьому документі немає таблиць у таблицях і об'єднаних клітинок: Markdown зберігає його таблиці як є.
+	Unchanged	Без змін
+	Use a language model	Використовувати мовну модель
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Перебудовано таблиць: {applied} з {n}. Скасувати (Ctrl+Z) поверне їх усі.
+	{n} models on the server.	Моделей на сервері: {n}.
+	{ready} of {n} tables can be sent to the model.	Можна надіслати моделі таблиць: {ready} з {n}.

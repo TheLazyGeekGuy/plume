@@ -2337,3 +2337,34 @@
 	Tables for AI	Tableaux pour l'IA
 	AI Request for a Table	Requête IA pour un tableau
 	Restructure Tables	Restructurer les tableaux
+	A language model can't be reached from here.	Impossible de joindre un modèle de langue d'ici.
+	A language model can't be reached from the browser.	Un modèle de langue ne peut pas être joint depuis le navigateur.
+	AI	IA
+	Artificial intelligence	Intelligence artificielle
+	Block	Bloc
+	Block {index}: {rows} × {cols}, {words} words	Bloc {index} : {rows} × {cols}, {words} mots
+	Changed	Modifié
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Choisissez d'abord un modèle de langue : Fichier › Options › Enregistrement › Intelligence artificielle.
+	Choose a model	Choisir un modèle
+	High	Élevé
+	Low	Faible
+	Model's default	Valeur par défaut du modèle
+	Model:	Modèle :
+	Model: {model} at {url}	Modèle : {model} sur {url}
+	No table to restructure.	Aucun tableau à restructurer.
+	No table was changed.	Aucun tableau n'a été modifié.
+	Other server	Autre serveur
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume lui demande de restructurer les tableaux que le Markdown ne peut pas contenir (formulaires et pages mises en page dans des tableaux), et ne garde une réécriture que si chaque mot y est encore. Ollama et LM Studio tournent sur cet ordinateur : rien n'en sort.
+	Reasoning:	Raisonnement :
+	Restructure	Restructurer
+	Restructure\nTables	Restructurer\nles tableaux
+	Server:	Serveur :
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Conseillé dans Ollama : gpt-oss:20b avec 16 Go de mémoire ou plus, qwen3:4b avec 8 Go (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tableau {i} sur {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Le serveur n'a encore aucun modèle : téléchargez-en un d'abord (ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Ce document n'a ni tableaux dans des tableaux ni cellules fusionnées : le Markdown garde ses tableaux tels quels.
+	Unchanged	Inchangé
+	Use a language model	Utiliser un modèle de langue
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{applied} tableaux sur {n} restructurés. Annuler (Ctrl+Z) les rétablit tous.
+	{n} models on the server.	{n} modèles sur le serveur.
+	{ready} of {n} tables can be sent to the model.	{ready} tableaux sur {n} peuvent être envoyés au modèle.

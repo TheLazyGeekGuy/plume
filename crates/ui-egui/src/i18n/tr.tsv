@@ -2726,3 +2726,34 @@ preview	Title	Örnek
 	Tables for AI	Yapay zekâ için tablolar
 	AI Request for a Table	Bir tablo için yapay zekâ isteği
 	Restructure Tables	Tabloları yeniden yapılandır
+	A language model can't be reached from here.	Buradan bir dil modeline ulaşılamıyor.
+	A language model can't be reached from the browser.	Tarayıcıdan bir dil modeline ulaşılamıyor.
+	AI	YZ
+	Artificial intelligence	Yapay zekâ
+	Block	Blok
+	Block {index}: {rows} × {cols}, {words} words	Blok {index}: {rows} × {cols}, {words} sözcük
+	Changed	Değişti
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Önce bir dil modeli seçin: Dosya › Seçenekler › Kaydet › Yapay zekâ.
+	Choose a model	Model seçin
+	High	Yüksek
+	Low	Düşük
+	Model's default	Modelin varsayılanı
+	Model:	Model:
+	Model: {model} at {url}	Model: {model}, {url}
+	No table to restructure.	Yeniden yapılandırılacak tablo yok.
+	No table was changed.	Hiçbir tablo değişmedi.
+	Other server	Başka sunucu
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume, Markdown'ın tutamadığı tabloları (formlar ve tablolarla dizilmiş sayfalar) yeniden yapılandırmasını ister ve yeniden yazımı yalnızca her sözcük yerindeyse tutar. Ollama ve LM Studio bu bilgisayarda çalışır: hiçbir şey dışarı çıkmaz.
+	Reasoning:	Akıl yürütme:
+	Restructure	Yeniden yapılandır
+	Restructure\nTables	Tabloları\nyeniden yapılandır
+	Server:	Sunucu:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollama'da önerilen: 16 GB veya daha fazla bellekle gpt-oss:20b, 8 GB ile qwen3:4b (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tablo {i} / {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Sunucuda henüz model yok: önce bir tane indirin (ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Bu belgede tablo içinde tablo ya da birleştirilmiş hücre yok: Markdown tablolarını olduğu gibi tutar.
+	Unchanged	Değişmedi
+	Use a language model	Bir dil modeli kullan
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{n} tablodan {applied} tanesi yeniden yapılandırıldı. Geri Al (Ctrl+Z) hepsini geri getirir.
+	{n} models on the server.	Sunucuda {n} model var.
+	{ready} of {n} tables can be sent to the model.	{n} tablodan {ready} tanesi modele gönderilebilir.

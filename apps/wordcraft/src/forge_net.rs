@@ -16,9 +16,14 @@ pub struct Https {
 
 impl Https {
     pub fn new() -> Https {
+        Https::with_timeout(Duration::from_secs(60))
+    }
+
+    /// For language models (Plume), which may think for minutes on a large table.
+    pub fn with_timeout(timeout: Duration) -> Https {
         let config = ureq::Agent::config_builder()
             .http_status_as_error(false)
-            .timeout_global(Some(Duration::from_secs(60)))
+            .timeout_global(Some(timeout))
             .user_agent(format!("{}/{}", wordcraft_brand::APP_NAME, env!("CARGO_PKG_VERSION")))
             .build();
         Https { agent: config.into() }

@@ -2330,3 +2330,34 @@
 	Tables for AI	AI 用の表
 	AI Request for a Table	表の AI リクエスト
 	Restructure Tables	表を再構成
+	A language model can't be reached from here.	ここから言語モデルに接続できません。
+	A language model can't be reached from the browser.	ブラウザーから言語モデルに接続できません。
+	AI	AI
+	Artificial intelligence	人工知能
+	Block	ブロック
+	Block {index}: {rows} × {cols}, {words} words	ブロック {index}: {rows} × {cols}、{words} 語
+	Changed	変更済み
+	Choose a language model first: File › Options › Save › Artificial intelligence.	まず言語モデルを選んでください: ファイル › オプション › 保存 › 人工知能。
+	Choose a model	モデルを選択
+	High	高
+	Low	低
+	Model's default	モデルの既定
+	Model:	モデル:
+	Model: {model} at {url}	モデル: {url} の {model}
+	No table to restructure.	再構成する表はありません。
+	No table was changed.	変更された表はありません。
+	Other server	その他のサーバー
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume は Markdown で保持できない表 (表で組まれたフォームやページ) の再構成をモデルに依頼し、すべての語が残っている場合だけ書き換えを採用します。Ollama と LM Studio はこのコンピューター上で動作し、何も外へ出ません。
+	Reasoning:	推論:
+	Restructure	再構成
+	Restructure\nTables	表を\n再構成
+	Server:	サーバー:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollama での推奨: メモリ 16 GB 以上なら gpt-oss:20b、8 GB なら qwen3:4b (ollama pull gpt-oss:20b)。
+	Table {i} of {n}…	表 {i}/{n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	サーバーにまだモデルがありません。まずダウンロードしてください (ollama pull gpt-oss:20b)。
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	この文書には表の中の表も結合セルもありません。Markdown は表をそのまま保持します。
+	Unchanged	変更なし
+	Use a language model	言語モデルを使用する
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{n} 個中 {applied} 個の表を再構成しました。元に戻す (Ctrl+Z) ですべて戻ります。
+	{n} models on the server.	サーバー上のモデル: {n} 個。
+	{ready} of {n} tables can be sent to the model.	{n} 個中 {ready} 個の表をモデルに送れます。

@@ -432,6 +432,9 @@ pub struct Session {
     pub forge: Option<crate::cmd::versions::Remote>,
     /// How forge requests are sent: the app's HTTP client. `None`: no network here.
     pub forge_transport: Option<std::sync::Arc<dyn wordcraft_vcs::forge::Transport + Send + Sync>>,
+    /// How requests to a language model are sent (Plume): the app's HTTP client, with a long
+    /// timeout (a local model may think for minutes). `None`: no network here.
+    pub ai_transport: Option<std::sync::Arc<dyn wordcraft_vcs::forge::Transport + Send + Sync>>,
     /// Access tokens by forge API address. No command ever returns them.
     pub forge_tokens: std::collections::BTreeMap<String, crate::io::Password>,
     /// Citation style: APA, MLA, Chicago, IEEE.
@@ -548,6 +551,8 @@ pub struct Prefs {
     /// in Word). A damaged saved value reads as the defaults.
     #[serde(deserialize_with = "crate::cmd::tools::lenient_autocorrect")]
     pub autocorrect: crate::cmd::tools::AutoCorrectPrefs,
+    /// Plume: the language model that helps (off until the user turns it on).
+    pub ai: crate::ai::Settings,
 }
 
 impl Default for Prefs {
@@ -570,6 +575,7 @@ impl Default for Prefs {
             ignore_internet: true,
             detect_language: true,
             autocorrect: Default::default(),
+            ai: Default::default(),
         }
     }
 }
@@ -658,6 +664,7 @@ impl Session {
             import_report: Vec::new(),
             forge: None,
             forge_transport: None,
+            ai_transport: None,
             forge_tokens: Default::default(),
             bib_style,
             merge: Default::default(),
@@ -1111,6 +1118,7 @@ impl Session {
             import_report: _,
             forge: _,
             forge_transport: _,
+            ai_transport: _,
             forge_tokens: _,
             bib_style: _,
             merge: _,

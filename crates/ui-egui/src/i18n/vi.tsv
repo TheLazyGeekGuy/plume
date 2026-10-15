@@ -2769,3 +2769,34 @@ template	Letter	Thư
 	Tables for AI	Bảng cho AI
 	AI Request for a Table	Yêu cầu AI cho một bảng
 	Restructure Tables	Tái cấu trúc bảng
+	A language model can't be reached from here.	Không thể kết nối tới mô hình ngôn ngữ từ đây.
+	A language model can't be reached from the browser.	Không thể kết nối tới mô hình ngôn ngữ từ trình duyệt.
+	AI	AI
+	Artificial intelligence	Trí tuệ nhân tạo
+	Block	Khối
+	Block {index}: {rows} × {cols}, {words} words	Khối {index}: {rows} × {cols}, {words} từ
+	Changed	Đã đổi
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Hãy chọn mô hình ngôn ngữ trước: Tệp › Tùy chọn › Lưu › Trí tuệ nhân tạo.
+	Choose a model	Chọn mô hình
+	High	Cao
+	Low	Thấp
+	Model's default	Mặc định của mô hình
+	Model:	Mô hình:
+	Model: {model} at {url}	Mô hình: {model} tại {url}
+	No table to restructure.	Không có bảng nào để tái cấu trúc.
+	No table was changed.	Không bảng nào bị thay đổi.
+	Other server	Máy chủ khác
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume yêu cầu mô hình tái cấu trúc những bảng Markdown không chứa được (biểu mẫu và trang dàn bằng bảng), và chỉ giữ bản viết lại khi mọi từ vẫn còn. Ollama và LM Studio chạy trên máy tính này: không gì rời khỏi máy.
+	Reasoning:	Suy luận:
+	Restructure	Tái cấu trúc
+	Restructure\nTables	Tái cấu trúc\nbảng
+	Server:	Máy chủ:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Gợi ý trong Ollama: gpt-oss:20b với 16 GB bộ nhớ trở lên, qwen3:4b với 8 GB (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Bảng {i}/{n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Máy chủ chưa có mô hình nào: hãy tải một mô hình trước (ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Tài liệu này không có bảng lồng trong bảng hay ô đã gộp: Markdown giữ nguyên các bảng.
+	Unchanged	Không đổi
+	Use a language model	Dùng mô hình ngôn ngữ
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Đã tái cấu trúc {applied}/{n} bảng. Hoàn tác (Ctrl+Z) khôi phục tất cả.
+	{n} models on the server.	{n} mô hình trên máy chủ.
+	{ready} of {n} tables can be sent to the model.	Có thể gửi {ready}/{n} bảng tới mô hình.

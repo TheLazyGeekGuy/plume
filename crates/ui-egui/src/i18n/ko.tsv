@@ -2588,3 +2588,34 @@ preview	Title	제목
 	Tables for AI	AI용 표
 	AI Request for a Table	표에 대한 AI 요청
 	Restructure Tables	표 재구성
+	A language model can't be reached from here.	여기서는 언어 모델에 연결할 수 없습니다.
+	A language model can't be reached from the browser.	브라우저에서는 언어 모델에 연결할 수 없습니다.
+	AI	AI
+	Artificial intelligence	인공 지능
+	Block	블록
+	Block {index}: {rows} × {cols}, {words} words	블록 {index}: {rows} × {cols}, {words}단어
+	Changed	변경됨
+	Choose a language model first: File › Options › Save › Artificial intelligence.	먼저 언어 모델을 선택하세요: 파일 › 옵션 › 저장 › 인공 지능.
+	Choose a model	모델 선택
+	High	높음
+	Low	낮음
+	Model's default	모델 기본값
+	Model:	모델:
+	Model: {model} at {url}	모델: {url}의 {model}
+	No table to restructure.	재구성할 표가 없습니다.
+	No table was changed.	변경된 표가 없습니다.
+	Other server	다른 서버
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume은 Markdown이 담을 수 없는 표(표로 짠 양식과 페이지)를 재구성하도록 모델에 요청하고, 모든 단어가 남아 있을 때만 다시 쓴 결과를 유지합니다. Ollama와 LM Studio는 이 컴퓨터에서 실행되므로 아무것도 밖으로 나가지 않습니다.
+	Reasoning:	추론:
+	Restructure	재구성
+	Restructure\nTables	표\n재구성
+	Server:	서버:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollama 권장: 메모리 16GB 이상은 gpt-oss:20b, 8GB는 qwen3:4b (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	표 {i}/{n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	서버에 아직 모델이 없습니다. 먼저 하나를 내려받으세요(ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	이 문서에는 표 안의 표나 병합된 셀이 없습니다. Markdown이 표를 그대로 유지합니다.
+	Unchanged	변경 없음
+	Use a language model	언어 모델 사용
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	표 {n}개 중 {applied}개를 재구성했습니다. 실행 취소(Ctrl+Z)로 모두 되돌립니다.
+	{n} models on the server.	서버의 모델 {n}개.
+	{ready} of {n} tables can be sent to the model.	표 {n}개 중 {ready}개를 모델에 보낼 수 있습니다.

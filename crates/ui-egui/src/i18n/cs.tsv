@@ -2721,3 +2721,34 @@ preview	Title	Ukázka
 	Tables for AI	Tabulky pro AI
 	AI Request for a Table	Požadavek AI pro tabulku
 	Restructure Tables	Přestavět tabulky
+	A language model can't be reached from here.	Odsud nelze jazykový model zastihnout.
+	A language model can't be reached from the browser.	Z prohlížeče nelze jazykový model zastihnout.
+	AI	AI
+	Artificial intelligence	Umělá inteligence
+	Block	Blok
+	Block {index}: {rows} × {cols}, {words} words	Blok {index}: {rows} × {cols}, slov: {words}
+	Changed	Změněno
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Nejprve vyberte jazykový model: Soubor › Možnosti › Uložení › Umělá inteligence.
+	Choose a model	Vybrat model
+	High	Vysoké
+	Low	Nízké
+	Model's default	Výchozí modelu
+	Model:	Model:
+	Model: {model} at {url}	Model: {model} na {url}
+	No table to restructure.	Žádná tabulka k přestavbě.
+	No table was changed.	Žádná tabulka nebyla změněna.
+	Other server	Jiný server
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume ho požádá o přestavbu tabulek, které Markdown neudrží (formuláře a stránky sázené v tabulkách), a nový zápis ponechá jen tehdy, když v něm zůstalo každé slovo. Ollama a LM Studio běží na tomto počítači: nic ho neopouští.
+	Reasoning:	Uvažování:
+	Restructure	Přestavět
+	Restructure\nTables	Přestavět\ntabulky
+	Server:	Server:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Doporučeno v Ollamě: gpt-oss:20b pro 16 GB paměti a více, qwen3:4b pro 8 GB (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tabulka {i} z {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Server zatím nemá žádné modely: nejprve jeden stáhněte (ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Tento dokument nemá tabulky v tabulkách ani sloučené buňky: Markdown jeho tabulky zachová, jak jsou.
+	Unchanged	Beze změny
+	Use a language model	Používat jazykový model
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Přestavěno tabulek: {applied} z {n}. Zpět (Ctrl+Z) vrátí všechny.
+	{n} models on the server.	Modelů na serveru: {n}.
+	{ready} of {n} tables can be sent to the model.	Modelu lze odeslat tabulek: {ready} z {n}.

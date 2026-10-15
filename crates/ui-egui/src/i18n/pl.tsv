@@ -2719,3 +2719,34 @@ preview	Title	Tytuł
 	Tables for AI	Tabele dla AI
 	AI Request for a Table	Zapytanie AI dla tabeli
 	Restructure Tables	Przebuduj tabele
+	A language model can't be reached from here.	Nie można stąd połączyć się z modelem językowym.
+	A language model can't be reached from the browser.	Nie można połączyć się z modelem językowym z przeglądarki.
+	AI	AI
+	Artificial intelligence	Sztuczna inteligencja
+	Block	Blok
+	Block {index}: {rows} × {cols}, {words} words	Blok {index}: {rows} × {cols}, słowa: {words}
+	Changed	Zmieniona
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Najpierw wybierz model językowy: Plik › Opcje › Zapisywanie › Sztuczna inteligencja.
+	Choose a model	Wybierz model
+	High	Wysoki
+	Low	Niski
+	Model's default	Domyślny modelu
+	Model:	Model:
+	Model: {model} at {url}	Model: {model} na {url}
+	No table to restructure.	Brak tabel do przebudowy.
+	No table was changed.	Żadna tabela nie została zmieniona.
+	Other server	Inny serwer
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume prosi go o przebudowę tabel, których Markdown nie pomieści (formularze i strony złożone w tabelach), i zachowuje przepisaną wersję tylko wtedy, gdy każde słowo nadal w niej jest. Ollama i LM Studio działają na tym komputerze: nic go nie opuszcza.
+	Reasoning:	Rozumowanie:
+	Restructure	Przebuduj
+	Restructure\nTables	Przebuduj\ntabele
+	Server:	Serwer:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Zalecane w Ollama: gpt-oss:20b przy 16 GB pamięci lub więcej, qwen3:4b przy 8 GB (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tabela {i} z {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Serwer nie ma jeszcze modeli: najpierw pobierz jeden (ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Ten dokument nie ma tabel w tabelach ani scalonych komórek: Markdown zachowuje jego tabele bez zmian.
+	Unchanged	Bez zmian
+	Use a language model	Używaj modelu językowego
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Przebudowano tabele: {applied} z {n}. Cofnij (Ctrl+Z) przywraca wszystkie.
+	{n} models on the server.	Modele na serwerze: {n}.
+	{ready} of {n} tables can be sent to the model.	Do modelu można wysłać tabele: {ready} z {n}.

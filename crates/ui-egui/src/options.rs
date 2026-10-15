@@ -409,6 +409,10 @@ fn save(app: &mut WordApp, ui: &mut Ui) {
         "On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.",
     );
     ui.add_space(8.0);
+    // Plume: the language model that restructures old documents' tables (off by default).
+    section(ui, "Artificial intelligence");
+    crate::ai_tables::settings(app, ui);
+    ui.add_space(8.0);
     // The open document's `file.privacyOptions` (#1062): saved with it, honoured when it is saved.
     section(ui, "Privacy for this document");
     let settings = &app.session.doc.settings;

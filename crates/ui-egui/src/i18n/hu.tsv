@@ -2725,3 +2725,34 @@
 	Tables for AI	Táblázatok az MI-hez
 	AI Request for a Table	MI-kérés egy táblázathoz
 	Restructure Tables	Táblázatok átszervezése
+	A language model can't be reached from here.	Innen nem érhető el nyelvi modell.
+	A language model can't be reached from the browser.	A böngészőből nem érhető el nyelvi modell.
+	AI	MI
+	Artificial intelligence	Mesterséges intelligencia
+	Block	Blokk
+	Block {index}: {rows} × {cols}, {words} words	{index}. blokk: {rows} × {cols}, {words} szó
+	Changed	Módosítva
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Először válasszon nyelvi modellt: Fájl › Beállítások › Mentés › Mesterséges intelligencia.
+	Choose a model	Modell választása
+	High	Magas
+	Low	Alacsony
+	Model's default	A modell alapértelmezése
+	Model:	Modell:
+	Model: {model} at {url}	Modell: {model} itt: {url}
+	No table to restructure.	Nincs átszervezendő táblázat.
+	No table was changed.	Egyetlen táblázat sem változott.
+	Other server	Másik kiszolgáló
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	A Plume átszervezteti vele azokat a táblázatokat, amelyeket a Markdown nem tud tárolni (űrlapok és táblázatokba tördelt oldalak), és csak akkor tartja meg az átírást, ha minden szó benne maradt. Az Ollama és az LM Studio ezen a számítógépen fut: semmi sem hagyja el.
+	Reasoning:	Gondolkodás:
+	Restructure	Átszervezés
+	Restructure\nTables	Táblázatok\nátszervezése
+	Server:	Kiszolgáló:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ajánlott az Ollamában: gpt-oss:20b 16 GB vagy több memóriával, qwen3:4b 8 GB-tal (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	{i}. táblázat / {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	A kiszolgálón még nincs modell: előbb töltsön le egyet (ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	A dokumentumban nincsenek táblázatba ágyazott táblázatok és egyesített cellák: a Markdown változatlanul megtartja a táblázatait.
+	Unchanged	Változatlan
+	Use a language model	Nyelvi modell használata
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{n} táblázatból {applied} átszervezve. A Visszavonás (Ctrl+Z) mindet visszaállítja.
+	{n} models on the server.	{n} modell a kiszolgálón.
+	{ready} of {n} tables can be sent to the model.	{n} táblázatból {ready} küldhető a modellnek.

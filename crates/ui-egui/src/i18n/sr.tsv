@@ -2344,3 +2344,34 @@
 	Tables for AI	Табеле за ВИ
 	AI Request for a Table	ВИ захтев за табелу
 	Restructure Tables	Преуреди табеле
+	A language model can't be reached from here.	Одавде се не може доћи до језичког модела.
+	A language model can't be reached from the browser.	Из прегледача се не може доћи до језичког модела.
+	AI	ВИ
+	Artificial intelligence	Вештачка интелигенција
+	Block	Блок
+	Block {index}: {rows} × {cols}, {words} words	Блок {index}: {rows} × {cols}, речи: {words}
+	Changed	Промењено
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Прво изаберите језички модел: Датотека › Опције › Чување › Вештачка интелигенција.
+	Choose a model	Изаберите модел
+	High	Високо
+	Low	Ниско
+	Model's default	Подразумевано за модел
+	Model:	Модел:
+	Model: {model} at {url}	Модел: {model} на {url}
+	No table to restructure.	Нема табела за преуређивање.
+	No table was changed.	Ниједна табела није промењена.
+	Other server	Други сервер
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume тражи од њега да преуреди табеле које Markdown не може да садржи (обрасци и стране сложене у табелама), а нови запис задржава само ако је свака реч и даље ту. Ollama и LM Studio раде на овом рачунару: ништа не излази из њега.
+	Reasoning:	Резоновање:
+	Restructure	Преуреди
+	Restructure\nTables	Преуреди\nтабеле
+	Server:	Сервер:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Препоручено у Ollama-и: gpt-oss:20b уз 16 GB меморије или више, qwen3:4b уз 8 GB (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Табела {i} од {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Сервер још нема моделе: прво преузмите један (ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Овај документ нема табеле у табелама ни спојене ћелије: Markdown чува његове табеле какве јесу.
+	Unchanged	Без промене
+	Use a language model	Користи језички модел
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Преуређено табела: {applied} од {n}. Опозови (Ctrl+Z) их враћа све.
+	{n} models on the server.	Модела на серверу: {n}.
+	{ready} of {n} tables can be sent to the model.	Табела које се могу послати моделу: {ready} од {n}.

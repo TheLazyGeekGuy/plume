@@ -2364,3 +2364,34 @@
 	Tables for AI	Tabelid tehisintellektile
 	AI Request for a Table	Tehisintellekti päring tabeli jaoks
 	Restructure Tables	Struktureeri tabelid ümber
+	A language model can't be reached from here.	Siit ei saa keelemudelini jõuda.
+	A language model can't be reached from the browser.	Brauserist ei saa keelemudelini jõuda.
+	AI	TI
+	Artificial intelligence	Tehisintellekt
+	Block	Plokk
+	Block {index}: {rows} × {cols}, {words} words	Plokk {index}: {rows} × {cols}, sõnu: {words}
+	Changed	Muudetud
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Valige esmalt keelemudel: Fail › Suvandid › Salvestamine › Tehisintellekt.
+	Choose a model	Valige mudel
+	High	Kõrge
+	Low	Madal
+	Model's default	Mudeli vaikesäte
+	Model:	Mudel:
+	Model: {model} at {url}	Mudel: {model} aadressil {url}
+	No table to restructure.	Ümberstruktureeritavaid tabeleid pole.
+	No table was changed.	Ühtegi tabelit ei muudetud.
+	Other server	Muu server
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume palub sel ümber struktureerida tabelid, mida Markdown ei mahuta (vormid ja tabelitesse küljendatud lehed), ning jätab ümberkirjutuse alles vaid siis, kui iga sõna on veel olemas. Ollama ja LM Studio töötavad selles arvutis: midagi ei lahku sellest.
+	Reasoning:	Arutlus:
+	Restructure	Struktureeri ümber
+	Restructure\nTables	Struktureeri\ntabelid ümber
+	Server:	Server:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollamas soovitatud: gpt-oss:20b vähemalt 16 GB mäluga, qwen3:4b 8 GB-ga (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tabel {i}/{n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Serveril pole veel mudeleid: laadige esmalt üks alla (ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Selles dokumendis pole tabelites tabeleid ega liidetud lahtreid: Markdown hoiab selle tabelid muutmata.
+	Unchanged	Muutmata
+	Use a language model	Kasuta keelemudelit
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Ümber struktureeritud {applied} tabelit {n}-st. Võta tagasi (Ctrl+Z) taastab kõik.
+	{n} models on the server.	Serveris on {n} mudelit.
+	{ready} of {n} tables can be sent to the model.	Mudelile saab saata {ready} tabelit {n}-st.

@@ -2745,3 +2745,34 @@ preview	Title	Titel
 	Tables for AI	Tabeller för AI
 	AI Request for a Table	AI-begäran för en tabell
 	Restructure Tables	Strukturera om tabeller
+	A language model can't be reached from here.	Ingen språkmodell kan nås härifrån.
+	A language model can't be reached from the browser.	Ingen språkmodell kan nås från webbläsaren.
+	AI	AI
+	Artificial intelligence	Artificiell intelligens
+	Block	Block
+	Block {index}: {rows} × {cols}, {words} words	Block {index}: {rows} × {cols}, {words} ord
+	Changed	Ändrad
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Välj först en språkmodell: Arkiv › Alternativ › Spara › Artificiell intelligens.
+	Choose a model	Välj en modell
+	High	Hög
+	Low	Låg
+	Model's default	Modellens standard
+	Model:	Modell:
+	Model: {model} at {url}	Modell: {model} på {url}
+	No table to restructure.	Ingen tabell att strukturera om.
+	No table was changed.	Ingen tabell ändrades.
+	Other server	Annan server
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume ber den strukturera om tabeller som Markdown inte kan rymma (formulär och sidor uppställda i tabeller) och behåller en omskrivning bara om varje ord finns kvar. Ollama och LM Studio körs på den här datorn: inget lämnar den.
+	Reasoning:	Resonemang:
+	Restructure	Strukturera om
+	Restructure\nTables	Strukturera\nom tabeller
+	Server:	Server:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Rekommenderas i Ollama: gpt-oss:20b med 16 GB minne eller mer, qwen3:4b med 8 GB (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tabell {i} av {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Servern har inga modeller ännu: hämta en först (ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Dokumentet har varken tabeller i tabeller eller sammanfogade celler: Markdown behåller tabellerna som de är.
+	Unchanged	Oförändrad
+	Use a language model	Använd en språkmodell
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{applied} av {n} tabeller omstrukturerade. Ångra (Ctrl+Z) återställer alla.
+	{n} models on the server.	{n} modeller på servern.
+	{ready} of {n} tables can be sent to the model.	{ready} av {n} tabeller kan skickas till modellen.

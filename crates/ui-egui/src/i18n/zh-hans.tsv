@@ -2342,3 +2342,34 @@
 	Tables for AI	供 AI 处理的表格
 	AI Request for a Table	表格的 AI 请求
 	Restructure Tables	重构表格
+	A language model can't be reached from here.	无法从这里连接语言模型。
+	A language model can't be reached from the browser.	无法从浏览器连接语言模型。
+	AI	AI
+	Artificial intelligence	人工智能
+	Block	块
+	Block {index}: {rows} × {cols}, {words} words	块 {index}：{rows} × {cols}，{words} 个词
+	Changed	已更改
+	Choose a language model first: File › Options › Save › Artificial intelligence.	请先选择语言模型：文件 › 选项 › 保存 › 人工智能。
+	Choose a model	选择模型
+	High	高
+	Low	低
+	Model's default	模型默认值
+	Model:	模型：
+	Model: {model} at {url}	模型：{url} 上的 {model}
+	No table to restructure.	没有要重构的表格。
+	No table was changed.	没有表格被更改。
+	Other server	其他服务器
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume 请模型重构 Markdown 无法容纳的表格（用表格排版的表单和页面），只有在每个词都保留时才采用改写结果。Ollama 和 LM Studio 在本机运行：数据不会离开这台电脑。
+	Reasoning:	推理：
+	Restructure	重构
+	Restructure\nTables	重构\n表格
+	Server:	服务器：
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollama 推荐：内存 16 GB 及以上用 gpt-oss:20b，8 GB 用 qwen3:4b（ollama pull gpt-oss:20b）。
+	Table {i} of {n}…	表格 {i}/{n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	服务器上还没有模型：请先下载一个（ollama pull gpt-oss:20b）。
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	此文档没有嵌套表格或合并单元格：Markdown 会原样保留其表格。
+	Unchanged	未更改
+	Use a language model	使用语言模型
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	已重构 {applied}/{n} 个表格。撤消（Ctrl+Z）可全部恢复。
+	{n} models on the server.	服务器上有 {n} 个模型。
+	{ready} of {n} tables can be sent to the model.	可将 {ready}/{n} 个表格发送给模型。

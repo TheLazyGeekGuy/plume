@@ -22,6 +22,7 @@ macro_rules! tl {
 
 pub mod a11y;
 pub mod a11y_pane;
+pub mod ai_tables;
 pub mod async_saves;
 pub mod autoscroll;
 pub mod backstage;
@@ -452,6 +453,8 @@ pub struct WordApp {
     pub restrict: dialogs_review::RestrictPane,
     /// File › Export › PDF with a template (Plume).
     pub pdf_templates: pdf_templates::PdfTemplates,
+    /// Review › AI › Restructure Tables, and the model's settings (Plume).
+    pub ai_tables: ai_tables::AiTables,
     pub status_msg: Option<(String, f64)>,
     pub previews: previews::Previews,
     /// Media key of the picture a pending Change Picture replaces (#147).
@@ -603,6 +606,7 @@ impl WordApp {
             colors: None,
             restrict: Default::default(),
             pdf_templates: Default::default(),
+            ai_tables: Default::default(),
             status_msg: None,
             previews: previews::Previews::default(),
             integrated_titlebar: false,
@@ -1363,6 +1367,10 @@ impl WordApp {
                 self.colors = Some(d);
                 json!({"dialog": "colors"})
             }
+            "ui.dialog" if s("name") == Some("aiTables") => {
+                self.ai_tables.open = true;
+                json!({"dialog": "aiTables"})
+            }
             "ui.dialog" => {
                 self.dialog = dialogs::Dialog::open(s("name").unwrap_or(""), self);
                 // New / Modify Table Style can open on a part (`"part": "firstRow"`…).
@@ -2079,6 +2087,7 @@ impl WordApp {
         colors::show(self, &ctx);
         zotero::show_alert(self, &ctx);
         read_aloud::show(self, &ctx);
+        ai_tables::show(self, &ctx);
         crate::keytips::show(self, &ctx, ui);
         keys::global_shortcuts(self, &ctx);
         self.refocus_after_chrome_click(&ctx);

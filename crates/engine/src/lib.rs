@@ -38,6 +38,7 @@ pub use wordcraft_geom::Region;
 pub use wordcraft_layout as layout;
 pub use wordcraft_proof as proof;
 pub use wordcraft_render as render;
+pub use wordcraft_vcs as vcs;
 
 #[derive(Debug, thiserror::Error, Clone, PartialEq)]
 pub enum CmdError {

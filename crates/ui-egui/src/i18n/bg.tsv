@@ -2718,3 +2718,34 @@
 	Tables for AI	Таблици за ИИ
 	AI Request for a Table	Заявка към ИИ за таблица
 	Restructure Tables	Преструктуриране на таблици
+	A language model can't be reached from here.	Оттук не може да се достигне езиков модел.
+	A language model can't be reached from the browser.	От браузъра не може да се достигне езиков модел.
+	AI	ИИ
+	Artificial intelligence	Изкуствен интелект
+	Block	Блок
+	Block {index}: {rows} × {cols}, {words} words	Блок {index}: {rows} × {cols}, думи: {words}
+	Changed	Променена
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Първо изберете езиков модел: Файл › Опции › Записване › Изкуствен интелект.
+	Choose a model	Изберете модел
+	High	Високо
+	Low	Ниско
+	Model's default	По подразбиране за модела
+	Model:	Модел:
+	Model: {model} at {url}	Модел: {model} на {url}
+	No table to restructure.	Няма таблици за преструктуриране.
+	No table was changed.	Нито една таблица не е променена.
+	Other server	Друг сървър
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume го моли да преструктурира таблиците, които Markdown не може да съдържа (формуляри и страници, оформени в таблици), и запазва новия вариант само ако всяка дума е още там. Ollama и LM Studio работят на този компютър: нищо не излиза от него.
+	Reasoning:	Разсъждение:
+	Restructure	Преструктуриране
+	Restructure\nTables	Преструктуриране\nна таблици
+	Server:	Сървър:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Препоръчано в Ollama: gpt-oss:20b при 16 ГБ памет или повече, qwen3:4b при 8 ГБ (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Таблица {i} от {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Сървърът още няма модели: първо изтеглете един (ollama pull gpt-oss:20b).
+	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Този документ няма таблици в таблици или обединени клетки: Markdown запазва таблиците му такива, каквито са.
+	Unchanged	Без промяна
+	Use a language model	Използване на езиков модел
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Преструктурирани таблици: {applied} от {n}. Отмяна (Ctrl+Z) ги връща всички.
+	{n} models on the server.	Модели на сървъра: {n}.
+	{ready} of {n} tables can be sent to the model.	Таблици, които могат да се изпратят към модела: {ready} от {n}.

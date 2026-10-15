@@ -1827,6 +1827,12 @@ fn review(app: &mut WordApp, ui: &mut Ui) {
             small(ui, app, "sendReplies", Some("Send Replies"), "Send Replies", "vcs.sendReplies", json!({}), false);
         });
     });
+    // Plume: shown once a language model is chosen (File › Options).
+    if app.session.prefs.ai.enabled {
+        group(ui, "AI", None, app, |ui, app| {
+            big(ui, app, "table", "Restructure\nTables", "ui.dialog", json!({"name": "aiTables"}), false);
+        });
+    }
     group(ui, "Protect", None, app, |ui, app| {
         big(ui, app, "blockAuthors", "Block\nAuthors", "review.blockAuthors", json!({}), false);
         big(ui, app, "restrict", "Restrict\nEditing", "review.restrict", json!({}), false);

@@ -426,6 +426,7 @@ fn main() -> eframe::Result {
             // Plume: Markdown is the document's own format; documents can come from forges.
             session.native_markdown = true;
             session.forge_transport = Some(std::sync::Arc::new(forge_net::Https::new()));
+            session.ai_transport = Some(std::sync::Arc::new(forge_net::Https::with_timeout(std::time::Duration::from_secs(900))));
             let mut app = WordApp::new(session, services(file_dialog, &cc.egui_ctx));
             load_prefs(&mut app);
             load_user_dictionary(&mut app);
