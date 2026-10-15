@@ -398,6 +398,42 @@ impl Drop for NotesGuard {
     }
 }
 
+/// GitHub's mathematics at byte `i` of `s`: `$$…$$` (display) or `$…$` (inline: no space just
+/// inside the dollars, no digit just after the closing one, so `$5 and $10` stays text). The
+/// LaTeX, whether it's display, and the byte after it.
+fn math_span(s: &str, i: usize) -> Option<(String, bool, usize)> {
+    let rest = s.get(i..)?;
+    if let Some(inner) = rest.strip_prefix("$$") {
+        let close = within(inner, 16 * 1024).find("$$")?;
+        let latex = inner.get(..close)?.trim();
+        return (!latex.is_empty()).then(|| (latex.to_string(), true, i + 2 + close + 2));
+    }
+    let inner = rest.strip_prefix('$')?;
+    if inner.starts_with([' ', '\t', '\n']) {
+        return None;
+    }
+    let bytes = inner.as_bytes();
+    let mut k = 0;
+    while let Some(&b) = bytes.get(k) {
+        match b {
+            b'\\' => k += 2,
+            b'\n' if bytes.get(k + 1) == Some(&b'\n') => return None,
+            b'$' => {
+                let latex = inner.get(..k)?;
+                if latex.is_empty() || latex.ends_with([' ', '\t', '\n']) || bytes.get(k + 1).is_some_and(u8::is_ascii_digit) {
+                    return None;
+                }
+                return Some((latex.replace("\\$", "$"), false, i + 1 + k + 1));
+            }
+            _ => k += 1,
+        }
+        if k > 4096 {
+            return None;
+        }
+    }
+    None
+}
+
 /// A footnote reference `[^label]` at byte `i` of `s` whose definition exists: the note's blocks
 /// and the byte after the reference.
 fn footnote_ref(s: &str, i: usize) -> Option<(Vec<FBlock>, usize)> {
@@ -1156,6 +1192,17 @@ fn tokenize(s: &str, base: &Fmt, depth: usize) -> Vec<Node> {
                 i += n;
                 text_start = i;
             }
+            b'$' if math_span(s, i).is_some() => {
+                flush!();
+                if let Some((latex, display, end)) = math_span(s, i) {
+                    let linear = wordcraft_doc::math::to_linear(&wordcraft_doc::math_latex::parse_latex(&latex));
+                    nodes.push(Node::Inl(Inline::Equation { linear, display }));
+                    i = end;
+                } else {
+                    i += 1;
+                }
+                text_start = i;
+            }
             b'[' if footnote_ref(s, i).is_some() => {
                 flush!();
                 if let Some((blocks, end)) = footnote_ref(s, i) {
@@ -1438,7 +1485,8 @@ pub(crate) fn escape(s: &str) -> String {
     let mut out = String::with_capacity(s.len() + 8);
     for c in s.chars() {
         match c {
-            '\\' | '`' | '*' | '_' | '[' | ']' | '<' | '>' | '~' | '|' | '&' => {
+            // `$` too: GitHub reads `$…$` as mathematics.
+            '\\' | '`' | '*' | '_' | '[' | ']' | '<' | '>' | '~' | '|' | '&' | '$' => {
                 out.push('\\');
                 out.push(c);
             }
@@ -1719,10 +1767,9 @@ fn inlines_md(inlines: &[Inline]) -> String {
 fn inlines_md_impl(inlines: &[Inline], in_table: bool, ctx: &mut Ctx) -> String {
     // Split into (text, fmt) pieces with whitespace moved outside emphasis.
     let mut pieces: Vec<(String, Fmt, Option<String>)> = Vec::new();
-    if inlines.iter().any(|i| matches!(i, Inline::Equation { .. })) {
-        ctx.note(Adaptation::Equation);
-    }
-    let inlines = crate::model::equations_as_text(inlines);
+    // A native copy writes equations as LaTeX between dollars (GitHub's mathematics); the
+    // legacy copy as their linear text.
+    let inlines: std::borrow::Cow<'_, [Inline]> = if ctx.native { inlines.into() } else { crate::model::equations_as_text(inlines) };
     for i in inlines.iter() {
         if ctx.native
             && let Inline::Text(t, f) = i
@@ -1792,7 +1839,16 @@ fn inlines_md_impl(inlines: &[Inline], in_table: bool, ctx: &mut Ctx) -> String 
                 pieces.push((format!("[{}]", alt.trim()), Fmt { italic: true, ..Fmt::default() }, None));
             }
             Inline::Figure(alt) => pieces.push((String::new(), Fmt::default(), Some(format!("![{}]()", escape(alt))))),
-            Inline::Equation { .. } => {}
+            Inline::Equation { linear, display } => {
+                let latex = wordcraft_doc::math_latex::to_latex(&wordcraft_doc::math::parse_linear(linear));
+                let latex = latex.trim().replace('$', "\\$").replace('\n', " ");
+                if latex.is_empty() {
+                    ctx.note(Adaptation::Equation);
+                } else {
+                    let raw = if *display { format!("$${latex}$$") } else { format!("${latex}$") };
+                    pieces.push((String::new(), Fmt::default(), Some(raw)));
+                }
+            }
         }
     }
     let mut out = String::new();

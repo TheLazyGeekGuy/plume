@@ -895,3 +895,27 @@ fn native_markdown_unrolls_layout_tables() {
     assert!(out.text.starts_with("ACME Ltd\n\n12 Main Street\n\n| A | B |"), "{}", out.text);
     assert!(out.report.counts.contains_key(&Adaptation::LayoutTable));
 }
+
+/// Equations: written as GitHub mathematics (`$…$`, `$$…$$`), read back as equations, stable;
+/// dollar amounts stay text.
+#[test]
+fn markdown_math() {
+    use crate::markdown::{Adaptation, NativeOptions, export_native, import};
+    let d = import("Energy $E=mc^2$ and\n\n$$x=\\frac{-b}{2a}$$\n\nIt costs $5 and $10, or \\$3.\n");
+    let eqs: Vec<(String, bool)> = d
+        .body
+        .iter()
+        .filter_map(|b| if let wordcraft_doc::Block::Para(p) = &**b { Some(p) } else { None })
+        .flat_map(|p| p.objects.iter())
+        .filter_map(|o| if let InlineObject::Equation { linear, display, .. } = o { Some((linear.clone(), *display)) } else { None })
+        .collect();
+    assert_eq!(eqs.len(), 2, "{eqs:?}");
+    assert!(eqs[0].0.contains("mc") && !eqs[0].1 && eqs[1].1, "{eqs:?}");
+    assert!(d.plain_text(wordcraft_doc::StoryRef::Body).contains("It costs $5 and $10, or $3."));
+    let out = export_native(&d, &NativeOptions::default());
+    assert!(out.text.contains("Energy $E=m") && out.text.contains("^{2}$ and"), "{}", out.text);
+    assert!(out.text.contains("$$") && out.text.contains("It costs \\$5 and \\$10, or \\$3."), "{}", out.text);
+    assert!(!out.report.counts.contains_key(&Adaptation::Equation));
+    let again = export_native(&import(&out.text), &NativeOptions::default());
+    assert_eq!(again.text, out.text);
+}
