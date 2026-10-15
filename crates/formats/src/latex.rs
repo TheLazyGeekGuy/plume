@@ -3039,7 +3039,8 @@ Caf\'e na\"ive \c{c}a \v{s}\'{e} and {\bfseries grouped bold} after.
     fn leading_brackets_stay_text() {
         // `\item [x]` and `\\ [1]` would read the bracket as an optional argument.
         assert_eq!(escape_text("[x] a\n [1] b [c]"), "{[}x] a\\\\\n {[}1] b [c]");
-        let doc = crate::markdown::import("- [x] done");
+        // (Escaped: `- [x]` unescaped is a task-list check box.)
+        let doc = crate::markdown::import("- \\[x] done");
         let back = import(export(&doc).as_bytes());
         assert_eq!(back.plain_text(Default::default()), "[x] done");
     }

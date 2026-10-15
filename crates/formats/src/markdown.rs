@@ -781,6 +781,13 @@ fn parse_blocks(lines: &[String], depth: usize, level: u8) -> Vec<FBlock> {
                 }
                 i += 1;
             }
+            // A GitHub alert: its heading becomes a bold first line of the quote.
+            if let Some(label) = inner.first().and_then(|l| alert_marker(l)) {
+                inner.remove(0);
+                let mut p = Para::new(Kind::Quote);
+                p.push_text(label, &Fmt { bold: true, ..Fmt::default() });
+                out.push(FBlock::Para(p));
+            }
             if depth >= MAX_NEST {
                 let mut p = Para::new(Kind::Quote);
                 p.push_text(&inner.join(" "), &Fmt::default());
@@ -838,6 +845,19 @@ fn parse_blocks(lines: &[String], depth: usize, level: u8) -> Vec<FBlock> {
 }
 
 /// Parse a list starting at `lines[i]`; returns the index after it.
+/// Task-list check boxes, as the document shows them.
+const CHECK_OFF: char = '\u{2610}';
+const CHECK_ON: char = '\u{2612}';
+
+/// GitHub's alerts (`> [!NOTE]`…) and the heading each one shows.
+const ALERTS: [(&str, &str); 5] = [("NOTE", "Note"), ("TIP", "Tip"), ("IMPORTANT", "Important"), ("WARNING", "Warning"), ("CAUTION", "Caution")];
+
+/// The alert a quote's first line names, if it is one (`[!NOTE]`).
+fn alert_marker(line: &str) -> Option<&'static str> {
+    let name = line.trim().strip_prefix("[!")?.strip_suffix(']')?;
+    ALERTS.iter().find(|(k, _)| k.eq_ignore_ascii_case(name)).map(|(_, label)| *label)
+}
+
 fn parse_list(lines: &[String], mut i: usize, depth: usize, level: u8, out: &mut Vec<FBlock>) -> usize {
     let Some(first) = lines.get(i).and_then(|l| list_marker(l.trim_start())) else { return i + 1 };
     while let Some(line) = lines.get(i) {
@@ -857,6 +877,17 @@ fn parse_list(lines: &[String], mut i: usize, depth: usize, level: u8, out: &mut
             vec![if is_blank(after) { String::new() } else { after.get(spaces.min(4).min(after.len())..).unwrap_or("").to_string() }];
         if spaces > 4 {
             item[0] = after.get(1..).unwrap_or("").to_string();
+        }
+        // A task-list item (`- [ ] …`, `- [x] …`) starts with a check box.
+        if !first.ordered
+            && let Some(first_line) = item.first_mut()
+        {
+            for (mark, glyph) in [("[ ] ", CHECK_OFF), ("[x] ", CHECK_ON), ("[X] ", CHECK_ON)] {
+                if let Some(rest) = first_line.strip_prefix(mark) {
+                    *first_line = format!("{glyph} {rest}");
+                    break;
+                }
+            }
         }
         i += 1;
         while let Some(l) = lines.get(i) {
@@ -2498,8 +2529,18 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
                         let pad = " ".repeat(4 * lv);
                         let cont = " ".repeat(4 * lv + marker.len() + 1);
                         let body = body.replace("\\\n", &format!("\\\n{cont}"));
+                        // A check box at the start of a bulleted item: a task-list item.
+                        let task = if li.ordered {
+                            None
+                        } else {
+                            [(CHECK_OFF, "[ ] "), (CHECK_ON, "[x] "), ('\u{2611}', "[x] ")]
+                                .into_iter()
+                                .find_map(|(c, m)| body.strip_prefix(c).map(|rest| (m, rest.strip_prefix(' ').unwrap_or(rest).to_string())))
+                        };
                         let body = if p.kind == Kind::Code {
                             code_span(&p.text())
+                        } else if let Some((mark, rest)) = task {
+                            format!("{mark}{}", escape_line_start(rest))
                         } else {
                             let body = escape_line_start(body);
                             // The bullet marker can turn a short run of hyphens into a rule.
@@ -2519,8 +2560,30 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
                             Kind::Title => format!("# {}", body.replace("\\\n", " ")),
                             Kind::Rule => "---".to_string(),
                             Kind::Quote => {
-                                let b = escape_line_start(body);
-                                format!("> {}", b.replace("\\\n", "\\\n> "))
+                                // A quote opening with an alert's bold heading: a GitHub alert, the
+                                // quote's next paragraphs inside it.
+                                let alert = (p.text().trim().len() < 12)
+                                    .then(|| ALERTS.iter().find(|(_, label)| p.text().trim() == *label))
+                                    .flatten()
+                                    .filter(|_| p.inlines.iter().all(|x| !matches!(x, Inline::Text(t, f) if !t.trim().is_empty() && !f.bold)));
+                                if let Some((key, _)) = alert {
+                                    let mut lines = vec![format!("> [!{key}]")];
+                                    while let Some(FBlock::Para(q)) = blocks.get(i + 1)
+                                        && q.kind == Kind::Quote
+                                        && q.list.is_none()
+                                    {
+                                        if lines.len() > 1 {
+                                            lines.push(">".into());
+                                        }
+                                        let b = escape_line_start(inlines_md_impl(&q.inlines, false, ctx));
+                                        lines.push(format!("> {}", b.replace("\\\n", "\\\n> ")));
+                                        i += 1;
+                                    }
+                                    lines.join("\n")
+                                } else {
+                                    let b = escape_line_start(body);
+                                    format!("> {}", b.replace("\\\n", "\\\n> "))
+                                }
                             }
                             _ => {
                                 if body.is_empty() {

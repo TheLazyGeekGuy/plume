@@ -978,3 +978,19 @@ fn markdown_math() {
     let again = export_native(&import(&out.text), &NativeOptions::default());
     assert_eq!(again.text, out.text);
 }
+
+/// GitHub task lists and alerts survive a round trip through the document.
+#[test]
+fn markdown_task_lists_and_alerts() {
+    use crate::markdown::{NativeOptions, export_native, import};
+    let src = "- [ ] Write the guide\n- [x] Pick a name\n- Plain item\n\n> [!WARNING]\n> Back up first.\n>\n> Twice.\n\n> A plain quote.\n";
+    let d = import(src);
+    let text = d.plain_text(wordcraft_doc::StoryRef::Body);
+    assert!(text.contains("\u{2610} Write the guide") && text.contains("\u{2612} Pick a name"), "{text:?}");
+    assert!(text.contains("Warning") && !text.contains("[!WARNING]"), "{text:?}");
+    let out = export_native(&d, &NativeOptions::default());
+    assert!(out.text.contains("- [ ] Write the guide\n- [x] Pick a name\n- Plain item"), "{}", out.text);
+    assert!(out.text.contains("> [!WARNING]\n> Back up first.\n>\n> Twice."), "{}", out.text);
+    assert!(out.text.contains("> A plain quote."), "{}", out.text);
+    assert_eq!(export_native(&import(&out.text), &NativeOptions::default()).text, out.text);
+}
