@@ -72,6 +72,9 @@ pub fn specs() -> Vec<CommandSpec> {
         })
         .params(r#"{"value"?: bool} → {value}: on, a Markdown document's commands whose result Markdown can't keep (colour, underline, text boxes…) are disabled; off (default), they work and the save report lists what Markdown didn't keep"#)
         .pure(),
+        CommandSpec::new("file.documents", "Documents", "View › Show", documents)
+            .params(r#"{} → {root, current?, documents: [path relative to root]}: the Markdown documents in this document's repository (or folder)"#)
+            .pure(),
         CommandSpec::new("forge.signIn", "Sign In to a Forge", "File › Open", remote::sign_in)
             .params(r#"{"forge": "github|gitlab|forgejo", "host"?: string (GitLab or Forgejo server; default gitlab.com / codeberg.org), "token": access token} → {signedIn: api}: the token is kept for this session and never returned"#)
             .pure(),
@@ -132,6 +135,24 @@ fn markdown_document(s: &Session) -> Option<&'static str> {
         return None;
     }
     markdown_path(s).err().map(|_| "Save the document as Markdown first")
+}
+
+/// The Markdown documents beside this one: in its Git repository, else in its folder.
+#[cfg(not(target_arch = "wasm32"))]
+fn documents(s: &mut Session, _: &Value) -> CmdResult {
+    let path = s.path.clone().ok_or_else(|| CmdError::Failed("save the document first".into()))?;
+    let root = match wordcraft_vcs::git::Repo::discover(&path) {
+        Ok(repo) => repo.root().to_path_buf(),
+        Err(_) => path.parent().filter(|d| !d.as_os_str().is_empty()).map(std::path::Path::to_path_buf).unwrap_or_else(|| ".".into()),
+    };
+    let list = crate::io::markdown_documents(&root).map_err(CmdError::Failed)?;
+    let current = path.strip_prefix(&root).ok().map(|p| p.to_string_lossy().replace('\\', "/"));
+    Ok(json!({"root": root.to_string_lossy(), "current": current, "documents": list}))
+}
+
+#[cfg(target_arch = "wasm32")]
+fn documents(_: &mut Session, _: &Value) -> CmdResult {
+    Err(CmdError::Failed("folders of documents work in the desktop app".into()))
 }
 
 /// Reviews need a document opened from a forge.

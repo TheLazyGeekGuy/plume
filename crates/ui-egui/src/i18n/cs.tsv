@@ -2601,3 +2601,7 @@ preview	Title	Ukázka
 	What should your colleagues review?	Co mají kolegové zkontrolovat?
 	Details (optional)	Podrobnosti (nepovinné)
 	Review requested: {url}	Revize vyžádána: {url}
+	Documents Pane	Podokno Dokumenty
+	Save the document as Markdown to see the documents beside it.	Uložte dokument jako Markdown, abyste viděli dokumenty vedle něj.
+	No Markdown documents here yet.	Zatím tu nejsou žádné dokumenty Markdown.
+	save the document first	nejprve dokument uložte

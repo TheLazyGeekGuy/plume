@@ -2222,3 +2222,7 @@
 	What should your colleagues review?	Що мають переглянути колеги?
 	Details (optional)	Подробиці (необов'язково)
 	Review requested: {url}	Рецензію запитано: {url}
+	Documents Pane	Область «Документи»
+	Save the document as Markdown to see the documents beside it.	Збережіть документ як Markdown, щоб побачити документи поруч із ним.
+	No Markdown documents here yet.	Тут ще немає документів Markdown.
+	save the document first	спочатку збережіть документ

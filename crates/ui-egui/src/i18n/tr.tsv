@@ -2606,3 +2606,7 @@ preview	Title	Örnek
 	What should your colleagues review?	Meslektaşlarınız neyi incelemeli?
 	Details (optional)	Ayrıntılar (isteğe bağlı)
 	Review requested: {url}	İnceleme istendi: {url}
+	Documents Pane	Belgeler Bölmesi
+	Save the document as Markdown to see the documents beside it.	Yanındaki belgeleri görmek için belgeyi Markdown olarak kaydedin.
+	No Markdown documents here yet.	Burada henüz Markdown belgesi yok.
+	save the document first	önce belgeyi kaydedin

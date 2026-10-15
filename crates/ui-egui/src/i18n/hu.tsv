@@ -2605,3 +2605,7 @@
 	What should your colleagues review?	Mit nézzenek át a kollégái?
 	Details (optional)	Részletek (nem kötelező)
 	Review requested: {url}	Áttekintés kérve: {url}
+	Documents Pane	Dokumentumok panel
+	Save the document as Markdown to see the documents beside it.	Mentse a dokumentumot Markdownként a mellette lévő dokumentumok megtekintéséhez.
+	No Markdown documents here yet.	Itt még nincsenek Markdown-dokumentumok.
+	save the document first	előbb mentse a dokumentumot

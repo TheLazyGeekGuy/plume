@@ -2211,3 +2211,7 @@
 	What should your colleagues review?	同事應審閱什麼？
 	Details (optional)	詳細資料（選用）
 	Review requested: {url}	已要求審閱：{url}
+	Documents Pane	文件窗格
+	Save the document as Markdown to see the documents beside it.	將文件儲存為 Markdown 以查看其旁邊的文件。
+	No Markdown documents here yet.	這裡還沒有 Markdown 文件。
+	save the document first	請先儲存文件

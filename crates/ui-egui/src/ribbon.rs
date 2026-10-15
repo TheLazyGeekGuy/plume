@@ -1877,6 +1877,11 @@ fn view(app: &mut WordApp, ui: &mut Ui) {
             if ui.checkbox(&mut w, tl!("Hide White Space")).changed() {
                 let _ = app.run("view.hideWhiteSpace", json!({"value": w}));
             }
+            // Plume: the Markdown documents beside this one.
+            let mut d = v.documents_pane;
+            if ui.checkbox(&mut d, tl!("Documents Pane")).changed() {
+                let _ = app.run("view.documentsPane", json!({"value": d}));
+            }
         });
     });
     group(ui, "Zoom", None, app, |ui, app| {

@@ -125,6 +125,9 @@ pub struct ViewState {
     #[serde(default)]
     pub style_inspector: bool,
     pub comments_pane: bool,
+    /// Plume: the Documents pane, the Markdown documents beside this one (`view.documentsPane`).
+    #[serde(default)]
+    pub documents_pane: bool,
     /// The Clipboard pane (Home › Clipboard): items collected by Copy and Cut.
     #[serde(default)]
     pub clipboard_pane: bool,
@@ -222,6 +225,7 @@ impl Default for ViewState {
             styles_pane: false,
             style_inspector: false,
             comments_pane: false,
+            documents_pane: false,
             clipboard_pane: false,
             smart_art_pane: false,
             accessibility_pane: false,

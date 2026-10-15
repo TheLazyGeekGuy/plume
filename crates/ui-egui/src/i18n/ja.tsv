@@ -2210,3 +2210,7 @@
 	What should your colleagues review?	同僚に何をレビューしてもらいますか?
 	Details (optional)	詳細 (省略可)
 	Review requested: {url}	レビューを依頼しました: {url}
+	Documents Pane	ドキュメント ウィンドウ
+	Save the document as Markdown to see the documents beside it.	Markdown として保存すると、隣にある文書が表示されます。
+	No Markdown documents here yet.	ここにはまだ Markdown 文書がありません。
+	save the document first	まず文書を保存してください

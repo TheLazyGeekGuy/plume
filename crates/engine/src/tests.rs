@@ -6829,3 +6829,25 @@ fn forge_review_round_trip() {
     assert_eq!(st["approvedBy"], json!(["carol"]));
     assert_eq!(st["changesRequestedBy"], json!(["bob"]));
 }
+
+/// The Documents pane lists the Markdown documents of the document's repository, by folder.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn documents_beside_this_one() {
+    let dir = scratch_dir("documents-pane");
+    for f in ["README.md", "guide/install.md", "guide/use.markdown", "guide/assets/x.md", ".hidden/y.md", "notes.txt"] {
+        let p = dir.join(f);
+        std::fs::create_dir_all(p.parent().unwrap()).unwrap();
+        std::fs::write(&p, "# x\n").unwrap();
+    }
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.path = Some(dir.join("guide/install.md"));
+    let r = s.run("file.documents", &json!({})).unwrap();
+    // Not in a repository: the document's folder.
+    assert_eq!(r["documents"], json!(["install.md", "use.markdown"]));
+    wordcraft_vcs::git::Repo::init(&dir).unwrap();
+    let r = s.run("file.documents", &json!({})).unwrap();
+    assert_eq!(r["documents"], json!(["README.md", "guide/install.md", "guide/use.markdown"]));
+    assert_eq!(r["current"], json!("guide/install.md"));
+    let _ = std::fs::remove_dir_all(&dir);
+}

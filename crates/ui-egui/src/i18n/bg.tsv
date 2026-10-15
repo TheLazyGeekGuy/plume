@@ -2597,3 +2597,7 @@
 	What should your colleagues review?	Какво трябва да прегледат колегите ви?
 	Details (optional)	Подробности (по избор)
 	Review requested: {url}	Прегледът е поискан: {url}
+	Documents Pane	Екран „Документи“
+	Save the document as Markdown to see the documents beside it.	Запишете документа като Markdown, за да видите документите до него.
+	No Markdown documents here yet.	Тук все още няма Markdown документи.
+	save the document first	първо запишете документа

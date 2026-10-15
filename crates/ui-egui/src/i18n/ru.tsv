@@ -2607,3 +2607,7 @@ preview	Title	Пример
 	What should your colleagues review?	Что должны проверить коллеги?
 	Details (optional)	Подробности (необязательно)
 	Review requested: {url}	Рецензия запрошена: {url}
+	Documents Pane	Область «Документы»
+	Save the document as Markdown to see the documents beside it.	Сохраните документ в Markdown, чтобы увидеть документы рядом с ним.
+	No Markdown documents here yet.	Здесь пока нет документов Markdown.
+	save the document first	сначала сохраните документ

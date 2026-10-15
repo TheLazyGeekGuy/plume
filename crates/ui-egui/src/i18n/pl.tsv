@@ -2599,3 +2599,7 @@ preview	Title	Tytuł
 	What should your colleagues review?	Co mają sprawdzić współpracownicy?
 	Details (optional)	Szczegóły (opcjonalnie)
 	Review requested: {url}	Poproszono o recenzję: {url}
+	Documents Pane	Okienko Dokumenty
+	Save the document as Markdown to see the documents beside it.	Zapisz dokument jako Markdown, aby zobaczyć dokumenty obok niego.
+	No Markdown documents here yet.	Nie ma tu jeszcze dokumentów Markdown.
+	save the document first	najpierw zapisz dokument

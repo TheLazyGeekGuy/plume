@@ -2222,3 +2222,7 @@
 	What should your colleagues review?	同事应审阅什么？
 	Details (optional)	详细信息（可选）
 	Review requested: {url}	已请求审阅：{url}
+	Documents Pane	文档窗格
+	Save the document as Markdown to see the documents beside it.	将文档保存为 Markdown 以查看其旁边的文档。
+	No Markdown documents here yet.	这里还没有 Markdown 文档。
+	save the document first	请先保存文档

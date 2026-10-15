@@ -719,6 +719,41 @@ fn draw_object(src: &Document, obj: &wordcraft_doc::InlineObject, w: f32, h: f32
     (!png.is_empty()).then_some(png)
 }
 
+/// Most documents listed from one folder tree.
+pub const MAX_DOCUMENTS: usize = 2_000;
+
+/// The Markdown documents under `root` (folders in name order, at most a few levels deep;
+/// hidden folders, `assets` and build folders skipped), as paths relative to `root`.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn markdown_documents(root: &std::path::Path) -> Result<Vec<String>, String> {
+    crate::file_access::check_read(&root.to_string_lossy())?;
+    fn walk(dir: &std::path::Path, rel: &str, depth: usize, out: &mut Vec<String>) {
+        if depth > 6 || out.len() >= MAX_DOCUMENTS {
+            return;
+        }
+        let Ok(rd) = std::fs::read_dir(dir) else { return };
+        let mut entries: Vec<(String, bool)> =
+            rd.filter_map(Result::ok).filter_map(|e| Some((e.file_name().into_string().ok()?, e.file_type().ok()?.is_dir()))).collect();
+        entries.sort();
+        for (name, is_dir) in entries {
+            if out.len() >= MAX_DOCUMENTS {
+                return;
+            }
+            let path = if rel.is_empty() { name.clone() } else { format!("{rel}/{name}") };
+            if is_dir {
+                if !name.starts_with('.') && !matches!(name.as_str(), "assets" | "node_modules" | "target" | "dist" | "build") {
+                    walk(&dir.join(&name), &path, depth + 1, out);
+                }
+            } else if name.rsplit_once('.').is_some_and(|(_, e)| e.eq_ignore_ascii_case("md") || e.eq_ignore_ascii_case("markdown")) {
+                out.push(path);
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(root, "", 0, &mut out);
+    Ok(out)
+}
+
 /// Decode text bytes: UTF-8 (with or without BOM), UTF-16 LE/BE (BOM or sniffed), else the
 /// legacy encoding they look like — GBK, Big5, Shift_JIS, Windows-1252… (see
 /// [`wordcraft_formats::txt::decode`]).
