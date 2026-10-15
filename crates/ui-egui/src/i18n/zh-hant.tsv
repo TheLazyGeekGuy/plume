@@ -2230,6 +2230,12 @@
 	Filter	篩選
 	No projects on this account.	此帳戶沒有專案。
 	Waiting for the forge…	正在等待程式碼託管平台…
+	Or sign in with the browser	或在瀏覽器中登入
+	OAuth app client ID	OAuth 應用程式用戶端 ID
+	Sign in with the browser	在瀏覽器中登入
+	Type this code on the forge's page:	請在程式碼託管平台的頁面上輸入此代碼：
+	Open the page	開啟頁面
+	Copy the code	複製代碼
 	No Markdown documents in this project.	此專案中沒有 Markdown 文件。
 	Or paste the document's address	或貼上文件位址
 	Forge Repositories	託管平台存放庫

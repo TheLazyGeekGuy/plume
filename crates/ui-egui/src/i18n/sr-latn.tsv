@@ -2239,6 +2239,12 @@
 	Filter	Filter
 	No projects on this account.	Na ovom nalogu nema projekata.
 	Waiting for the forge…	Čeka se forge…
+	Or sign in with the browser	Ili se prijavite u pregledaču
+	OAuth app client ID	ID klijenta OAuth aplikacije
+	Sign in with the browser	Prijavi se u pregledaču
+	Type this code on the forge's page:	Unesite ovaj kôd na stranici forge-a:
+	Open the page	Otvori stranicu
+	Copy the code	Kopiraj kôd
 	No Markdown documents in this project.	U ovom projektu nema Markdown dokumenata.
 	Or paste the document's address	Ili nalepite adresu dokumenta
 	Forge Repositories	Forge repozitorijumi

@@ -241,6 +241,10 @@ pub struct UiState {
     pub recent: Vec<String>,
     /// Plume: forges signed in to (their tokens are in the keychain), most recent first.
     pub forge_accounts: Vec<dialogs::ForgeAccount>,
+    /// Plume: the OAuth application's client id used to sign in on each forge's page, by
+    /// `kind:host` (not a secret).
+    #[serde(default)]
+    pub forge_client_ids: std::collections::BTreeMap<String, String>,
     /// Symbols inserted from the Symbol dialog, most recent first (#321).
     pub recent_symbols: Vec<dialogs_insert::RecentSymbol>,
     /// Colours picked in the Colors dialog (More Colors…), most recent first (#606).
@@ -346,6 +350,7 @@ impl Default for UiState {
             ribbon_collapsed: false,
             recent: Vec::new(),
             forge_accounts: Vec::new(),
+            forge_client_ids: Default::default(),
             recent_symbols: Vec::new(),
             recent_colors: Vec::new(),
             theme: theme::Appearance::default(),

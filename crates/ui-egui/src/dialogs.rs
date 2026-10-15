@@ -4103,6 +4103,69 @@ pub struct ForgeBrowser {
     error: String,
     /// A list loading on a worker thread, and what it is for.
     loading: Option<(ForgeWait, ForgeSlot)>,
+    /// Signing in on the forge's page: the OAuth client id typed, and the sign-in under way.
+    /// (`kind:host`, client id): offered again when that forge is picked.
+    client_id: Option<(String, String)>,
+    device: Option<ForgeDevice>,
+}
+
+/// A sign-in on the forge's page (OAuth device flow) waiting on a worker thread.
+#[derive(Clone, Debug)]
+struct ForgeDevice {
+    acc: ForgeAccount,
+    /// The code to type, and the page to type it on, once the forge gave them.
+    code: std::sync::Arc<std::sync::Mutex<Option<(String, String)>>>,
+    /// `{"token": …}` once approved.
+    result: ForgeSlot,
+    cancel: std::sync::Arc<std::sync::atomic::AtomicBool>,
+}
+
+/// Start signing in to `acc` on its web page with the OAuth application `client_id`.
+#[cfg(not(target_arch = "wasm32"))]
+fn forge_device_start(app: &WordApp, ctx: &egui::Context, acc: &ForgeAccount, client_id: &str) -> Result<ForgeDevice, String> {
+    let job =
+        wordcraft_engine::cmd::versions::DeviceSignIn::prepare(&app.session, &json!({"forge": acc.kind, "host": acc.host, "clientId": client_id}))
+            .map_err(|e| e.to_string())?;
+    let dev = ForgeDevice { acc: acc.clone(), code: Default::default(), result: Default::default(), cancel: Default::default() };
+    let (code, out, cancel, ctx) = (dev.code.clone(), dev.result.clone(), dev.cancel.clone(), ctx.clone());
+    std::thread::Builder::new()
+        .name("plume-forge-sign-in".into())
+        .spawn(move || {
+            let shown = ctx.clone();
+            let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                job.run(
+                    |c| {
+                        if let Ok(mut slot) = code.lock() {
+                            *slot = Some((c.user_code.clone(), c.verification_uri.clone()));
+                        }
+                        shown.request_repaint();
+                    },
+                    &cancel,
+                )
+                .map(|token| json!({"token": token}))
+                .map_err(|e| e.to_string())
+            }))
+            .unwrap_or_else(|_| Err("the forge's answer couldn't be read".into()));
+            if let Ok(mut slot) = out.lock() {
+                *slot = Some(r);
+            }
+            ctx.request_repaint();
+        })
+        .map_err(|e| format!("could not reach the forge: {e}"))?;
+    Ok(dev)
+}
+
+/// The OAuth client id to offer for a forge: the one used last, else `PLUME_GITHUB_CLIENT_ID` /
+/// `PLUME_GITLAB_CLIENT_ID`.
+fn forge_client_id(app: &WordApp, kind: &str, host: &str) -> String {
+    if let Some(id) = app.ui.forge_client_ids.get(&format!("{kind}:{host}")) {
+        return id.clone();
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    if let Ok(id) = std::env::var(format!("PLUME_{}_CLIENT_ID", kind.to_ascii_uppercase())) {
+        return id.trim().to_string();
+    }
+    String::new()
 }
 
 /// Where a worker thread leaves a forge listing's result.
@@ -4248,20 +4311,85 @@ fn forge_browser(app: &mut WordApp, ui: &mut Ui, fb: &mut ForgeBrowser) -> bool 
         if app.services.secrets.is_some() {
             ui.checkbox(&mut fb.remember, tl!("Remember the token in the keychain"));
         }
-        if ui.button(tl!("Connect")).clicked() {
-            // A pasted address works as a server name too.
-            let host =
-                fb.host.trim().trim_start_matches("https://").trim_start_matches("http://").split('/').next().unwrap_or("").to_ascii_lowercase();
-            let host = if kind == "github" {
-                "github.com".to_string()
-            } else if host.is_empty() {
-                default_host.to_string()
-            } else {
-                host
-            };
-            connect = Some((ForgeAccount { kind: kind.into(), host }, fb.token.trim().to_string()));
+        // A pasted address works as a server name too.
+        let host = fb.host.trim().trim_start_matches("https://").trim_start_matches("http://").split('/').next().unwrap_or("").to_ascii_lowercase();
+        let host = if kind == "github" {
+            "github.com".to_string()
+        } else if host.is_empty() {
+            default_host.to_string()
+        } else {
+            host
+        };
+        let acc = ForgeAccount { kind: kind.into(), host };
+        if ui.add_enabled(!busy && fb.device.is_none(), egui::Button::new(tl!("Connect"))).clicked() {
+            connect = Some((acc.clone(), fb.token.trim().to_string()));
+        }
+        // Or sign in on the forge's page, with a short code (GitHub, GitLab: OAuth device flow).
+        #[cfg(not(target_arch = "wasm32"))]
+        if kind != "forgejo" {
+            ui.add_space(4.0);
+            ui.label(egui::RichText::new(tl!("Or sign in with the browser")).strong());
+            let key = format!("{kind}:{}", acc.host);
+            if fb.client_id.as_ref().is_none_or(|(k, _)| *k != key) {
+                fb.client_id = Some((key.clone(), forge_client_id(app, kind, &acc.host)));
+            }
+            let Some((_, client_id)) = fb.client_id.as_mut() else { return };
+            ui.horizontal(|ui| {
+                ui.label(tl!("OAuth app client ID"));
+                ui.add(egui::TextEdit::singleline(client_id).desired_width(240.0));
+            });
+            let id = client_id.trim().to_string();
+            if fb.device.is_none() && ui.add_enabled(!busy && !id.is_empty(), egui::Button::new(tl!("Sign in with the browser"))).clicked() {
+                match forge_device_start(app, ui.ctx(), &acc, &id) {
+                    Ok(dev) => {
+                        app.ui.forge_client_ids.insert(key, id);
+                        fb.device = Some(dev);
+                        fb.error.clear();
+                    }
+                    Err(e) => fb.error = e,
+                }
+            }
         }
     });
+    // A sign-in on the forge's page: show its code until it's approved.
+    if let Some(dev) = fb.device.clone() {
+        let code = dev.code.lock().ok().and_then(|c| c.clone());
+        let done = dev.result.lock().ok().and_then(|mut r| r.take());
+        egui::Frame::group(ui.style()).show(ui, |ui| {
+            if let Some((user_code, page)) = &code {
+                ui.label(tl!("Type this code on the forge's page:"));
+                ui.label(egui::RichText::new(user_code.as_str()).monospace().size(22.0).strong());
+                ui.horizontal(|ui| {
+                    if ui.button(tl!("Open the page")).clicked() {
+                        ui.ctx().open_url(egui::OpenUrl::new_tab(page.as_str()));
+                    }
+                    if ui.button(tl!("Copy the code")).clicked() {
+                        ui.ctx().copy_text(user_code.clone());
+                    }
+                });
+            }
+            ui.horizontal(|ui| {
+                ui.spinner();
+                ui.label(tl!("Waiting for the forge…"));
+                if ui.button(tl!("Cancel")).clicked() {
+                    dev.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
+                    fb.device = None;
+                }
+            });
+        });
+        match done {
+            Some(Ok(v)) => {
+                fb.device = None;
+                let token = v.get("token").and_then(Value::as_str).unwrap_or("").to_string();
+                connect = Some((dev.acc.clone(), token));
+            }
+            Some(Err(e)) => {
+                fb.device = None;
+                fb.error = e;
+            }
+            None => {}
+        }
+    }
     if let Some((acc, typed)) = connect.filter(|_| !busy) {
         match forge_connect(app, ui.ctx(), &acc, &typed) {
             Ok(slot) => {

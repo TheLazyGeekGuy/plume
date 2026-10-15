@@ -2616,6 +2616,12 @@
 	Filter	Филтър
 	No projects on this account.	Няма проекти в този акаунт.
 	Waiting for the forge…	Изчакване на форджа…
+	Or sign in with the browser	Или влезте чрез браузъра
+	OAuth app client ID	Client ID на OAuth приложението
+	Sign in with the browser	Вход чрез браузъра
+	Type this code on the forge's page:	Въведете този код на страницата на форджа:
+	Open the page	Отваряне на страницата
+	Copy the code	Копиране на кода
 	No Markdown documents in this project.	В този проект няма Markdown документи.
 	Or paste the document's address	Или поставете адреса на документа
 	Forge Repositories	Хранилища във форжа

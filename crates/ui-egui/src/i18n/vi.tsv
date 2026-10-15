@@ -2641,6 +2641,12 @@
 	Filter	Lọc
 	No projects on this account.	Tài khoản này không có dự án nào.
 	Waiting for the forge…	Đang chờ forge…
+	Or sign in with the browser	Hoặc đăng nhập bằng trình duyệt
+	OAuth app client ID	ID máy khách của ứng dụng OAuth
+	Sign in with the browser	Đăng nhập bằng trình duyệt
+	Type this code on the forge's page:	Nhập mã này trên trang của forge:
+	Open the page	Mở trang
+	Copy the code	Sao chép mã
 	No Markdown documents in this project.	Dự án này không có tài liệu Markdown.
 	Or paste the document's address	Hoặc dán địa chỉ tài liệu
 	Forge Repositories	Kho mã trên forge

@@ -2263,6 +2263,12 @@
 	Filter	Filter
 	No projects on this account.	Sellel kontol pole projekte.
 	Waiting for the forge…	Ootan forge’i…
+	Or sign in with the browser	Või logi sisse brauseris
+	OAuth app client ID	OAuth-rakenduse kliendi ID
+	Sign in with the browser	Logi sisse brauseris
+	Type this code on the forge's page:	Sisesta see kood forge’i lehel:
+	Open the page	Ava leht
+	Copy the code	Kopeeri kood
 	No Markdown documents in this project.	Selles projektis pole Markdowni dokumente.
 	Or paste the document's address	Või kleepige dokumendi aadress
 	Forge Repositories	Forge'i hoidlad

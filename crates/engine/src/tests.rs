@@ -7329,3 +7329,42 @@ fn line_reply(server: &fake_github::Server, root: u64, who: &str, text: &str) {
         json!({"id": id, "in_reply_to_id": root, "user": {"login": who}, "created_at": "2026-10-15T10:00:00Z", "body": text, "path": "guide.md", "line": 5}),
     );
 }
+
+/// Signing in on the forge's page (device flow): the code to type is shown, the app waits until
+/// it's approved; Cancel stops the wait.
+#[test]
+fn forge_device_sign_in() {
+    use crate::cmd::versions::DeviceSignIn;
+    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+    use wordcraft_vcs::forge::{Request, Response, Transport};
+    struct Github(AtomicUsize);
+    impl Transport for Github {
+        fn send(&self, req: &Request) -> Result<Response, String> {
+            let body = match req.url.as_str() {
+                "https://github.com/login/device/code" => {
+                    json!({"device_code": "dc", "user_code": "WDJB-MJHT", "verification_uri": "https://github.com/login/device", "interval": 1})
+                }
+                "https://github.com/login/oauth/access_token" => {
+                    assert!(req.body.as_deref().unwrap().contains(r#""client_id":"Iv1.plume""#));
+                    if self.0.fetch_add(1, Ordering::SeqCst) == 0 {
+                        json!({"error": "authorization_pending"})
+                    } else {
+                        json!({"access_token": "gho_x"})
+                    }
+                }
+                u => panic!("{u}"),
+            };
+            Ok(Response { status: 200, body: body.to_string().into_bytes() })
+        }
+    }
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.forge_transport = Some(std::sync::Arc::new(Github(AtomicUsize::new(0))));
+    assert!(DeviceSignIn::prepare(&s, &json!({"forge": "github", "clientId": "a/b"})).is_err());
+    let params = json!({"forge": "github", "clientId": "Iv1.plume"});
+    let mut shown = String::new();
+    let token = DeviceSignIn::prepare(&s, &params).unwrap().run(|c| shown = c.user_code.clone(), &AtomicBool::new(false)).unwrap();
+    assert_eq!((token.as_str(), shown.as_str()), ("gho_x", "WDJB-MJHT"));
+    let cancelled = DeviceSignIn::prepare(&s, &params).unwrap().run(|_| {}, &AtomicBool::new(true));
+    assert!(cancelled.unwrap_err().to_string().contains("cancelled"));
+    assert!(DeviceSignIn::prepare(&s, &json!({"forge": "forgejo", "clientId": "x"})).unwrap().run(|_| {}, &AtomicBool::new(false)).is_err());
+}

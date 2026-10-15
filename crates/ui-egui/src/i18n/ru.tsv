@@ -2626,6 +2626,12 @@ preview	Title	Пример
 	Filter	Фильтр
 	No projects on this account.	В этой учётной записи нет проектов.
 	Waiting for the forge…	Ожидание форджа…
+	Or sign in with the browser	Или войдите через браузер
+	OAuth app client ID	ID клиента OAuth-приложения
+	Sign in with the browser	Войти через браузер
+	Type this code on the forge's page:	Введите этот код на странице форджа:
+	Open the page	Открыть страницу
+	Copy the code	Скопировать код
 	No Markdown documents in this project.	В этом проекте нет документов Markdown.
 	Or paste the document's address	Или вставьте адрес документа
 	Forge Repositories	Репозитории forge

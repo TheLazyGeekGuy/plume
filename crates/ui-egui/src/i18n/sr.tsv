@@ -2243,6 +2243,12 @@
 	Filter	Филтер
 	No projects on this account.	На овом налогу нема пројеката.
 	Waiting for the forge…	Чека се forge…
+	Or sign in with the browser	Или се пријавите у прегледачу
+	OAuth app client ID	ИД клијента OAuth апликације
+	Sign in with the browser	Пријави се у прегледачу
+	Type this code on the forge's page:	Унесите овај кôд на страници forge-а:
+	Open the page	Отвори страницу
+	Copy the code	Копирај кôд
 	No Markdown documents in this project.	У овом пројекту нема Markdown докумената.
 	Or paste the document's address	Или налепите адресу документа
 	Forge Repositories	Forge репозиторијуми

@@ -221,7 +221,7 @@ pub struct Remote {
     pub sent: std::collections::BTreeSet<u32>,
 }
 
-pub use remote::{ForgeListing, parse_web_address};
+pub use remote::{DeviceSignIn, ForgeListing, parse_web_address};
 
 /// Versions on a forge, through its REST API: the same commands, no clone.
 mod remote {
@@ -342,6 +342,69 @@ mod remote {
                     )
                 }
                 Some((repo, branch)) => Ok(json!({"files": c.list_markdown(&self.forge, repo, branch).map_err(ferr)?})),
+            }
+        }
+    }
+
+    /// Signing in through the forge's web page (OAuth device flow, GitHub and GitLab): the person
+    /// types a short code there; the app waits on a worker thread. Needs the OAuth application's
+    /// client id (registered on the forge, device flow enabled).
+    pub struct DeviceSignIn {
+        transport: Arc<dyn Transport + Send + Sync>,
+        forge: Forge,
+        client_id: String,
+    }
+
+    impl DeviceSignIn {
+        /// `{forge, host?, clientId}` as for `forge.signIn`.
+        pub fn prepare(s: &Session, v: &Value) -> Result<Self, CmdError> {
+            let forge = forge_of(v)?;
+            let client_id = p::req_str(v, "clientId")?.trim().to_string();
+            if client_id.is_empty()
+                || client_id.len() > 200
+                || !client_id.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_' || b == b'.')
+            {
+                return Err(CmdError::Params("`clientId` is the OAuth application's client id".into()));
+            }
+            Ok(Self { transport: transport(s)?, forge, client_id })
+        }
+
+        fn site(&self) -> String {
+            self.forge.api.trim_end_matches("/api/v4").trim_end_matches("/api/v1").to_string()
+        }
+
+        /// Ask the forge for a code (shown with `show`: the code to type, and the page to type it
+        /// on), then wait until the person approves, refuses, the code expires (15 minutes) or
+        /// `cancel` is set. The access token.
+        pub fn run(self, show: impl FnOnce(&wordcraft_vcs::forge::DeviceCode), cancel: &std::sync::atomic::AtomicBool) -> Result<String, CmdError> {
+            use std::sync::atomic::Ordering;
+            use std::time::{Duration, Instant};
+            use wordcraft_vcs::forge::{device_poll, device_start};
+            let t = self.transport.as_ref();
+            let site = self.site();
+            let scope = if self.forge.kind == wordcraft_vcs::forge::Kind::GitLab { "api" } else { "repo" };
+            let code = device_start(t, self.forge.kind, &site, &self.client_id, scope).map_err(ferr)?;
+            show(&code);
+            let end = Instant::now() + Duration::from_secs(15 * 60);
+            let mut wait = Duration::from_secs(code.interval);
+            loop {
+                // Sleep in short steps so Cancel is quick.
+                let until = Instant::now() + wait;
+                while Instant::now() < until {
+                    if cancel.load(Ordering::Relaxed) {
+                        return Err(CmdError::Failed("sign-in cancelled".into()));
+                    }
+                    std::thread::sleep(Duration::from_millis(100));
+                }
+                if Instant::now() > end {
+                    return Err(CmdError::Failed("the sign-in code expired: start again".into()));
+                }
+                match device_poll(t, self.forge.kind, &site, &self.client_id, &code) {
+                    Ok(Some(token)) => return Ok(token),
+                    // Pending (or slow down: wait a little longer each time).
+                    Ok(None) => wait = (wait + Duration::from_secs(1)).min(Duration::from_secs(30)),
+                    Err(e) => return Err(ferr(e)),
+                }
             }
         }
     }
