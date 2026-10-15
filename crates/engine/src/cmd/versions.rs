@@ -146,7 +146,9 @@ fn documents(s: &mut Session, _: &Value) -> CmdResult {
         Err(_) => path.parent().filter(|d| !d.as_os_str().is_empty()).map(std::path::Path::to_path_buf).unwrap_or_else(|| ".".into()),
     };
     let list = crate::io::markdown_documents(&root).map_err(CmdError::Failed)?;
-    let current = path.strip_prefix(&root).ok().map(|p| p.to_string_lossy().replace('\\', "/"));
+    // Compare resolved paths: on macOS `/var/…` is `/private/var/…`, and Git names the latter.
+    let resolved = |p: &std::path::Path| p.canonicalize().unwrap_or_else(|_| p.to_path_buf());
+    let current = resolved(&path).strip_prefix(resolved(&root)).ok().map(|p| p.to_string_lossy().replace('\\', "/"));
     Ok(json!({"root": root.to_string_lossy(), "current": current, "documents": list}))
 }
 
