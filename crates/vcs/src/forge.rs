@@ -112,8 +112,11 @@ pub trait Transport {
 pub enum ForgeError {
     /// Bad input (a path leaving the repository, an empty name…).
     BadInput(String),
-    /// Not signed in, or the token can't do this (401/403).
+    /// Not signed in: the token is wrong, expired or revoked (401).
     Unauthorized,
+    /// The token works but may not do this: missing permissions (scopes), or no access to the
+    /// repository (403); what the forge said.
+    Forbidden(String),
     /// No such repository, branch or file (404).
     NotFound,
     /// Someone saved a version since this copy was read (409/412/422 on a stale sha): the
@@ -129,7 +132,9 @@ impl std::fmt::Display for ForgeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ForgeError::BadInput(e) => write!(f, "{e}"),
-            ForgeError::Unauthorized => f.write_str("sign in again: the forge refused the request"),
+            ForgeError::Unauthorized => f.write_str("the forge didn't accept the token (wrong, expired or revoked): sign in again with a new one"),
+            ForgeError::Forbidden(e) if e.is_empty() => f.write_str("the token isn't allowed to do this: give it the permissions Plume needs"),
+            ForgeError::Forbidden(e) => write!(f, "the token isn't allowed to do this: give it the permissions Plume needs (the forge said: {e})"),
             ForgeError::NotFound => f.write_str("the repository, branch or document wasn't found"),
             ForgeError::Conflict => f.write_str("someone saved a newer version: get their changes first"),
             ForgeError::Network(e) => write!(f, "can't reach the forge: {e}"),
@@ -238,6 +243,14 @@ fn auth(kind: Kind, token: &str) -> (String, String) {
     }
 }
 
+/// The reason a forge gives in an error answer (`message`, or OAuth's `error_description`):
+/// one line, at most 200 characters.
+fn server_message(text: &str) -> String {
+    let v: Value = serde_json::from_str(text).unwrap_or(Value::Null);
+    let m = ["message", "error_description", "error"].iter().find_map(|k| v.get(*k).and_then(Value::as_str)).unwrap_or("");
+    m.chars().map(|c| if c.is_control() { ' ' } else { c }).take(200).collect::<String>().trim().to_string()
+}
+
 /// A forge session: where, as whom, through what.
 pub struct Client<'a> {
     pub transport: &'a dyn Transport,
@@ -271,7 +284,8 @@ impl Client<'_> {
                     serde_json::from_str(&text).map_err(|e| ForgeError::Server(resp.status, format!("malformed answer: {e}")))
                 }
             }
-            401 | 403 => Err(ForgeError::Unauthorized),
+            401 => Err(ForgeError::Unauthorized),
+            403 => Err(ForgeError::Forbidden(server_message(&text))),
             404 => Err(ForgeError::NotFound),
             409 | 412 => Err(ForgeError::Conflict),
             // GitHub and Forgejo answer 422 for a stale `sha`.

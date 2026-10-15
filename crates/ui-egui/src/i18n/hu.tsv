@@ -2624,6 +2624,7 @@
 	Filter	Szűrő
 	No projects on this account.	Ebben a fiókban nincs projekt.
 	Waiting for the forge…	Várakozás a forge-ra…
+	Permissions the token needs:	A tokenhez szükséges jogosultságok:
 	Or sign in with the browser	Vagy jelentkezzen be a böngészőben
 	OAuth app client ID	OAuth-alkalmazás ügyfél-azonosítója
 	Sign in with the browser	Bejelentkezés a böngészőben

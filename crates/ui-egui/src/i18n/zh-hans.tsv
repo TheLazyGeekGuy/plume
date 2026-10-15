@@ -2241,6 +2241,7 @@
 	Filter	筛选
 	No projects on this account.	此帐户没有项目。
 	Waiting for the forge…	正在等待代码托管平台…
+	Permissions the token needs:	令牌所需的权限：
 	Or sign in with the browser	或在浏览器中登录
 	OAuth app client ID	OAuth 应用客户端 ID
 	Sign in with the browser	在浏览器中登录

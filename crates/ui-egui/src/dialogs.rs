@@ -4307,6 +4307,15 @@ fn forge_browser(app: &mut WordApp, ui: &mut Ui, fb: &mut ForgeBrowser) -> bool 
             ui.label(tl!("Access token"));
             ui.add(egui::TextEdit::singleline(&mut fb.token).password(true).desired_width(320.0));
             ui.end_row();
+            // What to tick when making the token on the forge.
+            let scopes = match kind {
+                "gitlab" => "api",
+                "forgejo" => "read:user, write:repository, write:issue",
+                _ => "repo (classic) — Contents, Pull requests: read & write (fine-grained)",
+            };
+            ui.label("");
+            ui.label(egui::RichText::new(format!("{} {scopes}", tl!("Permissions the token needs:"))).small().weak());
+            ui.end_row();
         });
         if app.services.secrets.is_some() {
             ui.checkbox(&mut fb.remember, tl!("Remember the token in the keychain"));

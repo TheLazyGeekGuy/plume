@@ -285,6 +285,18 @@ mod forges {
         };
         let c = Client { transport: &fake, token: "t".into() };
         assert_eq!(c.read(&doc(Forge::github()), None), Err(ForgeError::Unauthorized));
+        // A token without the permissions: what the forge said comes through.
+        let scoped = Fake {
+            routes: vec![(
+                "GET",
+                "https://codeberg.org/api/v1/user/repos".into(),
+                403,
+                json!({"message": "token does not have at least one of required scope(s): [read:user]"}),
+            )],
+            seen: RefCell::new(Vec::new()),
+        };
+        let e = Client { transport: &scoped, token: "t".into() }.list_repos(&Forge::forgejo("codeberg.org")).unwrap_err();
+        assert!(e.to_string().contains("[read:user]"), "{e}");
         let code = device_start(&fake, Kind::GitHub, "", "client", "repo").unwrap();
         assert_eq!(code.user_code, "ABCD-1234");
         assert_eq!(device_poll(&fake, Kind::GitHub, "", "client", &code), Ok(None));

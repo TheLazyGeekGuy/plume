@@ -2626,6 +2626,7 @@ preview	Title	Пример
 	Filter	Фильтр
 	No projects on this account.	В этой учётной записи нет проектов.
 	Waiting for the forge…	Ожидание форджа…
+	Permissions the token needs:	Права, нужные токену:
 	Or sign in with the browser	Или войдите через браузер
 	OAuth app client ID	ID клиента OAuth-приложения
 	Sign in with the browser	Войти через браузер
