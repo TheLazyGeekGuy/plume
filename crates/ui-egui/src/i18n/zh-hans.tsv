@@ -2222,6 +2222,7 @@
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	打开时，Markdown 无法保留的命令（文字颜色、下划线、文本框、分栏…）将被关闭。关闭时，它们可用，保存时会说明 Markdown 未保留的内容。
 	Request Review	请求审阅
 	Get Review Comments	获取审阅意见
+	Send Replies	发送回复
 	Review Status	审阅状态
 	Open the document from GitHub, GitLab or Forgejo to ask for a review	从 GitHub、GitLab 或 Forgejo 打开文档以请求审阅
 	What should your colleagues review?	同事应审阅什么？

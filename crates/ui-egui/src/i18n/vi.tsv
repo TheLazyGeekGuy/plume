@@ -2622,6 +2622,7 @@
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Bật: các lệnh Markdown không giữ được (màu chữ, gạch chân, hộp văn bản, cột…) bị tắt. Tắt: chúng vẫn hoạt động và khi lưu sẽ cho biết Markdown đã không giữ những gì.
 	Request Review	Yêu cầu xem xét
 	Get Review Comments	Lấy nhận xét xem xét
+	Send Replies	Gửi trả lời
 	Review Status	Trạng thái xem xét
 	Open the document from GitHub, GitLab or Forgejo to ask for a review	Mở tài liệu từ GitHub, GitLab hoặc Forgejo để yêu cầu xem xét
 	What should your colleagues review?	Đồng nghiệp cần xem xét gì?

@@ -2217,6 +2217,7 @@
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Activé, les commandes que le Markdown ne peut pas conserver (couleur du texte, soulignement, zones de texte, colonnes…) sont désactivées. Désactivé, elles fonctionnent et l'enregistrement indique ce que le Markdown n'a pas conservé.
 	Request Review	Demander une relecture
 	Get Review Comments	Récupérer les commentaires de relecture
+	Send Replies	Envoyer les réponses
 	Review Status	État de la relecture
 	Open the document from GitHub, GitLab or Forgejo to ask for a review	Ouvrez le document depuis GitHub, GitLab ou Forgejo pour demander une relecture
 	What should your colleagues review?	Que doivent relire vos collègues ?

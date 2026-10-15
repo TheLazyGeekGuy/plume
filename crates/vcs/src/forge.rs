@@ -621,6 +621,21 @@ pub struct ReviewComment {
     pub path: Option<String>,
     /// 1-based line of the file, when the forge says it.
     pub line: Option<u32>,
+    /// Where a reply to it goes.
+    pub reply_to: ReplyTo,
+}
+
+/// Where a reply to a reviewer's comment goes.
+#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
+pub enum ReplyTo {
+    /// A new comment on the review's conversation (comments on the review as a whole; Forgejo's
+    /// line comments, which take no replies through its API).
+    #[default]
+    Conversation,
+    /// GitHub: the thread under this line comment (the thread's first comment).
+    Thread(String),
+    /// GitLab: this discussion.
+    Discussion(String),
 }
 
 /// Where a review stands.
@@ -635,6 +650,8 @@ pub struct ReviewState {
 
 /// Most comments read from one review.
 pub const MAX_COMMENTS: usize = 2_000;
+/// The longest reply sent (GitHub takes 65,536 characters).
+pub const MAX_REPLY: usize = 65_000;
 
 /// A branch name made of safe characters only.
 pub fn check_branch(branch: &str) -> Result<(), ForgeError> {
@@ -739,6 +756,7 @@ impl Client<'_> {
                         body: s(c.get("body")),
                         path: None,
                         line: None,
+                        reply_to: ReplyTo::Conversation,
                     });
                 }
                 if k == Kind::GitHub {
@@ -750,6 +768,10 @@ impl Client<'_> {
                             body: s(c.get("body")),
                             path: c.get("path").and_then(Value::as_str).map(str::to_string),
                             line: line(c.get("line")).or_else(|| line(c.get("original_line"))),
+                            reply_to: ReplyTo::Thread({
+                                let root = id(c.get("in_reply_to_id"));
+                                if root.is_empty() { id(c.get("id")) } else { root }
+                            }),
                         });
                     }
                 } else {
@@ -763,6 +785,7 @@ impl Client<'_> {
                                 body: s(r.get("body")),
                                 path: None,
                                 line: None,
+                                reply_to: ReplyTo::Conversation,
                             });
                         }
                         if rid.is_empty() || !rid.bytes().all(|b| b.is_ascii_digit()) {
@@ -776,6 +799,7 @@ impl Client<'_> {
                                 body: s(c.get("body")),
                                 path: c.get("path").and_then(Value::as_str).map(str::to_string),
                                 line: line(c.get("position")).or_else(|| line(c.get("original_position"))),
+                                reply_to: ReplyTo::Conversation,
                             });
                         }
                     }
@@ -794,6 +818,7 @@ impl Client<'_> {
                             body: s(n.get("body")),
                             path: n.pointer("/position/new_path").and_then(Value::as_str).map(str::to_string),
                             line: line(n.pointer("/position/new_line")),
+                            reply_to: ReplyTo::Discussion(s(d.get("id"))),
                         });
                     }
                 }
@@ -803,6 +828,28 @@ impl Client<'_> {
         out.truncate(MAX_COMMENTS);
         out.sort_by(|a, b| a.date.cmp(&b.date));
         Ok(out)
+    }
+
+    /// Post `body` as a reply on review `number`, where `to` says; the new comment's id.
+    pub fn reply(&self, doc: &DocRef, number: u64, to: &ReplyTo, body: &str) -> Result<String, ForgeError> {
+        check_doc(doc)?;
+        if body.trim().is_empty() || body.len() > MAX_REPLY {
+            return Err(ForgeError::BadInput("a reply is 1 to 65,000 bytes of text".into()));
+        }
+        // Ids go into the address: only the forges' own (digits; GitLab's discussions, hex).
+        let safe = |id: &str| !id.is_empty() && id.len() <= 64 && id.bytes().all(|b| b.is_ascii_alphanumeric());
+        let base = Self::repo_url(doc);
+        let k = doc.forge.kind;
+        let url = match (k, to) {
+            (Kind::GitHub, ReplyTo::Thread(id)) if safe(id) => format!("{base}/pulls/{number}/comments/{id}/replies"),
+            (Kind::GitLab, ReplyTo::Discussion(id)) if safe(id) => format!("{base}/merge_requests/{number}/discussions/{id}/notes"),
+            (Kind::GitLab, _) => format!("{base}/merge_requests/{number}/notes"),
+            (_, ReplyTo::Conversation) | (Kind::Forgejo, _) => format!("{base}/issues/{number}/comments"),
+            _ => return Err(ForgeError::BadInput("this comment can't be answered".into())),
+        };
+        let v = self.call(k, Method::Post, url, Some(json!({"body": body})))?;
+        let id = v.get("id").map(|x| x.as_u64().map(|n| n.to_string()).unwrap_or_else(|| x.as_str().unwrap_or("").to_string())).unwrap_or_default();
+        Ok(id)
     }
 
     /// Who approved review `number`, who asked for changes, and whether it was merged.

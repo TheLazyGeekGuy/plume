@@ -2244,6 +2244,7 @@
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Sees: käsud, mida Markdown ei säilita (teksti värv, allakriipsutus, tekstiväljad, veerud…), on välja lülitatud. Väljas: need töötavad ja salvestamisel öeldakse, mida Markdown ei säilitanud.
 	Request Review	Taotle ülevaatust
 	Get Review Comments	Too ülevaatuse kommentaarid
+	Send Replies	Saada vastused
 	Review Status	Ülevaatuse olek
 	Open the document from GitHub, GitLab or Forgejo to ask for a review	Ülevaatuse taotlemiseks avage dokument GitHubist, GitLabist või Forgejost
 	What should your colleagues review?	Mida peaksid kolleegid üle vaatama?

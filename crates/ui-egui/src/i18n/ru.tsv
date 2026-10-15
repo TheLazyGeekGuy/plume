@@ -2607,6 +2607,7 @@ preview	Title	Пример
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Включено: команды, которые Markdown не может сохранить (цвет текста, подчёркивание, надписи, колонки…), отключены. Выключено: они работают, а при сохранении сообщается, что Markdown не сохранил.
 	Request Review	Запросить рецензию
 	Get Review Comments	Получить комментарии рецензии
+	Send Replies	Отправить ответы
 	Review Status	Состояние рецензии
 	Open the document from GitHub, GitLab or Forgejo to ask for a review	Чтобы запросить рецензию, откройте документ из GitHub, GitLab или Forgejo
 	What should your colleagues review?	Что должны проверить коллеги?

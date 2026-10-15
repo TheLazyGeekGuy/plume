@@ -885,6 +885,13 @@ pub fn paint(p: &Painter, r: Rect, name: &str, c: Color32, accent: Color32) {
             pen.line_c(&[(6.0, 7.5), (14.0, 7.5)], a);
             pen.line_c(&[(6.0, 10.0), (12.0, 10.0)], a);
         }
+        // A speech bubble with an arrow going out.
+        "sendReplies" => {
+            pen.rect(2.5, 3.0, 12.5, 10.0, c);
+            pen.line_c(&[(5.0, 10.0), (5.0, 13.5), (8.5, 10.0)], c);
+            pen.line_c(&[(10.0, 15.0), (17.5, 15.0)], a);
+            pen.line_c(&[(14.5, 12.0), (17.5, 15.0), (14.5, 18.0)], a);
+        }
         "sync" => {
             pen.line_c(&[(4.0, 9.0), (6.0, 5.5), (10.0, 4.0), (14.0, 5.5), (16.0, 8.0)], a);
             pen.line_c(&[(16.0, 4.5), (16.0, 8.0), (12.5, 8.0)], a);

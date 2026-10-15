@@ -2592,6 +2592,7 @@ preview	Title	Esempio
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Attivo: i comandi che Markdown non può conservare (colore del testo, sottolineatura, caselle di testo, colonne…) sono disattivati. Disattivo: funzionano e il salvataggio indica cosa Markdown non ha conservato.
 	Request Review	Richiedi revisione
 	Get Review Comments	Recupera commenti di revisione
+	Send Replies	Invia risposte
 	Review Status	Stato revisione
 	Open the document from GitHub, GitLab or Forgejo to ask for a review	Apri il documento da GitHub, GitLab o Forgejo per richiedere una revisione
 	What should your colleagues review?	Cosa devono rivedere i colleghi?

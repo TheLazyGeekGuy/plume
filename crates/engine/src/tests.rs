@@ -7013,6 +7013,21 @@ mod fake_github {
                     st.pulls.push((body["head"].as_str().unwrap().into(), body["base"].as_str().unwrap().into()));
                     ok(json!({"number": st.pulls.len(), "html_url": format!("https://github.com/acme/docs/pull/{}", st.pulls.len())}))
                 }
+                // Replies: on the conversation, or in a line comment's thread. They come back
+                // with the comments, like on GitHub.
+                (Method::Post, "/issues/1/comments") => {
+                    st.n += 1;
+                    let c = json!({"id": 1000 + st.n, "user": {"login": "ada"}, "created_at": "2026-10-15T09:00:00Z", "body": body["body"]});
+                    self.issue_comments.lock().unwrap().as_array_mut().unwrap().push(c.clone());
+                    ok(c)
+                }
+                (Method::Post, r) if r.starts_with("/pulls/1/comments/") && r.ends_with("/replies") => {
+                    st.n += 1;
+                    let root: u64 = r["/pulls/1/comments/".len()..r.len() - "/replies".len()].parse().unwrap();
+                    let c = json!({"id": 1000 + st.n, "in_reply_to_id": root, "user": {"login": "ada"}, "created_at": "2026-10-15T09:00:00Z", "body": body["body"], "path": "guide.md", "line": 5});
+                    self.line_comments.lock().unwrap().as_array_mut().unwrap().push(c.clone());
+                    ok(c)
+                }
                 (Method::Get, "/issues/1/comments") => ok(self.issue_comments.lock().unwrap().clone()),
                 (Method::Get, "/pulls/1/comments") => ok(self.line_comments.lock().unwrap().clone()),
                 (Method::Get, "/pulls/1/reviews") => ok(self.reviews.lock().unwrap().clone()),
@@ -7182,6 +7197,32 @@ fn forge_review_round_trip() {
     assert_eq!(bobs.text, "Which budget?");
     // Read twice, brought in once.
     assert_eq!(s.run("vcs.reviewComments", &json!({})).unwrap()["imported"], json!(0));
+
+    // Replies typed under their comments go back to the review: in Bob's line-comment thread,
+    // and on the conversation for Carol's, quoting her. Sent once; they don't come back as
+    // comments of their own.
+    let id_of = |s: &Session, who: &str| *s.doc.comments.iter().find(|(_, c)| c.author == who && c.parent.is_none()).unwrap().0;
+    let (bob, carol) = (id_of(&s, "bob"), id_of(&s, "carol"));
+    assert_eq!(s.run("vcs.sendReplies", &json!({})).unwrap()["sent"], json!(0), "nothing to send yet");
+    s.run("review.reply", &json!({"id": bob, "text": "The 2027 budget."})).unwrap();
+    s.run("review.reply", &json!({"id": carol, "text": "Thanks!"})).unwrap();
+    assert_eq!(s.run("vcs.sendReplies", &json!({})).unwrap()["sent"], json!(2));
+    let lines = server.line_comments.lock().unwrap().clone();
+    assert_eq!(lines[1]["in_reply_to_id"], json!(11));
+    assert_eq!(lines[1]["body"], json!("The 2027 budget."));
+    let convo = server.issue_comments.lock().unwrap().clone();
+    assert_eq!(convo[1]["body"], json!("> carol: Looks good overall.\n\nThanks!"));
+    assert_eq!(s.run("vcs.sendReplies", &json!({})).unwrap()["sent"], json!(0), "sent once");
+    let before = s.doc.comments.len();
+    assert_eq!(s.run("vcs.reviewComments", &json!({})).unwrap()["imported"], json!(0), "our replies aren't brought back");
+    assert_eq!(s.doc.comments.len(), before);
+    // Bob answers in his thread: a reply under his comment, not a new comment.
+    line_reply(&server, 11, "bob", "Right, thanks.");
+    assert_eq!(s.run("vcs.reviewComments", &json!({})).unwrap()["imported"], json!(1));
+    let (_, answer) = s.doc.comments.iter().next_back().unwrap();
+    assert_eq!((answer.author.as_str(), answer.parent), ("bob", Some(bob)));
+    assert_eq!(s.run("vcs.sendReplies", &json!({})).unwrap()["sent"], json!(0), "his reply isn't sent back");
+
     let st = s.run("vcs.reviewStatus", &json!({})).unwrap();
     assert_eq!(st["approvedBy"], json!(["carol"]));
     assert_eq!(st["changesRequestedBy"], json!(["bob"]));
@@ -7278,4 +7319,13 @@ fn forge_listing_runs_off_the_session() {
     let off = std::thread::spawn(move || job.run().map_err(|e| e.to_string())).join().unwrap();
     let here = s.run("forge.files", &files).map_err(|e| e.to_string());
     assert_eq!(off, here);
+}
+
+/// A colleague's reply in line comment `root`'s thread on the fake server.
+fn line_reply(server: &fake_github::Server, root: u64, who: &str, text: &str) {
+    let mut lines = server.line_comments.lock().unwrap();
+    let id = 5000 + lines.as_array().unwrap().len();
+    lines.as_array_mut().unwrap().push(
+        json!({"id": id, "in_reply_to_id": root, "user": {"login": who}, "created_at": "2026-10-15T10:00:00Z", "body": text, "path": "guide.md", "line": 5}),
+    );
 }

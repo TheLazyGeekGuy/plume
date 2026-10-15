@@ -2606,6 +2606,7 @@ preview	Title	Örnek
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Açık: Markdown'ın koruyamadığı komutlar (metin rengi, altı çizili, metin kutuları, sütunlar…) kapatılır. Kapalı: çalışırlar ve kaydetme, Markdown'ın neyi korumadığını söyler.
 	Request Review	İnceleme İste
 	Get Review Comments	İnceleme Yorumlarını Al
+	Send Replies	Yanıtları gönder
 	Review Status	İnceleme Durumu
 	Open the document from GitHub, GitLab or Forgejo to ask for a review	İnceleme istemek için belgeyi GitHub, GitLab veya Forgejo'dan açın
 	What should your colleagues review?	Meslektaşlarınız neyi incelemeli?

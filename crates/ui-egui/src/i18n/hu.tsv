@@ -2605,6 +2605,7 @@
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Bekapcsolva a Markdown által meg nem őrizhető parancsok (szövegszín, aláhúzás, szövegdobozok, hasábok…) ki vannak kapcsolva. Kikapcsolva működnek, és mentéskor kiderül, mit nem őrzött meg a Markdown.
 	Request Review	Áttekintés kérése
 	Get Review Comments	Áttekintési megjegyzések lekérése
+	Send Replies	Válaszok küldése
 	Review Status	Áttekintés állapota
 	Open the document from GitHub, GitLab or Forgejo to ask for a review	Áttekintés kéréséhez nyissa meg a dokumentumot GitHubról, GitLabról vagy Forgejóról
 	What should your colleagues review?	Mit nézzenek át a kollégái?

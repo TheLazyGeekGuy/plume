@@ -123,6 +123,9 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("vcs.reviewComments", "Get Review Comments", "Review › Versions", remote::review_comments)
             .when(forge_document)
             .params(r#"{} → {imported, comments}: colleagues' comments on the review become comments in the document, on the paragraph they're about"#),
+        CommandSpec::new("vcs.sendReplies", "Send Replies", "Review › Versions", remote::send_replies)
+            .when(forge_document)
+            .params(r#"{} → {sent}: your replies to reviewers' comments are posted on the review, in the comment's thread"#),
         CommandSpec::new("vcs.reviewStatus", "Review Status", "Review › Versions", remote::review_status)
             .when(forge_document)
             .params(r#"{} → {review?, approvedBy: [name], changesRequestedBy: [name], merged, closed}"#)
@@ -211,6 +214,11 @@ pub struct Remote {
     pub review: Option<wordcraft_vcs::forge::Review>,
     /// Reviewers' comments already brought in as comments (by forge id).
     pub imported: std::collections::BTreeSet<String>,
+    /// The document's comments that start a reviewer's thread: where replies to them go, and
+    /// who wrote them.
+    pub threads: std::collections::BTreeMap<u32, (wordcraft_vcs::forge::ReplyTo, String)>,
+    /// The document's comments already on the forge (brought in, or replies sent).
+    pub sent: std::collections::BTreeSet<u32>,
 }
 
 pub use remote::{ForgeListing, parse_web_address};
@@ -411,7 +419,8 @@ mod remote {
         let name = doc.path.rsplit('/').next().unwrap_or(&doc.path).to_string();
         s.path = None;
         s.file_name = Some(name.trim_end_matches(".markdown").trim_end_matches(".md").to_string());
-        s.forge = Some(Remote { doc, sha: sha.clone(), review: None, imported: Default::default() });
+        s.forge =
+            Some(Remote { doc, sha: sha.clone(), review: None, imported: Default::default(), threads: Default::default(), sent: Default::default() });
         s.imported_from = None;
         s.import_report.clear();
         s.dirty = false;
@@ -609,38 +618,106 @@ mod remote {
         let (md, _) = c.read(&r.doc, None).map_err(ferr)?;
         let md = wordcraft_formats::txt::decode(&md);
         let mut imported = 0usize;
+        let (mut threads, mut sent) = (r.threads.clone(), r.sent.clone());
         for rc in comments.iter().filter(|rc| !r.imported.contains(&rc.id)) {
             // A comment on another file of the repository isn't about this document.
             if rc.path.as_deref().is_some_and(|p| p != r.doc.path) {
                 continue;
             }
-            let bi = paragraph_for(&s.doc, &md, rc.line);
-            let Some(wordcraft_doc::Block::Para(para)) = s.doc.body.get(bi).map(|b| &**b) else { continue };
-            let len = para.len();
-            let part = s.doc.add_part(
-                wordcraft_doc::PartKind::Comment,
-                vec![wordcraft_doc::para_block(wordcraft_doc::Paragraph::with_text(
-                    &wordcraft_formats::model::clean_text(&rc.body),
-                    Default::default(),
-                ))],
-            );
-            let id = s.doc.comments.keys().next_back().map(|k| k + 1).unwrap_or(0);
+            let text = wordcraft_formats::model::clean_text(&rc.body);
             let initials: String = rc.author.split_whitespace().filter_map(|w| w.chars().next()).take(3).collect();
-            s.doc
-                .comments
-                .insert(id, wordcraft_doc::Comment { author: rc.author.clone(), initials, date: rc.date.clone(), part, ..Default::default() });
-            let props = wordcraft_doc::CharProps::default();
-            s.doc.insert_object(&wordcraft_doc::Pos::body(bi, len), wordcraft_doc::InlineObject::CommentEnd { id }, &props)?;
-            s.doc.insert_object(&wordcraft_doc::Pos::body(bi, 0), wordcraft_doc::InlineObject::CommentStart { id }, &props)?;
+            let id = wordcraft_doc::free_id(s.doc.comments.keys().next_back().copied(), s.doc.comments.keys().copied(), 0)
+                .ok_or_else(|| CmdError::Failed("no free comment id".into()))?;
+            // A reply in a thread already in the document joins it.
+            let root = (rc.reply_to != wordcraft_vcs::forge::ReplyTo::Conversation)
+                .then(|| threads.iter().find(|(k, (to, _))| *to == rc.reply_to && s.doc.comments.contains_key(k)).map(|(k, _)| *k))
+                .flatten();
+            let part = s.doc.try_add_part(
+                wordcraft_doc::PartKind::Comment,
+                vec![wordcraft_doc::para_block(wordcraft_doc::Paragraph::with_text(&text, Default::default()))],
+            )?;
+            let comment =
+                wordcraft_doc::Comment { author: rc.author.clone(), initials, date: rc.date.clone(), part, parent: root, ..Default::default() };
+            if root.is_none() {
+                let bi = paragraph_for(&s.doc, &md, rc.line);
+                let Some(wordcraft_doc::Block::Para(para)) = s.doc.body.get(bi).map(|b| &**b) else { continue };
+                let len = para.len();
+                s.doc.comments.insert(id, comment);
+                let props = wordcraft_doc::CharProps::default();
+                s.doc.insert_object(&wordcraft_doc::Pos::body(bi, len), wordcraft_doc::InlineObject::CommentEnd { id }, &props)?;
+                s.doc.insert_object(&wordcraft_doc::Pos::body(bi, 0), wordcraft_doc::InlineObject::CommentStart { id }, &props)?;
+                threads.insert(id, (rc.reply_to.clone(), rc.author.clone()));
+            } else {
+                s.doc.comments.insert(id, comment);
+            }
+            sent.insert(id);
             imported += 1;
         }
         if let Some(f) = s.forge.as_mut() {
             f.imported.extend(comments.iter().map(|c| c.id.clone()));
+            f.threads = threads;
+            f.sent = sent;
         }
         if imported > 0 {
             s.view.comments_pane = true;
         }
         Ok(json!({"imported": imported, "comments": comments.len()}))
+    }
+
+    /// The replies typed under reviewers' comments that aren't on the forge yet go to the
+    /// comment's thread (or, where the forge has none, to the review's conversation, quoting it).
+    pub(super) fn send_replies(s: &mut Session, _: &Value) -> CmdResult {
+        let r = current(s)?;
+        let review = r.review.clone().ok_or_else(|| CmdError::Failed("ask for a review first".into()))?;
+        let t = transport(s)?;
+        let c = Client { transport: t.as_ref(), token: token(s, &r.doc.forge)? };
+        let root_of = |mut id: u32| {
+            for _ in 0..64 {
+                match s.doc.comments.get(&id).and_then(|c| c.parent) {
+                    Some(p) => id = p,
+                    None => break,
+                }
+            }
+            id
+        };
+        let text =
+            |id: u32| s.doc.comments.get(&id).map(|c| s.doc.plain_text(wordcraft_doc::StoryRef::Part(c.part))).unwrap_or_default().trim().to_string();
+        let mut todo = Vec::new();
+        for (id, cm) in &s.doc.comments {
+            if cm.parent.is_none() || r.sent.contains(id) {
+                continue;
+            }
+            let root = root_of(*id);
+            let Some((to, author)) = r.threads.get(&root) else { continue };
+            let body = text(*id);
+            if body.is_empty() {
+                continue;
+            }
+            let body = if *to == wordcraft_vcs::forge::ReplyTo::Conversation {
+                // No thread to reply in: say which comment this answers.
+                let quoted: String = text(root).lines().next().unwrap_or("").chars().take(200).collect();
+                format!("> {author}: {quoted}\n\n{body}")
+            } else {
+                body
+            };
+            todo.push((*id, to.clone(), body));
+        }
+        let mut done = 0usize;
+        for (id, to, body) in todo {
+            let posted = c.reply(&r.doc, review.number, &to, &body).map_err(ferr);
+            let Some(f) = s.forge.as_mut() else { break };
+            match posted {
+                Ok(forge_id) => {
+                    f.sent.insert(id);
+                    if !forge_id.is_empty() {
+                        f.imported.insert(forge_id);
+                    }
+                    done += 1;
+                }
+                Err(e) => return Err(CmdError::Failed(format!("{done} replies sent; the next one failed: {e}"))),
+            }
+        }
+        Ok(json!({"sent": done}))
     }
 
     pub(super) fn review_status(s: &mut Session, _: &Value) -> CmdResult {

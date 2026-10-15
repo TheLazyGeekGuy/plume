@@ -2220,6 +2220,7 @@
 	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Uključeno: komande koje Markdown ne može da zadrži (boja teksta, podvlačenje, okviri za tekst, kolone…) su isključene. Isključeno: rade, a čuvanje kaže šta Markdown nije zadržao.
 	Request Review	Zatraži pregled
 	Get Review Comments	Preuzmi komentare pregleda
+	Send Replies	Pošalji odgovore
 	Review Status	Stanje pregleda
 	Open the document from GitHub, GitLab or Forgejo to ask for a review	Otvorite dokument sa GitHub-a, GitLab-a ili Forgejo-a da biste zatražili pregled
 	What should your colleagues review?	Šta kolege treba da pregledaju?

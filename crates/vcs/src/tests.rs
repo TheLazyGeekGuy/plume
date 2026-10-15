@@ -131,6 +131,37 @@ mod forges {
     const SHA1: &str = "1111111111111111111111111111111111111111";
     const SHA2: &str = "2222222222222222222222222222222222222222";
 
+    /// A reply goes to the comment's thread where the forge has one, else to the conversation;
+    /// ids from the forge are checked before they go into an address.
+    #[test]
+    fn replies_go_to_the_thread() {
+        let fake = Fake { routes: vec![("POST", String::new(), 201, json!({"id": 77}))], seen: RefCell::new(Vec::new()) };
+        let c = Client { transport: &fake, token: "t".into() };
+        let gh = doc(Forge::github());
+        assert_eq!(c.reply(&gh, 3, &ReplyTo::Thread("11".into()), "Yes.").unwrap(), "77");
+        c.reply(&gh, 3, &ReplyTo::Conversation, "Yes.").unwrap();
+        let gl = doc(Forge::gitlab("gitlab.example.org"));
+        c.reply(&gl, 3, &ReplyTo::Discussion("6a9c1750b37d513a".into()), "Yes.").unwrap();
+        c.reply(&gl, 3, &ReplyTo::Conversation, "Yes.").unwrap();
+        c.reply(&doc(Forge::forgejo("codeberg.org")), 3, &ReplyTo::Thread("11".into()), "Yes.").unwrap();
+        let urls: Vec<String> = fake.seen.borrow().iter().map(|r| r.url.clone()).collect();
+        assert_eq!(
+            urls,
+            [
+                "https://api.github.com/repos/acme/handbook/pulls/3/comments/11/replies",
+                "https://api.github.com/repos/acme/handbook/issues/3/comments",
+                "https://gitlab.example.org/api/v4/projects/acme%2Fhandbook/merge_requests/3/discussions/6a9c1750b37d513a/notes",
+                "https://gitlab.example.org/api/v4/projects/acme%2Fhandbook/merge_requests/3/notes",
+                "https://codeberg.org/api/v1/repos/acme/handbook/issues/3/comments",
+            ]
+        );
+        assert_eq!(fake.seen.borrow()[0].body.as_deref(), Some(r#"{"body":"Yes."}"#));
+        assert!(c.reply(&gh, 3, &ReplyTo::Thread("../../x".into()), "Yes.").is_err());
+        assert!(c.reply(&gh, 3, &ReplyTo::Discussion("1".into()), "Yes.").is_err());
+        assert!(c.reply(&gh, 3, &ReplyTo::Conversation, "  ").is_err());
+        assert_eq!(fake.seen.borrow().len(), 5, "refused before sending");
+    }
+
     #[test]
     fn base64_and_encoding() {
         for data in [&b""[..], b"f", b"fo", b"foo", b"foob", b"\x00\xff\x10"] {
