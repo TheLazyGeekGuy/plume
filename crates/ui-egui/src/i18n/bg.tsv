@@ -2750,3 +2750,7 @@
 	{n} models on the server.	Модели на сървъра: {n}.
 	{ready} of {n} tables can be sent to the model.	Таблици, които могат да се изпратят към модела: {ready} от {n}.
 	Saved to {forge}	Записано в {forge}
+	Changes Since Last Version	Промени от последната версия
+	No changes since the last version.	Няма промени от последната версия.
+	Showing the changes since the last version ({n} paragraphs).	Показани са промените от последната версия (абзаци: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Проследяване оттук нататък: последната версия не може да се прочете ({error}).

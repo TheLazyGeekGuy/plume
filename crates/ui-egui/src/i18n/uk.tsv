@@ -2374,3 +2374,7 @@
 	{n} models on the server.	Моделей на сервері: {n}.
 	{ready} of {n} tables can be sent to the model.	Можна надіслати моделі таблиць: {ready} з {n}.
 	Saved to {forge}	Збережено в {forge}
+	Changes Since Last Version	Зміни з останньої версії
+	No changes since the last version.	Змін з останньої версії немає.
+	Showing the changes since the last version ({n} paragraphs).	Показано зміни з останньої версії (абзаців: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Відстеження відтепер: останню версію не вдалося прочитати ({error}).

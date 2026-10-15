@@ -2759,3 +2759,7 @@ preview	Title	Пример
 	{n} models on the server.	Моделей на сервере: {n}.
 	{ready} of {n} tables can be sent to the model.	Можно отправить модели таблиц: {ready} из {n}.
 	Saved to {forge}	Сохранено в {forge}
+	Changes Since Last Version	Изменения с последней версии
+	No changes since the last version.	Изменений с последней версии нет.
+	Showing the changes since the last version ({n} paragraphs).	Показаны изменения с последней версии (абзацев: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Отслеживание с этого момента: последнюю версию не удалось прочитать ({error}).

@@ -7988,3 +7988,45 @@ fn forge_save_as_new_document() {
     assert!(String::from_utf8(server.file("notes/meeting.md").unwrap()).unwrap().contains("(draft)"));
     assert!(s.run("forge.saveAs", &json!({"forge": "github", "repo": "acme/docs", "path": "../x"})).is_err());
 }
+
+/// Plume: versions and tracked changes are one thing. Turning Track Changes on in a versioned
+/// document shows what changed since the last version, even edits typed while it was off; a new
+/// version takes them in and starts clean.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn track_changes_show_the_changes_since_the_last_version() {
+    let dir = scratch_dir("track-since-version");
+    let md = dir.join("handbook.md");
+    let mut s = Session::new(wordcraft_doc::Document::from_text("The Open Studio Handbook\nEvery Thursday the shop fills up."));
+    s.native_markdown = true;
+    s.run("file.save", &json!({"path": md.to_string_lossy()})).unwrap();
+    s.run("vcs.init", &json!({})).unwrap();
+    s.run("vcs.saveVersion", &json!({"message": "First", "author": "Ada", "email": "ada@x.org"})).unwrap();
+    // Typed with tracking off.
+    s.run("caret.set", &json!({"pos": {"block": 0, "off": 4}})).unwrap();
+    s.run("text.insert", &json!({"text": "My "})).unwrap();
+    s.run("select.range", &json!({"anchor": {"block": 1, "off": 0}, "focus": {"block": 1, "off": 14}})).unwrap();
+    s.run("text.delete", &json!({})).unwrap();
+    assert!(s.run("review.changes", &json!({})).unwrap().as_array().unwrap().is_empty());
+    let on = s.run("review.trackChanges", &json!({"value": true})).unwrap();
+    assert!(on["sinceVersion"].as_u64().unwrap() >= 1, "{on}");
+    let changes = s.run("review.changes", &json!({})).unwrap();
+    let kinds: Vec<&str> = changes.as_array().unwrap().iter().filter_map(|c| c["kind"].as_str()).collect();
+    assert!(kinds.contains(&"insert") && kinds.contains(&"delete"), "{changes}");
+    let text = s.doc.plain_text(wordcraft_doc::StoryRef::Body);
+    assert!(text.contains("My") && text.contains("Every Thursday"), "deleted text shows struck through: {text}");
+    // Edits from now on are tracked on top; the saved version is the text as it reads.
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " Bread too."})).unwrap();
+    s.run("vcs.saveVersion", &json!({"message": "Second", "author": "Ada", "email": "ada@x.org"})).unwrap();
+    assert!(s.run("review.changes", &json!({})).unwrap().as_array().unwrap().is_empty(), "a new version starts clean");
+    let saved = std::fs::read_to_string(&md).unwrap();
+    assert!(saved.contains("The My Open Studio") && !saved.contains("Every Thursday") && saved.contains("Bread too."), "{saved}");
+    // Nothing changed since: recomputing finds nothing.
+    let again = s.run("vcs.changesSinceVersion", &json!({})).unwrap();
+    assert_eq!(again["changes"], 0, "{}", s.run("review.changes", &json!({})).unwrap());
+    // An unversioned document: plain Track Changes.
+    let mut plain = Session::new(wordcraft_doc::Document::from_text("x"));
+    assert!(plain.run("review.trackChanges", &json!({"value": true})).unwrap().get("sinceVersion").is_none());
+    let _ = std::fs::remove_dir_all(&dir);
+}

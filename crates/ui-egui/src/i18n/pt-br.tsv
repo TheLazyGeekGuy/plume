@@ -2374,3 +2374,7 @@
 	{n} models on the server.	{n} modelos no servidor.
 	{ready} of {n} tables can be sent to the model.	{ready} de {n} tabelas podem ser enviadas ao modelo.
 	Saved to {forge}	Salvo no {forge}
+	Changes Since Last Version	Alterações desde a última versão
+	No changes since the last version.	Nenhuma alteração desde a última versão.
+	Showing the changes since the last version ({n} paragraphs).	Mostrando as alterações desde a última versão ({n} parágrafos).
+	Tracking from now on: the last version can't be read ({error}).	Controle a partir de agora: não foi possível ler a última versão ({error}).

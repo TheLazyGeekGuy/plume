@@ -2374,3 +2374,7 @@
 	{n} models on the server.	服务器上有 {n} 个模型。
 	{ready} of {n} tables can be sent to the model.	可将 {ready}/{n} 个表格发送给模型。
 	Saved to {forge}	已保存到 {forge}
+	Changes Since Last Version	自上一版本以来的更改
+	No changes since the last version.	自上一版本以来没有更改。
+	Showing the changes since the last version ({n} paragraphs).	正在显示自上一版本以来的更改（{n} 个段落）。
+	Tracking from now on: the last version can't be read ({error}).	从现在开始修订：无法读取上一版本（{error}）。

@@ -2728,3 +2728,7 @@ preview	Title	Título
 	{n} models on the server.	{n} modelos en el servidor.
 	{ready} of {n} tables can be sent to the model.	{ready} de {n} tablas pueden enviarse al modelo.
 	Saved to {forge}	Guardado en {forge}
+	Changes Since Last Version	Cambios desde la última versión
+	No changes since the last version.	Sin cambios desde la última versión.
+	Showing the changes since the last version ({n} paragraphs).	Se muestran los cambios desde la última versión ({n} párrafos).
+	Tracking from now on: the last version can't be read ({error}).	Seguimiento desde ahora: no se puede leer la última versión ({error}).

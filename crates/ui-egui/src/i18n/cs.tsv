@@ -2753,3 +2753,7 @@ preview	Title	Ukázka
 	{n} models on the server.	Modelů na serveru: {n}.
 	{ready} of {n} tables can be sent to the model.	Modelu lze odeslat tabulek: {ready} z {n}.
 	Saved to {forge}	Uloženo v {forge}
+	Changes Since Last Version	Změny od poslední verze
+	No changes since the last version.	Od poslední verze žádné změny.
+	Showing the changes since the last version ({n} paragraphs).	Zobrazeny změny od poslední verze (odstavců: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Sledování od teď: poslední verzi nelze přečíst ({error}).

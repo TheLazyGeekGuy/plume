@@ -2801,3 +2801,7 @@ template	Letter	Thư
 	{n} models on the server.	{n} mô hình trên máy chủ.
 	{ready} of {n} tables can be sent to the model.	Có thể gửi {ready}/{n} bảng tới mô hình.
 	Saved to {forge}	Đã lưu vào {forge}
+	Changes Since Last Version	Thay đổi kể từ phiên bản trước
+	No changes since the last version.	Không có thay đổi nào kể từ phiên bản trước.
+	Showing the changes since the last version ({n} paragraphs).	Đang hiện thay đổi kể từ phiên bản trước ({n} đoạn).
+	Tracking from now on: the last version can't be read ({error}).	Theo dõi từ bây giờ: không đọc được phiên bản trước ({error}).

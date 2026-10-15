@@ -2396,3 +2396,7 @@
 	{n} models on the server.	Serveris on {n} mudelit.
 	{ready} of {n} tables can be sent to the model.	Mudelile saab saata {ready} tabelit {n}-st.
 	Saved to {forge}	Salvestatud: {forge}
+	Changes Since Last Version	Muudatused pärast viimast versiooni
+	No changes since the last version.	Pärast viimast versiooni muudatusi pole.
+	Showing the changes since the last version ({n} paragraphs).	Kuvatakse muudatused pärast viimast versiooni (lõike: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Jälgimine nüüdsest: viimast versiooni ei saa lugeda ({error}).

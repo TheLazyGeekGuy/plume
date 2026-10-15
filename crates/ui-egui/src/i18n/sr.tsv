@@ -2376,3 +2376,7 @@
 	{n} models on the server.	Модела на серверу: {n}.
 	{ready} of {n} tables can be sent to the model.	Табела које се могу послати моделу: {ready} од {n}.
 	Saved to {forge}	Сачувано у {forge}
+	Changes Since Last Version	Измене од последње верзије
+	No changes since the last version.	Нема измена од последње верзије.
+	Showing the changes since the last version ({n} paragraphs).	Приказане су измене од последње верзије (пасуса: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Праћење од сада: последња верзија не може да се прочита ({error}).

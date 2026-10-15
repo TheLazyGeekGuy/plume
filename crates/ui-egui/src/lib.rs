@@ -819,6 +819,20 @@ impl WordApp {
             self.select_inserted_picture(&r);
         }
         let r = system_clipboard::explain(self, id, r);
+        // Plume: tracking on a versioned document starts from its last version; say so.
+        if let Ok(v) = &r
+            && let Some(n) = v.get("sinceVersion").and_then(Value::as_u64)
+        {
+            self.status(if n == 0 {
+                tl!("No changes since the last version.").to_string()
+            } else {
+                i18n::fmt(tl!("Showing the changes since the last version ({n} paragraphs)."), &[("n", &n.to_string())])
+            });
+        } else if let Ok(v) = &r
+            && let Some(e) = v.get("sinceVersionError").and_then(Value::as_str)
+        {
+            self.status(i18n::fmt(tl!("Tracking from now on: the last version can't be read ({error})."), &[("error", e)]));
+        }
         // Check Accessibility shows its findings in the Accessibility pane, kept up to date there.
         if id == "file.accessibility" && r.is_ok() {
             self.session.view.accessibility_pane = true;

@@ -2362,3 +2362,7 @@
 	{n} models on the server.	サーバー上のモデル: {n} 個。
 	{ready} of {n} tables can be sent to the model.	{n} 個中 {ready} 個の表をモデルに送れます。
 	Saved to {forge}	{forge} に保存済み
+	Changes Since Last Version	前回のバージョン以降の変更
+	No changes since the last version.	前回のバージョン以降の変更はありません。
+	Showing the changes since the last version ({n} paragraphs).	前回のバージョン以降の変更を表示しています ({n} 段落)。
+	Tracking from now on: the last version can't be read ({error}).	今から変更を記録します: 前回のバージョンを読み込めません ({error})。

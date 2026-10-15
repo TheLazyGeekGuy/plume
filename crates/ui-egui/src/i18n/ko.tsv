@@ -2620,3 +2620,7 @@ preview	Title	제목
 	{n} models on the server.	서버의 모델 {n}개.
 	{ready} of {n} tables can be sent to the model.	표 {n}개 중 {ready}개를 모델에 보낼 수 있습니다.
 	Saved to {forge}	{forge}에 저장됨
+	Changes Since Last Version	마지막 버전 이후 변경 내용
+	No changes since the last version.	마지막 버전 이후 변경 내용이 없습니다.
+	Showing the changes since the last version ({n} paragraphs).	마지막 버전 이후 변경 내용을 표시합니다(단락 {n}개).
+	Tracking from now on: the last version can't be read ({error}).	지금부터 추적합니다: 마지막 버전을 읽을 수 없습니다({error}).

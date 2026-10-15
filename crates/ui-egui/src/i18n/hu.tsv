@@ -2757,3 +2757,7 @@
 	{n} models on the server.	{n} modell a kiszolgálón.
 	{ready} of {n} tables can be sent to the model.	{n} táblázatból {ready} küldhető a modellnek.
 	Saved to {forge}	Mentve ide: {forge}
+	Changes Since Last Version	Változások az utolsó verzió óta
+	No changes since the last version.	Nincs változás az utolsó verzió óta.
+	Showing the changes since the last version ({n} paragraphs).	Az utolsó verzió óta történt változások láthatók ({n} bekezdés).
+	Tracking from now on: the last version can't be read ({error}).	Követés mostantól: az utolsó verzió nem olvasható ({error}).

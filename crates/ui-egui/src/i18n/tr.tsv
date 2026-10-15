@@ -2758,3 +2758,7 @@ preview	Title	Örnek
 	{n} models on the server.	Sunucuda {n} model var.
 	{ready} of {n} tables can be sent to the model.	{n} tablodan {ready} tanesi modele gönderilebilir.
 	Saved to {forge}	{forge} üzerine kaydedildi
+	Changes Since Last Version	Son sürümden bu yana değişiklikler
+	No changes since the last version.	Son sürümden bu yana değişiklik yok.
+	Showing the changes since the last version ({n} paragraphs).	Son sürümden bu yana değişiklikler gösteriliyor ({n} paragraf).
+	Tracking from now on: the last version can't be read ({error}).	Şu andan itibaren izleniyor: son sürüm okunamıyor ({error}).

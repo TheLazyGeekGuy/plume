@@ -2762,3 +2762,7 @@ preview	Title	Naslov
 	{n} models on the server.	Modela na poslužitelju: {n}.
 	{ready} of {n} tables can be sent to the model.	Tablica koje se mogu poslati modelu: {ready} od {n}.
 	Saved to {forge}	Spremljeno u {forge}
+	Changes Since Last Version	Promjene od posljednje verzije
+	No changes since the last version.	Nema promjena od posljednje verzije.
+	Showing the changes since the last version ({n} paragraphs).	Prikazane su promjene od posljednje verzije (odlomaka: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Praćenje od sada: posljednja se verzija ne može pročitati ({error}).

@@ -2777,3 +2777,7 @@ preview	Title	Titel
 	{n} models on the server.	{n} modeller på servern.
 	{ready} of {n} tables can be sent to the model.	{ready} av {n} tabeller kan skickas till modellen.
 	Saved to {forge}	Sparat i {forge}
+	Changes Since Last Version	Ändringar sedan senaste versionen
+	No changes since the last version.	Inga ändringar sedan senaste versionen.
+	Showing the changes since the last version ({n} paragraphs).	Visar ändringarna sedan senaste versionen ({n} stycken).
+	Tracking from now on: the last version can't be read ({error}).	Spårar från och med nu: den senaste versionen kan inte läsas ({error}).

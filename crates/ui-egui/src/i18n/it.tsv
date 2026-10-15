@@ -2770,3 +2770,7 @@ preview	Title	Esempio
 	{n} models on the server.	{n} modelli sul server.
 	{ready} of {n} tables can be sent to the model.	{ready} tabelle su {n} possono essere inviate al modello.
 	Saved to {forge}	Salvato in {forge}
+	Changes Since Last Version	Modifiche dall'ultima versione
+	No changes since the last version.	Nessuna modifica dall'ultima versione.
+	Showing the changes since the last version ({n} paragraphs).	Modifiche dall'ultima versione mostrate ({n} paragrafi).
+	Tracking from now on: the last version can't be read ({error}).	Rilevamento da ora: impossibile leggere l'ultima versione ({error}).

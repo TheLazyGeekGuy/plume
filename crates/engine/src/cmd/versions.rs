@@ -116,6 +116,12 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("vcs.compare", "Compare with Version", "Review › Versions", |s, v| if s.forge.is_some() { remote::compare_with(s, v) } else { compare_with(s, v) })
             .when(markdown_document)
             .params(r#"{"id": version id} → {changes}: an untitled document showing what changed since that version, as tracked changes"#),
+        CommandSpec::new("vcs.changesSinceVersion", "Changes Since Last Version", "Review › Versions", |s, _| {
+            let n = changes_since_version(s)?;
+            Ok(json!({"changes": n, "trackChanges": true}))
+        })
+        .when(markdown_document)
+        .params(r#"{} → {changes}: what changed since the last version shows as tracked changes (Track Changes turns on); Save Version accepts them into the next version"#),
         CommandSpec::new("vcs.restore", "Restore Version", "Review › Versions", |s, v| if s.forge.is_some() { remote::restore(s, v) } else { restore(s, v) })
             .when(markdown_document)
             .params(r#"{"id": version id} → {restored}: the document becomes that version (undoable; save a version to keep it)"#),
@@ -138,6 +144,50 @@ pub fn specs() -> Vec<CommandSpec> {
             .params(r#"{} → {synced: true}: gets the server's versions (never merging silently), then sends this copy's"#)
             .pure(),
     ]
+}
+
+/// Whether the document has versions to compare with: it lives in a forge, or it is a Markdown
+/// file in a Git repository with at least one version.
+pub(crate) fn versioned(s: &Session) -> bool {
+    if s.forge.is_some() {
+        return true;
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        native::latest_id(s).is_ok()
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        false
+    }
+}
+
+/// Plume: versions and tracked changes are one thing. On a versioned document, tracked changes
+/// show what changed since its last version — the latest commit compared with the document, as
+/// tracked changes by the current author — and edits from then on are tracked on top. Markdown
+/// can't keep revision marks; the commit is the record. Returns how many changes there are.
+pub(crate) fn changes_since_version(s: &mut Session) -> Result<usize, CmdError> {
+    let base = if s.forge.is_some() { remote::latest(s)? } else { latest(s)? };
+    // The document as it reads now (earlier marks accepted), against the version's text.
+    super::review::accept_all(s)?;
+    let current = s.doc.clone();
+    s.doc.body = base.body.clone();
+    s.doc.ensure_nonempty();
+    // Spaces Markdown normalises (a paragraph's leading space, runs of spaces) aren't changes.
+    let r = super::tools::compare_docs(s, current, &json!({"showIn": "original", "whiteSpace": false}))?;
+    s.doc.settings.track_changes = true;
+    Ok(r["changes"].as_u64().unwrap_or(0) as usize)
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn latest(s: &Session) -> Result<Document, CmdError> {
+    native::latest(s)
+}
+
+#[cfg(target_arch = "wasm32")]
+fn latest(s: &Session) -> Result<Document, CmdError> {
+    markdown_path(s)?;
+    Err(CmdError::Failed("versions on the web are kept on GitHub, GitLab or Forgejo".into()))
 }
 
 /// Versions need a saved Markdown document, or one opened from a forge (the reason shown on a
@@ -431,6 +481,14 @@ mod remote {
     }
 
     /// The document at `at` (or the branch's latest), its pictures read from the same version.
+    /// The document as the forge's latest version has it.
+    pub(super) fn latest(s: &Session) -> Result<Document, CmdError> {
+        let r = current(s)?;
+        let t = transport(s)?;
+        let c = Client { transport: t.as_ref(), token: token(s, &r.doc.forge)? };
+        Ok(load(&c, &r.doc, None)?.0)
+    }
+
     fn load(c: &Client, doc: &DocRef, at: Option<&str>) -> Result<(Document, String), CmdError> {
         let (bytes, sha) = c.read(doc, at).map_err(ferr)?;
         let text = wordcraft_formats::txt::decode(&bytes);
@@ -590,6 +648,8 @@ mod remote {
             f.sha = sha;
         }
         s.dirty = false;
+        // The version holds the text as it reads; it is the new starting point of tracked changes.
+        crate::cmd::review::accept_all(s)?;
         let message = wordcraft_vcs::clean_message(message, "Update document");
         s.versions.push((message.clone(), super::super::now_iso(), s.doc.clone()));
         if s.versions.len() > 50 {
@@ -935,6 +995,8 @@ mod native {
         // The version is what is on disk: save first.
         let (_, assets) = crate::io::save_markdown_files(&path, &s.doc).map_err(CmdError::Failed)?;
         s.dirty = false;
+        // The version holds the text as it reads; it is the new starting point of tracked changes.
+        crate::cmd::review::accept_all(s)?;
         let mut files = vec![path.clone()];
         files.extend(assets);
         let version = repo.save_version(&files, message, identity.as_ref().map(|(a, e)| (a.as_str(), e.as_str()))).map_err(err)?;
@@ -944,6 +1006,20 @@ mod native {
             s.versions.remove(0);
         }
         Ok(json!({"version": version.to_json()}))
+    }
+
+    /// The latest version's id.
+    pub(super) fn latest_id(s: &Session) -> Result<String, CmdError> {
+        let (repo, path) = repo(s)?;
+        let list = repo.history(&path, 1).map_err(err)?;
+        list.into_iter().next().map(|v| v.id).ok_or_else(|| CmdError::Failed("the document has no version yet: use Save Version".into()))
+    }
+
+    /// The document as its latest version has it.
+    pub(super) fn latest(s: &Session) -> Result<Document, CmdError> {
+        let id = latest_id(s)?;
+        let (repo, path) = repo(s)?;
+        document_at(&repo, &path, &id)
     }
 
     /// The document as it was in version `id`, its pictures read from that version too.
