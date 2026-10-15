@@ -2243,6 +2243,11 @@
 	Filter	Филтер
 	No projects on this account.	На овом налогу нема пројеката.
 	Waiting for the forge…	Чека се forge…
+	Save to a Forge…	Сачувај у forge…
+	Save to a Forge	Сачувај у forge
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Чува документ као Markdown у пројекту на GitHub-у, GitLab-у или Forgejo; Сачувај верзију затим бележи верзије тамо.
+	Replace the document that has this name	Замени документ са овим именом
+	Saved to the forge:	Сачувано у forge:
 	Permissions the token needs:	Дозволе потребне токену:
 	Or sign in with the browser	Или се пријавите у прегледачу
 	OAuth app client ID	ИД клијента OAuth апликације

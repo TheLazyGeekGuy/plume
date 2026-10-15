@@ -2228,6 +2228,11 @@
 	Filter	Filter
 	No projects on this account.	Keine Projekte in diesem Konto.
 	Waiting for the forge…	Warten auf die Forge…
+	Save to a Forge…	In einer Forge speichern…
+	Save to a Forge	In einer Forge speichern
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Speichert das Dokument als Markdown in einem GitHub-, GitLab- oder Forgejo-Projekt; „Version speichern“ hält die Versionen dann dort fest.
+	Replace the document that has this name	Das Dokument mit diesem Namen ersetzen
+	Saved to the forge:	In der Forge gespeichert:
 	Permissions the token needs:	Benötigte Berechtigungen des Tokens:
 	Or sign in with the browser	Oder im Browser anmelden
 	OAuth app client ID	Client-ID der OAuth-App

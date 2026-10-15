@@ -2236,6 +2236,11 @@
 	Filter	Filtrer
 	No projects on this account.	Aucun projet sur ce compte.
 	Waiting for the forge…	En attente de la forge…
+	Save to a Forge…	Enregistrer dans une forge…
+	Save to a Forge	Enregistrer dans une forge
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Enregistre ce document en Markdown dans un projet GitHub, GitLab ou Forgejo ; Enregistrer une version y enregistre ensuite les versions.
+	Replace the document that has this name	Remplacer le document qui porte ce nom
+	Saved to the forge:	Enregistré dans la forge :
 	Permissions the token needs:	Droits nécessaires pour le jeton :
 	Or sign in with the browser	Ou se connecter avec le navigateur
 	OAuth app client ID	ID client de l’app OAuth

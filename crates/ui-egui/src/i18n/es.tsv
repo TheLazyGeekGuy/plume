@@ -2595,6 +2595,11 @@ preview	Title	Título
 	Filter	Filtrar
 	No projects on this account.	No hay proyectos en esta cuenta.
 	Waiting for the forge…	Esperando a la forja…
+	Save to a Forge…	Guardar en una forja…
+	Save to a Forge	Guardar en una forja
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Guarda el documento como Markdown en un proyecto de GitHub, GitLab o Forgejo; Guardar versión registra después las versiones allí.
+	Replace the document that has this name	Reemplazar el documento con este nombre
+	Saved to the forge:	Guardado en la forja:
 	Permissions the token needs:	Permisos que necesita el token:
 	Or sign in with the browser	O inicia sesión en el navegador
 	OAuth app client ID	ID de cliente de la app OAuth

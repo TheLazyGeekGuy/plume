@@ -2241,6 +2241,11 @@
 	Filter	筛选
 	No projects on this account.	此帐户没有项目。
 	Waiting for the forge…	正在等待代码托管平台…
+	Save to a Forge…	保存到代码托管平台…
+	Save to a Forge	保存到代码托管平台
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	将此文档以 Markdown 格式保存到 GitHub、GitLab 或 Forgejo 项目中；之后“保存版本”会在那里记录版本。
+	Replace the document that has this name	替换同名文档
+	Saved to the forge:	已保存到代码托管平台：
 	Permissions the token needs:	令牌所需的权限：
 	Or sign in with the browser	或在浏览器中登录
 	OAuth app client ID	OAuth 应用客户端 ID

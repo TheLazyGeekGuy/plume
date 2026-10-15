@@ -2263,6 +2263,11 @@
 	Filter	Filter
 	No projects on this account.	Sellel kontol pole projekte.
 	Waiting for the forge…	Ootan forge’i…
+	Save to a Forge…	Salvesta forge’i…
+	Save to a Forge	Salvesta forge’i
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Salvestab dokumendi Markdownina GitHubi, GitLabi või Forgejo projekti; „Salvesta versioon“ salvestab seejärel versioonid sinna.
+	Replace the document that has this name	Asenda selle nimega dokument
+	Saved to the forge:	Salvestatud forge’i:
 	Permissions the token needs:	Tokenile vajalikud õigused:
 	Or sign in with the browser	Või logi sisse brauseris
 	OAuth app client ID	OAuth-rakenduse kliendi ID

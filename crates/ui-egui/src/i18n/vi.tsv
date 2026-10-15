@@ -2641,6 +2641,11 @@
 	Filter	Lọc
 	No projects on this account.	Tài khoản này không có dự án nào.
 	Waiting for the forge…	Đang chờ forge…
+	Save to a Forge…	Lưu vào forge…
+	Save to a Forge	Lưu vào forge
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Lưu tài liệu này dưới dạng Markdown vào một dự án GitHub, GitLab hoặc Forgejo; sau đó Lưu phiên bản sẽ ghi các phiên bản ở đó.
+	Replace the document that has this name	Thay thế tài liệu có tên này
+	Saved to the forge:	Đã lưu vào forge:
 	Permissions the token needs:	Quyền mà mã thông báo cần:
 	Or sign in with the browser	Hoặc đăng nhập bằng trình duyệt
 	OAuth app client ID	ID máy khách của ứng dụng OAuth

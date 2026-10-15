@@ -390,6 +390,14 @@ fn save_as_page(app: &mut WordApp, ui: &mut Ui) {
     if ui.button(egui::RichText::new(tl!("Browse…")).font(medium(14.0))).clicked() {
         app.save_as_dialog();
     }
+    // Plume: as a Markdown document in a GitHub, GitLab or Forgejo project.
+    if ui
+        .button(egui::RichText::new(tl!("Save to a Forge…")).font(medium(14.0)))
+        .on_hover_text(tl!("Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there."))
+        .clicked()
+    {
+        let _ = app.run("ui.dialog", json!({"name": "saveToForge"}));
+    }
 }
 
 fn info_page(app: &mut WordApp, ui: &mut Ui) {

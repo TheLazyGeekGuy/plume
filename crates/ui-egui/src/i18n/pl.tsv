@@ -2618,6 +2618,11 @@ preview	Title	Tytuł
 	Filter	Filtruj
 	No projects on this account.	Brak projektów na tym koncie.
 	Waiting for the forge…	Czekam na forge…
+	Save to a Forge…	Zapisz w forge…
+	Save to a Forge	Zapisz w forge
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Zapisuje dokument jako Markdown w projekcie GitHub, GitLab lub Forgejo; Zapisz wersję zapisuje potem tam wersje.
+	Replace the document that has this name	Zastąp dokument o tej nazwie
+	Saved to the forge:	Zapisano w forge:
 	Permissions the token needs:	Uprawnienia wymagane dla tokenu:
 	Or sign in with the browser	Lub zaloguj się w przeglądarce
 	OAuth app client ID	Identyfikator klienta aplikacji OAuth

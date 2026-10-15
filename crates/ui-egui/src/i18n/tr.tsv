@@ -2625,6 +2625,11 @@ preview	Title	Örnek
 	Filter	Filtre
 	No projects on this account.	Bu hesapta proje yok.
 	Waiting for the forge…	Forge bekleniyor…
+	Save to a Forge…	Forge’a kaydet…
+	Save to a Forge	Forge’a kaydet
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Belgeyi bir GitHub, GitLab veya Forgejo projesine Markdown olarak kaydeder; Sürümü Kaydet ardından sürümleri oraya kaydeder.
+	Replace the document that has this name	Bu adı taşıyan belgeyi değiştir
+	Saved to the forge:	Forge’a kaydedildi:
 	Permissions the token needs:	Belirtecin ihtiyaç duyduğu izinler:
 	Or sign in with the browser	Veya tarayıcıyla oturum açın
 	OAuth app client ID	OAuth uygulaması istemci kimliği

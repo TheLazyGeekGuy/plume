@@ -92,6 +92,9 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("forge.open", "Open from a Forge", "File › Open", remote::open)
             .params(r#"{"url"?: the file's page on the forge (https://github.com/o/r/blob/main/a.md, …/-/blob/…, …/src/branch/…), or "forge": "github|gitlab|forgejo", "host"?: string, "repo": "owner/name" (GitLab: group/…/project), "branch"?: string (default main), "path": "docs/guide.md"} → {opened, version}: the Markdown document and its pictures, read from the forge; Save Version records a version there"#)
             .pure(),
+        CommandSpec::new("forge.saveAs", "Save to a Forge", "File › Save As", remote::save_as)
+            .params(r#"{"forge": "github|gitlab|forgejo", "host"?: string, "repo": "owner/name", "branch"?: string (default main), "path": "docs/guide.md" (.md added when missing), "message"?: string, "replace"?: bool} → {saved, path, version}: the document saved as Markdown (pictures beside it) in a new version of the repository; from then on Save Version records versions there. An existing file is replaced only with "replace": true"#)
+            .pure(),
         CommandSpec::new("vcs.status", "Version Status", "Review › Versions", |s, v| if s.forge.is_some() { remote::status(s, v) } else { status(s, v) })
             .params(r#"{} → {versioned: bool, root?, file?, modified?, servers?: [name], reason?}"#)
             .pure(),
@@ -488,6 +491,57 @@ mod remote {
         s.import_report.clear();
         s.dirty = false;
         Ok(json!({"opened": true, "version": sha}))
+    }
+
+    /// Save the document (new, or from anywhere) as a Markdown file in a forge repository; it
+    /// becomes a forge document, as if opened from there.
+    pub(super) fn save_as(s: &mut Session, v: &Value) -> CmdResult {
+        let forge = forge_of(v)?;
+        let mut path = p::req_str(v, "path")?.trim().trim_matches('/').to_string();
+        let ext = path.rsplit_once('.').map(|(_, e)| e.to_ascii_lowercase()).unwrap_or_default();
+        if !matches!(ext.as_str(), "md" | "markdown") {
+            path.push_str(".md");
+        }
+        let path = normalize(&path)
+            .filter(|p| !p.is_empty() && !p.starts_with(".md"))
+            .ok_or_else(|| CmdError::Params(format!("{path:?}: name the file, like docs/guide.md")))?;
+        let doc = DocRef {
+            forge,
+            repo: p::req_str(v, "repo")?.trim().trim_matches('/').to_string(),
+            branch: p::str(v, "branch").unwrap_or("main").trim().to_string(),
+            path,
+        };
+        let t = transport(s)?;
+        let c = Client { transport: t.as_ref(), token: token(s, &doc.forge)? };
+        let existing = match c.read(&doc, None) {
+            Ok((_, sha)) => Some(sha),
+            Err(ForgeError::NotFound) => None,
+            Err(e) => return Err(ferr(e)),
+        };
+        if existing.is_some() && p::bool(v, "replace") != Some(true) {
+            return Err(CmdError::Failed(format!("{} already has {}: choose another name, or replace it", doc.repo, doc.path)));
+        }
+        let pictures = crate::io::web_pictures(&s.doc);
+        let bundle = wordcraft_formats::markdown::export_native(&pictures, &Default::default());
+        let dir = folder_of(&doc.path);
+        let assets: Vec<(String, Vec<u8>)> =
+            bundle.assets.iter().filter_map(|(p, b)| normalize(&format!("{dir}{p}")).map(|full| (full, b.to_vec()))).collect();
+        let name = doc.path.rsplit('/').next().unwrap_or(&doc.path).to_string();
+        let default_message = format!("{} {name}", if existing.is_some() { "Update" } else { "Add" });
+        let message = p::str(v, "message").filter(|m| !m.trim().is_empty()).unwrap_or(&default_message).to_string();
+        let id = c.save_version(&doc, bundle.text.as_bytes(), &assets, &message, existing.as_deref()).map_err(|e| match e {
+            ForgeError::Conflict => CmdError::Failed("someone saved this file meanwhile: try again".into()),
+            e => ferr(e),
+        })?;
+        let (_, sha) = c.read(&doc, None).map_err(ferr)?;
+        s.path = None;
+        s.file_name = Some(name.trim_end_matches(".markdown").trim_end_matches(".md").to_string());
+        let saved = doc.path.clone();
+        s.forge = Some(Remote { doc, sha, review: None, imported: Default::default(), threads: Default::default(), sent: Default::default() });
+        s.imported_from = None;
+        s.dirty = false;
+        let short = id.get(..7).unwrap_or(&id).to_string();
+        Ok(json!({"saved": true, "path": saved, "version": {"id": id, "short": short, "message": message}}))
     }
 
     pub(super) fn status(s: &mut Session, _: &Value) -> CmdResult {

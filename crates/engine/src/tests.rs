@@ -7368,3 +7368,31 @@ fn forge_device_sign_in() {
     assert!(cancelled.unwrap_err().to_string().contains("cancelled"));
     assert!(DeviceSignIn::prepare(&s, &json!({"forge": "forgejo", "clientId": "x"})).unwrap().run(|_| {}, &AtomicBool::new(false)).is_err());
 }
+
+/// A new document saved straight into a forge repository becomes a forge document: Save Version
+/// records versions there. An existing file is replaced only when asked.
+#[test]
+fn forge_save_as_new_document() {
+    let server = std::sync::Arc::new(fake_github::Server::new(&[("README.md", b"# Docs\n")]));
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.forge_transport = Some(server.clone());
+    s.run("forge.signIn", &json!({"forge": "github", "token": "t"})).unwrap();
+    s.run("text.insert", &json!({"text": "Meeting notes"})).unwrap();
+    let to = json!({"forge": "github", "repo": "acme/docs", "path": "notes/meeting"});
+    let r = s.run("forge.saveAs", &to).unwrap();
+    assert_eq!(r["path"], json!("notes/meeting.md"));
+    assert_eq!(r["version"]["message"], json!("Add meeting.md"));
+    assert_eq!(String::from_utf8(server.file("notes/meeting.md").unwrap()).unwrap(), "Meeting notes\n");
+    assert!(!s.dirty && s.path.is_none());
+    assert_eq!(s.file_name.as_deref(), Some("meeting"));
+    assert_eq!(s.run("vcs.status", &json!({})).unwrap()["file"], json!("notes/meeting.md"));
+    // Saved again under the same name: refused unless replacing.
+    let again = s.run("forge.saveAs", &json!({"forge": "github", "repo": "acme/docs", "path": "README.md"}));
+    assert!(again.unwrap_err().to_string().contains("already has README.md"));
+    assert_eq!(server.file("README.md").unwrap(), b"# Docs\n");
+    // From now on, versions go there.
+    s.run("text.insert", &json!({"text": " (draft)"})).unwrap();
+    s.run("vcs.saveVersion", &json!({"message": "Draft"})).unwrap();
+    assert!(String::from_utf8(server.file("notes/meeting.md").unwrap()).unwrap().contains("(draft)"));
+    assert!(s.run("forge.saveAs", &json!({"forge": "github", "repo": "acme/docs", "path": "../x"})).is_err());
+}

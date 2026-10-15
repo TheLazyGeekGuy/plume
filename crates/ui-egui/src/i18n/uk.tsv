@@ -2241,6 +2241,11 @@
 	Filter	Фільтр
 	No projects on this account.	У цьому обліковому записі немає проєктів.
 	Waiting for the forge…	Очікування форджа…
+	Save to a Forge…	Зберегти у фордж…
+	Save to a Forge	Зберегти у фордж
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Зберігає документ як Markdown у проєкті GitHub, GitLab або Forgejo; далі «Зберегти версію» записує версії туди.
+	Replace the document that has this name	Замінити документ із цією назвою
+	Saved to the forge:	Збережено у фордж:
 	Permissions the token needs:	Дозволи, потрібні токену:
 	Or sign in with the browser	Або увійдіть через браузер
 	OAuth app client ID	ID клієнта OAuth-застосунку

@@ -2620,6 +2620,11 @@ preview	Title	Ukázka
 	Filter	Filtr
 	No projects on this account.	Tento účet nemá žádné projekty.
 	Waiting for the forge…	Čeká se na forge…
+	Save to a Forge…	Uložit do forge…
+	Save to a Forge	Uložit do forge
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Uloží dokument jako Markdown do projektu na GitHubu, GitLabu nebo Forgejo; Uložit verzi pak ukládá verze tam.
+	Replace the document that has this name	Nahradit dokument s tímto názvem
+	Saved to the forge:	Uloženo do forge:
 	Permissions the token needs:	Oprávnění, která token potřebuje:
 	Or sign in with the browser	Nebo se přihlaste v prohlížeči
 	OAuth app client ID	Client ID aplikace OAuth

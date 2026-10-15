@@ -2239,6 +2239,11 @@
 	Filter	Filter
 	No projects on this account.	Na ovom nalogu nema projekata.
 	Waiting for the forge…	Čeka se forge…
+	Save to a Forge…	Sačuvaj u forge…
+	Save to a Forge	Sačuvaj u forge
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Čuva dokument kao Markdown u projektu na GitHubu, GitLabu ili Forgejo; Sačuvaj verziju zatim beleži verzije tamo.
+	Replace the document that has this name	Zameni dokument sa ovim imenom
+	Saved to the forge:	Sačuvano u forge:
 	Permissions the token needs:	Dozvole potrebne tokenu:
 	Or sign in with the browser	Ili se prijavite u pregledaču
 	OAuth app client ID	ID klijenta OAuth aplikacije

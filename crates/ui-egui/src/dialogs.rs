@@ -992,6 +992,7 @@ impl Dialog {
         match self {
             Dialog::RenameDocument { .. } => "renameDocument",
             Dialog::SaveVersion { .. } => "saveVersion",
+            Dialog::OpenFromForge(fb) if fb.saving => "saveToForge",
             Dialog::OpenFromForge(_) => "openFromForge",
             Dialog::RequestReview { .. } => "requestReview",
             Dialog::Versions { .. } => "versions",
@@ -1267,6 +1268,12 @@ impl Dialog {
             "saveVersion" => Dialog::SaveVersion { message: String::new(), error: String::new(), focus: true },
             "requestReview" => Dialog::RequestReview { title: String::new(), message: String::new(), error: String::new(), focus: true },
             "openFromForge" => Dialog::OpenFromForge(Box::new(ForgeBrowser { remember: true, ..Default::default() })),
+            "saveToForge" => Dialog::OpenFromForge(Box::new(ForgeBrowser {
+                remember: true,
+                saving: true,
+                name: format!("{}.md", app.title_stem()),
+                ..Default::default()
+            })),
             "versions" => {
                 let (list, error) = version_list(app);
                 Dialog::Versions { list, error }
@@ -1465,6 +1472,7 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
     let title = match &d {
         Dialog::RenameDocument { .. } => "Rename Document",
         Dialog::SaveVersion { .. } => "Save Version",
+        Dialog::OpenFromForge(fb) if fb.saving => "Save to a Forge",
         Dialog::OpenFromForge(_) => "Open from a Forge",
         Dialog::RequestReview { .. } => "Request Review",
         Dialog::Versions { .. } => "Version History",
@@ -4103,6 +4111,11 @@ pub struct ForgeBrowser {
     error: String,
     /// A list loading on a worker thread, and what it is for.
     loading: Option<(ForgeWait, ForgeSlot)>,
+    /// File › Save As › Save to a Forge: the dialog saves the document instead of opening one,
+    /// under `name` (a path in the project) in the project picked.
+    saving: bool,
+    name: String,
+    replace: bool,
     /// Signing in on the forge's page: the OAuth client id typed, and the sign-in under way.
     /// (`kind:host`, client id): offered again when that forge is picked.
     client_id: Option<(String, String)>,
@@ -4246,11 +4259,40 @@ fn forge_connected(app: &mut WordApp, acc: &ForgeAccount, typed: &str, remember:
         .collect()
 }
 
+/// One row of the forge dialog's lists, across the whole width: a name, and under it what helps
+/// pick it (the owner and description of a project, the folder of a document). Hover and the
+/// row picked show as a background.
+fn forge_row(ui: &mut Ui, title: &str, detail: &str, selected: bool) -> egui::Response {
+    let height = if detail.is_empty() { 28.0 } else { 42.0 };
+    let (rect, resp) = ui.allocate_exact_size(vec2(ui.available_width(), height), egui::Sense::click());
+    if ui.is_rect_visible(rect) {
+        let v = ui.visuals();
+        let fill = if selected {
+            v.selection.bg_fill
+        } else if resp.hovered() {
+            v.widgets.hovered.weak_bg_fill
+        } else {
+            egui::Color32::TRANSPARENT
+        };
+        let p = ui.painter_at(rect);
+        p.rect_filled(rect, 5.0, fill);
+        let text = if selected { v.selection.stroke.color } else { v.strong_text_color() };
+        let left = rect.left() + 10.0;
+        p.text(egui::pos2(left, rect.top() + 6.0), egui::Align2::LEFT_TOP, title, egui::FontId::proportional(14.0), text);
+        if !detail.is_empty() {
+            let detail: String = detail.lines().next().unwrap_or("").chars().take(110).collect();
+            p.text(egui::pos2(left, rect.top() + 24.0), egui::Align2::LEFT_TOP, detail, egui::FontId::proportional(11.5), v.weak_text_color());
+        }
+    }
+    resp.on_hover_cursor(egui::CursorIcon::PointingHand)
+}
+
 fn forge_browser(app: &mut WordApp, ui: &mut Ui, fb: &mut ForgeBrowser) -> bool {
     const FORGES: [(&str, &str, &str); 3] =
         [("GitHub", "github", "github.com"), ("GitLab", "gitlab", "gitlab.com"), ("Forgejo", "forgejo", "codeberg.org")];
     let mut connect: Option<(ForgeAccount, String)> = None;
     let mut open: Option<Value> = None;
+    let mut save: Option<Value> = None;
     ui.set_min_width(520.0);
     // A list that finished loading.
     let done = fb.loading.as_ref().and_then(|(_, slot)| slot.lock().ok().and_then(|mut s| s.take()));
@@ -4421,12 +4463,14 @@ fn forge_browser(app: &mut WordApp, ui: &mut Ui, fb: &mut ForgeBrowser) -> bool 
                 let needle = fb.filter.to_lowercase();
                 let mut pick = None;
                 egui::ScrollArea::vertical().max_height(260.0).id_salt("forge_repos").show(ui, |ui| {
+                    ui.spacing_mut().item_spacing.y = 2.0;
                     for (name, branch, desc) in
                         fb.repos.iter().filter(|r| needle.is_empty() || r.0.to_lowercase().contains(&needle) || r.2.to_lowercase().contains(&needle))
                     {
-                        let r = ui.selectable_label(false, name);
-                        let r = if desc.is_empty() { r } else { r.on_hover_text(desc) };
-                        if r.clicked() {
+                        // "owner/project": the project's name, then its owner and description.
+                        let (owner, project) = name.rsplit_once('/').unwrap_or(("", name));
+                        let detail = [owner, desc.as_str()].iter().filter(|x| !x.trim().is_empty()).copied().collect::<Vec<_>>().join(" · ");
+                        if forge_row(ui, project, &detail, false).on_hover_text(name.as_str()).clicked() {
                             pick = Some((name.clone(), branch.clone()));
                         }
                     }
@@ -4451,42 +4495,75 @@ fn forge_browser(app: &mut WordApp, ui: &mut Ui, fb: &mut ForgeBrowser) -> bool 
                     }
                     ui.label(egui::RichText::new(format!("{name} › {branch}")).strong());
                 });
-                egui::ScrollArea::vertical().max_height(260.0).id_salt("forge_files").show(ui, |ui| {
+                let saving = fb.saving;
+                let mut picked = None;
+                egui::ScrollArea::vertical().max_height(if saving { 160.0 } else { 260.0 }).id_salt("forge_files").show(ui, |ui| {
+                    ui.spacing_mut().item_spacing.y = 2.0;
                     for f in &fb.files {
-                        if ui.selectable_label(false, f).clicked() {
-                            open = Some(json!({"forge": acc.kind, "host": acc.host, "repo": name, "branch": branch, "path": f}));
+                        // The document's name, then its folder.
+                        let (folder, file) = f.rsplit_once('/').unwrap_or(("", f));
+                        if forge_row(ui, file, folder, saving && fb.name == *f).on_hover_text(f.as_str()).clicked() {
+                            if saving {
+                                // Saving: a document of the project gives its folder and name.
+                                picked = Some(f.clone());
+                            } else {
+                                open = Some(json!({"forge": acc.kind, "host": acc.host, "repo": name, "branch": branch, "path": f}));
+                            }
                         }
                     }
                     if fb.files.is_empty() {
                         ui.label(tl!("No Markdown documents in this project."));
                     }
                 });
+                if let Some(f) = picked {
+                    fb.name = f;
+                }
+                if saving {
+                    ui.add_space(6.0);
+                    ui.horizontal(|ui| {
+                        ui.label(tl!("File name:"));
+                        ui.add(egui::TextEdit::singleline(&mut fb.name).hint_text("docs/guide.md").desired_width(340.0));
+                    });
+                    let exists = fb.files.iter().any(|f| *f == fb.name || *f == format!("{}.md", fb.name));
+                    if exists {
+                        ui.checkbox(&mut fb.replace, tl!("Replace the document that has this name"));
+                    }
+                    let ok = !busy && !fb.name.trim().is_empty() && (!exists || fb.replace);
+                    if ui.add_enabled(ok, egui::Button::new(tl!("Save"))).clicked() {
+                        save = Some(json!({
+                            "forge": acc.kind, "host": acc.host, "repo": name, "branch": branch,
+                            "path": fb.name.trim(), "replace": exists && fb.replace,
+                        }));
+                    }
+                }
             }
         }
     }
-    // Or a pasted address.
-    egui::CollapsingHeader::new(tl!("Or paste the document's address")).show(ui, |ui| {
-        ui.horizontal(|ui| {
-            ui.add(egui::TextEdit::singleline(&mut fb.address).hint_text("https://…/docs/guide.md").desired_width(400.0));
-            if ui.add_enabled(!busy, egui::Button::new(tl!("Open"))).clicked() {
-                match wordcraft_engine::cmd::versions::parse_web_address(&fb.address, None) {
-                    Ok((kind, host, repo, branch, path)) => {
-                        let acc = ForgeAccount { kind: kind.clone(), host: host.clone() };
-                        let typed = fb.token.trim().to_string();
-                        match forge_connect(app, ui.ctx(), &acc, &typed) {
-                            Ok(slot) => {
-                                let then = json!({"forge": kind, "host": host, "repo": repo, "branch": branch, "path": path});
-                                fb.loading = Some((ForgeWait::Connect { acc, typed, remember: fb.remember, open: Some(then) }, slot));
-                                fb.error.clear();
+    // Or a pasted address (to open one).
+    if !fb.saving {
+        egui::CollapsingHeader::new(tl!("Or paste the document's address")).show(ui, |ui| {
+            ui.horizontal(|ui| {
+                ui.add(egui::TextEdit::singleline(&mut fb.address).hint_text("https://…/docs/guide.md").desired_width(400.0));
+                if ui.add_enabled(!busy, egui::Button::new(tl!("Open"))).clicked() {
+                    match wordcraft_engine::cmd::versions::parse_web_address(&fb.address, None) {
+                        Ok((kind, host, repo, branch, path)) => {
+                            let acc = ForgeAccount { kind: kind.clone(), host: host.clone() };
+                            let typed = fb.token.trim().to_string();
+                            match forge_connect(app, ui.ctx(), &acc, &typed) {
+                                Ok(slot) => {
+                                    let then = json!({"forge": kind, "host": host, "repo": repo, "branch": branch, "path": path});
+                                    fb.loading = Some((ForgeWait::Connect { acc, typed, remember: fb.remember, open: Some(then) }, slot));
+                                    fb.error.clear();
+                                }
+                                Err(e) => fb.error = e,
                             }
-                            Err(e) => fb.error = e,
                         }
+                        Err(_) => fb.error = tl!("Paste the address of the Markdown file's page (it ends in .md).").to_string(),
                     }
-                    Err(_) => fb.error = tl!("Paste the address of the Markdown file's page (it ends in .md).").to_string(),
                 }
-            }
+            });
         });
-    });
+    }
     if busy {
         ui.horizontal(|ui| {
             ui.spinner();
@@ -4498,7 +4575,24 @@ fn forge_browser(app: &mut WordApp, ui: &mut Ui, fb: &mut ForgeBrowser) -> bool 
     }
     if let Some(target) = open {
         match app.run("forge.open", target) {
-            Ok(_) => return true,
+            // Straight to the document, as when opening a file (the File tab closes too).
+            Ok(_) => {
+                app.ui.backstage = false;
+                app.canvas.want_focus = true;
+                return true;
+            }
+            Err(e) => fb.error = e,
+        }
+    }
+    if let Some(target) = save {
+        match app.run("forge.saveAs", target) {
+            Ok(v) => {
+                let path = v.get("path").and_then(Value::as_str).unwrap_or("").to_string();
+                app.ui.backstage = false;
+                app.canvas.want_focus = true;
+                app.status(format!("{} {path}", tl!("Saved to the forge:")));
+                return true;
+            }
             Err(e) => fb.error = e,
         }
     }

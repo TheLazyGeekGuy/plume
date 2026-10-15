@@ -2624,6 +2624,11 @@
 	Filter	Szűrő
 	No projects on this account.	Ebben a fiókban nincs projekt.
 	Waiting for the forge…	Várakozás a forge-ra…
+	Save to a Forge…	Mentés forge-ba…
+	Save to a Forge	Mentés forge-ba
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	A dokumentumot Markdownként menti egy GitHub-, GitLab- vagy Forgejo-projektbe; a Verzió mentése ezután oda menti a verziókat.
+	Replace the document that has this name	Az ilyen nevű dokumentum cseréje
+	Saved to the forge:	Mentve a forge-ba:
 	Permissions the token needs:	A tokenhez szükséges jogosultságok:
 	Or sign in with the browser	Vagy jelentkezzen be a böngészőben
 	OAuth app client ID	OAuth-alkalmazás ügyfél-azonosítója

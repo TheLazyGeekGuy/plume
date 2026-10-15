@@ -1241,6 +1241,13 @@ impl WordApp {
         if let Some(what) = req.get("open").and_then(Value::as_str) {
             match what {
                 "openFile" => self.open_dialog(),
+                // Plume: saving a document that has no file yet goes to File › Save As (as in
+                // Word), which offers the forges beside the computer. (In the browser, a save is
+                // a download.)
+                "saveAs" if self.session.path.is_none() && self.services.download.is_none() => {
+                    self.ui.backstage = true;
+                    self.ui.backstage_page = "saveAs".into();
+                }
                 "saveAs" => {
                     self.save_as_dialog();
                 }
