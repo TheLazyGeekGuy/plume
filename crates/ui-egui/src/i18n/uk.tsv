@@ -2367,7 +2367,7 @@
 	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Рекомендовано в Ollama: gpt-oss:20b для 16 ГБ пам'яті й більше, qwen3:4b для 8 ГБ (ollama pull gpt-oss:20b).
 	Table {i} of {n}…	Таблиця {i} з {n}…
 	The server has no models yet: download one first (ollama pull gpt-oss:20b).	На сервері ще немає моделей: спершу завантажте одну (ollama pull gpt-oss:20b).
-	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	У цьому документі немає таблиць у таблицях і об'єднаних клітинок: Markdown зберігає його таблиці як є.
+	No table in this document needs a model: Markdown holds its tables as they are.	Жодна таблиця в цьому документі не потребує моделі: Markdown зберігає таблиці як є.
 	Unchanged	Без змін
 	Use a language model	Використовувати мовну модель
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Перебудовано таблиць: {applied} з {n}. Скасувати (Ctrl+Z) поверне їх усі.

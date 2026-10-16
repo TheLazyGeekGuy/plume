@@ -2613,7 +2613,7 @@ preview	Title	제목
 	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollama 권장: 메모리 16GB 이상은 gpt-oss:20b, 8GB는 qwen3:4b (ollama pull gpt-oss:20b).
 	Table {i} of {n}…	표 {i}/{n}…
 	The server has no models yet: download one first (ollama pull gpt-oss:20b).	서버에 아직 모델이 없습니다. 먼저 하나를 내려받으세요(ollama pull gpt-oss:20b).
-	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	이 문서에는 표 안의 표나 병합된 셀이 없습니다. Markdown이 표를 그대로 유지합니다.
+	No table in this document needs a model: Markdown holds its tables as they are.	이 문서의 표에는 모델이 필요하지 않습니다. Markdown이 표를 그대로 유지합니다.
 	Unchanged	변경 없음
 	Use a language model	언어 모델 사용
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	표 {n}개 중 {applied}개를 재구성했습니다. 실행 취소(Ctrl+Z)로 모두 되돌립니다.

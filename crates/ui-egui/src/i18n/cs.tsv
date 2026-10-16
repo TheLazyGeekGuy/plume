@@ -2746,7 +2746,7 @@ preview	Title	Ukázka
 	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Doporučeno v Ollamě: gpt-oss:20b pro 16 GB paměti a více, qwen3:4b pro 8 GB (ollama pull gpt-oss:20b).
 	Table {i} of {n}…	Tabulka {i} z {n}…
 	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Server zatím nemá žádné modely: nejprve jeden stáhněte (ollama pull gpt-oss:20b).
-	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Tento dokument nemá tabulky v tabulkách ani sloučené buňky: Markdown jeho tabulky zachová, jak jsou.
+	No table in this document needs a model: Markdown holds its tables as they are.	Žádná tabulka v tomto dokumentu nepotřebuje model: Markdown zachová tabulky tak, jak jsou.
 	Unchanged	Beze změny
 	Use a language model	Používat jazykový model
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Přestavěno tabulek: {applied} z {n}. Zpět (Ctrl+Z) vrátí všechny.

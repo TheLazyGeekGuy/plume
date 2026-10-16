@@ -331,7 +331,7 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
             );
             ui.add_space(4.0);
             if tables.is_empty() {
-                ui.label(tl!("This document has no tables in tables nor merged cells: Markdown holds its tables as they are."));
+                ui.label(tl!("No table in this document needs a model: Markdown holds its tables as they are."));
             } else {
                 ui.label(crate::i18n::fmt(
                     tl!("{ready} of {n} tables can be sent to the model."),

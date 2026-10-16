@@ -2750,7 +2750,7 @@
 	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ajánlott az Ollamában: gpt-oss:20b 16 GB vagy több memóriával, qwen3:4b 8 GB-tal (ollama pull gpt-oss:20b).
 	Table {i} of {n}…	{i}. táblázat / {n}…
 	The server has no models yet: download one first (ollama pull gpt-oss:20b).	A kiszolgálón még nincs modell: előbb töltsön le egyet (ollama pull gpt-oss:20b).
-	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	A dokumentumban nincsenek táblázatba ágyazott táblázatok és egyesített cellák: a Markdown változatlanul megtartja a táblázatait.
+	No table in this document needs a model: Markdown holds its tables as they are.	A dokumentum egyik táblázatához sem kell modell: a Markdown változatlanul megtartja a táblázatokat.
 	Unchanged	Változatlan
 	Use a language model	Nyelvi modell használata
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{n} táblázatból {applied} átszervezve. A Visszavonás (Ctrl+Z) mindet visszaállítja.

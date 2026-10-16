@@ -2367,7 +2367,7 @@
 	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollama 推荐：内存 16 GB 及以上用 gpt-oss:20b，8 GB 用 qwen3:4b（ollama pull gpt-oss:20b）。
 	Table {i} of {n}…	表格 {i}/{n}…
 	The server has no models yet: download one first (ollama pull gpt-oss:20b).	服务器上还没有模型：请先下载一个（ollama pull gpt-oss:20b）。
-	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	此文档没有嵌套表格或合并单元格：Markdown 会原样保留其表格。
+	No table in this document needs a model: Markdown holds its tables as they are.	此文档中没有需要模型处理的表格：Markdown 会原样保留其表格。
 	Unchanged	未更改
 	Use a language model	使用语言模型
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	已重构 {applied}/{n} 个表格。撤消（Ctrl+Z）可全部恢复。

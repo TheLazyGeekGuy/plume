@@ -2755,7 +2755,7 @@ preview	Title	Naslov
 	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Preporučeno u Ollami: gpt-oss:20b uz 16 GB memorije ili više, qwen3:4b uz 8 GB (ollama pull gpt-oss:20b).
 	Table {i} of {n}…	Tablica {i} od {n}…
 	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Poslužitelj još nema modela: najprije preuzmite jedan (ollama pull gpt-oss:20b).
-	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Ovaj dokument nema tablica u tablicama ni spojenih ćelija: Markdown čuva njegove tablice kakve jesu.
+	No table in this document needs a model: Markdown holds its tables as they are.	Nijedna tablica u ovom dokumentu ne treba model: Markdown čuva njegove tablice kakve jesu.
 	Unchanged	Bez promjene
 	Use a language model	Koristi jezični model
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Preuređeno tablica: {applied} od {n}. Poništi (Ctrl+Z) vraća sve.

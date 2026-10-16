@@ -2389,7 +2389,7 @@
 	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollamas soovitatud: gpt-oss:20b vähemalt 16 GB mäluga, qwen3:4b 8 GB-ga (ollama pull gpt-oss:20b).
 	Table {i} of {n}…	Tabel {i}/{n}…
 	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Serveril pole veel mudeleid: laadige esmalt üks alla (ollama pull gpt-oss:20b).
-	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Selles dokumendis pole tabelites tabeleid ega liidetud lahtreid: Markdown hoiab selle tabelid muutmata.
+	No table in this document needs a model: Markdown holds its tables as they are.	Ükski selle dokumendi tabel ei vaja mudelit: Markdown hoiab selle tabelid muutmata.
 	Unchanged	Muutmata
 	Use a language model	Kasuta keelemudelit
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Ümber struktureeritud {applied} tabelit {n}-st. Võta tagasi (Ctrl+Z) taastab kõik.

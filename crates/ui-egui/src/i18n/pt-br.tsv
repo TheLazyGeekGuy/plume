@@ -2367,7 +2367,7 @@
 	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Sugerido no Ollama: gpt-oss:20b com 16 GB de memória ou mais, qwen3:4b com 8 GB (ollama pull gpt-oss:20b).
 	Table {i} of {n}…	Tabela {i} de {n}…
 	The server has no models yet: download one first (ollama pull gpt-oss:20b).	O servidor ainda não tem modelos: baixe um primeiro (ollama pull gpt-oss:20b).
-	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Este documento não tem tabelas dentro de tabelas nem células mescladas: o Markdown mantém suas tabelas como estão.
+	No table in this document needs a model: Markdown holds its tables as they are.	Nenhuma tabela deste documento precisa de um modelo: o Markdown mantém suas tabelas como estão.
 	Unchanged	Inalterada
 	Use a language model	Usar um modelo de linguagem
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{applied} de {n} tabelas reestruturadas. Desfazer (Ctrl+Z) restaura todas.

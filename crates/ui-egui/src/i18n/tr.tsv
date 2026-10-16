@@ -2751,7 +2751,7 @@ preview	Title	Örnek
 	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollama'da önerilen: 16 GB veya daha fazla bellekle gpt-oss:20b, 8 GB ile qwen3:4b (ollama pull gpt-oss:20b).
 	Table {i} of {n}…	Tablo {i} / {n}…
 	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Sunucuda henüz model yok: önce bir tane indirin (ollama pull gpt-oss:20b).
-	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Bu belgede tablo içinde tablo ya da birleştirilmiş hücre yok: Markdown tablolarını olduğu gibi tutar.
+	No table in this document needs a model: Markdown holds its tables as they are.	Bu belgedeki hiçbir tablo model gerektirmiyor: Markdown tablolarını olduğu gibi tutar.
 	Unchanged	Değişmedi
 	Use a language model	Bir dil modeli kullan
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{n} tablodan {applied} tanesi yeniden yapılandırıldı. Geri Al (Ctrl+Z) hepsini geri getirir.

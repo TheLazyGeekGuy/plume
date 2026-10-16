@@ -157,7 +157,7 @@ pub fn ai_tables(
     eprintln!("{} with {} at {}", input.display(), p.model, p.base_url);
     let runs = restructure(&mut s, &t, &p, force, &mut |r| eprintln!("{}", line(r)))?;
     if runs.is_empty() {
-        eprintln!("  no nested or merged tables");
+        eprintln!("  no table needs a model");
     }
     s.run("file.save", &json!({"path": output})).map_err(|e| e.to_string())?;
     eprintln!("wrote {output}");

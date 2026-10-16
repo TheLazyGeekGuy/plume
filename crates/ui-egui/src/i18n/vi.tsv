@@ -2794,7 +2794,7 @@ template	Letter	Thư
 	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Gợi ý trong Ollama: gpt-oss:20b với 16 GB bộ nhớ trở lên, qwen3:4b với 8 GB (ollama pull gpt-oss:20b).
 	Table {i} of {n}…	Bảng {i}/{n}…
 	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Máy chủ chưa có mô hình nào: hãy tải một mô hình trước (ollama pull gpt-oss:20b).
-	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	Tài liệu này không có bảng lồng trong bảng hay ô đã gộp: Markdown giữ nguyên các bảng.
+	No table in this document needs a model: Markdown holds its tables as they are.	Không bảng nào trong tài liệu này cần mô hình: Markdown giữ nguyên các bảng.
 	Unchanged	Không đổi
 	Use a language model	Dùng mô hình ngôn ngữ
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Đã tái cấu trúc {applied}/{n} bảng. Hoàn tác (Ctrl+Z) khôi phục tất cả.

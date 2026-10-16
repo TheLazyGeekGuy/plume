@@ -2355,7 +2355,7 @@
 	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollama での推奨: メモリ 16 GB 以上なら gpt-oss:20b、8 GB なら qwen3:4b (ollama pull gpt-oss:20b)。
 	Table {i} of {n}…	表 {i}/{n}…
 	The server has no models yet: download one first (ollama pull gpt-oss:20b).	サーバーにまだモデルがありません。まずダウンロードしてください (ollama pull gpt-oss:20b)。
-	This document has no tables in tables nor merged cells: Markdown holds its tables as they are.	この文書には表の中の表も結合セルもありません。Markdown は表をそのまま保持します。
+	No table in this document needs a model: Markdown holds its tables as they are.	この文書の表はどれもモデルを必要としません。Markdown は表をそのまま保持します。
 	Unchanged	変更なし
 	Use a language model	言語モデルを使用する
 	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{n} 個中 {applied} 個の表を再構成しました。元に戻す (Ctrl+Z) ですべて戻ります。

@@ -25,6 +25,9 @@ pub struct Candidate {
     pub depth: usize,
     /// Cells span several columns or rows.
     pub merged: bool,
+    /// What makes it hard for Markdown ("tables in its cells", "merges on several levels",
+    /// "merged rows", "lists in cells", "long text in cells").
+    pub signals: Vec<String>,
     pub words: usize,
     /// Why it can't be sent, if it can't (pictures inside, too large…).
     pub blocked: Option<String>,
@@ -170,7 +173,40 @@ fn inline_md(p: &Paragraph) -> String {
     out
 }
 
-/// The body's tables that Markdown can't hold as they are: tables in tables, merged cells.
+/// A cell's text longer than this (characters) is a description, not a value.
+const LONG_CELL: usize = 300;
+
+/// What makes `t` hard for Markdown, the decisive one first.
+fn signals(doc: &Document, t: &Table, depth: usize) -> Vec<String> {
+    let mut out = Vec::new();
+    if depth >= 2 {
+        out.push("tables in its cells".to_string());
+    }
+    if t.rows.iter().filter(|r| r.cells.iter().any(|c| c.span() > 1)).count() >= 2 {
+        out.push("merges on several levels".to_string());
+    }
+    if t.rows.iter().flat_map(|r| &r.cells).any(|c| c.props.vmerge != VMerge::None) {
+        out.push("merged rows".to_string());
+    }
+    let mut list = false;
+    each_para(t, 1, &mut |p| list |= doc.styles.resolve_para(&p.props).numbering.is_some());
+    if list {
+        out.push("lists in cells".to_string());
+    }
+    let long = t.rows.iter().flat_map(|r| &r.cells).any(|c| {
+        let n: usize = c.blocks.iter().filter_map(|b| b.as_para()).map(|p| p.plain_text().chars().count()).sum();
+        n > LONG_CELL
+    });
+    if long {
+        out.push("long text in cells".to_string());
+    }
+    out
+}
+
+/// The body's tables worth a model's reading: tables in tables, or at least two of merges on
+/// several levels, merged rows, lists in cells and long text in cells. A single merged title
+/// over an ordinary table, or one long cell, is left to the Markdown export, which keeps each
+/// value with its row and column.
 pub fn candidates(doc: &Document) -> Vec<Candidate> {
     doc.body
         .iter()
@@ -179,7 +215,8 @@ pub fn candidates(doc: &Document) -> Vec<Candidate> {
             let t = b.as_table()?;
             let depth = depth(t, 1);
             let merged = merged(t);
-            if depth < 2 && !merged {
+            let signals = signals(doc, t, depth);
+            if depth < 2 && signals.len() < 2 {
                 return None;
             }
             Some(Candidate {
@@ -188,6 +225,7 @@ pub fn candidates(doc: &Document) -> Vec<Candidate> {
                 cols: t.grid.len().max(t.rows.iter().map(|r| r.cells.len()).max().unwrap_or(0)),
                 depth,
                 merged,
+                signals,
                 words: word_count(t).values().sum(),
                 blocked: blocker(t),
             })
@@ -616,7 +654,7 @@ mod tests {
         assert_eq!(candidates(&d)[0].blocked.as_deref(), Some("notes in its cells"));
         d.body.push(Arc::new(Block::Table(Table::new(2, 2, 100.0))));
         let mut empty = Table::new(2, 2, 100.0);
-        empty.rows[0].cells[0].props.span = 2;
+        empty.rows[0].cells[0].blocks.push(Arc::new(Block::Table(Table::new(1, 1, 50.0))));
         d.body.push(Arc::new(Block::Table(empty)));
         assert_eq!(candidates(&d).last().unwrap().blocked.as_deref(), Some("no text"));
     }
@@ -653,5 +691,70 @@ mod tests {
         d.body.push(Arc::new(Block::Table(t)));
         let c = candidates(&d);
         assert!(c[0].blocked.as_deref().is_some_and(|b| b.contains("nested")), "{c:?}");
+    }
+
+    /// Offers as a synthetic table: `title` merged over the columns, then a header and rows.
+    fn offers(title: bool) -> Table {
+        let rows = if title { 4 } else { 3 };
+        let mut t = Table::new(rows, 3, 300.0);
+        let mut r = 0;
+        if title {
+            t.rows[0].cells[0] = Cell::with_text("Offres 2026");
+            t.rows[0].cells[0].props.span = 3;
+            t.rows[0].cells.truncate(1);
+            r = 1;
+        }
+        for (k, h) in ["Offre", "Tarif", "Durée"].iter().enumerate() {
+            t.rows[r].cells[k] = Cell::with_text(h);
+        }
+        for (i, o) in [["Essentiel", "10 €", "1 mois"], ["Confort", "25 €", "3 mois"]].iter().enumerate() {
+            for (k, v) in o.iter().enumerate() {
+                t.rows[r + 1 + i].cells[k] = Cell::with_text(v);
+            }
+        }
+        t
+    }
+
+    #[test]
+    fn a_merged_title_over_an_ordinary_table_stays_with_the_export() {
+        let mut d = Document::new();
+        d.body.push(Arc::new(Block::Table(offers(true))));
+        assert_eq!(candidates(&d), [], "one merged title is not a complex table");
+        // One long description alone neither.
+        let mut t = offers(false);
+        t.rows[1].cells[2] = Cell::with_text(&"Engagement renouvelé chaque mois sauf résiliation écrite. ".repeat(8));
+        d.body.push(Arc::new(Block::Table(t)));
+        assert_eq!(candidates(&d), []);
+    }
+
+    #[test]
+    fn several_levels_merged_rows_lists_and_notes_go_to_the_model() {
+        // Headers on two levels, an offer spanning two rows, a list and a long note per offer.
+        let mut t = Table::new(5, 3, 300.0);
+        t.rows[0].cells[0] = Cell::with_text("Offre");
+        t.rows[0].cells[1] = Cell::with_text("Conditions");
+        t.rows[0].cells[1].props.span = 2;
+        t.rows[0].cells.truncate(2);
+        t.rows[1].cells[1] = Cell::with_text("Tarif");
+        t.rows[1].cells[2] = Cell::with_text("Options");
+        t.rows[2].cells[0] = Cell::with_text("Confort");
+        t.rows[2].cells[0].props.vmerge = VMerge::Restart;
+        t.rows[3].cells[0].props.vmerge = VMerge::Continue;
+        t.rows[2].cells[1] = Cell::with_text("25 €");
+        t.rows[3].cells[1] = Cell::with_text("40 € avec options");
+        t.rows[4].cells[0] = Cell::with_text("Note");
+        t.rows[4].cells[1] = Cell::with_text(&"Le tarif avec options s'applique dès le deuxième mois. ".repeat(7));
+        t.rows[4].cells[1].props.span = 2;
+        t.rows[4].cells.truncate(2);
+        let mut d = Document::new();
+        d.body.push(Arc::new(Block::Table(t)));
+        let c = candidates(&d);
+        assert_eq!(c.len(), 1, "{c:?}");
+        assert_eq!(c[0].signals, ["merges on several levels", "merged rows", "long text in cells"]);
+        // A table of options inside a cell is enough on its own.
+        let mut t = offers(false);
+        t.rows[1].cells[2].blocks.push(Arc::new(Block::Table(offers(false))));
+        d.body.push(Arc::new(Block::Table(t)));
+        assert_eq!(candidates(&d).last().map(|c| c.signals.clone()), Some(vec!["tables in its cells".to_string()]));
     }
 }

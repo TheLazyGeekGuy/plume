@@ -161,11 +161,11 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("ai.tables", "Tables for AI", "Review › AI", |s, _v| {
             let tables: Vec<Value> = tables::candidates(&s.doc)
                 .into_iter()
-                .map(|c| json!({"index": c.index, "rows": c.rows, "cols": c.cols, "depth": c.depth, "merged": c.merged, "words": c.words, "blocked": c.blocked}))
+                .map(|c| json!({"index": c.index, "rows": c.rows, "cols": c.cols, "depth": c.depth, "merged": c.merged, "signals": c.signals, "words": c.words, "blocked": c.blocked}))
                 .collect();
             Ok(json!({"tables": tables}))
         })
-        .params("{} → tables: [{index (body block), rows, cols, depth (2 = tables in its cells), merged, words, blocked?: why it stays as is}]: the tables Markdown can't hold as they are")
+        .params("{} → tables: [{index (body block), rows, cols, depth (2 = tables in its cells), merged, signals (what makes it hard), words, blocked?: why it stays as is}]: the tables worth a model's reading: tables in tables, or two of merges on several levels, merged rows, lists in cells, long text in cells")
         .pure(),
         CommandSpec::new("ai.tableRequest", "AI Request for a Table", "Review › AI", |s, v| {
             let index = p::u64(v, "index").ok_or_else(|| CmdError::Params("`index` (number) is required".into()))?;
