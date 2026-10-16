@@ -52,6 +52,19 @@ const DOCUMENT: &str = r##"<?xml version="1.0" encoding="UTF-8" standalone="yes"
 <w:p></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr>
 <w:p></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr>
 <w:p></w:p></w:tc></w:tr></w:tbl>
+<w:p><w:r><w:t xml:space="preserve">Coordinators:</w:t></w:r></w:p>
+<w:tbl><w:tblPr><w:tblBorders><w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/></w:tblBorders></w:tblPr><w:tblGrid><w:gridCol w:w="1500"/><w:gridCol w:w="1500"/><w:gridCol w:w="1500"/></w:tblGrid>
+<w:tr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr>
+<w:p><w:r><w:t xml:space="preserve">Name</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/><w:gridSpan w:val="2"/></w:tcPr>
+<w:p><w:r><w:t xml:space="preserve">Contact</w:t></w:r></w:p></w:tc></w:tr>
+<w:tr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr>
+<w:p><w:r><w:t xml:space="preserve">Ana</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr>
+<w:p><w:r><w:t xml:space="preserve">0601</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr>
+<w:p><w:r><w:t xml:space="preserve">ana@example.org</w:t></w:r></w:p></w:tc></w:tr>
+<w:tr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr>
+<w:p><w:r><w:t xml:space="preserve">Ben</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr>
+<w:p><w:r><w:t xml:space="preserve">0602</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr>
+<w:p><w:r><w:t xml:space="preserve">ben@example.org</w:t></w:r></w:p></w:tc></w:tr></w:tbl>
 <w:p><w:r><w:t xml:space="preserve">Opening hours:</w:t></w:r></w:p>
 <w:tbl><w:tblPr><w:tblW w:w="4500" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4"/><w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/></w:tblBorders></w:tblPr><w:tblGrid><w:gridCol w:w="750"/><w:gridCol w:w="750"/><w:gridCol w:w="750"/><w:gridCol w:w="750"/><w:gridCol w:w="750"/><w:gridCol w:w="750"/></w:tblGrid>
 <w:tr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/><w:gridSpan w:val="2"/></w:tcPr>
@@ -77,9 +90,10 @@ const DOCUMENT: &str = r##"<?xml version="1.0" encoding="UTF-8" standalone="yes"
 <w:p><w:r><w:t xml:space="preserve">14–16</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/><w:gridSpan w:val="2"/></w:tcPr>
 <w:p><w:r><w:t xml:space="preserve">Ana</w:t></w:r></w:p></w:tc></w:tr></w:tbl>
 <w:p><w:pPr><w:pStyle w:val="ReportTitle1"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr><w:ind w:left="1080" w:hanging="360"/></w:pPr><w:bookmarkStart w:id="3" w:name="_Toc102"/><w:r><w:t xml:space="preserve">Findings</w:t></w:r><w:bookmarkEnd w:id="3"/></w:p>
-<w:p><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="3000000" cy="600000"/><wp:docPr id="5" name="Diagram"/><a:graphic><a:graphicData uri="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"><wpg:wgp><wpg:cNvGrpSpPr/><wpg:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="3000000" cy="600000"/><a:chOff x="0" y="0"/><a:chExt cx="3000000" cy="600000"/></a:xfrm></wpg:grpSpPr><wps:wsp><wps:cNvPr id="10" name="Box 0"/><wps:cNvSpPr txBox="1"/><wps:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="1400000" cy="600000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></wps:spPr><wps:txbx><w:txbxContent>
-<w:p><w:r><w:t xml:space="preserve">Request a slot</w:t></w:r></w:p></w:txbxContent></wps:txbx><wps:bodyPr/></wps:wsp><wps:wsp><wps:cNvPr id="11" name="Box 1"/><wps:cNvSpPr txBox="1"/><wps:spPr><a:xfrm><a:off x="1500000" y="0"/><a:ext cx="1400000" cy="600000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></wps:spPr><wps:txbx><w:txbxContent>
-<w:p><w:r><w:t xml:space="preserve">Confirm by mail</w:t></w:r></w:p></w:txbxContent></wps:txbx><wps:bodyPr/></wps:wsp></wpg:wgp></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>
+<w:p><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="3000000" cy="600000"/><wp:docPr id="5" name="Diagram"/><a:graphic><a:graphicData uri="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"><wpg:wgp><wpg:cNvGrpSpPr/><wpg:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="3000000" cy="1300000"/><a:chOff x="0" y="0"/><a:chExt cx="3000000" cy="1300000"/></a:xfrm></wpg:grpSpPr><wps:wsp><wps:cNvPr id="11" name="Box 1"/><wps:cNvSpPr txBox="1"/><wps:spPr><a:xfrm><a:off x="1500000" y="0"/><a:ext cx="1400000" cy="600000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></wps:spPr><wps:txbx><w:txbxContent>
+<w:p><w:r><w:t xml:space="preserve">Confirm by mail</w:t></w:r></w:p></w:txbxContent></wps:txbx><wps:bodyPr/></wps:wsp><wps:wsp><wps:cNvPr id="10" name="Box 0"/><wps:cNvSpPr txBox="1"/><wps:spPr><a:xfrm><a:off x="0" y="700000"/><a:ext cx="1400000" cy="600000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></wps:spPr><wps:txbx><w:txbxContent>
+<w:p><w:r><w:t xml:space="preserve">Done: the slot is yours</w:t></w:r></w:p></w:txbxContent></wps:txbx><wps:bodyPr/></wps:wsp><wps:wsp><wps:cNvPr id="10" name="Box 0"/><wps:cNvSpPr txBox="1"/><wps:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="1400000" cy="600000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></wps:spPr><wps:txbx><w:txbxContent>
+<w:p><w:r><w:t xml:space="preserve">Request a slot</w:t></w:r></w:p></w:txbxContent></wps:txbx><wps:bodyPr/></wps:wsp></wpg:wgp></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>
 <w:p><w:commentRangeStart w:id="1"/><w:r><w:t xml:space="preserve">Most members prefer the evening sessions.</w:t></w:r><w:commentRangeEnd w:id="1"/><w:r><w:commentReference w:id="1"/></w:r></w:p>
 <w:p><w:r><w:drawing><wp:inline><wp:extent cx="3000000" cy="900000"/><wp:docPr id="7" name="Canvas"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/lockedCanvas"><lc:lockedCanvas xmlns:lc="http://schemas.openxmlformats.org/drawingml/2006/lockedCanvas"><a:nvGrpSpPr><a:cNvPr id="0" name=""/><a:cNvGrpSpPr/></a:nvGrpSpPr><a:grpSpPr/><a:sp><a:nvSpPr><a:cNvPr id="2" name="Step 1"/><a:cNvSpPr/></a:nvSpPr><a:spPr/><a:txSp><a:txBody><a:bodyPr/><a:p><a:r><a:t>Book the room</a:t></a:r></a:p></a:txBody></a:txSp></a:sp><a:sp><a:nvSpPr><a:cNvPr id="3" name="Step 2"/><a:cNvSpPr/></a:nvSpPr><a:spPr/><a:txSp><a:txBody><a:bodyPr/><a:p><a:r><a:t>Collect the key</a:t></a:r><a:br/><a:r><a:t>at the desk</a:t></a:r></a:p></a:txBody></a:txSp></a:sp></lc:lockedCanvas></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>
 <w:p><w:r><w:rPr><w:rFonts w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS"/></w:rPr><w:t xml:space="preserve">Prices are agreed together each spring.</w:t></w:r></w:p>
@@ -248,7 +262,9 @@ fn the_table_of_contents_links_to_the_headings() {
 fn drawings_keep_their_text() {
     let (md, report) = markdown();
     // A group, Word 2007's locked canvas (DrawingML text), an old VML text box.
-    for t in ["> Request a slot", "> Confirm by mail", "> Book the room", "> Collect the key at the desk", "> Old style note box"] {
+    // A group read as it shows (rows top to bottom, each left to right), not in the file's order.
+    assert!(md.contains("> Request a slot\n\n> Confirm by mail\n\n> Done: the slot is yours"), "{md}");
+    for t in ["> Book the room", "> Collect the key at the desk", "> Old style note box"] {
         assert!(md.contains(t), "{t} lost:\n{md}");
     }
     assert!(report.iter().any(|l| l.starts_with("3 × drawings' text")), "{report:?}");
@@ -267,6 +283,8 @@ fn merged_cells_keep_their_associations() {
     assert_eq!((md.matches("<!-- c2 -->").count(), md.matches("<!-- /c2 -->").count()), (1, 1), "{md}");
     assert_eq!(md.matches("Long description of the dye room").count(), 1, "{md}");
     assert!(md.contains("\n|  | 14–16 | Ana |"), "{md}");
+    // A wide header cell over a row of values: that row is the first record, not a header.
+    assert!(md.contains("| Name | Contact | Contact |\n| --- | --- | --- |\n| Ana | 0601 | ana@example.org |\n| Ben |"), "{md}");
 }
 
 /// Written, read back and written again: the same text from the first save on.

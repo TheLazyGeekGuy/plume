@@ -2197,8 +2197,10 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
     // covers (a category beside its values). Longer merged text is written once.
     let mut grid: Vec<Vec<String>> = Vec::new();
     let mut aligns: Vec<Option<Align>> = vec![None; cols];
-    // Rows with a cell over several (logical) columns: a header's upper level.
+    // Rows with a cell over several (logical) columns: a header's upper level; and, per row,
+    // the columns such a cell covers.
     let mut spans_columns = vec![false; t.rows.len()];
+    let mut wide: Vec<Vec<bool>> = vec![vec![false; cols]; t.rows.len()];
     for (ri, r) in t.rows.iter().enumerate() {
         let mut v: Vec<String> = vec![String::new(); cols];
         let mut at = 0usize;
@@ -2211,7 +2213,12 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
             let last = logical(at.saturating_add(span)).max(first + 1);
             at = at.saturating_add(span);
             if last - first > 1 {
-                spans_columns[ri] = true;
+                if let Some(s) = spans_columns.get_mut(ri) {
+                    *s = true;
+                }
+                if let Some(row) = wide.get_mut(ri) {
+                    row.iter_mut().take(last.min(cols)).skip(first).for_each(|w| *w = true);
+                }
             }
             let text = if c.covered {
                 let above = grid.get(ri.wrapping_sub(1)).and_then(|row| row.get(first)).cloned().unwrap_or_default();
@@ -2244,7 +2251,21 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
     // header: "Booking" over "Weekday" and "Weekend" → "Booking – Weekday", "Booking – Weekend").
     let mut head_rows = 1;
     if ctx.native {
-        while head_rows < grid.len() - 1 && spans_columns.get(head_rows - 1).copied().unwrap_or(false) {
+        // The next row joins the header only when it just fills in under the wide cells: below
+        // each single-column header cell it has nothing, or that same cell going on. A row with
+        // its own value there is the first record, not a header. Rows Word repeats as headers
+        // are headers.
+        let fills_in = |h: usize| {
+            (0..cols).all(|k| {
+                let above = grid.get(h - 1).and_then(|r| r.get(k)).map_or("", |x| x.trim());
+                let here = grid.get(h).and_then(|r| r.get(k)).map_or("", |x| x.trim());
+                wide.get(h - 1).and_then(|w| w.get(k)).copied().unwrap_or(false) || above.is_empty() || here.is_empty() || copy(here) == copy(above)
+            })
+        };
+        let repeated = |h: usize| t.rows.get(h).is_some_and(|r| !r.is_empty() && r.iter().all(|c| c.header));
+        while head_rows < grid.len() - 1
+            && (repeated(head_rows) || (spans_columns.get(head_rows - 1).copied().unwrap_or(false) && fills_in(head_rows)))
+        {
             head_rows += 1;
         }
     }

@@ -981,6 +981,31 @@ pub fn toc_level(doc: &Document, style: &str) -> Option<u8> {
     })
 }
 
+/// A drawing's text boxes in reading order: a group's boxes by rows (boxes whose tops are within
+/// half a box's height of each other share a row), each row left to right — not the order the
+/// file lists them in.
+fn reading_order(o: &InlineObject) -> Vec<u32> {
+    if !matches!(o, InlineObject::Group { .. }) {
+        return o.text_boxes();
+    }
+    let mut boxes: Vec<([f32; 4], u32)> =
+        o.group_rects(0.0, 0.0, 1000.0, 1000.0).into_iter().filter_map(|(r, m)| m.text_box().map(|id| (r, id))).collect();
+    boxes.sort_by(|a, b| a.0[1].total_cmp(&b.0[1]));
+    let mut rows: Vec<Vec<([f32; 4], u32)>> = Vec::new();
+    for b in boxes {
+        match rows.last_mut() {
+            Some(row) if row.first().is_some_and(|f| (b.0[1] - f.0[1]).abs() < f.0[3].min(b.0[3]).max(1.0) / 2.0) => row.push(b),
+            _ => rows.push(vec![b]),
+        }
+    }
+    rows.into_iter()
+        .flat_map(|mut row| {
+            row.sort_by(|a, b| a.0[0].total_cmp(&b.0[0]));
+            row.into_iter().map(|(_, id)| id)
+        })
+        .collect()
+}
+
 /// Paragraph kind and list membership of a document paragraph.
 pub fn para_kind(doc: &Document, p: &Paragraph) -> (Kind, Option<ListInfo>) {
     let rp = doc.styles.resolve_para(&p.props);
@@ -1164,7 +1189,7 @@ fn flow_paras_in(doc: &Document, p: &Paragraph, opts: FlowOpts) -> Vec<Para> {
                 }
                 Some(o @ (InlineObject::Shape { .. } | InlineObject::Group { .. })) if opts.notes => {
                     let mut blocks = Vec::new();
-                    for id in o.text_boxes() {
+                    for id in reading_order(o) {
                         if let Some(part) = doc.parts.get(&id) {
                             let inner = FlowOpts { notes: false, ..opts };
                             blocks.extend(flow_blocks(doc, &part.blocks, MAX_DEPTH.saturating_sub(2), inner));
