@@ -89,6 +89,27 @@ fn keytip_badge(ui: &Ui, rect: Rect, id: &str, name: &str) {
 }
 
 /// Whether a command exists and is enabled.
+/// Plume's Markdown profile: command `id` is Office-only, so its button and menu item are not
+/// drawn at all (rather than greyed out).
+pub fn hidden(app: &WordApp, id: &str) -> bool {
+    !id.is_empty() && wordcraft_engine::plume::is_office(id) && app.session.markdown_blocks(id).is_some()
+}
+
+/// Plume's Markdown profile is on for this document (`markdown.strict`, a Markdown document).
+pub fn profile_on(app: &WordApp) -> bool {
+    app.session.prefs.markdown_strict && app.session.is_markdown()
+}
+
+/// Plume's Markdown profile: ribbon tab `name` holds only Office commands.
+pub fn tab_hidden(app: &WordApp, name: &str) -> bool {
+    wordcraft_engine::plume::is_office_tab(name) && profile_on(app)
+}
+
+/// A response for a control that isn't drawn (nothing allocated, never clicked).
+fn nothing(ui: &mut Ui) -> Response {
+    ui.allocate_exact_size(vec2(0.0, 0.0), Sense::hover()).1
+}
+
 pub fn enabled(app: &WordApp, id: &str) -> bool {
     // No document open (#1129): only what opens one, Help and the settings.
     if !app.has_document() && !crate::works_without_document(id) {
@@ -160,6 +181,9 @@ pub fn label_line(ui: &Ui, cx: f32, y: f32, text: &str, font: egui::FontId, colo
 
 #[allow(clippy::too_many_arguments)]
 fn big_button(ui: &mut Ui, app: &mut WordApp, icon: &str, label: &str, id: &str, params: Value, menu: bool, checked: bool) -> Response {
+    if hidden(app, id) {
+        return nothing(ui);
+    }
     let label = tl!(label);
     let t = Tokens::get(ui.ctx());
     let galley_w =
@@ -188,6 +212,9 @@ fn big_button(ui: &mut Ui, app: &mut WordApp, icon: &str, label: &str, id: &str,
 
 /// A small button: 16 px icon with an optional label; `checked` draws the toggled state.
 pub fn small(ui: &mut Ui, app: &mut WordApp, icon: &str, label: Option<&str>, tip: &str, id: &str, params: Value, checked: bool) -> Response {
+    if hidden(app, id) {
+        return nothing(ui);
+    }
     let (label, tip) = (label.map(|l| tl!(l)), tl!(tip));
     let t = Tokens::get(ui.ctx());
     let text_w = label.map(|l| ui.ctx().fonts_mut(|f| f.layout_no_wrap(l.to_string(), regular(11.5), t.text).size().x) + 6.0).unwrap_or(0.0);
@@ -222,6 +249,9 @@ pub fn split(
     swatch: Option<Color32>,
     menu: impl FnOnce(&mut Ui, &mut WordApp),
 ) {
+    if hidden(app, id) {
+        return;
+    }
     let tip = tl!(tip);
     let t = Tokens::get(ui.ctx());
     let (r, resp) = ui.allocate_exact_size(vec2(24.0, 22.0), Sense::click());
@@ -262,6 +292,9 @@ pub fn menu_button(
     id: &str,
     menu: impl FnOnce(&mut Ui, &mut WordApp),
 ) {
+    if hidden(app, id) {
+        return;
+    }
     let (label, tip) = (label.map(|l| tl!(l)), tl!(tip));
     let t = Tokens::get(ui.ctx());
     // `id` names the command the menu is about (Header for the Header menu…); while it is

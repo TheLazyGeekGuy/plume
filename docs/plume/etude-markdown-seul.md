@@ -1,6 +1,6 @@
 # Plume, éditeur Markdown seul : étude
 
-> **Date :** 2026-10-16 · **Statut :** étude, aucune décision appliquée · **Base mesurée :** branche `claude/gallant-allen-2rb6nx`, upstream `storytold/wordcraft` au commit `eae2421`
+> **Date :** 2026-10-16 · **Statut :** décisions prises le 2026-10-16 (section 9), profil Plume livré · **Base mesurée :** branche `claude/gallant-allen-2rb6nx`, upstream `storytold/wordcraft` au commit `eae2421`
 
 ## 1. En bref
 
@@ -179,3 +179,32 @@ GitHub affiche le front matter sous forme de tableau en tête du fichier. Ces cl
 4. **« Éditeur » dans l'en-tête.** S'agit-il de la personne qui a modifié le document en dernier, ou du logiciel qui l'a produit ?
 5. **Calendrier.** D'accord pour commencer par le profil à l'exécution et un mois de mesures avant toute suppression physique ?
 6. **Renommage du dépôt.** D'accord pour renommer `TheLazyGeekGuy/wordcraft` en `plume` maintenant ? C'est sans effet sur les fusions.
+
+## 9. Décisions du 16 octobre 2026
+
+| Question | Décision |
+|---|---|
+| Calendrier | Profil à l'exécution d'abord, un mois de mesures, aucune suppression physique avant |
+| Export Word | Masqué par le profil, code conservé et réactivable |
+| Citations Zotero | Gardées |
+| Suivi des modifications | Le suivi Word est coupé par le profil. Le suivi « depuis la dernière version », appuyé sur git, reste |
+| « Éditeur » dans l'en-tête | Les deux : `editor` pour la personne, `generator` pour le logiciel |
+| Renommage du dépôt | Plus tard |
+| Binaires `plume` et `plume-cli` | Plus tard |
+
+### Ce que fait le profil livré
+
+- **Classement des commandes.** Le fichier `crates/engine/src/plume_commands.txt` classe chacune des 662 commandes en `markdown` ou `office`. Un test échoue si une commande n'y figure pas, ou si le fichier nomme une commande disparue. Après une fusion, il dit quoi classer.
+- **Commandes coupées.** Avec le profil, une commande `office` est refusée sur un document Markdown, par l'interface comme par la CLI et le MCP.
+- **Interface épurée.** Les onglets Dessin, Création, Mise en page, Publipostage, Développeur, et les onglets contextuels Graphique, SmartArt et Format de la forme ne sont plus affichés. Les boutons et éléments de menu `office` des autres onglets ne sont plus dessinés.
+- **Export.** Les exports DOCX, Word XML, Word 2003, ODT et RTF ne sont plus proposés. PDF, Markdown, HTML, LaTeX, texte et image restent.
+- **Réglage.** Fichier › Options › Markdown › « S'en tenir au Markdown » désactive le profil et rend tout.
+
+## 10. Journal des fusions depuis WordCraft
+
+Une ligne par fusion, pour le critère de la section 4.
+
+| Date | Commit upstream | Fichiers changés | Conflits | Temps passé | Commandes à classer | Remarque |
+|---|---|---|---|---|---|---|
+| 2026-10-16 | `eae2421` | 10 | 1 (`crates/pdf/src/lib.rs`, nom du créateur du PDF) | moins de 30 min | 0 | Nouveau moteur PDF partagé d'upstream ; Rust 1.95 requis |
+

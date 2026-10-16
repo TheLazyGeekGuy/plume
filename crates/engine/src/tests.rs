@@ -8025,8 +8025,14 @@ fn track_changes_show_the_changes_since_the_last_version() {
     // Nothing changed since: recomputing finds nothing.
     let again = s.run("vcs.changesSinceVersion", &json!({})).unwrap();
     assert_eq!(again["changes"], 0, "{}", s.run("review.changes", &json!({})).unwrap());
-    // An unversioned document: plain Track Changes.
+    // An unversioned document: plain Track Changes, except in Plume's Markdown profile, where
+    // changes are tracked against a version.
     let mut plain = Session::new(wordcraft_doc::Document::from_text("x"));
     assert!(plain.run("review.trackChanges", &json!({"value": true})).unwrap().get("sinceVersion").is_none());
+    let mut plain = Session::new(wordcraft_doc::Document::from_text("x"));
+    plain.native_markdown = true;
+    let refused = plain.run("review.trackChanges", &json!({"value": true}));
+    assert!(matches!(&refused, Err(crate::CmdError::Disabled(m)) if m.contains("save a version")), "{refused:?}");
+    assert!(!plain.doc.settings.track_changes);
     let _ = std::fs::remove_dir_all(&dir);
 }

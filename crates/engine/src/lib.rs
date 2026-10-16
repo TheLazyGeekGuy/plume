@@ -15,6 +15,7 @@ mod io_ext;
 pub mod keymap;
 pub mod math_gallery;
 pub mod pdf_template;
+pub mod plume;
 pub mod print;
 pub mod publication;
 pub mod recovery;

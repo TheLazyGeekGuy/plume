@@ -197,8 +197,13 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
     // Format) may be stored while the selection moved away, and a tab may have been hidden.
     let user_tabs = app.session.ribbon.tabs().into_owned();
     let mut tabs: Vec<(String, bool)> = vec![("File".to_string(), false)];
-    tabs.extend(user_tabs.iter().filter(|e| !e.hidden).map(|e| (e.name.clone(), e.custom)));
+    tabs.extend(
+        user_tabs.iter().filter(|e| !e.hidden && (e.custom || !crate::widgets::tab_hidden(app, &e.name))).map(|e| (e.name.clone(), e.custom)),
+    );
     for ct in contextual_tabs(&app.session) {
+        if crate::widgets::tab_hidden(app, ct) {
+            continue;
+        }
         if ct == "Outlining" {
             tabs.insert(1.min(tabs.len()), (ct.to_string(), false));
         } else if !tabs.iter().any(|(n, _)| n == ct) {
@@ -491,6 +496,9 @@ pub(crate) fn mi(ui: &mut Ui, app: &mut WordApp, label: &str, id: &str, params: 
 
 /// A menu item whose text is already in the interface language.
 fn mi_text(ui: &mut Ui, app: &mut WordApp, text: &str, id: &str, params: Value) {
+    if crate::widgets::hidden(app, id) {
+        return;
+    }
     let sc = crate::widgets::shortcut_text(app, id);
     let enabled = crate::widgets::enabled(app, id);
     let resp = ui.add_enabled(enabled, egui::Button::new(text).shortcut_text(sc).min_size(vec2(200.0, 0.0)));

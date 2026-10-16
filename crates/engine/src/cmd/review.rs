@@ -27,6 +27,13 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("review.trackChanges", "Track Changes", "Review › Tracking", |s, v| {
             let on = p::bool(v, "value").unwrap_or(!s.doc.settings.track_changes);
             let was = s.doc.settings.track_changes;
+            // Plume's Markdown profile: changes are tracked against the last version (Git keeps
+            // the record); Word's own tracking, which Markdown can't keep, stays off.
+            if on && !was && s.prefs.markdown_strict && s.is_markdown() && !super::versions::versioned(s) {
+                return Err(CmdError::Disabled(
+                    "review.trackChanges: save a version first; Plume tracks the changes since the last version".into(),
+                ));
+            }
             s.doc.settings.track_changes = on;
             let mut out = json!({"value": on});
             // Plume: on a versioned document, turning tracking on shows the changes since the

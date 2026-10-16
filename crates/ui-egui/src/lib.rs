@@ -2532,6 +2532,8 @@ fn control_click_as_secondary(events: &mut [egui::Event], held: &mut bool) {
 
 #[cfg(test)]
 mod tests_perf;
+#[cfg(test)]
+mod tests_plume;
 
 #[cfg(test)]
 mod tests {

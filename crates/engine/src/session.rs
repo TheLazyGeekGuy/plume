@@ -1227,7 +1227,7 @@ impl Session {
         if !self.prefs.markdown_strict || !self.is_markdown() {
             return None;
         }
-        (crate::cmd::versions::NOT_IN_MARKDOWN.contains(&id) || id.starts_with("draw.") && id != "draw.select")
+        (crate::plume::is_office(id) || crate::cmd::versions::NOT_IN_MARKDOWN.contains(&id))
             .then_some("Markdown can't keep this formatting (strict Markdown mode)")
     }
 
