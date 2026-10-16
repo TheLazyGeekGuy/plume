@@ -2247,17 +2247,21 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
     if grid.is_empty() {
         return;
     }
-    // Header rows: the first, and the next while the one above spans columns (a two-level
-    // header: "Booking" over "Weekday" and "Weekend" → "Booking – Weekday", "Booking – Weekend").
+    // Header rows: the first, and the next when the first spans columns (a two-level header:
+    // "Booking" over "Weekday" and "Weekend" → "Booking – Weekday", "Booking – Weekend"); more
+    // only when Word repeats them.
     let mut head_rows = 1;
     if ctx.native {
         // The next row joins the header only when it just fills in under the wide cells: below
         // each single-column header cell it has nothing, or that same cell going on. A row with
         // its own value there is the first record, not a header. Rows Word repeats as headers
         // are headers.
+        // "Above" is the header's last value in that column, not just the row before: a band
+        // row with an empty first cell ("" | "Category A" over two columns) must not let the
+        // record under it ("A01" under "Code") pass.
         let fills_in = |h: usize| {
             (0..cols).all(|k| {
-                let above = grid.get(h - 1).and_then(|r| r.get(k)).map_or("", |x| x.trim());
+                let above = (0..h).rev().find_map(|r| grid.get(r).and_then(|r| r.get(k)).map(|x| x.trim()).filter(|x| !x.is_empty())).unwrap_or("");
                 let here = grid.get(h).and_then(|r| r.get(k)).map_or("", |x| x.trim());
                 wide.get(h - 1).and_then(|w| w.get(k)).copied().unwrap_or(false) || above.is_empty() || here.is_empty() || copy(here) == copy(above)
             })
@@ -2273,16 +2277,22 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
         let max_head = grid.iter().position(|r| r.iter().any(has_marker)).map_or(usize::MAX, |m| m.max(1));
         while head_rows < grid.len() - 1
             && head_rows < max_head
-            && (head_rows < flagged || (spans_columns.get(head_rows - 1).copied().unwrap_or(false) && fills_in(head_rows)))
+            && (head_rows < flagged || (head_rows < 2 && spans_columns.get(head_rows - 1).copied().unwrap_or(false) && fills_in(head_rows)))
         {
             head_rows += 1;
         }
     }
     let mut head: Vec<String> = Vec::new();
     for c in 0..cols {
-        let mut parts: Vec<&str> = Vec::new();
-        for row in grid.iter().take(head_rows) {
-            let x = row.get(c).map(String::as_str).unwrap_or("").trim();
+        let mut parts: Vec<String> = Vec::new();
+        for (ri, row) in grid.iter().enumerate().take(head_rows) {
+            // A wide cell's text stands over each of its columns (a copy carries no markers).
+            let mut k = c;
+            let mut x = row.get(c).map(String::as_str).unwrap_or("").trim().to_string();
+            while x.is_empty() && k > 0 && wide.get(ri).and_then(|w| w.get(k)).copied().unwrap_or(false) {
+                k -= 1;
+                x = copy(row.get(k).map(String::as_str).unwrap_or("").trim());
+            }
             if !x.is_empty() && parts.last() != Some(&x) {
                 parts.push(x);
             }
