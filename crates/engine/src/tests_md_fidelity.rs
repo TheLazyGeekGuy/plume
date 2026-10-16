@@ -175,6 +175,31 @@ const ROOT_RELS: &str = r##"<?xml version="1.0" encoding="UTF-8" standalone="yes
 
 const DOC_RELS: &str = r##"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Target="comments.xml"/></Relationships>"##;
 
+/// Tables whose every row Word marks as a repeated header (`w:tblHeader` on the records too),
+/// with comment ranges over several cells; and a locked canvas whose shapes the file lists out
+/// of their drawn order.
+const FLAGGED: &str = r##"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><w:body>
+<w:p><w:r><w:t xml:space="preserve">Records:</w:t></w:r></w:p>
+<w:tbl><w:tblPr><w:tblBorders><w:top w:val="single" w:sz="4"/><w:left w:val="single" w:sz="4"/><w:bottom w:val="single" w:sz="4"/><w:right w:val="single" w:sz="4"/><w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/></w:tblBorders></w:tblPr><w:tblGrid><w:gridCol w:w="1500"/><w:gridCol w:w="1500"/><w:gridCol w:w="1500"/></w:tblGrid><w:tr><w:trPr><w:tblHeader/></w:trPr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Référence</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/><w:gridSpan w:val="2"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Titre</w:t></w:r></w:p></w:tc></w:tr><w:tr><w:trPr><w:tblHeader/></w:trPr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:commentRangeStart w:id="0"/><w:r><w:t xml:space="preserve">Section A</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/><w:gridSpan w:val="2"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Dossier</w:t></w:r><w:commentRangeEnd w:id="0"/><w:r><w:commentReference w:id="0"/></w:r></w:p></w:tc></w:tr><w:tr><w:trPr><w:tblHeader/></w:trPr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:commentRangeStart w:id="1"/><w:r><w:t xml:space="preserve">R01</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Document Alpha</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Objet Alpha</w:t></w:r><w:commentRangeEnd w:id="1"/><w:r><w:commentReference w:id="1"/></w:r></w:p></w:tc></w:tr><w:tr><w:trPr><w:tblHeader/></w:trPr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">R02</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Document Beta</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Objet Beta</w:t></w:r></w:p></w:tc></w:tr><w:tr><w:trPr><w:tblHeader/></w:trPr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">R03</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Document Gamma</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Objet Gamma</w:t></w:r></w:p></w:tc></w:tr></w:tbl>
+<w:p><w:r><w:t xml:space="preserve">Codes:</w:t></w:r></w:p>
+<w:tbl><w:tblPr><w:tblBorders><w:top w:val="single" w:sz="4"/><w:left w:val="single" w:sz="4"/><w:bottom w:val="single" w:sz="4"/><w:right w:val="single" w:sz="4"/><w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/></w:tblBorders></w:tblPr><w:tblGrid><w:gridCol w:w="1500"/><w:gridCol w:w="1500"/></w:tblGrid><w:tr><w:trPr><w:tblHeader/></w:trPr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Code</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Libellé</w:t></w:r></w:p></w:tc></w:tr><w:tr><w:trPr><w:tblHeader/></w:trPr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">K01</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Poste 1</w:t></w:r></w:p></w:tc></w:tr><w:tr><w:trPr><w:tblHeader/></w:trPr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">K02</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Poste 2</w:t></w:r></w:p></w:tc></w:tr><w:tr><w:trPr><w:tblHeader/></w:trPr><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">K03</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="1500" w:type="dxa"/></w:tcPr><w:p><w:r><w:t xml:space="preserve">Poste 3</w:t></w:r></w:p></w:tc></w:tr></w:tbl>
+<w:p><w:r><w:drawing><wp:inline><wp:extent cx="4200000" cy="900000"/><wp:docPr id="7" name="Canvas"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/lockedCanvas"><lc:lockedCanvas xmlns:lc="http://schemas.openxmlformats.org/drawingml/2006/lockedCanvas"><a:nvGrpSpPr><a:cNvPr id="0" name=""/><a:cNvGrpSpPr/></a:nvGrpSpPr><a:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="4200000" cy="900000"/><a:chOff x="0" y="0"/><a:chExt cx="4200000" cy="900000"/></a:xfrm></a:grpSpPr><a:grpSp><a:nvGrpSpPr><a:cNvPr id="1" name="Steps"/><a:cNvGrpSpPr/></a:nvGrpSpPr><a:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="4200000" cy="900000"/><a:chOff x="0" y="0"/><a:chExt cx="4200000" cy="900000"/></a:xfrm></a:grpSpPr><a:sp><a:nvSpPr><a:cNvPr id="10" name="Step 9"/><a:cNvSpPr/></a:nvSpPr><a:spPr><a:xfrm><a:off x="3600000" y="200000"/><a:ext cx="300000" cy="300000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></a:spPr><a:txBody><a:bodyPr/><a:p><a:r><a:t>9</a:t></a:r></a:p><a:p><a:r><a:t>Label 9</a:t></a:r></a:p></a:txBody></a:sp><a:sp><a:nvSpPr><a:cNvPr id="11" name="Step 6"/><a:cNvSpPr/></a:nvSpPr><a:spPr><a:xfrm><a:off x="2400000" y="200000"/><a:ext cx="300000" cy="300000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></a:spPr><a:txBody><a:bodyPr/><a:p><a:r><a:t>6</a:t></a:r></a:p><a:p><a:r><a:t>Label 6</a:t></a:r></a:p></a:txBody></a:sp><a:sp><a:nvSpPr><a:cNvPr id="12" name="Step 8"/><a:cNvSpPr/></a:nvSpPr><a:spPr><a:xfrm><a:off x="3200000" y="200000"/><a:ext cx="300000" cy="300000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></a:spPr><a:txBody><a:bodyPr/><a:p><a:r><a:t>8</a:t></a:r></a:p><a:p><a:r><a:t>Label 8</a:t></a:r></a:p></a:txBody></a:sp><a:sp><a:nvSpPr><a:cNvPr id="13" name="Step 2"/><a:cNvSpPr/></a:nvSpPr><a:spPr><a:xfrm><a:off x="800000" y="200000"/><a:ext cx="300000" cy="300000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></a:spPr><a:txBody><a:bodyPr/><a:p><a:r><a:t>2</a:t></a:r></a:p><a:p><a:r><a:t>Label 2</a:t></a:r></a:p></a:txBody></a:sp><a:sp><a:nvSpPr><a:cNvPr id="14" name="Step 3"/><a:cNvSpPr/></a:nvSpPr><a:spPr><a:xfrm><a:off x="1200000" y="200000"/><a:ext cx="300000" cy="300000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></a:spPr><a:txBody><a:bodyPr/><a:p><a:r><a:t>3</a:t></a:r></a:p><a:p><a:r><a:t>Label 3</a:t></a:r></a:p></a:txBody></a:sp><a:sp><a:nvSpPr><a:cNvPr id="15" name="Step 5"/><a:cNvSpPr/></a:nvSpPr><a:spPr><a:xfrm><a:off x="2000000" y="200000"/><a:ext cx="300000" cy="300000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></a:spPr><a:txBody><a:bodyPr/><a:p><a:r><a:t>5</a:t></a:r></a:p><a:p><a:r><a:t>Label 5</a:t></a:r></a:p></a:txBody></a:sp><a:sp><a:nvSpPr><a:cNvPr id="16" name="Step 4"/><a:cNvSpPr/></a:nvSpPr><a:spPr><a:xfrm><a:off x="1600000" y="200000"/><a:ext cx="300000" cy="300000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></a:spPr><a:txBody><a:bodyPr/><a:p><a:r><a:t>4</a:t></a:r></a:p><a:p><a:r><a:t>Label 4</a:t></a:r></a:p></a:txBody></a:sp><a:sp><a:nvSpPr><a:cNvPr id="17" name="Step 7"/><a:cNvSpPr/></a:nvSpPr><a:spPr><a:xfrm><a:off x="2800000" y="200000"/><a:ext cx="300000" cy="300000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></a:spPr><a:txBody><a:bodyPr/><a:p><a:r><a:t>7</a:t></a:r></a:p><a:p><a:r><a:t>Label 7</a:t></a:r></a:p></a:txBody></a:sp><a:sp><a:nvSpPr><a:cNvPr id="18" name="Step 1"/><a:cNvSpPr/></a:nvSpPr><a:spPr><a:xfrm><a:off x="400000" y="200000"/><a:ext cx="300000" cy="300000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></a:spPr><a:txBody><a:bodyPr/><a:p><a:r><a:t>1</a:t></a:r></a:p><a:p><a:r><a:t>Label 1</a:t></a:r></a:p></a:txBody></a:sp></a:grpSp></lc:lockedCanvas></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>
+<w:sectPr/></w:body></w:document>"##;
+
+const FLAGGED_COMMENTS: &str = r##"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:comments xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:comment w:id="0" w:author="Reviewer D" w:date="2026-03-05T09:00:00Z"><w:p><w:r><w:t xml:space="preserve">Rename the section.</w:t></w:r></w:p></w:comment><w:comment w:id="1" w:author="Reviewer E" w:date="2026-03-06T09:00:00Z"><w:p><w:r><w:t xml:space="preserve">Check the first record.</w:t></w:r></w:p></w:comment></w:comments>"##;
+
+fn flagged_docx() -> Vec<u8> {
+    package(&[
+        ("[Content_Types].xml", CONTENT_TYPES),
+        ("_rels/.rels", ROOT_RELS),
+        ("word/_rels/document.xml.rels", DOC_RELS),
+        ("word/document.xml", FLAGGED),
+        ("word/styles.xml", STYLES),
+        ("word/numbering.xml", NUMBERING),
+        ("word/comments.xml", FLAGGED_COMMENTS),
+    ])
+}
+
 fn report_docx() -> Vec<u8> {
     package(&[
         ("[Content_Types].xml", CONTENT_TYPES),
@@ -336,4 +361,54 @@ fn comments_cover_their_whole_range_and_show() {
     assert!(matches!(first, Some(wordcraft_doc::InlineObject::CommentStart { .. })), "the range starts at the paragraph's start: {first:?}");
     let again = wordcraft_formats::markdown::export_native(&doc, &Default::default()).text;
     assert_eq!(again, md);
+}
+
+/// Every row flagged as a repeated header says nothing about the table's shape: the records
+/// stay rows, one each, under a one-row header.
+#[test]
+fn repeated_header_flags_on_every_row_do_not_swallow_the_records() {
+    let doc = io::open_bytes("flagged.docx", &flagged_docx()).unwrap();
+    let md = wordcraft_formats::markdown::export_native(&doc, &Default::default()).text;
+    assert!(md.contains("| Référence | Titre | Titre |\n| --- | --- | --- |\n| <!-- c1 -->Section A | Dossier<!-- /c1 --> |  |\n"), "{md}");
+    for r in [
+        "| <!-- c2 -->R01 | Document Alpha | Objet Alpha<!-- /c2 --> |",
+        "| R02 | Document Beta | Objet Beta |",
+        "| R03 | Document Gamma | Objet Gamma |",
+    ] {
+        assert!(md.contains(&format!("\n{r}\n")), "{r} is a row of its own:\n{md}");
+    }
+    assert!(md.contains("| Code | Libellé |\n| --- | --- |\n| K01 | Poste 1 |\n| K02 | Poste 2 |\n| K03 | Poste 3 |\n"), "{md}");
+}
+
+/// A comment over several cells covers the same text after export: the markers keep their
+/// order, so the ranges neither nest nor grow.
+#[test]
+fn comments_over_several_cells_cover_the_same_text() {
+    let doc = io::open_bytes("flagged.docx", &flagged_docx()).unwrap();
+    let md = wordcraft_formats::markdown::export_native(&doc, &Default::default()).text;
+    assert!(md.contains("Rename the section.\n    > Section A Dossier\n"), "{md}");
+    assert!(md.contains("Check the first record.\n    > R01 Document Alpha Objet Alpha\n"), "{md}");
+    let order: Vec<&str> = ["<!-- c1 -->", "<!-- /c1 -->", "<!-- c2 -->", "<!-- /c2 -->"]
+        .into_iter()
+        .map(|m| (md.find(m).unwrap(), m))
+        .collect::<std::collections::BTreeMap<_, _>>()
+        .into_values()
+        .collect();
+    assert_eq!(order, ["<!-- c1 -->", "<!-- /c1 -->", "<!-- c2 -->", "<!-- /c2 -->"], "{md}");
+    // Read back, the ranges cover the same text (the readers' view is rebuilt from them).
+    let back = io::open_bytes("flagged.md", md.as_bytes()).unwrap();
+    assert_eq!(back.comments.len(), 2);
+    let again = wordcraft_formats::markdown::export_native(&back, &Default::default()).text;
+    assert_eq!(again, md);
+}
+
+/// A locked canvas's shapes read in the drawing's order (by their places), each shape's lines
+/// together, not in the file's order.
+#[test]
+fn a_locked_canvas_reads_in_the_drawn_order() {
+    let doc = io::open_bytes("flagged.docx", &flagged_docx()).unwrap();
+    let md = wordcraft_formats::markdown::export_native(&doc, &Default::default()).text;
+    let quotes: Vec<&str> = md.lines().filter(|l| l.starts_with("> ")).collect();
+    let expected: Vec<String> = (1..=9).flat_map(|n| [format!("> {n}"), format!("> Label {n}")]).collect();
+    assert_eq!(quotes, expected, "{md}");
 }

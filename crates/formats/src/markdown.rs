@@ -2262,9 +2262,18 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
                 wide.get(h - 1).and_then(|w| w.get(k)).copied().unwrap_or(false) || above.is_empty() || here.is_empty() || copy(here) == copy(above)
             })
         };
-        let repeated = |h: usize| t.rows.get(h).is_some_and(|r| !r.is_empty() && r.iter().all(|c| c.header));
+        // Rows Word repeats at the top of each page are headers — when the flag says something.
+        // Word only repeats a leading run of rows, and a header is a few rows over many records:
+        // a table flagged all the way down (every record "a header") is read by its shape.
+        let flagged = t.rows.iter().take_while(|r| !r.is_empty() && r.iter().all(|c| c.header)).count();
+        let flagged = if flagged.saturating_mul(2) < t.rows.len() { flagged } else { 0 };
+        // Header levels are joined column by column, which would reorder the comment markers
+        // of a range over several cells: a row that carries one, and all below it, stay rows.
+        let has_marker = |s: &String| copy(s) != *s;
+        let max_head = grid.iter().position(|r| r.iter().any(has_marker)).map_or(usize::MAX, |m| m.max(1));
         while head_rows < grid.len() - 1
-            && (repeated(head_rows) || (spans_columns.get(head_rows - 1).copied().unwrap_or(false) && fills_in(head_rows)))
+            && head_rows < max_head
+            && (head_rows < flagged || (spans_columns.get(head_rows - 1).copied().unwrap_or(false) && fills_in(head_rows)))
         {
             head_rows += 1;
         }
