@@ -167,6 +167,11 @@ const SPACES: &str = r##"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:tr><w:tc>
 <w:p><w:r><w:t xml:space="preserve">  1</w:t></w:r></w:p></w:tc><w:tc>
 <w:p><w:r><w:t xml:space="preserve">2 </w:t></w:r><w:r><w:br/></w:r><w:r><w:t xml:space="preserve"> 3</w:t></w:r></w:p></w:tc></w:tr></w:tbl>
+<w:p><w:r><w:t xml:space="preserve">Ends with a break</w:t><w:br/></w:r></w:p>
+<w:p><w:r><w:t xml:space="preserve">Ends with a no-break space </w:t></w:r></w:p>
+<w:tbl><w:tblPr><w:tblBorders><w:insideV w:val="single" w:sz="4"/></w:tblBorders></w:tblPr><w:tblGrid><w:gridCol w:w="2000"/><w:gridCol w:w="2000"/></w:tblGrid>
+<w:tr><w:tc><w:p><w:r><w:t xml:space="preserve">Cell with a break</w:t><w:br/></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t xml:space="preserve">Cell with a no-break space </w:t></w:r></w:p></w:tc></w:tr>
+<w:tr><w:tc><w:p><w:r><w:t xml:space="preserve">Two lines</w:t><w:br/><w:t xml:space="preserve">in a cell</w:t><w:br/></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t xml:space="preserve">x</w:t></w:r></w:p></w:tc></w:tr></w:tbl>
 <w:sectPr/></w:body></w:document>"##;
 
 const CONTENT_TYPES: &str = r##"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/><Override PartName="/word/comments.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml"/></Types>"##;
@@ -332,6 +337,13 @@ fn the_first_save_is_already_stable() {
         let back = io::open_bytes("copy.md", first.as_bytes()).unwrap();
         let second = wordcraft_formats::markdown::export_native(&back, &Default::default()).text;
         assert_eq!(second, first, "{name}");
+        if name == "spaces.docx" {
+            // A line break closing a paragraph or a cell has no Markdown form (`\` before a
+            // blank line is a backslash): it goes. A no-break space at the end is text, kept.
+            assert!(first.contains("\nEnds with a break\n\nEnds with a no-break space\u{a0}\n"), "{first}");
+            assert!(first.contains("| Cell with a break | Cell with a no-break space\u{a0} |\n| --- | --- |\n| Two lines in a cell | x |\n"), "{first}");
+            assert!(!first.contains("\\\n\n") && !first.contains("\\ |"), "no break left dangling:\n{first}");
+        }
     }
 }
 

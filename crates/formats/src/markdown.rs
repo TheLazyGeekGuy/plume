@@ -665,11 +665,12 @@ fn split_row(l: &str) -> Vec<String> {
                 }
                 _ => cur.push('\\'),
             },
-            '|' => cells.push(std::mem::take(&mut cur).trim().to_string()),
+            '|' => cells.push(std::mem::take(&mut cur).trim_matches([' ', '\t']).to_string()),
             _ => cur.push(c),
         }
     }
-    cells.push(cur.trim().to_string());
+    // Only spaces and tabs are trimmed (as CommonMark does): a no-break space is text.
+    cells.push(cur.trim_matches([' ', '\t']).to_string());
     cells
 }
 
@@ -723,18 +724,20 @@ fn flush_para(lines: &mut Vec<String>, out: &mut Vec<FBlock>, depth: usize) {
 fn join_lines(lines: &[String]) -> String {
     let mut s = String::new();
     let n = lines.len();
+    // Only spaces and tabs are trimmed (as CommonMark does): a no-break space is text.
+    let ws = [' ', '\t'];
     for (i, l) in lines.iter().enumerate() {
-        let l = l.trim_start();
+        let l = l.trim_start_matches(ws);
         if i + 1 == n {
-            s.push_str(l.trim_end());
+            s.push_str(l.trim_end_matches(ws));
         } else if l.ends_with("  ") {
-            s.push_str(l.trim_end());
+            s.push_str(l.trim_end_matches(ws));
             s.push('\n');
         } else if l.ends_with('\\') && !l.ends_with("\\\\") {
             s.push_str(&l[..l.len() - 1]);
             s.push('\n');
         } else {
-            s.push_str(l.trim_end());
+            s.push_str(l.trim_end_matches(ws));
             s.push(' ');
         }
     }
@@ -2150,7 +2153,8 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
                     if md.contains("\\\n") {
                         ctx.note(Adaptation::CellParagraphs);
                     }
-                    parts.push(md.replace("\\\n", br));
+                    let md = md.replace("\\\n", br);
+                    parts.push(if ctx.native { tidy(&md) } else { md });
                 }
                 FBlock::Table(inner) => {
                     ctx.note(Adaptation::NestedTable);
@@ -2288,10 +2292,10 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
         for (ri, row) in grid.iter().enumerate().take(head_rows) {
             // A wide cell's text stands over each of its columns (a copy carries no markers).
             let mut k = c;
-            let mut x = row.get(c).map(String::as_str).unwrap_or("").trim().to_string();
+            let mut x = row.get(c).map(String::as_str).unwrap_or("").trim_matches([' ', '\t']).to_string();
             while x.is_empty() && k > 0 && wide.get(ri).and_then(|w| w.get(k)).copied().unwrap_or(false) {
                 k -= 1;
-                x = copy(row.get(k).map(String::as_str).unwrap_or("").trim());
+                x = copy(row.get(k).map(String::as_str).unwrap_or("").trim_matches([' ', '\t']));
             }
             if !x.is_empty() && parts.last() != Some(&x) {
                 parts.push(x);
@@ -2664,7 +2668,21 @@ fn guard_leading_marker(line: &str) -> String {
 /// `body` without the spaces Markdown drops when reading (at the start and end of each line, a
 /// line of spaces only): written as the copy reads back, so the first save is already stable.
 fn tidy(body: &str) -> String {
-    body.split('\n').map(|l| l.trim_matches([' ', '\t'])).collect::<Vec<_>>().join("\n").trim_matches(['\n']).to_string()
+    let mut lines: Vec<&str> = body.split('\n').map(|l| l.trim_matches([' ', '\t'])).collect();
+    while lines.last().is_some_and(|l| l.is_empty()) {
+        lines.pop();
+    }
+    // A hard break at the end (a line break closing a paragraph or a cell) has no Markdown
+    // form: `\` before a blank line reads as a backslash. It goes, as a reader would drop it.
+    while lines.last().is_some_and(|l| *l == "\\") {
+        lines.pop();
+    }
+    let mut out = lines.join("\n");
+    let trailing = out.chars().rev().take_while(|c| *c == '\\').count();
+    if trailing % 2 == 1 {
+        out.pop();
+    }
+    out.trim_matches(['\n']).to_string()
 }
 
 /// Every line of `body` guarded ([`guard_leading_marker`]).
