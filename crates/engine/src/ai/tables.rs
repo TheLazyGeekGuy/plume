@@ -487,7 +487,9 @@ pub fn to_html(blocks: &[Out]) -> String {
                     }
                     r + "</tr>"
                 };
-                h.push_str("<table>");
+                // With rules: a borderless table reads as page layout, and Markdown export writes
+                // its cells as paragraphs.
+                h.push_str("<table border=\"1\">");
                 if !header.is_empty() {
                     h.push_str(&format!("<thead>{}</thead>", row(header, "th")));
                 }

@@ -193,6 +193,9 @@ fn restructure(s: &mut Session, v: &Value) -> CmdResult {
             (None, _) => Err(format!("no table at block {index}")),
             (_, Err(e)) => Err(e),
             (Some(_), Ok(_)) if ready.iter().any(|(i, _)| *i == index) => Err("this table has two proposals".into()),
+            (Some(_), Ok(blocks)) if kind == "data" && !blocks.iter().any(|b| matches!(b, tables::Out::Table { .. })) => {
+                Err("the model calls it data but answered without a table".into())
+            }
             (Some(t), Ok(blocks)) => Ok((tables::check(t, &blocks), blocks)),
         };
         match outcome {
@@ -287,6 +290,25 @@ mod tests {
         s.run("edit.undo", &json!({})).unwrap();
         assert!(s.doc.body[1].as_table().is_some(), "one undo brings the table back");
         assert!(s.run("ai.restructureTables", &json!({"proposals": [{"index": 0, "answer": {}}]})).unwrap()["results"][0]["applied"] == false);
+    }
+
+    #[test]
+    fn a_data_answer_stays_a_table_in_markdown() {
+        let mut s = session_with_form();
+        let data = json!({"proposals": [{"index": 1, "answer": {"kind": "data", "blocks": [
+            {"type": "table", "header": ["Name:", "City:"], "rows": [["Jane Doe", "Lyon France"]]}
+        ]}}]});
+        let r = s.run("ai.restructureTables", &data).unwrap();
+        assert_eq!(r["results"][0]["applied"], true, "{r}");
+        let md = wordcraft_formats::markdown::export_native(&s.doc, &Default::default()).text;
+        assert!(md.contains("| Jane Doe | Lyon France |"), "written as a table, not as paragraphs: {md}");
+        s.run("edit.undo", &json!({})).unwrap();
+        let no_table = json!({"proposals": [{"index": 1, "answer": {"kind": "data", "blocks": [
+            {"type": "paragraph", "text": "Name: Jane Doe City: Lyon France"}
+        ]}}]});
+        let r = s.run("ai.restructureTables", &no_table).unwrap();
+        assert_eq!(r["results"][0]["applied"], false, "{r}");
+        assert!(s.doc.body[1].as_table().is_some());
     }
 
     #[test]
