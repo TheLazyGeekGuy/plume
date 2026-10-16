@@ -1739,7 +1739,7 @@ impl Adaptation {
             Adaptation::Bookmark => "bookmarks (not on a heading) left out",
             Adaptation::CellParagraphs => "table cells with several lines joined on one line",
             Adaptation::NestedTable => "nested tables flattened into their cell",
-            Adaptation::MergedCells => "merged cells: their value repeated in each row and column they cover",
+            Adaptation::MergedCells => "merged cells rebuilt: a short label repeated beside each of its rows, other merged text written once",
             Adaptation::Figure => "charts and drawings kept as their alt text",
             Adaptation::Equation => "equations written as linear text",
             Adaptation::Endnote => "endnotes written as footnotes",
@@ -2146,6 +2146,7 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
             match b {
                 FBlock::Para(p) => {
                     let md = inlines_md_impl(&p.inlines, true, ctx);
+                    let md = if ctx.native { tidy(&md) } else { md };
                     if md.contains("\\\n") {
                         ctx.note(Adaptation::CellParagraphs);
                     }
@@ -2164,35 +2165,75 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
         parts.join(br).replace('\n', " ")
     };
     let align_of = |c: &Cell| c.blocks.iter().find_map(|b| if let FBlock::Para(p) = b { Some(p.align) } else { None }).flatten();
-    // The logical grid: one string per grid column. A native copy repeats a merged cell's value
-    // in every row and column it covers, so each value keeps its category (a pipe table has no
-    // merges); the legacy copy leaves them empty.
+    // Logical columns: Word's grid splits a column wherever any row's cells don't line up, so a
+    // table that reads as 4 columns can have 14 grid columns. A boundary only counts where some
+    // cell starts or ends; grid columns no cell separates are one column here.
+    let mut bounds = std::collections::BTreeSet::from([0usize, cols]);
+    for r in &t.rows {
+        let mut at = 0usize;
+        for c in r {
+            bounds.insert(at.min(cols));
+            at = at.saturating_add(c.colspan.clamp(1, 63) as usize);
+            bounds.insert(at.min(cols));
+        }
+    }
+    let bounds: Vec<usize> = bounds.into_iter().collect();
+    let logical = |g: usize| bounds.iter().take_while(|b| **b <= g).count().saturating_sub(1);
+    let cols = bounds.len().saturating_sub(1).max(1);
+    // Copies of a value carry no comment markers (a range opens and closes once).
+    let copy = |s: &str| -> String {
+        let mut out = s.replace(MARKER_GUARD, "");
+        while let Some(i) = out.find("<!-- ") {
+            let Some(k) = out.get(i + 5..).and_then(|r| r.find(" -->")) else { break };
+            if out.get(i + 5..i + 5 + k).and_then(comment_marker).is_none() {
+                break;
+            }
+            out.replace_range(i..i + 5 + k + 4, "");
+        }
+        out
+    };
+    // One string per logical column. A native copy repeats a merged value where it keeps an
+    // association: across a header's columns (combined below), and down the rows a short label
+    // covers (a category beside its values). Longer merged text is written once.
     let mut grid: Vec<Vec<String>> = Vec::new();
-    let mut aligns: Vec<Option<Align>> = Vec::new();
+    let mut aligns: Vec<Option<Align>> = vec![None; cols];
+    // Rows with a cell over several (logical) columns: a header's upper level.
+    let mut spans_columns = vec![false; t.rows.len()];
     for (ri, r) in t.rows.iter().enumerate() {
-        let mut v: Vec<String> = Vec::new();
+        let mut v: Vec<String> = vec![String::new(); cols];
+        let mut at = 0usize;
         for c in r {
             if c.covered || c.colspan > 1 || c.rowspan > 1 {
                 ctx.note(Adaptation::MergedCells);
             }
+            let span = c.colspan.clamp(1, 63) as usize;
+            let first = logical(at);
+            let last = logical(at.saturating_add(span)).max(first + 1);
+            at = at.saturating_add(span);
+            if last - first > 1 {
+                spans_columns[ri] = true;
+            }
             let text = if c.covered {
-                let above = grid.get(ri.wrapping_sub(1)).and_then(|row| row.get(v.len())).cloned().unwrap_or_default();
-                if ctx.native { above } else { String::new() }
+                let above = grid.get(ri.wrapping_sub(1)).and_then(|row| row.get(first)).cloned().unwrap_or_default();
+                if ctx.native && above.chars().count() <= 80 { copy(&above) } else { String::new() }
             } else {
                 cell_md(c, ctx)
             };
-            if ri == 0 {
-                aligns.push(align_of(c));
+            if ri == 0
+                && let Some(a) = aligns.get_mut(first)
+            {
+                *a = align_of(c);
             }
-            v.push(text.clone());
-            for _ in 1..c.colspan.clamp(1, 63) {
-                v.push(if ctx.native { text.clone() } else { String::new() });
-                if ri == 0 {
-                    aligns.push(None);
-                }
+            for (k, slot) in v.iter_mut().enumerate().take(last.min(cols)).skip(first) {
+                *slot = if k == first {
+                    text.clone()
+                } else if ctx.native && ri == 0 {
+                    copy(&text)
+                } else {
+                    String::new()
+                };
             }
         }
-        v.resize(cols, String::new());
         grid.push(v);
     }
     aligns.resize(cols, None);
@@ -2203,7 +2244,7 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
     // header: "Booking" over "Weekday" and "Weekend" → "Booking – Weekday", "Booking – Weekend").
     let mut head_rows = 1;
     if ctx.native {
-        while head_rows < grid.len() - 1 && t.rows.get(head_rows - 1).is_some_and(|r| r.iter().any(|c| c.colspan > 1)) {
+        while head_rows < grid.len() - 1 && spans_columns.get(head_rows - 1).copied().unwrap_or(false) {
             head_rows += 1;
         }
     }
@@ -2580,6 +2621,12 @@ fn guard_leading_marker(line: &str) -> String {
     if starts { format!("{}{MARKER_GUARD}{t}", &line[..line.len() - t.len()]) } else { line.to_string() }
 }
 
+/// `body` without the spaces Markdown drops when reading (at the start and end of each line, a
+/// line of spaces only): written as the copy reads back, so the first save is already stable.
+fn tidy(body: &str) -> String {
+    body.split('\n').map(|l| l.trim_matches([' ', '\t'])).collect::<Vec<_>>().join("\n").trim_matches(['\n']).to_string()
+}
+
 /// Every line of `body` guarded ([`guard_leading_marker`]).
 fn guard_lines(body: &str) -> String {
     body.split('\n').map(guard_leading_marker).collect::<Vec<_>>().join("\n")
@@ -2798,6 +2845,7 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
             }
             FBlock::Para(p) => {
                 let body = inlines_md_impl(&p.inlines, false, ctx);
+                let body = if ctx.native { tidy(&body) } else { body };
                 // A heading stays a heading when Word numbers it (numbered chapters): its
                 // level comes from its style, the numbers from the reader (Pandoc's
                 // `numbersections`, a PDF template's).
@@ -2878,7 +2926,7 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
                                         if lines.len() > 1 {
                                             lines.push(">".into());
                                         }
-                                        let b = escape_line_start(inlines_md_impl(&q.inlines, false, ctx));
+                                        let b = escape_line_start(tidy(&inlines_md_impl(&q.inlines, false, ctx)));
                                         lines.push(format!("> {}", b.replace("\\\n", "\\\n> ")));
                                         i += 1;
                                     }

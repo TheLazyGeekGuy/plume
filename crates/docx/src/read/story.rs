@@ -997,6 +997,27 @@ impl Reader<'_> {
         }
         let mut obj = if let Some(c) = gd.child("wpc:wpc") {
             self.read_canvas(sc, c, rels, w, h, float)
+        } else if let Some(lc) = gd.child("lc:lockedCanvas") {
+            // Word 2007's drawing canvas (`lc:lockedCanvas`, ECMA-376 §20.3.2.1): its shapes'
+            // text is DrawingML, kept as a text box so no word is lost; a canvas with no text but
+            // a picture is that picture.
+            match self.read_locked_canvas(lc, w, h, float.clone()) {
+                Some(o) => o,
+                None if gd.find("a:blip").is_some() => self.read_pic(gd, rels, w, h, alt.clone(), float)?,
+                None => InlineObject::Shape {
+                    kind: ShapeKind::Rectangle,
+                    w,
+                    h,
+                    fill: None,
+                    stroke: None,
+                    stroke_width: 0.0,
+                    float,
+                    story: None,
+                    freeform: None,
+                    effects: Default::default(),
+                    extra: Default::default(),
+                },
+            }
         } else if let Some(g) = gd.child("wpg:wgp") {
             self.read_group(sc, g, rels, w, h, float)?
         } else if gd.find("a:blip").is_some() {
@@ -1370,6 +1391,56 @@ impl Reader<'_> {
             extra.id = id;
             self.shape_ids = true;
         }
+    }
+
+    /// A locked canvas's text (every `a:txBody` in it, in document order) as a text box with no
+    /// fill or outline; `None` when it holds no text.
+    fn read_locked_canvas(&mut self, lc: &El, w: f32, h: f32, float: Float) -> Option<InlineObject> {
+        fn paragraphs(e: &El, out: &mut Vec<String>, depth: usize) {
+            if depth > 64 || out.len() >= 2_000 {
+                return;
+            }
+            if e.name == "a:txBody" {
+                for p in e.children("a:p") {
+                    let mut t = String::new();
+                    for c in p.els() {
+                        match c.name.as_str() {
+                            "a:r" | "a:fld" => t.push_str(&c.child("a:t").map(El::text).unwrap_or_default()),
+                            "a:br" => t.push(' '),
+                            _ => {}
+                        }
+                    }
+                    let t = t.trim().to_string();
+                    if !t.is_empty() {
+                        out.push(t);
+                    }
+                }
+                return;
+            }
+            for c in e.els() {
+                paragraphs(c, out, depth + 1);
+            }
+        }
+        let mut texts = Vec::new();
+        paragraphs(lc, &mut texts, 0);
+        if texts.is_empty() {
+            return None;
+        }
+        let blocks: Blocks = texts.iter().map(|t| wordcraft_doc::para_block(Paragraph::with_text(t, Default::default()))).collect();
+        let story = Some(self.doc.add_part(PartKind::TextBox, blocks));
+        Some(InlineObject::Shape {
+            kind: ShapeKind::TextBox,
+            w,
+            h,
+            fill: None,
+            stroke: None,
+            stroke_width: 0.0,
+            float,
+            story,
+            freeform: None,
+            effects: Default::default(),
+            extra: Default::default(),
+        })
     }
 
     fn read_textbox(&mut self, sc: &StoryCtx, content: &El, rels: &Rels) -> u32 {

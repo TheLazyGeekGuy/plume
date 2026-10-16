@@ -961,7 +961,8 @@ fn named_heading(doc: &Document, style: &str) -> Option<u8> {
     if chain.iter().any(|s| s.para.outline_level.is_some()) {
         return None;
     }
-    chain.iter().find_map(|s| {
+    // The most derived style first (`chain` goes from the base style down).
+    chain.iter().rev().find_map(|s| {
         let n = s.name.to_ascii_lowercase();
         let rest = n.strip_prefix("heading ")?;
         rest.trim().parse::<u8>().ok().filter(|l| (1..=9).contains(l)).map(|l| l.min(6))
@@ -971,7 +972,8 @@ fn named_heading(doc: &Document, style: &str) -> Option<u8> {
 /// A table of contents entry's level: its style is "toc 1" … "toc 9" (Word's built-in names), or
 /// one based on them.
 pub fn toc_level(doc: &Document, style: &str) -> Option<u8> {
-    doc.styles.chain(style).iter().find_map(|s| {
+    // The most derived style first ("toc 2" based on "toc 1" is level 2).
+    doc.styles.chain(style).iter().rev().find_map(|s| {
         let n = s.name.to_ascii_lowercase();
         let lvl =
             n.strip_prefix("toc ").and_then(|r| r.trim().parse::<u8>().ok()).or_else(|| s.id.strip_prefix("TOC").and_then(|r| r.parse::<u8>().ok()));
