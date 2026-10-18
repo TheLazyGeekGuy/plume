@@ -23,6 +23,8 @@ use std::collections::HashMap;
 use wordcraft_doc::{Align, Document};
 
 use crate::html::decode_entity;
+use wordcraft_doc::props::{MdBlock, MdCode, MdContainer};
+
 use crate::model::{self, Cell, FBlock, FTable, Fmt, Img, Inline, Kind, ListInfo, Para, make_img};
 
 /// Nesting limit for block containers (quotes, list items) and inline links.
@@ -123,6 +125,7 @@ pub fn parse(text: &str) -> model::Flow {
     let mut lines: Vec<String> = text.split('\n').map(|l| expand_tabs(l.trim_end_matches('\r'))).collect();
     let mut meta = take_front_matter(&mut lines).unwrap_or_default();
     let _ = MATH.with(|m| m.try_borrow_mut().map(|mut m| m.clear()));
+    BLOCK_ID.with(|c| c.set(0));
     let comments = take_comment_block(&mut lines);
     take_comments_view(&mut lines);
     // A comment marker opening a line comes after an invisible guard (see `MARKER_GUARD`).
@@ -744,10 +747,161 @@ fn join_lines(lines: &[String]) -> String {
     s
 }
 
-fn code_para(line: &str) -> FBlock {
+fn code_para(line: &str, code: &MdCode) -> FBlock {
     let mut p = Para::new(Kind::Code);
+    p.md = Some(Box::new(MdBlock { code: Some(code.clone()), ..Default::default() }));
     p.push_text(line, &Fmt::default());
     FBlock::Para(p)
+}
+
+/// A line of Markdown source kept as written: shown as code, written back verbatim.
+fn raw_para(line: &str, id: u32) -> FBlock {
+    let mut p = Para::new(Kind::Code);
+    p.md = Some(Box::new(MdBlock { raw: Some(id), ..Default::default() }));
+    p.push_text(line, &Fmt::default());
+    FBlock::Para(p)
+}
+
+thread_local! {
+    /// The last id given to a Markdown block (code, container, source) by the current parse.
+    static BLOCK_ID: std::cell::Cell<u32> = const { std::cell::Cell::new(0) };
+}
+
+/// A new block id: blocks side by side stay apart because their ids differ.
+fn next_block_id() -> u32 {
+    BLOCK_ID.with(|c| {
+        let n = c.get().saturating_add(1);
+        c.set(n);
+        n
+    })
+}
+
+/// HTML elements that open an HTML block (CommonMark §4.6, kinds 1 and 6).
+const HTML_BLOCK_TAGS: &[&str] = &[
+    "address",
+    "article",
+    "aside",
+    "base",
+    "basefont",
+    "blockquote",
+    "body",
+    "caption",
+    "center",
+    "col",
+    "colgroup",
+    "dd",
+    "details",
+    "dialog",
+    "dir",
+    "div",
+    "dl",
+    "dt",
+    "fieldset",
+    "figcaption",
+    "figure",
+    "footer",
+    "form",
+    "frame",
+    "frameset",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "head",
+    "header",
+    "hr",
+    "html",
+    "iframe",
+    "legend",
+    "li",
+    "link",
+    "main",
+    "menu",
+    "menuitem",
+    "nav",
+    "noframes",
+    "ol",
+    "optgroup",
+    "option",
+    "p",
+    "param",
+    "pre",
+    "script",
+    "search",
+    "section",
+    "style",
+    "summary",
+    "table",
+    "tbody",
+    "td",
+    "textarea",
+    "tfoot",
+    "th",
+    "thead",
+    "title",
+    "tr",
+    "track",
+    "ul",
+];
+
+/// The tag name a line opens or closes (`<div class=x>` → `div`), if it starts with a tag.
+fn tag_name(t: &str) -> Option<String> {
+    let r = t.strip_prefix('<')?;
+    let r = r.strip_prefix('/').unwrap_or(r);
+    let name: String = r.chars().take_while(|c| c.is_ascii_alphanumeric() || *c == '-').collect();
+    let after = r.get(name.len()..)?.chars().next();
+    (name.chars().next().is_some_and(|c| c.is_ascii_alphabetic()) && after.is_none_or(|c| c.is_whitespace() || c == '>' || c == '/'))
+        .then(|| name.to_ascii_lowercase())
+}
+
+/// Whether line `t` (indent removed) opens an HTML block Plume keeps as written: a block-level
+/// element, or a line holding a single tag and nothing else.
+fn html_block_start(t: &str) -> bool {
+    let Some(name) = tag_name(t) else { return false };
+    if HTML_BLOCK_TAGS.contains(&name.as_str()) {
+        return true;
+    }
+    let t = t.trim_end();
+    t.ends_with('>') && t.matches('<').count() == 1 && t.matches('>').count() == 1
+}
+
+/// A container's opening line (`::: tip Title`): its colons, kind and title.
+fn container_open(t: &str) -> Option<(usize, String, String)> {
+    let n = t.chars().take_while(|c| *c == ':').count();
+    if n < 3 {
+        return None;
+    }
+    let rest = t.get(n..)?.trim();
+    let kind: String = rest.chars().take_while(|c| c.is_alphanumeric() || matches!(c, '-' | '_')).collect();
+    if kind.is_empty() {
+        return None;
+    }
+    Some((n, kind.clone(), rest.get(kind.len()..).unwrap_or("").trim().to_string()))
+}
+
+/// Whether `l` closes a container opened with `n` colons.
+fn container_close(l: &str, n: usize) -> bool {
+    let t = l.trim();
+    t.len() >= n && t.chars().all(|c| c == ':')
+}
+
+/// Mark every paragraph of `blocks` as inside `c`. `None` when they can't all carry it (a table,
+/// a container already, nothing at all): the caller keeps the source as written instead.
+fn in_container(mut blocks: Vec<FBlock>, c: &MdContainer) -> Option<Vec<FBlock>> {
+    if blocks.is_empty() {
+        return None;
+    }
+    for b in &mut blocks {
+        let FBlock::Para(p) = b else { return None };
+        let md = p.md.get_or_insert_with(Default::default);
+        if md.container.is_some() {
+            return None;
+        }
+        md.container = Some(c.clone());
+    }
+    Some(blocks)
 }
 
 /// Parse block structure. `level` is the list nesting level for lists found here.
@@ -783,16 +937,42 @@ fn parse_blocks(lines: &[String], depth: usize, level: u8) -> Vec<FBlock> {
             while code.last().is_some_and(|l| l.is_empty()) {
                 code.pop();
             }
-            out.extend(code.into_iter().map(code_para));
+            let block = MdCode { id: next_block_id(), info: String::new() };
+            out.extend(code.into_iter().map(|l| code_para(l, &block)));
             continue;
         }
         let t = line.trim_start();
-        // An HTML comment on its own (CommonMark HTML block, type 2) isn't content. A range
-        // marker followed by text on the same line is part of a paragraph.
+        // An HTML comment on its own (CommonMark HTML block, type 2): a directive such as
+        // VitePress's `<!--@include: …-->` or the author's note, kept as written. Plume's own
+        // range markers alone on a line carry nothing; one followed by text is part of a paragraph.
         if para.is_empty() && t.starts_with("<!--") && !t.find("-->").and_then(|k| t.get(k + 3..)).is_some_and(|r| !r.trim().is_empty()) {
+            let own =
+                t.strip_prefix("<!--").and_then(|r| r.find("-->").and_then(|k| r.get(..k))).and_then(|inner| comment_marker(inner.trim())).is_some();
+            let id = next_block_id();
             while let Some(l) = lines.get(i) {
                 i += 1;
+                if !own {
+                    out.push(raw_para(l, id));
+                }
                 if l.contains("-->") {
+                    break;
+                }
+            }
+            continue;
+        }
+        // An HTML block (CommonMark §4.6) and VitePress's `[[toc]]`: kept as written, to the next
+        // blank line (or the closing tag of `<pre>`, `<script>`, `<style>`, `<textarea>`).
+        if para.is_empty() && (html_block_start(t) || t.trim().eq_ignore_ascii_case("[[toc]]")) {
+            let close = tag_name(t).filter(|n| matches!(n.as_str(), "pre" | "script" | "style" | "textarea")).map(|n| format!("</{n}>"));
+            let id = next_block_id();
+            let toc = t.trim().eq_ignore_ascii_case("[[toc]]");
+            while let Some(l) = lines.get(i) {
+                if close.is_none() && is_blank(l) {
+                    break;
+                }
+                out.push(raw_para(l, id));
+                i += 1;
+                if toc || close.as_ref().is_some_and(|c| l.to_ascii_lowercase().contains(c.as_str())) {
                     break;
                 }
             }
@@ -828,6 +1008,9 @@ fn parse_blocks(lines: &[String], depth: usize, level: u8) -> Vec<FBlock> {
         }
         if let Some((fc, fl)) = fence(t) {
             flush_para(&mut para, &mut out, depth);
+            // The info string as written: the language and whatever follows (`js{2}`, `sh [npm]`).
+            let block = MdCode { id: next_block_id(), info: t.trim_start_matches(fc).trim().to_string() };
+            let before = out.len();
             i += 1;
             while let Some(l) = lines.get(i) {
                 i += 1;
@@ -835,12 +1018,33 @@ fn parse_blocks(lines: &[String], depth: usize, level: u8) -> Vec<FBlock> {
                 if indent(l) < 4 && fence(lt).is_some_and(|(c, n)| c == fc && n >= fl) && lt.trim_start_matches(fc).trim().is_empty() {
                     break;
                 }
-                out.push(code_para(strip_indent(l, ind)));
+                out.push(code_para(strip_indent(l, ind), &block));
             }
+            // An empty block stays a block.
+            if out.len() == before {
+                out.push(code_para("", &block));
+            }
+            continue;
+        }
+        // A VitePress container (`::: tip Title` … `:::`), to its closing colons or the end.
+        if let Some((n, kind, title)) = container_open(t) {
+            flush_para(&mut para, &mut out, depth);
+            let close = lines.iter().skip(i + 1).position(|l| container_close(l, n)).map(|k| i + 1 + k);
+            let end = close.unwrap_or(lines.len());
+            let inner = lines.get(i + 1..end).unwrap_or(&[]);
+            let c = MdContainer { id: next_block_id(), kind, title, alert: false };
+            let blocks = if depth < MAX_NEST { in_container(parse_blocks(inner, depth + 1, level), &c) } else { None };
+            let last = close.map_or(end, |k| k + 1);
+            match blocks {
+                Some(b) => out.extend(b),
+                None => out.extend(lines.get(i..last).unwrap_or(&[]).iter().map(|l| raw_para(l, c.id))),
+            }
+            i = last;
             continue;
         }
         if t.starts_with('>') {
             flush_para(&mut para, &mut out, depth);
+            let start = i;
             let mut inner: Vec<String> = Vec::new();
             while let Some(l) = lines.get(i) {
                 let lt = l.trim_start();
@@ -854,12 +1058,16 @@ fn parse_blocks(lines: &[String], depth: usize, level: u8) -> Vec<FBlock> {
                 }
                 i += 1;
             }
-            // A GitHub alert: its heading becomes a bold first line of the quote.
-            if let Some(label) = inner.first().and_then(|l| alert_marker(l)) {
-                inner.remove(0);
-                let mut p = Para::new(Kind::Quote);
-                p.push_text(label, &Fmt { bold: true, ..Fmt::default() });
-                out.push(FBlock::Para(p));
+            // A GitHub alert: a container its paragraphs belong to, or, when they can't all
+            // belong to it, the quote as written.
+            if let Some(key) = inner.first().and_then(|l| alert_key(l)) {
+                let c = MdContainer { id: next_block_id(), kind: key.to_string(), title: String::new(), alert: true };
+                let body = inner.get(1..).unwrap_or(&[]);
+                match (depth < MAX_NEST).then(|| in_container(parse_blocks(body, depth + 1, level), &c)).flatten() {
+                    Some(b) => out.extend(b),
+                    None => out.extend(lines.get(start..i).unwrap_or(&[]).iter().map(|l| raw_para(l, c.id))),
+                }
+                continue;
             }
             if depth >= MAX_NEST {
                 let mut p = Para::new(Kind::Quote);
@@ -910,6 +1118,16 @@ fn parse_blocks(lines: &[String], depth: usize, level: u8) -> Vec<FBlock> {
             i = parse_list(lines, i, depth, level, &mut out);
             continue;
         }
+        // A definition list (`Term` then `: Definition`, a VitePress plugin): kept as written.
+        if !para.is_empty() && t.starts_with(": ") {
+            let id = next_block_id();
+            out.extend(para.drain(..).map(|l| raw_para(&l, id)));
+            while let Some(l) = lines.get(i).filter(|l| !is_blank(l)) {
+                out.push(raw_para(l, id));
+                i += 1;
+            }
+            continue;
+        }
         para.push(line.clone());
         i += 1;
     }
@@ -925,10 +1143,10 @@ const CHECK_ON: char = '\u{2612}';
 /// GitHub's alerts (`> [!NOTE]`…) and the heading each one shows.
 const ALERTS: [(&str, &str); 5] = [("NOTE", "Note"), ("TIP", "Tip"), ("IMPORTANT", "Important"), ("WARNING", "Warning"), ("CAUTION", "Caution")];
 
-/// The alert a quote's first line names, if it is one (`[!NOTE]`).
-fn alert_marker(line: &str) -> Option<&'static str> {
+/// The alert a quote's first line names, if it is one (`[!NOTE]`): its key (`NOTE`).
+fn alert_key(line: &str) -> Option<&'static str> {
     let name = line.trim().strip_prefix("[!")?.strip_suffix(']')?;
-    ALERTS.iter().find(|(k, _)| k.eq_ignore_ascii_case(name)).map(|(_, label)| *label)
+    ALERTS.iter().find(|(k, _)| k.eq_ignore_ascii_case(name)).map(|(k, _)| *k)
 }
 
 fn parse_list(lines: &[String], mut i: usize, depth: usize, level: u8, out: &mut Vec<FBlock>) -> usize {
@@ -1241,6 +1459,27 @@ fn tag_attr(tag: &str, name: &str) -> Option<String> {
     None
 }
 
+/// Text kept as written ([`Fmt::raw`]), in `base`'s emphasis.
+fn push_raw(nodes: &mut Vec<Node>, raw: &str, base: &Fmt) {
+    if raw.is_empty() {
+        return;
+    }
+    nodes.push(Node::Inl(Inline::Text(raw.to_string(), Fmt { raw: true, ..base.clone() })));
+}
+
+/// The end of a `~text~` span starting at `i` (one tilde each side, no space inside), if there
+/// is one.
+fn single_tilde(s: &str, i: usize) -> Option<usize> {
+    let b = s.as_bytes();
+    if b.get(i.wrapping_sub(1)) == Some(&b'~') || b.get(i + 1) == Some(&b'~') {
+        return None;
+    }
+    let rest = s.get(i + 1..)?;
+    let k = within(rest, 256).find('~')?;
+    let inner = rest.get(..k)?;
+    (!inner.is_empty() && !inner.contains(char::is_whitespace) && rest.as_bytes().get(k + 1) != Some(&b'~')).then_some(i + 1 + k + 1)
+}
+
 fn tokenize(s: &str, base: &Fmt, depth: usize) -> Vec<Node> {
     let mut nodes: Vec<Node> = Vec::new();
     // Bytes the link and image scans below may look ahead in total. Each unmatched `[` or `![(`
@@ -1295,6 +1534,15 @@ fn tokenize(s: &str, base: &Fmt, depth: usize) -> Vec<Node> {
                         i += n;
                     }
                 }
+                text_start = i;
+            }
+            // `~text~` (a subscript in VitePress, struck through on GitHub): kept as written, so
+            // each site reads it its own way.
+            b'~' if single_tilde(s, i).is_some() => {
+                flush!();
+                let end = single_tilde(s, i).unwrap_or(i + 1);
+                push_raw(&mut nodes, s.get(i..end).unwrap_or(""), base);
+                i = end;
                 text_start = i;
             }
             b'*' | b'_' | b'~' => {
@@ -1382,7 +1630,9 @@ fn tokenize(s: &str, base: &Fmt, depth: usize) -> Vec<Node> {
                         };
                         match data.and_then(|d| make_img(d, None, None, &alt)) {
                             Some(im) => nodes.push(Node::Inl(Inline::Image(im))),
-                            None => push_text(&mut nodes, &alt, base),
+                            // A picture Plume can't load (on the web, missing): its reference
+                            // stays as written rather than turning into its alt text.
+                            None => push_raw(&mut nodes, s.get(i..end).unwrap_or(&alt), base),
                         }
                         i = end;
                         text_start = i;
@@ -1405,8 +1655,10 @@ fn tokenize(s: &str, base: &Fmt, depth: usize) -> Vec<Node> {
                 match within(rest, MAX_TAG).find("-->") {
                     Some(k) => {
                         flush!();
-                        if let Some((id, end)) = rest.get(..k).and_then(|inner| comment_marker(inner.trim())) {
-                            nodes.push(Node::Inl(Inline::Comment { id, end }));
+                        match rest.get(..k).and_then(|inner| comment_marker(inner.trim())) {
+                            Some((id, end)) => nodes.push(Node::Inl(Inline::Comment { id, end })),
+                            // Someone else's comment: kept as written.
+                            None => push_raw(&mut nodes, s.get(i..i + 4 + k + 3).unwrap_or(""), base),
                         }
                         i += 4 + k + 3;
                         text_start = i;
@@ -1440,6 +1692,12 @@ fn tokenize(s: &str, base: &Fmt, depth: usize) -> Vec<Node> {
                         nodes.push(Node::Inl(Inline::Anchor(name)));
                     }
                     i += inner.len() + 2 + 4;
+                    text_start = i;
+                } else if end.is_some() && tag_name(&format!("<{inner}>")).is_some() && !inner.contains('\n') {
+                    // Other inline HTML (`<kbd>`, `<span …>`): kept as written.
+                    flush!();
+                    push_raw(&mut nodes, s.get(i..i + inner.len() + 2).unwrap_or(""), base);
+                    i += inner.len() + 2;
                     text_start = i;
                 } else {
                     i += 1;
@@ -2109,7 +2367,9 @@ fn inlines_md_impl(inlines: &[Inline], in_table: bool, ctx: &mut Ctx) -> String 
                 stack.push(m);
             }
         }
-        if f.code {
+        if f.raw {
+            out.push_str(&if in_table { text.replace('|', "\\|") } else { text });
+        } else if f.code {
             if in_table {
                 let t = text.replace('|', "\\|");
                 out.push_str(&code_span(&t));
@@ -2125,6 +2385,29 @@ fn inlines_md_impl(inlines: &[Inline], in_table: bool, ctx: &mut Ctx) -> String 
         out.push_str(&format!("]({})", link_target(l)));
     }
     out
+}
+
+/// A container's paragraphs (`inner`, its mark removed), inside a VitePress fence or as a GitHub
+/// alert.
+fn write_container(c: &MdContainer, inner: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
+    let mut body = Vec::new();
+    write_blocks(inner, &mut body, ctx);
+    let mut lines: Vec<String> = body.join("\n").split('\n').map(str::to_string).collect();
+    while lines.last().is_some_and(|l| l.is_empty()) {
+        lines.pop();
+    }
+    if c.alert {
+        out.push(format!("> [!{}]", c.kind.to_ascii_uppercase()));
+        out.extend(lines.into_iter().map(|l| if l.is_empty() { ">".to_string() } else { format!("> {l}") }));
+    } else {
+        // Colons inside (a container kept as written): the fence takes more.
+        let inside = lines.iter().map(|l| l.trim_start().chars().take_while(|c| *c == ':').count()).max().unwrap_or(0);
+        let fence = ":".repeat(3.max(inside + 1).min(64));
+        out.push(format!("{fence} {} {}", c.kind, c.title.replace('\n', " ")).trim_end().to_string());
+        out.extend(lines);
+        out.push(fence);
+    }
+    out.push(String::new());
 }
 
 fn link_target(l: &str) -> String {
@@ -2845,6 +3128,39 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
     // (four spaces before a marker with no parent item read as a code block).
     let mut prev_level = 0usize;
     while let Some(b) = blocks.get(i) {
+        // Plume: a container's paragraphs, inside its fence (`::: tip`) or alert (`> [!NOTE]`).
+        if let FBlock::Para(p) = b
+            && let Some(c) = p.md.as_ref().and_then(|m| m.container.clone())
+        {
+            let mut inner = Vec::new();
+            while let Some(FBlock::Para(q)) = blocks.get(i)
+                && q.md.as_ref().and_then(|m| m.container.as_ref()).is_some_and(|x| x.id == c.id)
+            {
+                let mut q = q.clone();
+                if let Some(m) = q.md.as_mut() {
+                    m.container = None;
+                }
+                inner.push(FBlock::Para(q));
+                i += 1;
+            }
+            write_container(&c, &inner, out, ctx);
+            prev_list = false;
+            continue;
+        }
+        // Plume: source kept as written.
+        if let FBlock::Para(p) = b
+            && let Some(id) = p.md.as_ref().and_then(|m| m.raw)
+        {
+            while let Some(FBlock::Para(q)) = blocks.get(i)
+                && q.md.as_ref().and_then(|m| m.raw) == Some(id)
+            {
+                out.push(q.text());
+                i += 1;
+            }
+            out.push(String::new());
+            prev_list = false;
+            continue;
+        }
         // Plume: a Word table of contents becomes one written from the headings.
         if ctx.native
             && let FBlock::Para(p) = b
@@ -2884,17 +3200,31 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
                 prev_list = false;
             }
             FBlock::Para(p) if p.kind == Kind::Code && p.list.is_none() => {
+                // One block: the paragraphs of the same fenced block (a document's own code
+                // paragraphs, with no block, run together as before).
+                let code = p.md.as_ref().and_then(|m| m.code.clone());
                 let mut lines = Vec::new();
                 while let Some(FBlock::Para(q)) = blocks.get(i) {
-                    if q.kind != Kind::Code || q.list.is_some() {
+                    let md = q.md.as_ref();
+                    if q.kind != Kind::Code || q.list.is_some() || md.is_some_and(|m| m.raw.is_some() || m.container.is_some()) {
+                        break;
+                    }
+                    if !lines.is_empty() && md.and_then(|m| m.code.as_ref()).map(|c| c.id) != code.as_ref().map(|c| c.id) {
                         break;
                     }
                     lines.push(q.text());
                     i += 1;
                 }
-                let longest = lines.iter().map(|l| l.chars().filter(|c| *c == '`').count()).max().unwrap_or(0);
-                let fence = "`".repeat(3.max(longest + 1).min(64));
-                out.push(fence.clone());
+                // A fenced block with nothing in it holds one empty line in the document.
+                if code.is_some() && lines.len() == 1 && lines.first().is_some_and(|l| l.is_empty()) {
+                    lines.clear();
+                }
+                let info = code.map(|c| c.info.replace('\n', " ")).unwrap_or_default();
+                // Backticks in the info string can't follow a backtick fence: tildes then.
+                let mark = if info.contains('`') { '~' } else { '`' };
+                let longest = lines.iter().map(|l| l.chars().take_while(|c| *c == mark).count()).max().unwrap_or(0);
+                let fence: String = std::iter::repeat_n(mark, 3.max(longest + 1).min(64)).collect();
+                out.push(format!("{fence}{info}"));
                 out.extend(lines);
                 out.push(fence);
                 out.push(String::new());

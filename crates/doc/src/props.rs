@@ -827,6 +827,48 @@ pub struct ParaProps {
     /// `w:snapToGrid`: lines snap to the section's document grid. Unset = on.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub snap_to_grid: Option<bool>,
+    /// Plume: the Markdown block the paragraph belongs to ([`MdBlock`]). Set on the paragraph
+    /// itself, never inherited from a style.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub md: Option<Box<MdBlock>>,
+}
+
+/// Plume: what a paragraph's Markdown block is beyond the paragraph's kind. Every paragraph of
+/// one block carries it with the block's `id`, so two blocks side by side stay apart, and Enter,
+/// which copies a paragraph's properties, continues the block.
+#[derive(Clone, Debug, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct MdBlock {
+    /// A fenced code block.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code: Option<MdCode>,
+    /// A container: a VitePress `::: tip` block or a GitHub `> [!NOTE]` alert.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub container: Option<MdContainer>,
+    /// Source written back as it was read (HTML, directives, what Plume doesn't interpret): the
+    /// block's id.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub raw: Option<u32>,
+}
+
+/// A fenced code block: its id and its info string as written (`js`, `js{2}`, `mermaid`,
+/// `sh [npm]`; empty for none).
+#[derive(Clone, Debug, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct MdCode {
+    pub id: u32,
+    pub info: String,
+}
+
+/// A container: its id, its kind as written (`tip`, `details`, `code-group`; `NOTE`, `WARNING`
+/// for an alert), its title (VitePress only) and whether it is a GitHub alert.
+#[derive(Clone, Debug, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct MdContainer {
+    pub id: u32,
+    pub kind: String,
+    pub title: String,
+    pub alert: bool,
 }
 
 impl ParaProps {

@@ -18,6 +18,8 @@ use wordcraft_doc::{Align, Block, Blocks, Document, Paragraph, PartKind, Revisio
 pub const MONO_FONT: &str = "Courier New";
 /// Style id of code-block paragraphs.
 pub const CODE_STYLE: &str = "Code";
+/// Plume: character style id of Markdown source kept as written ([`Fmt::raw`]).
+pub const RAW_STYLE: &str = "MarkdownSource";
 /// Nesting limit for tables in tables (hostile input).
 pub const MAX_DEPTH: usize = 8;
 
@@ -42,6 +44,9 @@ pub struct Fmt {
     pub ins: Option<RevMark>,
     /// Tracked deletion of this text. Only [`from_doc_tracked`] keeps deleted text in a flow.
     pub del: Option<RevMark>,
+    /// Plume: Markdown source written back as it was read (inline HTML, an image Plume can't
+    /// load): never escaped, never interpreted.
+    pub raw: bool,
 }
 
 /// Who made a tracked change and when (ISO 8601; empty = unknown).
@@ -168,6 +173,8 @@ pub struct Para {
     pub mark_del: Option<Box<RevMark>>,
     /// A table of contents entry, at this level (Markdown writes the contents from its headings).
     pub toc: Option<u8>,
+    /// Plume: the Markdown block the paragraph belongs to (code block, container, source).
+    pub md: Option<Box<wordcraft_doc::props::MdBlock>>,
 }
 
 impl Para {
@@ -447,6 +454,19 @@ pub fn char_props(f: &Fmt) -> CharProps {
         size: f.size.filter(|s| s.is_finite() && *s >= 1.0 && *s <= 1638.0),
         font: if f.code { Some(MONO_FONT.to_string()) } else { f.font.clone().filter(|s| !s.is_empty()) },
         shading: f.background,
+        style: f.raw.then(|| RAW_STYLE.to_string()),
+        ..Default::default()
+    }
+}
+
+/// Plume: the character style Markdown source kept as written is shown in (grey, monospaced).
+fn raw_style() -> Style {
+    Style {
+        id: RAW_STYLE.into(),
+        name: "Markdown Source".into(),
+        kind: StyleKind::Character,
+        chr: CharProps { font: Some(MONO_FONT.into()), color: Some(TextColor::Rgb(Rgb(0x6A, 0x73, 0x7D))), ..Default::default() },
+        quick: false,
         ..Default::default()
     }
 }
@@ -538,6 +558,7 @@ impl<'a> Builder<'a> {
             Kind::Rule | Kind::Normal => None,
         };
         out.props.style = style;
+        out.props.md = p.md.clone();
         if p.kind == Kind::Rule {
             out.props.borders = Some(rule_borders());
         } else if p.borders.is_some() {
@@ -792,6 +813,9 @@ pub fn to_doc_in(flow: &Flow, section: wordcraft_doc::SectionProps) -> Document 
     if uses_code {
         doc.styles.upsert(code_style());
     }
+    if uses_raw(&flow.blocks, 0) {
+        doc.styles.upsert(raw_style());
+    }
     let comment_ids = add_comments(&mut doc, &flow.comments);
     let mut b = Builder::new(&mut doc);
     b.comment_ids = comment_ids;
@@ -875,6 +899,15 @@ fn uses_kind(blocks: &[FBlock], k: Kind, depth: usize) -> bool {
         })
 }
 
+/// Whether any text in `blocks` is Markdown source kept as written ([`Fmt::raw`]).
+fn uses_raw(blocks: &[FBlock], depth: usize) -> bool {
+    depth <= MAX_DEPTH
+        && blocks.iter().any(|b| match b {
+            FBlock::Para(p) => p.inlines.iter().any(|i| matches!(i, Inline::Text(_, f) if f.raw)),
+            FBlock::Table(t) => t.rows.iter().flatten().any(|c| uses_raw(&c.blocks, depth + 1)),
+        })
+}
+
 // ---------------------------------------------------------------------------------------------
 // Document → Flow
 
@@ -923,6 +956,9 @@ fn effective(doc: &Document, cp: &CharProps) -> CharProps {
 }
 
 fn fmt_of(doc: &Document, cp: &CharProps, in_code: bool) -> Fmt {
+    if cp.style.as_deref() == Some(RAW_STYLE) {
+        return Fmt { raw: true, link: cp.link.clone(), ..Fmt::default() };
+    }
     let e = effective(doc, cp);
     let code = !in_code && (e.font.as_deref().is_some_and(is_mono) || cp.style.as_deref().is_some_and(|cs| is_code_char_style(doc, cs)));
     Fmt {
@@ -943,6 +979,7 @@ fn fmt_of(doc: &Document, cp: &CharProps, in_code: bool) -> Fmt {
         background: e.highlight.and_then(|h| h.rgb()).or(e.shading),
         ins: None,
         del: None,
+        raw: false,
     }
 }
 
@@ -1082,6 +1119,7 @@ fn flow_paras_in(doc: &Document, p: &Paragraph, opts: FlowOpts) -> Vec<Para> {
         mark_ins: None,
         mark_del: None,
         toc: toc_level(doc, p.props.style.as_deref().unwrap_or("Normal")),
+        md: p.props.md.clone(),
     };
     let in_code = kind == Kind::Code;
     let mut k = 0usize;
@@ -1111,6 +1149,7 @@ fn flow_paras_in(doc: &Document, p: &Paragraph, opts: FlowOpts) -> Vec<Para> {
                         mark_ins: None,
                         mark_del: None,
                         toc: None,
+                        md: p.props.md.clone(),
                     };
                     let prev = std::mem::replace(&mut out, next);
                     if prev.inlines.is_empty() {

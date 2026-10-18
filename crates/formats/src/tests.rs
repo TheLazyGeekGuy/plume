@@ -937,9 +937,10 @@ fn markdown_comments_round_trip() {
     assert_eq!(crate::comments::notes(&back)[0].quote, "Start here");
     assert!(!back.plain_text(wordcraft_doc::StoryRef::Body).contains('\u{200B}'));
     assert_eq!(export_native(&back, &NativeOptions::default()).text, out.text);
-    // Other HTML comments are not content.
-    let d = import("<!-- a note\nfor editors -->\n\nText <!-- inline --> here\n");
-    assert_eq!(d.plain_text(wordcraft_doc::StoryRef::Body).trim(), "Text  here");
+    // Other HTML comments (an editor's note, VitePress's `<!--@include: …-->`) are kept as written.
+    let src = "<!-- a note\nfor editors -->\n\nText <!-- inline --> here\n";
+    let out = export_native(&import(src), &NativeOptions::default());
+    assert_eq!(out.text, src);
 }
 
 /// A table with no rules (Word's way of placing a logo beside an address) becomes paragraphs;
@@ -994,7 +995,7 @@ fn markdown_task_lists_and_alerts() {
     let d = import(src);
     let text = d.plain_text(wordcraft_doc::StoryRef::Body);
     assert!(text.contains("\u{2610} Write the guide") && text.contains("\u{2612} Pick a name"), "{text:?}");
-    assert!(text.contains("Warning") && !text.contains("[!WARNING]"), "{text:?}");
+    assert!(text.contains("Back up first.") && !text.contains("[!WARNING]"), "{text:?}");
     let out = export_native(&d, &NativeOptions::default());
     assert!(out.text.contains("- [ ] Write the guide\n- [x] Pick a name\n- Plain item"), "{}", out.text);
     assert!(out.text.contains("> [!WARNING]\n> Back up first.\n>\n> Twice."), "{}", out.text);
@@ -1017,4 +1018,83 @@ fn front_matter_settings_survive_open_and_save() {
     // A thematic break at the start is not front matter.
     let doc = import("---\n\n- item\n");
     assert!(doc.passthrough.is_empty());
+}
+
+/// Plume: a Markdown file Plume didn't write comes back as it was: code blocks keep their
+/// language and stay apart, containers and alerts keep their bounds, and what Plume doesn't read
+/// (HTML, directives, pictures it can't load, `~sub~`, definition lists) is kept as written.
+#[test]
+fn foreign_markdown_survives_open_and_save() {
+    use crate::markdown::{NativeOptions, export_native, import};
+    let src = "\
+[[toc]]
+
+Press <kbd>Ctrl</kbd>, see H~2~O and ![Logo](https://example.com/logo.png \"Logo\").
+
+> [!NOTE]
+> A note.
+
+> [!WARNING]
+> A warning.
+
+::: tip Advice
+A container.
+
+- with a list
+:::
+
+::: details Click
+Hidden.
+:::
+
+```js{2}
+const a = 1
+const b = 2
+```
+
+```mermaid
+sequenceDiagram
+    Alice->>Bob: Hello
+```
+
+```
+```
+
+::: code-group
+```sh [npm]
+npm i
+```
+
+```sh [pnpm]
+pnpm i
+```
+:::
+
+<!--@include: ./other.md-->
+
+<details><summary>More</summary>
+
+Inside.
+
+</details>
+
+Term
+: Definition
+";
+    let d = import(src);
+    let out = export_native(&d, &NativeOptions::default());
+    assert_eq!(out.text, src, "{}", out.text);
+    assert_eq!(export_native(&import(&out.text), &NativeOptions::default()).text, out.text);
+    // The blocks are the document's: a code block's lines share its language.
+    let mermaid: Vec<String> = d
+        .body
+        .iter()
+        .filter_map(|b| if let wordcraft_doc::Block::Para(p) = &**b { Some(p) } else { None })
+        .filter(|p| p.props.md.as_ref().and_then(|m| m.code.as_ref()).is_some_and(|c| c.info == "mermaid"))
+        .map(|p| p.plain_text())
+        .collect();
+    assert_eq!(mermaid, ["sequenceDiagram", "    Alice->>Bob: Hello"]);
+    // A container nested in another is kept as written.
+    let nested = ":::: warning Outer\n::: tip Inner\nText.\n:::\n::::\n";
+    assert_eq!(export_native(&import(nested), &NativeOptions::default()).text, nested);
 }

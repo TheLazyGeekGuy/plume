@@ -8036,3 +8036,23 @@ fn track_changes_show_the_changes_since_the_last_version() {
     assert!(!plain.doc.settings.track_changes);
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// Plume: Enter at the end of a fenced code block's line continues that block (its language
+/// with it), and the block beside it stays apart.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn enter_in_a_code_block_continues_it() {
+    let dir = scratch_dir("md-code-enter");
+    let md = dir.join("code.md");
+    std::fs::write(&md, "Intro\n\n```js\nconst a = 1\n```\n\n```py\nx = 1\n```\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    s.run("caret.set", &json!({"pos": {"block": 1, "off": 11}})).unwrap();
+    s.run("text.newParagraph", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": "const b = 2"})).unwrap();
+    s.run("file.save", &json!({})).unwrap();
+    let saved = std::fs::read_to_string(&md).unwrap();
+    assert_eq!(saved, "Intro\n\n```js\nconst a = 1\nconst b = 2\n```\n\n```py\nx = 1\n```\n");
+    let _ = std::fs::remove_dir_all(&dir);
+}

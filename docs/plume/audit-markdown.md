@@ -259,3 +259,10 @@ Corrections proposées, sans HTML :
 | Propriétés personnalisées de Word | À la racine du front matter : `toto: valeur` |
 | Diagrammes Mermaid dans l'éditeur | Rendu dans le document, la source s'ouvre d'un clic avec aperçu en direct |
 | Paragraphes et listes dans une cellule de tableau | `<br>` autorisé, seul élément HTML admis, et seulement dans les cellules |
+
+## 11. Avancement
+
+| Lot | État | Détail |
+|---|---|---|
+| 1 | Livré le 2026-10-18 | Les six pertes de la section 2.2 sont corrigées. Un fichier VitePress complet ressort identique après ouverture et enregistrement, et un second passage ne change rien. Les blocs de code gardent leur langage et restent séparés, l'Entrée prolonge le bloc courant. Conteneurs `:::` et alertes gardent leurs limites. Le HTML, les commentaires, `[[toc]]`, les inclusions, les images introuvables, `~indice~` et les listes de définitions sont gardés tels quels, affichés en source grisée. Un conteneur imbriqué dans un autre est gardé tel quel. |
+
