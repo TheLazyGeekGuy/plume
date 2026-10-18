@@ -2774,3 +2774,11 @@ preview	Title	Esempio
 	No changes since the last version.	Nessuna modifica dall'ultima versione.
 	Showing the changes since the last version ({n} paragraphs).	Modifiche dall'ultima versione mostrate ({n} paragrafi).
 	Tracking from now on: the last version can't be read ({error}).	Rilevamento da ora: impossibile leggere l'ultima versione ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Imposta un campo del front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Campi letti da GitHub, VitePress e dai modelli PDF, salvati all'inizio del file Markdown.
+	(several values: edit the source)	(più valori: modificare il sorgente)
+	Remove this field	Rimuovi questo campo
+	New field	Nuovo campo
+	Letters, digits, - and _ only	Solo lettere, cifre, - e _

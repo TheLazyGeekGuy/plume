@@ -620,7 +620,7 @@ pub fn save_markdown(path: &std::path::Path, doc: &Document) -> Result<wordcraft
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save_markdown_files(path: &std::path::Path, doc: &Document) -> Result<(wordcraft_formats::markdown::Report, Vec<std::path::PathBuf>), String> {
     crate::file_access::check_write(&path.to_string_lossy())?;
-    let doc = web_pictures(doc);
+    let doc = markdown_ready(doc);
     let bundle = wordcraft_formats::markdown::export_native(&doc, &wordcraft_formats::markdown::NativeOptions::default());
     let dir = path.parent().unwrap_or(std::path::Path::new(""));
     for (rel, bytes) in &bundle.assets {
@@ -647,7 +647,7 @@ pub fn save_path_with(path: &std::path::Path, _doc: &Document, _password: Option
 /// The download for a Markdown-native save in the browser: `name` and the Markdown when the
 /// document has no pictures, else `<name>.zip` holding the Markdown and its `assets/` folder.
 pub fn markdown_download(name: &str, doc: &Document) -> Result<(String, Vec<u8>), String> {
-    let doc = web_pictures(doc);
+    let doc = markdown_ready(doc);
     let bundle = wordcraft_formats::markdown::export_native(&doc, &wordcraft_formats::markdown::NativeOptions::default());
     if bundle.assets.is_empty() {
         return Ok((name.to_string(), bundle.text.into_bytes()));
@@ -659,6 +659,19 @@ pub fn markdown_download(name: &str, doc: &Document) -> Result<(String, Vec<u8>)
 
 /// `doc` with its metafile pictures (WMF, EMF) drawn as PNG, for copies read on the web
 /// (Markdown): browsers and Markdown renderers can't show metafiles. Borrowed when there are none.
+/// `doc` as its Markdown copy is written: pictures the web shows ([`web_pictures`]), and a
+/// document converted from Word with its Word properties in the front matter
+/// ([`wordcraft_formats::front_matter::adopt_office`]).
+fn markdown_ready(doc: &Document) -> std::borrow::Cow<'_, Document> {
+    let doc = web_pictures(doc);
+    if doc.passthrough.contains_key(wordcraft_formats::model::FRONT_MATTER_PART) {
+        return doc;
+    }
+    let mut doc = doc.into_owned();
+    wordcraft_formats::front_matter::adopt_office(&mut doc);
+    std::borrow::Cow::Owned(doc)
+}
+
 pub fn web_pictures(doc: &Document) -> std::borrow::Cow<'_, Document> {
     let metafiles: Vec<(String, f32, f32)> =
         doc.media.iter().filter_map(|(k, b)| wordcraft_render::metafile_size(b).map(|(w, h, _)| (k.clone(), w, h))).collect();

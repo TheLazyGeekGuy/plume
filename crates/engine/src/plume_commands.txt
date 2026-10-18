@@ -160,6 +160,8 @@ office file.exportLatexTemplate
 markdown file.exportPdf
 markdown file.exportPdfTemplate
 markdown file.exportPng
+markdown file.frontMatter
+markdown file.setFrontMatter
 markdown file.info
 markdown file.inspect
 markdown file.new

@@ -2762,3 +2762,11 @@ preview	Title	Örnek
 	No changes since the last version.	Son sürümden bu yana değişiklik yok.
 	Showing the changes since the last version ({n} paragraphs).	Son sürümden bu yana değişiklikler gösteriliyor ({n} paragraf).
 	Tracking from now on: the last version can't be read ({error}).	Şu andan itibaren izleniyor: son sürüm okunamıyor ({error}).
+	Front Matter	Ön bilgi
+	Set Front Matter Field	Ön bilgi alanı ayarla
+	Front matter	Ön bilgi
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	GitHub, VitePress ve PDF şablonlarının okuduğu, Markdown dosyasının başına kaydedilen alanlar.
+	(several values: edit the source)	(birden çok değer: kaynağı düzenleyin)
+	Remove this field	Bu alanı kaldır
+	New field	Yeni alan
+	Letters, digits, - and _ only	Yalnızca harf, rakam, - ve _

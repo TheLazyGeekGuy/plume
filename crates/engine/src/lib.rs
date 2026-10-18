@@ -35,6 +35,7 @@ pub use session::{
     CellRange, ColumnBlock, EditSnapshot, FindState, MathEdit, Prefs, Selection, Session, UNDO_LIST_MAX, ViewState, blank_document, set_system_locale,
 };
 pub use wordcraft_doc as doc;
+pub use wordcraft_formats::front_matter;
 pub use wordcraft_geom::Region;
 pub use wordcraft_layout as layout;
 pub use wordcraft_proof as proof;

@@ -561,6 +561,8 @@ pub struct WordApp {
     /// keystroke, so one visit's keystrokes make a single undo step (and anything else in
     /// between, such as an Undo, starts a new one).
     pub(crate) info_editing: Option<(&'static str, u64)>,
+    /// Plume: recent Markdown documents' titles (from their front matter), read once per path.
+    pub(crate) recent_titles: std::collections::HashMap<String, Option<String>>,
     recovery_seen: bool,
     /// Started on the Start screen with nothing to open (#1129): the id of the placeholder
     /// blank document the session holds until the user creates or opens one. While it is still
@@ -663,6 +665,7 @@ impl WordApp {
             #[cfg(not(target_arch = "wasm32"))]
             file_browser: file_browser::State::default(),
             info_editing: None,
+            recent_titles: Default::default(),
             recovery_seen: false,
             no_document: None,
         }
@@ -1122,8 +1125,12 @@ impl WordApp {
         self.saves_in_flight.iter().any(|s| s.marked_saved && s.document == document)
     }
 
-    /// The document's name as the Save Changes prompt shows it: its file's name, else its title.
+    /// The document's name as the Save Changes prompt shows it: a Markdown document's title, else
+    /// its file's name, else its title.
     fn prompt_name(&self) -> String {
+        if self.session.is_markdown() && !self.session.doc.core.title.trim().is_empty() {
+            return self.display_title();
+        }
         self.session.path.as_ref().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| self.title_stem())
     }
 
@@ -1784,6 +1791,16 @@ impl WordApp {
         }
     }
 
+    /// The document's name as the window shows it. Plume: a Markdown document's title from its
+    /// front matter, as Office shows a document's name; else the file's ([`Self::title_stem`]).
+    pub fn display_title(&self) -> String {
+        let title = self.session.doc.core.title.trim();
+        if self.session.is_markdown() && !title.is_empty() {
+            return title.chars().take(120).collect();
+        }
+        self.title_stem()
+    }
+
     /// Document title for the title bar (and the suggested file name). An untitled document is
     /// named in the interface language, as `Document1` is in English.
     pub fn title_stem(&self) -> String {
@@ -2109,7 +2126,7 @@ impl WordApp {
             ctx.open_url(egui::OpenUrl::new_tab(url));
         }
         let title = if self.has_document() {
-            format!("{}{} - {}", self.title_stem(), if self.session.dirty { " •" } else { "" }, wordcraft_brand::APP_NAME)
+            format!("{}{} - {}", self.display_title(), if self.session.dirty { " •" } else { "" }, wordcraft_brand::APP_NAME)
         } else {
             wordcraft_brand::APP_NAME.to_string()
         };
@@ -2534,6 +2551,8 @@ fn control_click_as_secondary(events: &mut [egui::Event], held: &mut bool) {
 mod tests_perf;
 #[cfg(test)]
 mod tests_plume;
+#[cfg(test)]
+pub(crate) use backstage::recent_title as backstage_recent_title;
 
 #[cfg(test)]
 mod tests {

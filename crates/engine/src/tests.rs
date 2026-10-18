@@ -8056,3 +8056,56 @@ fn enter_in_a_code_block_continues_it() {
     assert_eq!(saved, "Intro\n\n```js\nconst a = 1\nconst b = 2\n```\n\n```py\nx = 1\n```\n");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// Plume: a Markdown document's properties are its front matter: fields of any name are set and
+/// removed there (the title with the document's), Category and Word's custom properties land in
+/// it, and the rest of the front matter stays as written.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn front_matter_fields_are_the_document_properties() {
+    let dir = scratch_dir("md-front-matter");
+    let md = dir.join("guide.md");
+    std::fs::write(&md, "---\ntitle: Guide\ntags:\n  - a\n# PDF\ntitlepage: true\n---\n\nText.\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    let r = s.run("file.frontMatter", &json!({})).unwrap();
+    assert_eq!(r["fields"][1], json!({"key": "tags", "value": "a"}), "{r}");
+    assert!(!s.dirty, "reading changes nothing");
+    s.run("file.setFrontMatter", &json!({"key": "toto", "value": "valeur perso"})).unwrap();
+    s.run("file.setFrontMatter", &json!({"key": "title", "value": "Guide d'installation"})).unwrap();
+    assert_eq!(s.doc.core.title, "Guide d'installation");
+    s.run("file.properties", &json!({"category": "Docs", "custom": {"Client Name": "ACME"}})).unwrap();
+    s.run("file.setFrontMatter", &json!({"key": "titlepage", "value": null})).unwrap();
+    assert!(s.run("file.setFrontMatter", &json!({"key": "bad key", "value": "x"})).is_err());
+    s.run("file.save", &json!({})).unwrap();
+    let saved = std::fs::read_to_string(&md).unwrap();
+    assert_eq!(
+        saved,
+        "---\ntitle: \"Guide d'installation\"\ntags:\n  - a\n# PDF\ntoto: \"valeur perso\"\ncategory: \"Docs\"\nClient-Name: \"ACME\"\n---\n\nText.\n"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Plume: a Word document opened as Markdown brings its Word properties into the front matter:
+/// dates, category, revision and its custom properties, each under its own key.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn word_properties_go_into_the_front_matter() {
+    let dir = scratch_dir("md-word-props");
+    let docx = dir.join("rapport.docx");
+    let mut doc = wordcraft_doc::Document::from_text("Corps.");
+    doc.core.title = "Rapport".into();
+    doc.core.category = "Finance".into();
+    doc.core.created = "2026-01-02T03:04:05Z".into();
+    doc.set_custom_prop("toto", "valeur perso");
+    std::fs::write(&docx, crate::io::save_bytes("rapport.docx", &doc).unwrap()).unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": docx.to_string_lossy()})).unwrap();
+    s.run("file.save", &json!({})).unwrap();
+    let saved = std::fs::read_to_string(dir.join("rapport.md")).unwrap();
+    assert!(saved.starts_with("---\ntitle: \"Rapport\"\ndate: \"2026-01-02\"\n"), "{saved}");
+    assert!(saved.contains("category: \"Finance\"\n") && saved.contains("toto: \"valeur perso\"\n"), "{saved}");
+    let _ = std::fs::remove_dir_all(&dir);
+}

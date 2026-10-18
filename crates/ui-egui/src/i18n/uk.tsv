@@ -2378,3 +2378,11 @@
 	No changes since the last version.	Змін з останньої версії немає.
 	Showing the changes since the last version ({n} paragraphs).	Показано зміни з останньої версії (абзаців: {n}).
 	Tracking from now on: the last version can't be read ({error}).	Відстеження відтепер: останню версію не вдалося прочитати ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Задати поле front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Поля, які читають GitHub, VitePress і шаблони PDF, зберігаються на початку файлу Markdown.
+	(several values: edit the source)	(кілька значень: змініть джерело)
+	Remove this field	Вилучити це поле
+	New field	Нове поле
+	Letters, digits, - and _ only	Лише літери, цифри, - і _

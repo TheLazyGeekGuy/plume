@@ -2761,3 +2761,11 @@
 	No changes since the last version.	Nincs változás az utolsó verzió óta.
 	Showing the changes since the last version ({n} paragraphs).	Az utolsó verzió óta történt változások láthatók ({n} bekezdés).
 	Tracking from now on: the last version can't be read ({error}).	Követés mostantól: az utolsó verzió nem olvasható ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Front matter mező beállítása
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	A GitHub, a VitePress és a PDF-sablonok által olvasott mezők, a Markdown-fájl elején mentve.
+	(several values: edit the source)	(több érték: a forrásban szerkeszthető)
+	Remove this field	Mező eltávolítása
+	New field	Új mező
+	Letters, digits, - and _ only	Csak betűk, számjegyek, - és _

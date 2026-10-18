@@ -2376,3 +2376,11 @@
 	No changes since the last version.	Nema izmena od poslednje verzije.
 	Showing the changes since the last version ({n} paragraphs).	Prikazane su izmene od poslednje verzije (pasusa: {n}).
 	Tracking from now on: the last version can't be read ({error}).	Praćenje od sada: poslednja verzija ne može da se pročita ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Postavi polje front matter-a
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Polja koja čitaju GitHub, VitePress i PDF šabloni, sačuvana na početku Markdown datoteke.
+	(several values: edit the source)	(više vrednosti: uredite izvor)
+	Remove this field	Ukloni ovo polje
+	New field	Novo polje
+	Letters, digits, - and _ only	Samo slova, cifre, - i _

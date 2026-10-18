@@ -2367,3 +2367,11 @@
 	No changes since the last version.	自上一版本以來沒有變更。
 	Showing the changes since the last version ({n} paragraphs).	正在顯示自上一版本以來的變更（{n} 個段落）。
 	Tracking from now on: the last version can't be read ({error}).	從現在開始追蹤：無法讀取上一版本（{error}）。
+	Front Matter	前置中繼資料
+	Set Front Matter Field	設定前置中繼資料欄位
+	Front matter	前置中繼資料
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	GitHub、VitePress 和 PDF 範本讀取的欄位，儲存在 Markdown 檔案開頭。
+	(several values: edit the source)	（多個值：請編輯原始檔）
+	Remove this field	移除此欄位
+	New field	新欄位
+	Letters, digits, - and _ only	僅限字母、數字、- 和 _

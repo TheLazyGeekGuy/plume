@@ -2805,3 +2805,11 @@ template	Letter	Thư
 	No changes since the last version.	Không có thay đổi nào kể từ phiên bản trước.
 	Showing the changes since the last version ({n} paragraphs).	Đang hiện thay đổi kể từ phiên bản trước ({n} đoạn).
 	Tracking from now on: the last version can't be read ({error}).	Theo dõi từ bây giờ: không đọc được phiên bản trước ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Đặt trường front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Các trường GitHub, VitePress và mẫu PDF đọc, lưu ở đầu tệp Markdown.
+	(several values: edit the source)	(nhiều giá trị: sửa mã nguồn)
+	Remove this field	Xóa trường này
+	New field	Trường mới
+	Letters, digits, - and _ only	Chỉ chữ cái, chữ số, - và _

@@ -2378,3 +2378,11 @@
 	No changes since the last version.	自上一版本以来没有更改。
 	Showing the changes since the last version ({n} paragraphs).	正在显示自上一版本以来的更改（{n} 个段落）。
 	Tracking from now on: the last version can't be read ({error}).	从现在开始修订：无法读取上一版本（{error}）。
+	Front Matter	前置元数据
+	Set Front Matter Field	设置前置元数据字段
+	Front matter	前置元数据
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	GitHub、VitePress 和 PDF 模板读取的字段，保存在 Markdown 文件开头。
+	(several values: edit the source)	（多个值：请编辑源文件）
+	Remove this field	删除此字段
+	New field	新字段
+	Letters, digits, - and _ only	仅限字母、数字、- 和 _

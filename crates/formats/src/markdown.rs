@@ -25,6 +25,7 @@ use wordcraft_doc::{Align, Document};
 use crate::html::decode_entity;
 use wordcraft_doc::props::{MdBlock, MdCode, MdContainer};
 
+use crate::front_matter;
 use crate::model::{self, Cell, FBlock, FTable, Fmt, Img, Inline, Kind, ListInfo, Para, make_img};
 
 /// Nesting limit for block containers (quotes, list items) and inline links.
@@ -267,104 +268,46 @@ fn take_front_matter(lines: &mut Vec<String>) -> Option<model::Meta> {
     }
     let close = lines.iter().enumerate().skip(1).take(MAX_FRONT_MATTER).find(|(_, l)| matches!(l.trim_end(), "---" | "...")).map(|(k, _)| k)?;
     let body = lines.get(1..close)?;
-    let mut meta = model::Meta::default();
-    let mut extra: Vec<&str> = Vec::new();
-    // The key being read, for its indented or `- item` lines.
-    let mut current: Option<String> = None;
+    // Front matter only if every top-level line is `key: …` (a key without spaces), with
+    // indented or `- item` lines after a key, comments and blank lines.
     let mut any = false;
     for l in body {
-        let nested = l.starts_with([' ', '\t', '-']);
-        if !nested && (l.trim().is_empty() || l.starts_with('#')) {
-            // Comments are kept with the other settings; blank lines only between them.
-            if l.starts_with('#') || !extra.is_empty() {
-                extra.push(l);
+        if l.starts_with([' ', '\t', '-']) {
+            if !any {
+                return None;
             }
             continue;
         }
-        if nested {
-            let key = current.as_deref()?;
-            if is_meta_key(key) {
-                // A list under a known key (`author:` then `  - Ada`): its items, joined.
-                let item = l.trim().trim_start_matches('-').trim();
-                if !item.is_empty() {
-                    let v = meta_field(&mut meta, key);
-                    if !v.is_empty() {
-                        v.push_str(", ");
-                    }
-                    v.push_str(&yaml_scalar(item));
-                }
-            } else {
-                extra.push(l);
-            }
+        if l.trim().is_empty() || l.starts_with('#') {
             continue;
         }
-        let (key, value) = l.split_once(':')?;
+        let (key, _) = l.split_once(':')?;
         if key.trim().is_empty() || key.contains(' ') {
             return None;
         }
         any = true;
-        let key = key.trim().to_ascii_lowercase();
-        if is_meta_key(&key) {
-            *meta_field(&mut meta, &key) = yaml_scalar(value.trim());
-        } else {
-            extra.push(l);
-        }
-        current = Some(key);
     }
     if !any {
         return None;
     }
-    while extra.last().is_some_and(|l| l.trim().is_empty()) {
-        extra.pop();
+    // The front matter is kept as written; the document's properties are read from it.
+    let mut text: Vec<&str> = body.iter().map(|l| l.trim_end()).collect();
+    while text.last().is_some_and(|l| l.is_empty()) {
+        text.pop();
     }
-    meta.extra = extra.join("\n");
+    let text = text.join("\n");
+    let get = |k: &str| front_matter::get(&text, k).unwrap_or_default();
+    let mut meta = model::Meta {
+        title: get("title"),
+        author: get("author"),
+        subject: get("subject"),
+        keywords: front_matter::get(&text, "keywords").or_else(|| front_matter::get(&text, "tags")).unwrap_or_default(),
+        description: get("description"),
+        ..Default::default()
+    };
+    meta.extra = text;
     lines.drain(..=close);
     Some(meta)
-}
-
-/// Front matter keys that are document properties.
-fn is_meta_key(key: &str) -> bool {
-    // `date` stays with the other settings, as written: the document's creation time is a
-    // property Plume sets itself, and writing it would add a line to every saved document.
-    matches!(key, "title" | "author" | "subject" | "keywords" | "tags" | "description")
-}
-
-fn meta_field<'a>(meta: &'a mut model::Meta, key: &str) -> &'a mut String {
-    match key {
-        "title" => &mut meta.title,
-        "author" => &mut meta.author,
-        "subject" => &mut meta.subject,
-        "keywords" | "tags" => &mut meta.keywords,
-        _ => &mut meta.description,
-    }
-}
-
-/// A YAML scalar as written by [`front_matter_md`] (double-quoted with `\"` and `\\`), single-quoted
-/// (`''`), plain, or a flow list `[a, b]` (joined with `, `).
-fn yaml_scalar(v: &str) -> String {
-    if let Some(inner) = v.strip_prefix('"').and_then(|r| r.strip_suffix('"')) {
-        let mut out = String::new();
-        let mut chars = inner.chars();
-        while let Some(c) = chars.next() {
-            if c == '\\' {
-                match chars.next() {
-                    Some('n') => out.push(' '),
-                    Some(n) => out.push(n),
-                    None => {}
-                }
-            } else {
-                out.push(c);
-            }
-        }
-        return out;
-    }
-    if let Some(inner) = v.strip_prefix('\'').and_then(|r| r.strip_suffix('\'')) {
-        return inner.replace("''", "'");
-    }
-    if let Some(inner) = v.strip_prefix('[').and_then(|r| r.strip_suffix(']')) {
-        return inner.split(',').map(|x| yaml_scalar(x.trim())).filter(|x| !x.is_empty()).collect::<Vec<_>>().join(", ");
-    }
-    v.to_string()
 }
 
 /// A footnote definition's label at the start of `l` (`[^label]: rest`) and the rest.
@@ -2834,19 +2777,22 @@ pub fn bundle_zip(md_name: &str, bundle: &Bundle) -> Result<Vec<u8>, String> {
 
 /// YAML front matter for the document properties that are set (none: nothing written).
 fn front_matter_md(m: &model::Meta, out: &mut Vec<String>) {
-    let fields = [("title", &m.title), ("author", &m.author), ("subject", &m.subject), ("keywords", &m.keywords), ("description", &m.description)];
-    if fields.iter().all(|(_, v)| v.trim().is_empty()) && m.extra.trim().is_empty() {
+    // The front matter as written, with the properties that changed rewritten in place.
+    let mut body = m.extra.clone();
+    let kw = if front_matter::get(&body, "keywords").is_none() && front_matter::get(&body, "tags").is_some() { "tags" } else { "keywords" };
+    let fields = [("title", &m.title), ("author", &m.author), ("subject", &m.subject), (kw, &m.keywords), ("description", &m.description)];
+    let mut before: Vec<&str> = Vec::new();
+    for (k, v) in fields {
+        if front_matter::get(&body, k).unwrap_or_default().trim() != v.trim() {
+            body = front_matter::set_after(&body, k, v, Some(&before));
+        }
+        before.push(k);
+    }
+    if body.trim().is_empty() {
         return;
     }
     out.push("---".into());
-    for (k, v) in fields {
-        let v = v.trim();
-        if !v.is_empty() {
-            let q = v.replace('\\', "\\\\").replace('"', "\\\"").replace(['\n', '\r'], " ");
-            out.push(format!("{k}: \"{q}\""));
-        }
-    }
-    out.extend(m.extra.lines().map(|l| l.trim_end().to_string()));
+    out.extend(body.lines().map(|l| l.trim_end().to_string()));
     out.push("---".into());
     out.push(String::new());
 }

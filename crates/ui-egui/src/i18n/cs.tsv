@@ -2757,3 +2757,11 @@ preview	Title	Ukázka
 	No changes since the last version.	Od poslední verze žádné změny.
 	Showing the changes since the last version ({n} paragraphs).	Zobrazeny změny od poslední verze (odstavců: {n}).
 	Tracking from now on: the last version can't be read ({error}).	Sledování od teď: poslední verzi nelze přečíst ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Nastavit pole front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Pole, která čtou GitHub, VitePress a šablony PDF, uložená na začátku souboru Markdown.
+	(several values: edit the source)	(více hodnot: upravte zdroj)
+	Remove this field	Odebrat toto pole
+	New field	Nové pole
+	Letters, digits, - and _ only	Pouze písmena, číslice, - a _

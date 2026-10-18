@@ -344,7 +344,7 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
                 } else {
                     tl!("Not saved").to_string()
                 };
-                format!("{} — {state}", app.title_stem())
+                format!("{} — {state}", app.display_title())
             };
             let font = TypeRung::Chrome.semibold();
             let track = TypeRung::Chrome.tracking();

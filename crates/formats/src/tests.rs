@@ -1011,7 +1011,14 @@ fn front_matter_settings_survive_open_and_save() {
     assert_eq!(doc.core.title, "Rapport");
     assert_eq!(doc.core.creator, "Ada, Grace");
     let out = export_native(&doc, &NativeOptions::default()).text;
-    assert!(out.starts_with("---\ntitle: \"Rapport\"\nauthor: \"Ada, Grace\"\ntitlepage: true\n# Header and footer\nheader-includes:\n  - \\usepackage{lipsum}\ngeometry: \"top=3cm, bottom=2.5cm\"\n---\n"), "{out}");
+    // The front matter is kept as written: the author list stays a list.
+    assert_eq!(out, src);
+    // A changed property is rewritten in place, in its form; the rest stays.
+    let mut changed = doc.clone();
+    changed.core.creator = "Ada".into();
+    changed.core.keywords = "rapport".into();
+    let out2 = export_native(&changed, &NativeOptions::default()).text;
+    assert!(out2.starts_with("---\ntitle: \"Rapport\"\nauthor:\n  - \"Ada\"\nkeywords: \"rapport\"\ntitlepage: true\n# Header"), "{out2}");
     assert!(!out.contains("titlepage: true\n\n"), "{out}");
     // Stable: a second round trip writes the same text.
     assert_eq!(export_native(&import(&out), &NativeOptions::default()).text, out);

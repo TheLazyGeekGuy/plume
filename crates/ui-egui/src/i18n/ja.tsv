@@ -2366,3 +2366,11 @@
 	No changes since the last version.	前回のバージョン以降の変更はありません。
 	Showing the changes since the last version ({n} paragraphs).	前回のバージョン以降の変更を表示しています ({n} 段落)。
 	Tracking from now on: the last version can't be read ({error}).	今から変更を記録します: 前回のバージョンを読み込めません ({error})。
+	Front Matter	フロントマター
+	Set Front Matter Field	フロントマターの項目を設定
+	Front matter	フロントマター
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	GitHub、VitePress、PDF テンプレートが読む項目。Markdown ファイルの先頭に保存されます。
+	(several values: edit the source)	(複数の値: ソースで編集)
+	Remove this field	この項目を削除
+	New field	新しい項目
+	Letters, digits, - and _ only	英数字、- と _ のみ

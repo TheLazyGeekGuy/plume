@@ -60,3 +60,41 @@ fn without_the_profile_everything_is_back() {
     }
     assert!(h.query_by_label("Increase Font Size").is_some());
 }
+
+/// A Markdown document is named by its front matter title: in the window title and in the
+/// Recent list, its file under it.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn a_markdown_document_is_named_by_its_title() {
+    let dir = std::env::temp_dir().join(format!("plume-title-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let md = dir.join("guide-install.md");
+    std::fs::write(&md, "---\ntitle: Guide d'installation\ntoto: valeur\n---\n\nTexte.\n").unwrap();
+    let mut s = wordcraft_engine::Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &serde_json::json!({"path": md.to_string_lossy()})).unwrap();
+    let mut a = WordApp::new(s, Services::default());
+    assert_eq!(a.display_title(), "Guide d'installation");
+    assert_eq!(a.title_stem(), "guide-install", "the file name stays the suggested name");
+    assert_eq!(super::backstage_recent_title(&md.to_string_lossy()).as_deref(), Some("Guide d'installation"));
+    a.ui.recent = vec![md.to_string_lossy().to_string()];
+    let mut h = egui_kittest::Harness::builder().with_size(egui::vec2(1800.0, 900.0)).build_ui_state(
+        |ui, app: &mut WordApp| {
+            let ctx = ui.ctx().clone();
+            app.logic(&ctx);
+            app.ui(ui);
+        },
+        a,
+    );
+    h.run_steps(4);
+    assert!(h.state().sent_title.starts_with("Guide d'installation"), "{}", h.state().sent_title);
+    // File › Info shows the front matter's other fields, editable.
+    let _ = h.state_mut().run("ui.backstage", serde_json::json!({"value": true, "page": "info"}));
+    h.run_steps(4);
+    assert!(h.query_by_label("Front matter").is_some() && h.query_by_label("toto").is_some());
+    // Open lists it by its title.
+    let _ = h.state_mut().run("ui.backstage", serde_json::json!({"value": true, "page": "open"}));
+    h.run_steps(4);
+    assert!(h.query_by_label("Guide d'installation").is_some());
+    let _ = std::fs::remove_dir_all(&dir);
+}

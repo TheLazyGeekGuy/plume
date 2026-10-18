@@ -118,6 +118,11 @@ pub fn specs() -> Vec<CommandSpec> {
         .pure(),
         CommandSpec::new("file.properties", "Properties", "File › Info", properties)
             .params(r#"{"title"?, "subject"?, "author"?, "keywords"?, "comments"?, "category"?, "custom"?: {name: string | null (removes)}}"#),
+        CommandSpec::new("file.frontMatter", "Front Matter", "File › Info", |s, _| Ok(front_matter_fields(s)))
+            .params(r#"{} → {"fields": [{"key", "value"}]}: the front matter's top-level fields, in order"#)
+            .pure(),
+        CommandSpec::new("file.setFrontMatter", "Set Front Matter Field", "File › Info", set_front_matter)
+            .params(r#"{"key": string (1–64 letters, digits, - or _), "value": string | null (removes)} → {"fields": [{"key", "value"}]}"#),
         CommandSpec::new("file.info", "Info", "File", info).pure(),
         CommandSpec::new("file.setAuthor", "User Name", "File › Options › General", set_author)
             .params(r#"{"name": string (author of new tracked changes and comments)}"#)
@@ -261,6 +266,8 @@ fn import_as_markdown(s: &mut Session, from: &std::path::Path) {
     s.path = (!md.exists()).then_some(md);
     s.password = None;
     s.dirty = true;
+    // Its Word properties (dates, category, custom properties) go into the front matter.
+    wordcraft_formats::front_matter::adopt_converted(&mut s.doc);
     let report = wordcraft_formats::markdown::export_native(&s.doc, &Default::default()).report;
     s.import_report = report.lines();
 }
@@ -427,11 +434,65 @@ fn properties(s: &mut Session, v: &Value) -> CmdResult {
             }
         }
     }
+    // Plume: a Markdown document keeps its category and custom properties in its front matter.
+    if s.is_markdown() {
+        use wordcraft_formats::front_matter as fm;
+        let mut body = fm::stored(&s.doc);
+        if let Some(x) = p::str(v, "category") {
+            body = fm::set(&body, "category", x);
+        }
+        if let Some(m) = v.get("custom").and_then(Value::as_object) {
+            for (name, val) in m {
+                if let Some(k) = fm::key_of(name) {
+                    body = fm::set(&body, &k, val.as_str().unwrap_or(""));
+                }
+            }
+        }
+        fm::store(&mut s.doc, &body);
+    }
     let mut out = serde_json::to_value(&s.doc.core).unwrap_or(Value::Null);
     if let Some(o) = out.as_object_mut() {
         o.insert("custom".into(), serde_json::to_value(&s.doc.custom_props).unwrap_or(Value::Null));
     }
     Ok(out)
+}
+
+/// Plume: the front matter's top-level fields, in order.
+fn front_matter_fields(s: &Session) -> Value {
+    let fields: Vec<Value> = wordcraft_formats::front_matter::fields(&wordcraft_formats::front_matter::stored(&s.doc))
+        .into_iter()
+        .map(|(k, v)| json!({"key": k, "value": v}))
+        .collect();
+    json!({"fields": fields})
+}
+
+/// Plume: set one front matter field (`value` "" or null removes it). The document's properties
+/// (title, author, subject, keywords or tags, description) are set with it.
+fn set_front_matter(s: &mut Session, v: &Value) -> CmdResult {
+    use wordcraft_formats::front_matter as fm;
+    {
+        let key = p::str(v, "key").unwrap_or("").trim();
+        if !fm::valid_key(key) {
+            return Err(CmdError::Params("`key`: 1–64 letters, digits, `-` or `_`".into()));
+        }
+        let value = match v.get("value") {
+            Some(Value::String(x)) if x.len() <= MAX_CUSTOM_VALUE => x.replace(['\n', '\r'], " "),
+            Some(Value::Null) => String::new(),
+            _ => return Err(CmdError::Params(format!("`value`: a string (≤ {MAX_CUSTOM_VALUE} bytes), or null to remove the field"))),
+        };
+        let c = &mut s.doc.core;
+        match key.to_ascii_lowercase().as_str() {
+            "title" => c.title.clone_from(&value),
+            "author" => c.creator.clone_from(&value),
+            "subject" => c.subject.clone_from(&value),
+            "keywords" | "tags" => c.keywords.clone_from(&value),
+            "description" => c.description.clone_from(&value),
+            _ => {}
+        }
+        let body = fm::set(&fm::stored(&s.doc), key, &value);
+        fm::store(&mut s.doc, &body);
+    }
+    Ok(front_matter_fields(s))
 }
 
 /// Longest custom property name (Word's limit).

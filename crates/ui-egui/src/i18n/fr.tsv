@@ -2373,3 +2373,11 @@
 	No changes since the last version.	Aucune modification depuis la dernière version.
 	Showing the changes since the last version ({n} paragraphs).	Affichage des modifications depuis la dernière version ({n} paragraphes).
 	Tracking from now on: the last version can't be read ({error}).	Suivi à partir de maintenant : la dernière version est illisible ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Définir un champ du front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Champs lus par GitHub, VitePress et les modèles PDF, enregistrés en tête du fichier Markdown.
+	(several values: edit the source)	(plusieurs valeurs : modifier la source)
+	Remove this field	Retirer ce champ
+	New field	Nouveau champ
+	Letters, digits, - and _ only	Lettres, chiffres, - et _ seulement

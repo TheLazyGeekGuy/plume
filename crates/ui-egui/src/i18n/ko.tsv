@@ -2624,3 +2624,11 @@ preview	Title	제목
 	No changes since the last version.	마지막 버전 이후 변경 내용이 없습니다.
 	Showing the changes since the last version ({n} paragraphs).	마지막 버전 이후 변경 내용을 표시합니다(단락 {n}개).
 	Tracking from now on: the last version can't be read ({error}).	지금부터 추적합니다: 마지막 버전을 읽을 수 없습니다({error}).
+	Front Matter	프런트 매터
+	Set Front Matter Field	프런트 매터 필드 설정
+	Front matter	프런트 매터
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	GitHub, VitePress, PDF 템플릿이 읽는 필드로, Markdown 파일 맨 앞에 저장됩니다.
+	(several values: edit the source)	(여러 값: 원본에서 편집)
+	Remove this field	이 필드 제거
+	New field	새 필드
+	Letters, digits, - and _ only	문자, 숫자, - 및 _만

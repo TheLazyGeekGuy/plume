@@ -2400,3 +2400,11 @@
 	No changes since the last version.	Pärast viimast versiooni muudatusi pole.
 	Showing the changes since the last version ({n} paragraphs).	Kuvatakse muudatused pärast viimast versiooni (lõike: {n}).
 	Tracking from now on: the last version can't be read ({error}).	Jälgimine nüüdsest: viimast versiooni ei saa lugeda ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Määra front matter'i väli
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Väljad, mida loevad GitHub, VitePress ja PDF-mallid, salvestatud Markdowni faili algusesse.
+	(several values: edit the source)	(mitu väärtust: muutke lähteteksti)
+	Remove this field	Eemalda see väli
+	New field	Uus väli
+	Letters, digits, - and _ only	Ainult tähed, numbrid, - ja _

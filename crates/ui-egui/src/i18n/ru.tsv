@@ -2763,3 +2763,11 @@ preview	Title	Пример
 	No changes since the last version.	Изменений с последней версии нет.
 	Showing the changes since the last version ({n} paragraphs).	Показаны изменения с последней версии (абзацев: {n}).
 	Tracking from now on: the last version can't be read ({error}).	Отслеживание с этого момента: последнюю версию не удалось прочитать ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Задать поле front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Поля, которые читают GitHub, VitePress и шаблоны PDF, сохраняются в начале файла Markdown.
+	(several values: edit the source)	(несколько значений: измените исходный текст)
+	Remove this field	Удалить это поле
+	New field	Новое поле
+	Letters, digits, - and _ only	Только буквы, цифры, - и _

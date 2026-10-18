@@ -2781,3 +2781,11 @@ preview	Title	Titel
 	No changes since the last version.	Inga ändringar sedan senaste versionen.
 	Showing the changes since the last version ({n} paragraphs).	Visar ändringarna sedan senaste versionen ({n} stycken).
 	Tracking from now on: the last version can't be read ({error}).	Spårar från och med nu: den senaste versionen kan inte läsas ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Ange fält i front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Fält som GitHub, VitePress och PDF-mallar läser, sparade överst i Markdown-filen.
+	(several values: edit the source)	(flera värden: redigera källan)
+	Remove this field	Ta bort fältet
+	New field	Nytt fält
+	Letters, digits, - and _ only	Endast bokstäver, siffror, - och _
