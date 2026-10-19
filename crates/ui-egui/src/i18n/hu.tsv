@@ -2810,3 +2810,14 @@
 	Gantt	Gantt
 	Class	Osztályok
 	Mind map	Gondolattérkép
+	Markdown Source	Markdown-forrás
+	Apply Markdown Source	Markdown-forrás alkalmazása
+	Heading Anchor	Címsor horgonya
+	Include File	Fájl beillesztése
+	Include	Beillesztés
+	The Markdown file to include, relative to this one (VitePress shows its text here)	A beillesztendő Markdown-fájl ehhez képest (a VitePress itt mutatja a szövegét)
+	Open Included File	Beillesztett fájl megnyitása
+	Anchor	Horgony
+	Discard	Elvetés
+	Save this document first: an included file is found beside it.	Előbb mentse ezt a dokumentumot: a beillesztett fájl mellette van.
+	View › Markdown Source	Nézet › Markdown-forrás

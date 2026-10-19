@@ -2449,3 +2449,14 @@
 	Gantt	Gantt
 	Class	Klassid
 	Mind map	Mõttekaart
+	Markdown Source	Markdowni lähtetekst
+	Apply Markdown Source	Rakenda Markdowni lähtetekst
+	Heading Anchor	Pealkirja ankur
+	Include File	Kaasa fail
+	Include	Kaasa
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Kaasatav Markdowni fail selle suhtes (VitePress näitab siin selle teksti)
+	Open Included File	Ava kaasatud fail
+	Anchor	Ankur
+	Discard	Loobu
+	Save this document first: an included file is found beside it.	Salvestage see dokument esmalt: kaasatud fail asub selle kõrval.
+	View › Markdown Source	Vaade › Markdowni lähtetekst

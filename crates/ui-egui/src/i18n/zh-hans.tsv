@@ -2427,3 +2427,14 @@
 	Gantt	甘特图
 	Class	类图
 	Mind map	思维导图
+	Markdown Source	Markdown 源
+	Apply Markdown Source	应用 Markdown 源
+	Heading Anchor	标题锚点
+	Include File	包含文件
+	Include	包含
+	The Markdown file to include, relative to this one (VitePress shows its text here)	要包含的 Markdown 文件（相对于此文件，VitePress 会在此显示其内容）
+	Open Included File	打开包含的文件
+	Anchor	锚点
+	Discard	放弃
+	Save this document first: an included file is found beside it.	请先保存此文档：包含的文件在它旁边。
+	View › Markdown Source	视图 › Markdown 源

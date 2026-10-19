@@ -2425,3 +2425,14 @@
 	Gantt	Gant
 	Class	Klase
 	Mind map	Mapa uma
+	Markdown Source	Markdown izvor
+	Apply Markdown Source	Primeni Markdown izvor
+	Heading Anchor	Sidro naslova
+	Include File	Uključi datoteku
+	Include	Uključi
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Markdown datoteka za uključivanje, u odnosu na ovu (VitePress ovde prikazuje njen tekst)
+	Open Included File	Otvori uključenu datoteku
+	Anchor	Sidro
+	Discard	Odbaci
+	Save this document first: an included file is found beside it.	Prvo sačuvajte ovaj dokument: uključena datoteka je pored njega.
+	View › Markdown Source	Prikaz › Markdown izvor

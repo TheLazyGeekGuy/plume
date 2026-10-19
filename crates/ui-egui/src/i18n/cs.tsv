@@ -2806,3 +2806,14 @@ preview	Title	Ukázka
 	Gantt	Gantt
 	Class	Třídy
 	Mind map	Myšlenková mapa
+	Markdown Source	Zdroj Markdown
+	Apply Markdown Source	Použít zdroj Markdown
+	Heading Anchor	Kotva nadpisu
+	Include File	Vložit soubor
+	Include	Vložit
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Soubor Markdown k vložení, relativně k tomuto (VitePress zde zobrazí jeho text)
+	Open Included File	Otevřít vložený soubor
+	Anchor	Kotva
+	Discard	Zahodit
+	Save this document first: an included file is found beside it.	Nejprve tento dokument uložte: vložený soubor leží vedle.
+	View › Markdown Source	Zobrazení › Zdroj Markdown

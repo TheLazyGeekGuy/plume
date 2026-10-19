@@ -156,6 +156,12 @@ pub enum Dialog {
         /// Plume's workflow: also request the merge into the locked branch.
         merge: bool,
     },
+    /// Insert › Markdown › Include File (Plume): the path of the Markdown file to include.
+    IncludeFile {
+        path: String,
+        error: String,
+        focus: bool,
+    },
     /// Insert › Markdown › Diagram (Plume): a diagram's Mermaid source, drawn beside it as it is
     /// typed.
     Diagram {
@@ -822,6 +828,7 @@ impl Dialog {
             Dialog::RenameDocument { .. } => "renameDocument",
             Dialog::SaveVersion { .. } => "saveVersion",
             Dialog::Diagram { .. } => "diagram",
+            Dialog::IncludeFile { .. } => "includeFile",
             Dialog::OpenFromForge(fb) if fb.saving => "saveToForge",
             Dialog::OpenFromForge(_) => "openFromForge",
             Dialog::RequestReview { .. } => "requestReview",
@@ -1083,6 +1090,7 @@ impl Dialog {
             "pasteSpecial" => Dialog::paste_special(app, &json!({})),
             "renameDocument" => Dialog::RenameDocument { name: app.title_stem(), message: String::new(), focus: true },
             "saveVersion" => Dialog::SaveVersion { message: String::new(), error: String::new(), focus: true, merge: false },
+            "includeFile" => Dialog::IncludeFile { path: "./".into(), error: String::new(), focus: true },
             "diagram" => {
                 let block = app.session.run("markdown.block", &json!({})).unwrap_or_default();
                 let source = block.get("diagram").and_then(Value::as_str).map_or_else(|| DIAGRAM_TEMPLATES[0].1.to_string(), str::to_string);
@@ -1295,6 +1303,7 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
         Dialog::RenameDocument { .. } => "Rename Document",
         Dialog::SaveVersion { .. } => "Save Version",
         Dialog::Diagram { .. } => "Diagram",
+        Dialog::IncludeFile { .. } => "Include File",
         Dialog::OpenFromForge(fb) if fb.saving => "Save to a Forge",
         Dialog::OpenFromForge(_) => "Open from a Forge",
         Dialog::RequestReview { .. } => "Request Review",
@@ -1709,6 +1718,28 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
             false
         }
         Dialog::OpenFromForge(fb) => forge_browser(app, ui, fb),
+        Dialog::IncludeFile { path, error, focus } => {
+            ui.label(tl!("The Markdown file to include, relative to this one (VitePress shows its text here)"));
+            let r = ui.add(egui::TextEdit::singleline(path).desired_width(360.0).char_limit(300));
+            if *focus {
+                r.request_focus();
+                *focus = false;
+            }
+            if !error.is_empty() {
+                ui.colored_label(ui.visuals().error_fg_color, error.as_str());
+            }
+            let (ok, cancel) = buttons(ui, tl!("Include"));
+            if cancel {
+                return true;
+            }
+            if ok {
+                match app.run("markdown.include", json!({"path": path})) {
+                    Ok(_) => return true,
+                    Err(e) => *error = e,
+                }
+            }
+            false
+        }
         Dialog::Diagram { source, error, focus } => {
             ui.horizontal_top(|ui| {
                 ui.vertical(|ui| {

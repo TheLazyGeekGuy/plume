@@ -2812,3 +2812,14 @@ preview	Title	Пример
 	Gantt	Гант
 	Class	Классы
 	Mind map	Ментальная карта
+	Markdown Source	Исходный текст Markdown
+	Apply Markdown Source	Применить исходный текст Markdown
+	Heading Anchor	Якорь заголовка
+	Include File	Включить файл
+	Include	Включить
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Включаемый файл Markdown относительно этого (VitePress показывает здесь его текст)
+	Open Included File	Открыть включённый файл
+	Anchor	Якорь
+	Discard	Отменить
+	Save this document first: an included file is found beside it.	Сначала сохраните этот документ: включаемый файл лежит рядом с ним.
+	View › Markdown Source	Вид › Исходный текст Markdown

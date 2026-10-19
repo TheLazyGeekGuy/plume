@@ -8275,3 +8275,42 @@ fn diagrams_from_mermaid_source() {
     assert_eq!(std::fs::read_to_string(&md).unwrap(), "Intro.\n\n```mermaid\nflowchart LR\n    A --> C\n```\n\nAfter.\n");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// Plume: heading anchors (`{#anchor}`), include directives and the Markdown source view.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn anchors_includes_and_the_markdown_source() {
+    let dir = scratch_dir("md-lot8");
+    let md = dir.join("guide.md");
+    std::fs::write(&md, "# Install {#setup}\n\nSee [setup](#setup).\n\n<!--@include: ./part.md-->\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    // The anchor isn't part of the heading's text.
+    assert!(!s.doc.plain_text(StoryRef::Body).contains("{#"));
+    assert_eq!(s.run("markdown.block", &json!({})).unwrap()["anchor"], "setup");
+    s.run("caret.set", &json!({"pos": {"block": 2, "off": 0}})).unwrap();
+    assert_eq!(s.run("markdown.block", &json!({})).unwrap()["include"], "./part.md");
+    assert!(s.run("markdown.headingAnchor", &json!({"anchor": "x"})).is_err(), "not a heading");
+    s.run("caret.set", &json!({"pos": {"block": 0, "off": 0}})).unwrap();
+    s.run("markdown.headingAnchor", &json!({"anchor": "#installation"})).unwrap();
+    s.run("caret.set", &json!({"pos": {"block": 1, "off": 0}})).unwrap();
+    s.run("markdown.include", &json!({"path": "./other.md"})).unwrap();
+    assert!(s.run("markdown.include", &json!({"path": "x-->y"})).is_err());
+    let text = s.run("markdown.source", &json!({})).unwrap()["text"].as_str().unwrap().to_string();
+    assert!(
+        text.starts_with("# Install {#installation}\n\nSee [setup](#setup).\n\n<!--@include: ./other.md-->\n\n<!--@include: ./part.md-->\n"),
+        "{text}"
+    );
+    // Edited as Markdown and applied: the document follows; Enter after the heading leaves the
+    // anchor on it.
+    let edited = text.replace("See [setup]", "Read [setup]");
+    s.run("markdown.setSource", &json!({"text": edited})).unwrap();
+    assert!(s.doc.plain_text(StoryRef::Body).contains("Read setup"));
+    s.run("caret.set", &json!({"pos": {"block": 0, "off": 7}})).unwrap();
+    s.run("text.newParagraph", &json!({})).unwrap();
+    s.run("file.save", &json!({})).unwrap();
+    let saved = std::fs::read_to_string(&md).unwrap();
+    assert!(saved.starts_with("# Install {#installation}\n\nRead [setup](#setup)."), "{saved}");
+    let _ = std::fs::remove_dir_all(&dir);
+}

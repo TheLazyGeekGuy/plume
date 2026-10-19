@@ -524,6 +524,23 @@ fn atx_heading(t: &str) -> Option<(u8, &str)> {
     Some((n as u8, body))
 }
 
+/// A heading's text without its explicit anchor (`Title {#anchor}`), and the anchor.
+fn split_anchor(body: &str) -> (&str, Option<String>) {
+    let t = body.trim_end();
+    if let Some(open) = t.strip_suffix('}').and_then(|r| r.rfind("{#"))
+        && let Some(id) = t.get(open + 2..t.len() - 1)
+        && valid_anchor(id)
+    {
+        return (t.get(..open).unwrap_or("").trim_end(), Some(id.to_string()));
+    }
+    (body, None)
+}
+
+/// Whether `id` can be a heading's anchor: 1 to 100 letters, digits, `-`, `_`, `.` or `:`.
+pub fn valid_anchor(id: &str) -> bool {
+    !id.is_empty() && id.chars().count() <= 100 && id.chars().all(|c| c.is_alphanumeric() || matches!(c, '-' | '_' | '.' | ':'))
+}
+
 fn thematic_break(t: &str) -> bool {
     let mut ch = None;
     let mut n = 0;
@@ -941,10 +958,19 @@ fn parse_blocks(lines: &[String], depth: usize, level: u8) -> Vec<FBlock> {
             let own =
                 t.strip_prefix("<!--").and_then(|r| r.find("-->").and_then(|k| r.get(..k))).and_then(|inner| comment_marker(inner.trim())).is_some();
             let id = next_block_id();
+            // VitePress's include directive: the path, for showing and opening the file.
+            let include =
+                t.strip_prefix("<!--@include:").and_then(|r| r.split_once("-->")).map(|(p, _)| p.trim().to_string()).filter(|p| !p.is_empty());
             while let Some(l) = lines.get(i) {
                 i += 1;
                 if !own {
-                    out.push(raw_para(l, id));
+                    let mut p = raw_para(l, id);
+                    if let (Some(path), FBlock::Para(q)) = (&include, &mut p)
+                        && let Some(md) = q.md.as_mut()
+                    {
+                        md.include = Some(path.clone());
+                    }
+                    out.push(p);
                 }
                 if l.contains("-->") {
                     break;
@@ -977,8 +1003,10 @@ fn parse_blocks(lines: &[String], depth: usize, level: u8) -> Vec<FBlock> {
                 let lvl = if u.starts_with('=') { 1 } else { 2 };
                 let text = join_lines(&para);
                 para.clear();
+                let (text, anchor) = split_anchor(&text);
                 let mut p = Para::new(Kind::Heading(lvl));
-                p.inlines = parse_inlines(&text, &Fmt::default(), depth);
+                p.inlines = parse_inlines(text, &Fmt::default(), depth);
+                p.md = anchor.map(|a| Box::new(MdBlock { anchor: Some(a), ..Default::default() }));
                 out.push(FBlock::Para(p));
                 i += 1;
                 continue;
@@ -986,8 +1014,10 @@ fn parse_blocks(lines: &[String], depth: usize, level: u8) -> Vec<FBlock> {
         }
         if let Some((n, body)) = atx_heading(t) {
             flush_para(&mut para, &mut out, depth);
+            let (body, anchor) = split_anchor(body);
             let mut p = Para::new(Kind::Heading(n));
             p.inlines = parse_inlines(body, &Fmt::default(), depth);
+            p.md = anchor.map(|a| Box::new(MdBlock { anchor: Some(a), ..Default::default() }));
             out.push(FBlock::Para(p));
             i += 1;
             continue;
@@ -2170,10 +2200,17 @@ fn headings_and_slugs(blocks: &[FBlock]) -> (BTreeMap<String, String>, Vec<(u8, 
         if text.is_empty() {
             continue;
         }
-        let base = heading_slug(&text);
-        let n = seen.entry(base.clone()).or_insert(0);
-        let slug = if *n == 0 { base.clone() } else { format!("{base}-{n}") };
-        *n += 1;
+        // An explicit anchor (`{#anchor}`) is the heading's id as written.
+        let slug = match p.md.as_ref().and_then(|m| m.anchor.clone()) {
+            Some(a) => a,
+            None => {
+                let base = heading_slug(&text);
+                let n = seen.entry(base.clone()).or_insert(0);
+                let slug = if *n == 0 { base.clone() } else { format!("{base}-{n}") };
+                *n += 1;
+                slug
+            }
+        };
         for i in &p.inlines {
             if let Inline::Anchor(a) = i {
                 out.insert(a.clone(), slug.clone());
@@ -3401,7 +3438,15 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
                     None => {
                         prev_list = false;
                         let line = match p.kind {
-                            Kind::Heading(n) => format!("{} {}", "#".repeat(n.clamp(1, 6) as usize), body.replace("\\\n", " ")),
+                            Kind::Heading(n) => {
+                                let anchor =
+                                    p.md.as_ref()
+                                        .and_then(|m| m.anchor.as_ref())
+                                        .filter(|a| valid_anchor(a))
+                                        .map(|a| format!(" {{#{a}}}"))
+                                        .unwrap_or_default();
+                                format!("{} {}{anchor}", "#".repeat(n.clamp(1, 6) as usize), body.replace("\\\n", " "))
+                            }
                             Kind::Title => format!("# {}", body.replace("\\\n", " ")),
                             Kind::Rule => "---".to_string(),
                             Kind::Quote => {

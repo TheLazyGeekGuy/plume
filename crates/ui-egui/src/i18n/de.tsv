@@ -2414,3 +2414,14 @@
 	Gantt	Gantt
 	Class	Klassen
 	Mind map	Mindmap
+	Markdown Source	Markdown-Quelltext
+	Apply Markdown Source	Markdown-Quelltext übernehmen
+	Heading Anchor	Überschriftenanker
+	Include File	Datei einbinden
+	Include	Einbinden
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Die einzubindende Markdown-Datei, relativ zu dieser (VitePress zeigt ihren Text hier)
+	Open Included File	Eingebundene Datei öffnen
+	Anchor	Anker
+	Discard	Verwerfen
+	Save this document first: an included file is found beside it.	Speichern Sie dieses Dokument zuerst: die eingebundene Datei liegt daneben.
+	View › Markdown Source	Ansicht › Markdown-Quelltext

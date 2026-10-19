@@ -2427,3 +2427,14 @@
 	Gantt	Гант
 	Class	Класи
 	Mind map	Ментальна карта
+	Markdown Source	Джерело Markdown
+	Apply Markdown Source	Застосувати джерело Markdown
+	Heading Anchor	Якір заголовка
+	Include File	Включити файл
+	Include	Включити
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Файл Markdown для включення відносно цього (VitePress показує тут його текст)
+	Open Included File	Відкрити включений файл
+	Anchor	Якір
+	Discard	Скасувати
+	Save this document first: an included file is found beside it.	Спершу збережіть цей документ: включений файл лежить поруч.
+	View › Markdown Source	Вигляд › Джерело Markdown

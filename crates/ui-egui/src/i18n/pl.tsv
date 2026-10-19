@@ -2804,3 +2804,14 @@ preview	Title	Tytuł
 	Gantt	Gantt
 	Class	Klasy
 	Mind map	Mapa myśli
+	Markdown Source	Źródło Markdown
+	Apply Markdown Source	Zastosuj źródło Markdown
+	Heading Anchor	Kotwica nagłówka
+	Include File	Dołącz plik
+	Include	Dołącz
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Plik Markdown do dołączenia, względem tego (VitePress pokazuje tu jego tekst)
+	Open Included File	Otwórz dołączony plik
+	Anchor	Kotwica
+	Discard	Odrzuć
+	Save this document first: an included file is found beside it.	Najpierw zapisz ten dokument: dołączony plik leży obok.
+	View › Markdown Source	Widok › Źródło Markdown

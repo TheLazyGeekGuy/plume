@@ -2811,3 +2811,14 @@ preview	Title	Örnek
 	Gantt	Gantt
 	Class	Sınıflar
 	Mind map	Zihin haritası
+	Markdown Source	Markdown kaynağı
+	Apply Markdown Source	Markdown kaynağını uygula
+	Heading Anchor	Başlık bağlantı noktası
+	Include File	Dosya ekle
+	Include	Ekle
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Eklenecek Markdown dosyası, bu dosyaya göre (VitePress metnini burada gösterir)
+	Open Included File	Eklenen dosyayı aç
+	Anchor	Bağlantı noktası
+	Discard	Vazgeç
+	Save this document first: an included file is found beside it.	Önce bu belgeyi kaydedin: eklenen dosya onun yanındadır.
+	View › Markdown Source	Görünüm › Markdown kaynağı

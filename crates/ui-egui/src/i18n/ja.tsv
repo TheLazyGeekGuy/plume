@@ -2415,3 +2415,14 @@
 	Gantt	ガント
 	Class	クラス
 	Mind map	マインドマップ
+	Markdown Source	Markdown ソース
+	Apply Markdown Source	Markdown ソースを適用
+	Heading Anchor	見出しのアンカー
+	Include File	ファイルを含める
+	Include	含める
+	The Markdown file to include, relative to this one (VitePress shows its text here)	含める Markdown ファイル (このファイルからの相対パス。VitePress はここにその本文を表示します)
+	Open Included File	含めたファイルを開く
+	Anchor	アンカー
+	Discard	破棄
+	Save this document first: an included file is found beside it.	先にこの文書を保存してください: 含めるファイルはその隣にあります。
+	View › Markdown Source	表示 › Markdown ソース

@@ -671,3 +671,8 @@ markdown markdown.codeLanguage
 markdown markdown.leaveBlock
 markdown markdown.block
 markdown markdown.diagram
+markdown markdown.headingAnchor
+markdown markdown.include
+markdown markdown.source
+markdown markdown.setSource
+markdown view.markdownSource

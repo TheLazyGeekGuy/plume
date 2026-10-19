@@ -87,6 +87,13 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
                 crate::dialogs_review::restrict_pane(app, ui);
             });
     }
+    if app.session.view.markdown_source && app.session.is_markdown() {
+        egui::Panel::right("markdown_source")
+            .default_size(420.0)
+            .resizable(true)
+            .frame(egui::Frame::NONE.fill(t.panel).inner_margin(10).stroke(Stroke::new(1.0, t.border)))
+            .show(ui, |ui| markdown_source(app, ui));
+    }
     if app.session.view.comments_pane {
         egui::Panel::right("comments_pane")
             .default_size(290.0)
@@ -94,6 +101,48 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
             .frame(egui::Frame::NONE.fill(t.panel).inner_margin(10).stroke(Stroke::new(1.0, t.border)))
             .show(ui, |ui| comments(app, ui));
     }
+}
+
+/// Plume: the document as its Markdown file is written. Edited here, Apply makes the document
+/// what the text says (undoable); untouched, it follows the document as it changes.
+fn markdown_source(app: &mut WordApp, ui: &mut Ui) {
+    if header(ui, "Markdown Source") {
+        let _ = app.run("view.markdownSource", json!({"value": false}));
+        return;
+    }
+    let rev = app.session.rev();
+    let stale = app.md_source.as_ref().is_none_or(|(r, _, edited)| *r != rev && !edited);
+    if stale {
+        let text = app
+            .session
+            .run("markdown.source", &json!({}))
+            .ok()
+            .and_then(|v| v.get("text").and_then(|t| t.as_str()).map(str::to_string))
+            .unwrap_or_default();
+        app.md_source = Some((rev, text, false));
+    }
+    let edited_now = app.md_source.as_ref().is_some_and(|(_, _, e)| *e);
+    ui.horizontal(|ui| {
+        ui.add_enabled_ui(edited_now, |ui| {
+            if ui.button(tl!("Apply")).clicked() {
+                let t = app.md_source.as_ref().map(|(_, t, _)| t.clone()).unwrap_or_default();
+                match app.run("markdown.setSource", json!({"text": t})) {
+                    Ok(_) => app.md_source = None,
+                    Err(e) => app.status(e),
+                }
+            }
+            if ui.button(tl!("Discard")).clicked() {
+                app.md_source = None;
+            }
+        });
+    });
+    let Some((_, text, edited)) = app.md_source.as_mut() else { return };
+    egui::ScrollArea::vertical().auto_shrink(false).show(ui, |ui| {
+        let r = ui.add(egui::TextEdit::multiline(text).code_editor().desired_width(f32::INFINITY).desired_rows(40));
+        if r.changed() {
+            *edited = true;
+        }
+    });
 }
 
 pub(crate) fn header(ui: &mut Ui, title: &str) -> bool {

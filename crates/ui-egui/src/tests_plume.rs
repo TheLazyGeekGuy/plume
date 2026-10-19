@@ -147,3 +147,19 @@ fn the_diagram_editor_previews_the_source() {
     h.run_steps(4);
     assert!(h.query_by_label("Mermaid source").is_some() && h.query_by_label("Preview").is_some());
 }
+
+/// View › Markdown Source shows the document as its file is written; edited and applied, the
+/// document follows.
+#[test]
+fn the_markdown_source_pane_edits_the_document() {
+    let mut h = harness(true);
+    let _ = h.state_mut().run("view.markdownSource", serde_json::json!({"value": true}));
+    h.run_steps(4);
+    assert!(h.query_by_label("Markdown Source").is_some() && h.query_by_label("Apply").is_some());
+    let text = h.state().md_source.as_ref().map(|(_, t, _)| t.clone()).unwrap();
+    assert!(text.contains("# The Open Studio Handbook"), "{text}");
+    h.state_mut().md_source = Some((0, text.replace("The Open Studio Handbook", "Le manuel"), true));
+    let t = h.state().md_source.as_ref().unwrap().1.clone();
+    h.state_mut().run("markdown.setSource", serde_json::json!({"text": t})).unwrap();
+    assert!(h.state().session.doc.plain_text(wordcraft_doc::StoryRef::Body).contains("Le manuel"));
+}

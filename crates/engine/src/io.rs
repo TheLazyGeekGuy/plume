@@ -661,6 +661,17 @@ pub fn markdown_download(name: &str, doc: &Document) -> Result<(String, Vec<u8>)
 
 /// `doc` with its metafile pictures (WMF, EMF) drawn as PNG, for copies read on the web
 /// (Markdown): browsers and Markdown renderers can't show metafiles. Borrowed when there are none.
+/// Plume: the Markdown `doc` is saved as (pictures as the web shows them, Word properties in
+/// the front matter, charts and SmartArt as diagrams).
+pub fn markdown_text(doc: &Document) -> String {
+    markdown_bundle(doc).text
+}
+
+/// [`markdown_text`] with the pictures it names (`assets/…`), not yet on disk perhaps.
+pub fn markdown_bundle(doc: &Document) -> wordcraft_formats::markdown::Bundle {
+    wordcraft_formats::markdown::export_native(&markdown_ready(doc), &wordcraft_formats::markdown::NativeOptions::default())
+}
+
 /// `doc` as its Markdown copy is written: pictures the web shows ([`web_pictures`]), and a
 /// document converted from Word with its Word properties in the front matter
 /// ([`wordcraft_formats::front_matter::adopt_office`]).

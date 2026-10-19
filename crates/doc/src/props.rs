@@ -856,6 +856,14 @@ pub struct MdBlock {
     /// (a picture); Markdown gets the source back, with `code`'s info string.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub diagram: Option<String>,
+    /// A heading's explicit anchor (`## Title {#anchor}`): links and the contents use it rather
+    /// than the slug of its text.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub anchor: Option<String>,
+    /// Source kept as written that includes another file (VitePress `<!--@include: path-->`):
+    /// the path.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub include: Option<String>,
 }
 
 impl MdBlock {
@@ -889,6 +897,10 @@ impl MdBlock {
         if (self.code.is_some() && self.diagram.is_none()) || self.raw.is_some() {
             shading = Some(Rgb(0xF3, 0xF4, 0xF6));
             indent += 6.0;
+        }
+        if self.include.is_some() {
+            shading = Some(Rgb(0xEE, 0xF4, 0xFD));
+            rule = Some(Border { style: BorderStyle::Dotted, width: 2.0, color: Some(Rgb(0x2F, 0x6F, 0xDB)), space: 4.0 });
         }
         if self.raw.is_some() && rule.is_none() {
             rule = Some(Border { style: BorderStyle::Dotted, width: 1.5, color: Some(Rgb(0x9A, 0xA0, 0xA6)), space: 4.0 });

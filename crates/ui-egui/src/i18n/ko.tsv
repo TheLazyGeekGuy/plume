@@ -2673,3 +2673,14 @@ preview	Title	제목
 	Gantt	간트
 	Class	클래스
 	Mind map	마인드맵
+	Markdown Source	Markdown 원본
+	Apply Markdown Source	Markdown 원본 적용
+	Heading Anchor	제목 앵커
+	Include File	파일 포함
+	Include	포함
+	The Markdown file to include, relative to this one (VitePress shows its text here)	포함할 Markdown 파일(이 파일 기준 상대 경로, VitePress가 여기에 내용을 표시)
+	Open Included File	포함된 파일 열기
+	Anchor	앵커
+	Discard	취소
+	Save this document first: an included file is found beside it.	먼저 이 문서를 저장하세요. 포함된 파일은 옆에 있습니다.
+	View › Markdown Source	보기 › Markdown 원본

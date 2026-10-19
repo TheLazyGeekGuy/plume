@@ -38,6 +38,15 @@ pub fn specs() -> Vec<CommandSpec> {
             .params(r#"{"language": string} — the code block at the caret"#),
         CommandSpec::new("markdown.leaveBlock", "Leave Block", "Insert › Markdown", leave_block),
         CommandSpec::new("markdown.block", "Markdown Block", "Insert › Markdown", |s, _| Ok(block_at_caret(s))).pure(),
+        CommandSpec::new("markdown.headingAnchor", "Heading Anchor", "Insert › Markdown", heading_anchor)
+            .params(r#"{"anchor": string (letters, digits, - _ . :) | null (removes)} — the heading at the caret's explicit anchor, written `{#anchor}`"#),
+        CommandSpec::new("markdown.include", "Include File", "Insert › Markdown", include)
+            .params(r#"{"path": string (relative, like ./part.md)} — a VitePress include directive after the caret's paragraph"#),
+        CommandSpec::new("markdown.source", "Markdown Source", "View › Markdown Source", |s, _| Ok(json!({"text": crate::io::markdown_text(&s.doc)})))
+            .params(r#"{} → {"text"}: the document as its Markdown file is written"#)
+            .pure(),
+        CommandSpec::new("markdown.setSource", "Apply Markdown Source", "View › Markdown Source", set_source)
+            .params(r#"{"text": string} — the document becomes what this Markdown says (undoable)"#),
         CommandSpec::new("markdown.diagram", "Diagram", "Insert › Markdown", diagram)
             .params(r#"{"source": string (Mermaid)} — the diagram at the caret takes this source, or a new one goes after the caret's paragraph; refused when the source can't be drawn"#),
     ]
@@ -61,7 +70,85 @@ fn block_at_caret(s: &Session) -> Value {
     if let Some(src) = &md.diagram {
         out["diagram"] = json!(src);
     }
+    if let Some(a) = &md.anchor {
+        out["anchor"] = json!(a);
+    }
+    if let Some(p) = &md.include {
+        out["include"] = json!(p);
+    }
     out
+}
+
+/// Whether the caret's paragraph is a heading.
+fn at_heading(s: &Session) -> bool {
+    s.doc
+        .para(s.sel.focus.story, &s.sel.focus.path)
+        .is_some_and(|p| matches!(wordcraft_formats::model::para_kind(&s.doc, p).0, wordcraft_formats::model::Kind::Heading(_)))
+}
+
+fn heading_anchor(s: &mut Session, v: &Value) -> CmdResult {
+    if !at_heading(s) {
+        return Err(CmdError::Disabled("markdown.headingAnchor: the caret is not in a heading".into()));
+    }
+    let anchor = match v.get("anchor") {
+        Some(Value::Null) => None,
+        Some(Value::String(a)) if a.trim().is_empty() => None,
+        Some(Value::String(a)) if wordcraft_formats::markdown::valid_anchor(a.trim().trim_start_matches('#')) => {
+            Some(a.trim().trim_start_matches('#').to_string())
+        }
+        _ => return Err(CmdError::Params("`anchor`: 1–100 letters, digits, -, _, . or :, or null".into())),
+    };
+    let para = s.doc.para_mut(s.sel.focus.story, &s.sel.focus.path.clone())?;
+    let md = para.props.md.get_or_insert_with(Default::default);
+    md.anchor.clone_from(&anchor);
+    if **md == MdBlock::default() {
+        para.props.md = None;
+    }
+    para.touch();
+    Ok(json!({"anchor": anchor}))
+}
+
+fn include(s: &mut Session, v: &Value) -> CmdResult {
+    let path = p::req_str(v, "path")?.trim().to_string();
+    if path.is_empty() || path.chars().count() > 300 || path.contains("-->") || path.chars().any(char::is_control) {
+        return Err(CmdError::Params("`path`: the file to include, like ./part.md".into()));
+    }
+    let story = s.sel.focus.story;
+    let at = s.sel.focus.path.clone();
+    ensure_code_style(s);
+    let mut p = wordcraft_doc::Paragraph::new();
+    let _ = p.insert_text(0, &format!("<!--@include: {path}-->"), &wordcraft_doc::CharProps::default());
+    p.props.style = Some(wordcraft_formats::model::CODE_STYLE.into());
+    p.props.md = Some(Box::new(MdBlock { raw: Some(new_id(s)), include: Some(path.clone()), ..Default::default() }));
+    let next = at.with_last(at.last() + 1);
+    s.doc.insert_block(story, &next, Block::Para(p))?;
+    s.sel = crate::Selection::caret(wordcraft_doc::Pos { story, path: next, off: 0 });
+    Ok(json!({"include": path}))
+}
+
+/// The document becomes what `text` (its Markdown) says; pictures load from beside its file.
+fn set_source(s: &mut Session, v: &Value) -> CmdResult {
+    let text = match v.get("text") {
+        Some(Value::String(t)) if t.len() <= 64 << 20 => t.clone(),
+        _ => return Err(CmdError::Params("`text`: the document's Markdown".into())),
+    };
+    let page = s.doc.last_section.clone();
+    // The document's own pictures first (it may not be saved yet), then the files beside it.
+    let own = crate::io::markdown_bundle(&s.doc).assets;
+    let mine = |src: &str| own.iter().find(|(p, _)| p == src).map(|(_, b)| b.clone());
+    #[cfg(not(target_arch = "wasm32"))]
+    let mut doc = {
+        let images = crate::io::LocalImages::new(s.path.as_deref().and_then(std::path::Path::parent).unwrap_or(std::path::Path::new("")));
+        wordcraft_formats::markdown::import_with(&text, &page, &|src| mine(src).or_else(|| images.load(src)))
+    };
+    #[cfg(target_arch = "wasm32")]
+    let mut doc = wordcraft_formats::markdown::import_with(&text, &page, &mine);
+    wordcraft_formats::markdown::apply_theme(&mut doc, Default::default());
+    doc.ensure_nonempty();
+    s.doc = doc;
+    s.touch();
+    s.clamp_selection();
+    Ok(json!({"applied": true}))
 }
 
 /// A diagram from its Mermaid source: drawn into the diagram at the caret, into an empty

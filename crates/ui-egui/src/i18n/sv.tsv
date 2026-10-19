@@ -2830,3 +2830,14 @@ preview	Title	Titel
 	Gantt	Gantt
 	Class	Klasser
 	Mind map	Tankekarta
+	Markdown Source	Markdown-källa
+	Apply Markdown Source	Verkställ Markdown-källan
+	Heading Anchor	Rubrikankare
+	Include File	Inkludera fil
+	Include	Inkludera
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Markdown-filen som ska inkluderas, relativt den här (VitePress visar dess text här)
+	Open Included File	Öppna inkluderad fil
+	Anchor	Ankare
+	Discard	Ignorera
+	Save this document first: an included file is found beside it.	Spara dokumentet först: den inkluderade filen ligger bredvid.
+	View › Markdown Source	Visa › Markdown-källa

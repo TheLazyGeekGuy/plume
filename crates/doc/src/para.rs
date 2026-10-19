@@ -1211,6 +1211,18 @@ impl Paragraph {
             md.title = false;
             tail.mark.bold = None;
         }
+        // A heading's anchor names that heading only; a diagram is its own paragraph: what
+        // follows either is plain text.
+        if let Some(md) = tail.props.md.as_mut() {
+            md.anchor = None;
+            if md.diagram.take().is_some() {
+                md.code = None;
+                tail.props.align = None;
+            }
+        }
+        if tail.props.md.as_deref().is_some_and(|m| *m == crate::props::MdBlock::default()) {
+            tail.props.md = None;
+        }
         self.normalize();
         tail.normalize();
         self.touch();

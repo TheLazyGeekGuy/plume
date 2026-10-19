@@ -563,6 +563,9 @@ pub struct WordApp {
     pub(crate) info_editing: Option<(&'static str, u64)>,
     /// Plume: recent Markdown documents' titles (from their front matter), read once per path.
     pub(crate) recent_titles: std::collections::HashMap<String, Option<String>>,
+    /// Plume: the Markdown source pane's text: the document's revision it was read at, the text,
+    /// and whether it was edited since.
+    pub(crate) md_source: Option<(u64, String, bool)>,
     recovery_seen: bool,
     /// Started on the Start screen with nothing to open (#1129): the id of the placeholder
     /// blank document the session holds until the user creates or opens one. While it is still
@@ -666,6 +669,7 @@ impl WordApp {
             file_browser: file_browser::State::default(),
             info_editing: None,
             recent_titles: Default::default(),
+            md_source: None,
             recovery_seen: false,
             no_document: None,
         }

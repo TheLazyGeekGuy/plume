@@ -128,6 +128,10 @@ pub struct ViewState {
     /// Plume: the Documents pane, the Markdown documents beside this one (`view.documentsPane`).
     #[serde(default)]
     pub documents_pane: bool,
+    /// Plume: the Markdown source pane, the document as its file is written, editable
+    /// (`view.markdownSource`).
+    #[serde(default)]
+    pub markdown_source: bool,
     /// The Clipboard pane (Home › Clipboard): items collected by Copy and Cut.
     #[serde(default)]
     pub clipboard_pane: bool,
@@ -226,6 +230,7 @@ impl Default for ViewState {
             style_inspector: false,
             comments_pane: false,
             documents_pane: false,
+            markdown_source: false,
             clipboard_pane: false,
             smart_art_pane: false,
             accessibility_pane: false,

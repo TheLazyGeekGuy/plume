@@ -490,6 +490,26 @@ pub(crate) fn size_menu(ui: &mut Ui, app: &mut WordApp) {
     mi(ui, app, crate::dialogs::PAPER_LABELS.more, "ui.dialog", json!({"name": "pageSetup"}));
 }
 
+/// Plume: whether the caret is in a heading (the Anchor field shows).
+fn heading_at_caret(app: &WordApp) -> bool {
+    let s = &app.session;
+    s.doc.para(s.sel.focus.story, &s.sel.focus.path).is_some_and(|p| s.doc.styles.resolve_para(&p.props).outline_level.is_some())
+}
+
+/// Plume: open the file an include directive names (`./part.md`, line ranges and regions left
+/// out), from the folder of this document.
+fn open_included(app: &mut WordApp, include: &str) {
+    let rel = include.split(['{', '#']).next().unwrap_or(include).trim();
+    let Some(dir) = app.session.path.as_deref().and_then(std::path::Path::parent).map(std::path::Path::to_path_buf) else {
+        app.status(tl!("Save this document first: an included file is found beside it."));
+        return;
+    };
+    let path = dir.join(rel.trim_start_matches("./"));
+    if let Err(e) = app.run("file.open", json!({"path": path.to_string_lossy()})) {
+        app.status(e);
+    }
+}
+
 /// Plume: the languages a code block offers first (its info string; any other can be typed).
 const CODE_LANGUAGES: [(&str, &str); 13] = [
     ("Plain text", ""),
@@ -1086,6 +1106,33 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
         if block.get("diagram").is_some() {
             big(ui, app, "diagram", "Edit\nDiagram", "ui.dialog", json!({"name": "diagram"}), false);
         }
+        stack(ui, |ui| {
+            small(ui, app, "file", Some("Include File"), "Include File", "ui.dialog", json!({"name": "includeFile"}), false);
+            // On an include: open the file it names, beside this one.
+            if let Some(inc) = block.get("include").and_then(Value::as_str).map(str::to_string)
+                && ui.button(tl!("Open Included File")).clicked()
+            {
+                open_included(app, &inc);
+            }
+            // In a heading: its anchor (`{#anchor}`), which links and the contents use.
+            if heading_at_caret(app) {
+                let id = egui::Id::new("heading-anchor");
+                let current = block.get("anchor").and_then(Value::as_str).unwrap_or("").to_string();
+                let mut text =
+                    ui.ctx().data(|d| d.get_temp::<(String, String)>(id)).filter(|(base, _)| *base == current).map_or(current.clone(), |(_, t)| t);
+                ui.horizontal(|ui| {
+                    ui.label(tl!("Anchor"));
+                    let r = ui.add(egui::TextEdit::singleline(&mut text).hint_text("#anchor").desired_width(110.0));
+                    if r.lost_focus() && text.trim() != current {
+                        let v = if text.trim().is_empty() { Value::Null } else { json!(text.trim()) };
+                        if let Err(e) = app.run("markdown.headingAnchor", json!({"anchor": v})) {
+                            app.status(e);
+                        }
+                    }
+                });
+                ui.ctx().data_mut(|d| d.insert_temp(id, (current, text)));
+            }
+        });
         if let Some(lang) = block.get("code").and_then(|c| c.get("language")).and_then(Value::as_str).map(str::to_string) {
             stack(ui, |ui| {
                 let shown = if lang.is_empty() { tl!("Plain text").to_string() } else { lang.clone() };
@@ -1998,6 +2045,11 @@ fn view(app: &mut WordApp, ui: &mut Ui) {
             let mut d = v.documents_pane;
             if ui.checkbox(&mut d, tl!("Documents Pane")).changed() {
                 let _ = app.run("view.documentsPane", json!({"value": d}));
+            }
+            // Plume: the document as its Markdown file is written, editable.
+            let mut m = v.markdown_source;
+            if ui.checkbox(&mut m, tl!("Markdown Source")).changed() {
+                let _ = app.run("view.markdownSource", json!({"value": m}));
             }
         });
     });

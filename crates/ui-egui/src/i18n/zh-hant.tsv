@@ -2416,3 +2416,14 @@
 	Gantt	甘特圖
 	Class	類別圖
 	Mind map	心智圖
+	Markdown Source	Markdown 原始碼
+	Apply Markdown Source	套用 Markdown 原始碼
+	Heading Anchor	標題錨點
+	Include File	包含檔案
+	Include	包含
+	The Markdown file to include, relative to this one (VitePress shows its text here)	要包含的 Markdown 檔案（相對於此檔案，VitePress 會在此顯示其內容）
+	Open Included File	開啟包含的檔案
+	Anchor	錨點
+	Discard	捨棄
+	Save this document first: an included file is found beside it.	請先儲存此文件：包含的檔案在它旁邊。
+	View › Markdown Source	檢視 › Markdown 原始碼

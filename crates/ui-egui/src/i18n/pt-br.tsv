@@ -2427,3 +2427,14 @@
 	Gantt	Gantt
 	Class	Classes
 	Mind map	Mapa mental
+	Markdown Source	Código Markdown
+	Apply Markdown Source	Aplicar o código Markdown
+	Heading Anchor	Âncora do título
+	Include File	Incluir arquivo
+	Include	Incluir
+	The Markdown file to include, relative to this one (VitePress shows its text here)	O arquivo Markdown a incluir, relativo a este (o VitePress mostra o texto aqui)
+	Open Included File	Abrir arquivo incluído
+	Anchor	Âncora
+	Discard	Descartar
+	Save this document first: an included file is found beside it.	Salve este documento primeiro: o arquivo incluído fica ao lado.
+	View › Markdown Source	Exibir › Código Markdown

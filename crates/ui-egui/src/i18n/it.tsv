@@ -2823,3 +2823,14 @@ preview	Title	Esempio
 	Gantt	Gantt
 	Class	Classi
 	Mind map	Mappa mentale
+	Markdown Source	Sorgente Markdown
+	Apply Markdown Source	Applica il sorgente Markdown
+	Heading Anchor	Ancora del titolo
+	Include File	Includi file
+	Include	Includi
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Il file Markdown da includere, relativo a questo (VitePress ne mostra qui il testo)
+	Open Included File	Apri il file incluso
+	Anchor	Ancora
+	Discard	Scarta
+	Save this document first: an included file is found beside it.	Salva prima questo documento: il file incluso si trova accanto.
+	View › Markdown Source	Visualizza › Sorgente Markdown

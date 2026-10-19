@@ -2854,3 +2854,14 @@ template	Letter	Thư
 	Gantt	Gantt
 	Class	Lớp
 	Mind map	Sơ đồ tư duy
+	Markdown Source	Mã nguồn Markdown
+	Apply Markdown Source	Áp dụng mã nguồn Markdown
+	Heading Anchor	Neo của tiêu đề
+	Include File	Bao gồm tệp
+	Include	Bao gồm
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Tệp Markdown cần bao gồm, tương đối với tệp này (VitePress hiển thị nội dung tại đây)
+	Open Included File	Mở tệp được bao gồm
+	Anchor	Neo
+	Discard	Bỏ
+	Save this document first: an included file is found beside it.	Hãy lưu tài liệu này trước: tệp được bao gồm nằm cạnh nó.
+	View › Markdown Source	Xem › Mã nguồn Markdown
