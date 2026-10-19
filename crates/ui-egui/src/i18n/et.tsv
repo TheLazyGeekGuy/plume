@@ -2435,3 +2435,7 @@
 	TypeScript	TypeScript
 	YAML	YAML
 	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Salvestatud teie harusse {branch}; {target} on lukus.
+	Merge request {n} into {target} is open: this version goes in it.	Ühendamistaotlus {n} harusse {target} on avatud: see versioon läheb sinna.
+	Request the merge into {target}	Taotle ühendamist harusse {target}
+	Version {id} saved; merge request {n} opened	Versioon {id} salvestatud; ühendamistaotlus {n} avatud

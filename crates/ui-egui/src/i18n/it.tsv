@@ -2809,3 +2809,7 @@ preview	Title	Esempio
 	TypeScript	TypeScript
 	YAML	YAML
 	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Salvato sul tuo ramo {branch}; {target} è bloccato.
+	Merge request {n} into {target} is open: this version goes in it.	La richiesta di merge {n} in {target} è aperta: questa versione vi entra.
+	Request the merge into {target}	Richiedi il merge in {target}
+	Version {id} saved; merge request {n} opened	Versione {id} salvata; richiesta di merge {n} aperta

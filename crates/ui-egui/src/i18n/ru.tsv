@@ -2798,3 +2798,7 @@ preview	Title	Пример
 	TypeScript	TypeScript
 	YAML	YAML
 	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Сохранено в вашей ветке {branch}; ветка {target} заблокирована.
+	Merge request {n} into {target} is open: this version goes in it.	Запрос на слияние {n} в {target} открыт: эта версия войдёт в него.
+	Request the merge into {target}	Запросить слияние в {target}
+	Version {id} saved; merge request {n} opened	Версия {id} сохранена; открыт запрос на слияние {n}

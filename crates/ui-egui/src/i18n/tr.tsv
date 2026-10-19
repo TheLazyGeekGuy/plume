@@ -2797,3 +2797,7 @@ preview	Title	Örnek
 	TypeScript	TypeScript
 	YAML	YAML
 	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Kendi dalınıza ({branch}) kaydedildi; {target} kilitli.
+	Merge request {n} into {target} is open: this version goes in it.	{target} dalına {n} numaralı birleştirme isteği açık: bu sürüm de ona girer.
+	Request the merge into {target}	{target} dalına birleştirme iste
+	Version {id} saved; merge request {n} opened	{id} sürümü kaydedildi; {n} numaralı birleştirme isteği açıldı

@@ -153,6 +153,8 @@ pub enum Dialog {
         message: String,
         error: String,
         focus: bool,
+        /// Plume's workflow: also request the merge into the locked branch.
+        merge: bool,
     },
     /// Review › Versions › Request Review (Plume): a pull or merge request for colleagues.
     RequestReview {
@@ -1072,7 +1074,7 @@ impl Dialog {
             }
             "pasteSpecial" => Dialog::paste_special(app, &json!({})),
             "renameDocument" => Dialog::RenameDocument { name: app.title_stem(), message: String::new(), focus: true },
-            "saveVersion" => Dialog::SaveVersion { message: String::new(), error: String::new(), focus: true },
+            "saveVersion" => Dialog::SaveVersion { message: String::new(), error: String::new(), focus: true, merge: false },
             "requestReview" => Dialog::RequestReview { title: String::new(), message: String::new(), error: String::new(), focus: true },
             "openFromForge" => Dialog::OpenFromForge(Box::new(ForgeBrowser { remember: true, ..Default::default() })),
             "saveToForge" => Dialog::OpenFromForge(Box::new(ForgeBrowser {
@@ -1582,12 +1584,38 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
             false
         }
 
-        Dialog::SaveVersion { message, error, focus } => {
+        Dialog::SaveVersion { message, error, focus, merge } => {
             ui.label(tl!("Describe your changes"));
             let r = ui.add(egui::TextEdit::multiline(message).desired_width(360.0).desired_rows(3).char_limit(2000));
             if *focus {
                 r.request_focus();
                 *focus = false;
+            }
+            // Plume: a locked main branch. The version goes on this person's work branch, and
+            // can go on for review into main.
+            let flow = app.session.forge.as_ref().and_then(|f| f.workflow.clone().map(|w| (w, f.review.clone())));
+            if let Some((w, review)) = &flow {
+                ui.label(
+                    egui::RichText::new(crate::i18n::fmt(
+                        tl!("Saved on your branch {branch}; {target} is locked."),
+                        &[("branch", &w.branch), ("target", &w.target)],
+                    ))
+                    .small(),
+                );
+                match review {
+                    Some(rv) => {
+                        ui.label(
+                            egui::RichText::new(crate::i18n::fmt(
+                                tl!("Merge request {n} into {target} is open: this version goes in it."),
+                                &[("n", &rv.number.to_string()), ("target", &w.target)],
+                            ))
+                            .small(),
+                        );
+                    }
+                    None => {
+                        ui.checkbox(merge, crate::i18n::fmt(tl!("Request the merge into {target}"), &[("target", &w.target)]));
+                    }
+                }
             }
             if !error.is_empty() {
                 ui.colored_label(ui.visuals().error_fg_color, error.as_str());
@@ -1616,6 +1644,20 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
                     Ok(v) => {
                         let short = v.pointer("/version/short").and_then(Value::as_str).unwrap_or("").to_string();
                         app.status(crate::i18n::fmt(tl!("Version {id} saved"), &[("id", &short)]));
+                        if *merge && flow.as_ref().is_some_and(|(_, r)| r.is_none()) {
+                            let title = message.lines().next().unwrap_or("").trim().to_string();
+                            match app.run("vcs.requestReview", json!({"title": title})) {
+                                Ok(r) => {
+                                    let n = r.pointer("/review/number").and_then(Value::as_u64).unwrap_or(0).to_string();
+                                    app.status(crate::i18n::fmt(tl!("Version {id} saved; merge request {n} opened"), &[("id", &short), ("n", &n)]));
+                                }
+                                Err(e) => {
+                                    *error = e;
+                                    *merge = false;
+                                    return false;
+                                }
+                            }
+                        }
                         return true;
                     }
                     Err(e) => *error = e,
@@ -4408,6 +4450,7 @@ mod tests {
             imported: Default::default(),
             threads: Default::default(),
             sent: Default::default(),
+            workflow: None,
         });
         assert!(!super::needs_markdown_file(&app));
         assert_ne!(super::version_list(&mut app).1, markdown_first, "the forge's history is asked for instead");

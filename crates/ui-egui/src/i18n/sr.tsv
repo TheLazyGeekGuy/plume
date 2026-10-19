@@ -2415,3 +2415,7 @@
 	TypeScript	TypeScript
 	YAML	YAML
 	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Сачувано на вашој грани {branch}; {target} је закључана.
+	Merge request {n} into {target} is open: this version goes in it.	Захтев за спајање {n} у {target} је отворен: ова верзија улази у њега.
+	Request the merge into {target}	Затражи спајање у {target}
+	Version {id} saved; merge request {n} opened	Верзија {id} сачувана; отворен захтев за спајање {n}

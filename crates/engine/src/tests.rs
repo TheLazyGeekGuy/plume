@@ -7430,6 +7430,8 @@ mod fake_github {
         n: u64,
         /// Opened pull requests: (head branch, base branch).
         pulls: Vec<(String, String)>,
+        /// Merged pull requests (index into `pulls`) and their head when merged.
+        merged: BTreeMap<usize, String>,
     }
 
     pub struct Server {
@@ -7508,6 +7510,24 @@ mod fake_github {
         pub fn pulls(&self) -> Vec<(String, String)> {
             self.state.lock().unwrap().pulls.clone()
         }
+
+        /// A maintainer merges pull request `n` (1-based): main takes the branch's files.
+        pub fn merge_pull(&self, n: usize) {
+            let mut st = self.state.lock().unwrap();
+            let (head_branch, base) = st.pulls[n - 1].clone();
+            let head = st.branches[&head_branch].clone();
+            let files = st.commits[&head].2.clone();
+            st.n += 1;
+            let id = sha(st.n);
+            let parent = st.branches[&base].clone();
+            st.commits.insert(id.clone(), ("Maintainer".into(), format!("Merge {head_branch}"), files, parent));
+            st.branches.insert(base, id);
+            st.merged.insert(n - 1, head);
+        }
+
+        pub fn head(&self, branch: &str) -> Option<String> {
+            self.state.lock().unwrap().branches.get(branch).cloned()
+        }
     }
 
     fn ok(v: Value) -> Result<Response, String> {
@@ -7521,6 +7541,9 @@ mod fake_github {
     impl Transport for Server {
         fn send(&self, req: &Request) -> Result<Response, String> {
             let mut st = self.state.lock().unwrap();
+            if req.url == "https://api.github.com/user" {
+                return ok(json!({"login": "Ada.L"}));
+            }
             let base = "https://api.github.com/repos/acme/docs";
             let rest = req.url.strip_prefix(base).ok_or("wrong repo")?;
             let (route, query) = rest.split_once('?').unwrap_or((rest, ""));
@@ -7591,7 +7614,7 @@ mod fake_github {
                 (Method::Patch, r) if r.starts_with("/git/refs/heads/") => {
                     let branch = decode(&r["/git/refs/heads/".len()..]);
                     let id = body["sha"].as_str().unwrap().to_string();
-                    if Some(&st.commits[&id].3) != st.branches.get(&branch) {
+                    if body["force"] != json!(true) && Some(&st.commits[&id].3) != st.branches.get(&branch) {
                         return Ok(Response { status: 422, body: b"{\"message\":\"Update is not a fast forward\"}".to_vec() });
                     }
                     st.branches.insert(branch, id);
@@ -7615,6 +7638,23 @@ mod fake_github {
                     let c = json!({"id": 1000 + st.n, "in_reply_to_id": root, "user": {"login": "ada"}, "created_at": "2026-10-15T09:00:00Z", "body": body["body"], "path": "guide.md", "line": 5});
                     self.line_comments.lock().unwrap().as_array_mut().unwrap().push(c.clone());
                     ok(c)
+                }
+                (Method::Get, "/pulls") => {
+                    let list: Vec<Value> = st
+                        .pulls
+                        .iter()
+                        .enumerate()
+                        .rev()
+                        .map(|(i, (h, b))| {
+                            let merged = st.merged.get(&i);
+                            let head = merged.cloned().or_else(|| st.branches.get(h).cloned()).unwrap_or_default();
+                            json!({"number": i + 1, "html_url": format!("https://github.com/acme/docs/pull/{}", i + 1),
+                                "state": if merged.is_some() { "closed" } else { "open" },
+                                "merged_at": merged.map(|_| json!("2026-10-19T10:00:00Z")).unwrap_or(Value::Null),
+                                "head": {"ref": h, "sha": head}, "base": {"ref": b}})
+                        })
+                        .collect();
+                    ok(Value::Array(list))
                 }
                 (Method::Get, "/issues/1/comments") => ok(self.issue_comments.lock().unwrap().clone()),
                 (Method::Get, "/pulls/1/comments") => ok(self.line_comments.lock().unwrap().clone()),
@@ -8146,4 +8186,46 @@ fn code_blocks_and_callouts_from_the_ribbon() {
     s.run("file.save", &json!({})).unwrap();
     assert!(std::fs::read_to_string(&md).unwrap().starts_with("Intro\n\nlet a = 1;\n\n```rust\nlet b = 2;\n```\n"));
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Plume: a repository whose main branch is locked by its admins (`.plume/workflow.toml`): the
+/// document opens on the person's work branch (`<login>-<repository>`, made from main), versions
+/// are saved there, Request Review opens the merge request into main, and once it is merged the
+/// work branch starts again from main.
+#[test]
+fn locked_main_work_branch_workflow() {
+    let server = std::sync::Arc::new(fake_github::Server::new(&[
+        ("guide/intro.md", b"# Intro\n\nHello.\n"),
+        (".plume/workflow.toml", b"# main is locked\nrequired = true\ntarget = \"main\"\nbranch = \"{user}-{repo}\"\n"),
+    ]));
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.forge_transport = Some(server.clone());
+    s.run("forge.signIn", &json!({"forge": "github", "token": "ghp_test"})).unwrap();
+    let open = json!({"forge": "github", "repo": "acme/docs", "path": "guide/intro.md"});
+    let r = s.run("forge.open", &open).unwrap();
+    assert_eq!(r["workflow"], json!({"target": "main", "branch": "ada-l-docs", "fresh": true}), "{r}");
+    assert_eq!(server.head("ada-l-docs"), server.head("main"), "made from main");
+    // Versions go on the work branch; main doesn't move.
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " World."})).unwrap();
+    s.run("vcs.saveVersion", &json!({"message": "Greet the world"})).unwrap();
+    assert!(String::from_utf8(server.file_on("ada-l-docs", "guide/intro.md").unwrap()).unwrap().contains("World."));
+    assert!(!String::from_utf8(server.file("guide/intro.md").unwrap()).unwrap().contains("World."));
+    let st = s.run("vcs.status", &json!({})).unwrap();
+    assert_eq!(st["workflow"]["target"], "main");
+    // The merge request into main, from the work branch itself.
+    let rv = s.run("vcs.requestReview", &json!({"title": "Greeting"})).unwrap();
+    assert_eq!(rv["target"], "main");
+    assert_eq!(server.pulls(), [("ada-l-docs".to_string(), "main".to_string())]);
+    // Opened again while in review: the review is known.
+    s.run("forge.open", &open).unwrap();
+    assert!(s.forge.as_ref().unwrap().review.is_some());
+    assert!(s.run("vcs.requestReview", &json!({"title": "Again"})).is_err(), "one review at a time");
+    // Merged: the work branch starts again from main.
+    server.merge_pull(1);
+    let r = s.run("forge.open", &open).unwrap();
+    assert_eq!(r["workflow"]["fresh"], json!(true), "{r}");
+    assert_eq!(server.head("ada-l-docs"), server.head("main"));
+    assert!(s.forge.as_ref().unwrap().review.is_none());
+    assert!(s.doc.plain_text(StoryRef::Body).contains("World."));
 }

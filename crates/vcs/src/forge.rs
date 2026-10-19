@@ -74,6 +74,7 @@ pub enum Method {
     Post,
     Put,
     Patch,
+    Delete,
 }
 
 impl Method {
@@ -83,6 +84,7 @@ impl Method {
             Method::Post => "POST",
             Method::Put => "PUT",
             Method::Patch => "PATCH",
+            Method::Delete => "DELETE",
         }
     }
 }
@@ -652,6 +654,37 @@ pub enum ReplyTo {
     Discussion(String),
 }
 
+/// A branch's newest review: where its head was, and whether it was merged or is still open.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct BranchReview {
+    pub review: Review,
+    /// The branch's head when the review was last updated (merged: what went in).
+    pub head: String,
+    pub merged: bool,
+    pub open: bool,
+}
+
+/// A review from the forge's answer for it (number and page), on `branch`.
+fn review_of(k: Kind, v: &Value, branch: &str) -> Option<Review> {
+    let number = match k {
+        Kind::GitLab => v.get("iid"),
+        _ => v.get("number"),
+    }
+    .and_then(Value::as_u64)?;
+    let url = match k {
+        Kind::GitLab => v.get("web_url"),
+        _ => v.get("html_url"),
+    }
+    .and_then(Value::as_str)
+    .unwrap_or("")
+    .to_string();
+    Some(Review { number, url, branch: branch.to_string() })
+}
+
+/// Plume's workflow file: in a repository whose main branch is locked, where each person's work
+/// goes (see the engine's `workflow`).
+pub const WORKFLOW_FILE: &str = ".plume/workflow.toml";
+
 /// Where a review stands.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct ReviewState {
@@ -698,11 +731,16 @@ impl Client<'_> {
     /// merge request from it into the document's branch. Versions saved on `branch` (a
     /// [`DocRef`] with that branch) are what reviewers see.
     pub fn request_review(&self, doc: &DocRef, branch: &str, title: &str, body: &str) -> Result<Review, ForgeError> {
+        self.create_branch(doc, branch)?;
+        self.open_review(doc, branch, title, body)
+    }
+
+    /// A new branch `branch` from the head of the document's branch.
+    pub fn create_branch(&self, doc: &DocRef, branch: &str) -> Result<(), ForgeError> {
         check_doc(doc)?;
         check_branch(branch)?;
         let base = Self::repo_url(doc);
         let k = doc.forge.kind;
-        let title = crate::clean_message(title, "Review request");
         match k {
             Kind::GitHub => {
                 let head = self.branch_head(doc)?;
@@ -720,6 +758,53 @@ impl Client<'_> {
                 self.call(k, Method::Post, format!("{base}/branches"), Some(json!({"new_branch_name": branch, "old_branch_name": doc.branch})))?;
             }
         }
+        Ok(())
+    }
+
+    /// Whether the repository has branch `branch`.
+    pub fn branch_exists(&self, doc: &DocRef, branch: &str) -> Result<bool, ForgeError> {
+        check_branch(branch)?;
+        match self.branch_head(&DocRef { branch: branch.to_string(), ..doc.clone() }) {
+            Ok(_) => Ok(true),
+            Err(ForgeError::NotFound) => Ok(false),
+            Err(e) => Err(e),
+        }
+    }
+
+    /// Branch `branch` starts again from the head of the document's branch: after its review
+    /// was merged there. The caller makes sure nothing on it is left unmerged.
+    pub fn reset_branch(&self, doc: &DocRef, branch: &str) -> Result<(), ForgeError> {
+        check_doc(doc)?;
+        check_branch(branch)?;
+        if branch == doc.branch {
+            return Err(ForgeError::BadInput("a branch can't start again from itself".into()));
+        }
+        let base = Self::repo_url(doc);
+        let k = doc.forge.kind;
+        match k {
+            Kind::GitHub => {
+                let head = self.branch_head(doc)?;
+                self.call(k, Method::Patch, format!("{base}/git/refs/heads/{}", encode_path(branch)), Some(json!({"sha": head, "force": true})))?;
+                Ok(())
+            }
+            Kind::GitLab => {
+                self.call(k, Method::Delete, format!("{base}/repository/branches/{}", encode_component(branch)), None)?;
+                self.create_branch(doc, branch)
+            }
+            Kind::Forgejo => {
+                self.call(k, Method::Delete, format!("{base}/branches/{}", encode_path(branch)), None)?;
+                self.create_branch(doc, branch)
+            }
+        }
+    }
+
+    /// A pull or merge request from `branch` (which exists) into the document's branch.
+    pub fn open_review(&self, doc: &DocRef, branch: &str, title: &str, body: &str) -> Result<Review, ForgeError> {
+        check_doc(doc)?;
+        check_branch(branch)?;
+        let base = Self::repo_url(doc);
+        let k = doc.forge.kind;
+        let title = crate::clean_message(title, "Review request");
         let v = match k {
             Kind::GitHub | Kind::Forgejo => {
                 self.call(k, Method::Post, format!("{base}/pulls"), Some(json!({"title": title, "head": branch, "base": doc.branch, "body": body})))?
@@ -731,20 +816,66 @@ impl Client<'_> {
                 Some(json!({"source_branch": branch, "target_branch": doc.branch, "title": title, "description": body})),
             )?,
         };
-        let number = match k {
-            Kind::GitLab => v.get("iid"),
-            _ => v.get("number"),
-        }
-        .and_then(Value::as_u64)
-        .ok_or_else(|| ForgeError::Server(200, "no review number".into()))?;
-        let url = match k {
-            Kind::GitLab => v.get("web_url"),
-            _ => v.get("html_url"),
-        }
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .to_string();
-        Ok(Review { number, url, branch: branch.to_string() })
+        review_of(k, &v, branch).ok_or_else(|| ForgeError::Server(200, "no review number".into()))
+    }
+
+    /// The newest review from `branch` into the document's branch, open or not.
+    pub fn branch_review(&self, doc: &DocRef, branch: &str) -> Result<Option<BranchReview>, ForgeError> {
+        check_doc(doc)?;
+        check_branch(branch)?;
+        let base = Self::repo_url(doc);
+        let k = doc.forge.kind;
+        let s = |v: &Value, p: &str| v.pointer(p).and_then(Value::as_str).unwrap_or("").to_string();
+        let list = match k {
+            Kind::GitHub => {
+                let owner = doc.repo.split('/').next().unwrap_or("");
+                let url = format!(
+                    "{base}/pulls?state=all&head={}&base={}&sort=created&direction=desc&per_page=20",
+                    encode_component(&format!("{owner}:{branch}")),
+                    encode_component(&doc.branch)
+                );
+                self.call(k, Method::Get, url, None)?
+            }
+            Kind::Forgejo => self.call(k, Method::Get, format!("{base}/pulls?state=all&sort=newest&limit=50"), None)?,
+            Kind::GitLab => {
+                let url = format!(
+                    "{base}/merge_requests?state=all&source_branch={}&target_branch={}&order_by=created_at&sort=desc&per_page=20",
+                    encode_component(branch),
+                    encode_component(&doc.branch)
+                );
+                self.call(k, Method::Get, url, None)?
+            }
+        };
+        let newest = list.as_array().into_iter().flatten().find(|v| match k {
+            Kind::GitLab => s(v, "/source_branch") == branch && s(v, "/target_branch") == doc.branch,
+            _ => s(v, "/head/ref") == branch && s(v, "/base/ref") == doc.branch,
+        });
+        Ok(newest.and_then(|v| {
+            let review = review_of(k, v, branch)?;
+            let (head, merged, open) = match k {
+                Kind::GitLab => (s(v, "/sha"), s(v, "/state") == "merged", s(v, "/state") == "opened"),
+                Kind::GitHub => (s(v, "/head/sha"), v.get("merged_at").is_some_and(|m| !m.is_null()), s(v, "/state") == "open"),
+                Kind::Forgejo => (s(v, "/head/sha"), v.get("merged").and_then(Value::as_bool).unwrap_or(false), s(v, "/state") == "open"),
+            };
+            Some(BranchReview { review, head, merged, open })
+        }))
+    }
+
+    /// The signed-in user's name on the forge (their login).
+    pub fn current_user(&self, forge: &Forge) -> Result<String, ForgeError> {
+        let v = self.call(forge.kind, Method::Get, format!("{}/user", forge.api), None)?;
+        let key = if forge.kind == Kind::GitLab { "username" } else { "login" };
+        v.get(key)
+            .and_then(Value::as_str)
+            .filter(|l| !l.trim().is_empty())
+            .map(str::to_string)
+            .ok_or_else(|| ForgeError::Server(200, "no user name".into()))
+    }
+
+    /// The head of branch `branch` of the document's repository.
+    pub fn head_of(&self, doc: &DocRef, branch: &str) -> Result<String, ForgeError> {
+        check_branch(branch)?;
+        self.branch_head(&DocRef { branch: branch.to_string(), ..doc.clone() })
     }
 
     /// The comments on review `number`: line comments on the document and general ones, oldest

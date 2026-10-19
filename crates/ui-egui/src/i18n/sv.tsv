@@ -2816,3 +2816,7 @@ preview	Title	Titel
 	TypeScript	TypeScript
 	YAML	YAML
 	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Sparat på din gren {branch}; {target} är låst.
+	Merge request {n} into {target} is open: this version goes in it.	Sammanslagningsbegäran {n} till {target} är öppen: den här versionen ingår.
+	Request the merge into {target}	Begär sammanslagning till {target}
+	Version {id} saved; merge request {n} opened	Version {id} sparad; sammanslagningsbegäran {n} öppnad

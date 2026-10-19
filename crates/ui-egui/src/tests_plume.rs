@@ -111,3 +111,24 @@ fn insert_offers_markdown_blocks() {
     h.run_steps(4);
     assert!(h.query_by_label("Leave Block").is_some());
 }
+
+/// A locked main branch: Save Version says the version goes on the person's work branch and
+/// offers to request the merge into main.
+#[test]
+fn save_version_offers_the_merge_request() {
+    use wordcraft_engine::vcs::forge::{DocRef, Forge};
+    let mut h = harness(true);
+    h.state_mut().session.forge = Some(wordcraft_engine::cmd::versions::Remote {
+        doc: DocRef { forge: Forge::github(), repo: "acme/docs".into(), branch: "ada-docs".into(), path: "guide.md".into() },
+        sha: "1".into(),
+        review: None,
+        imported: Default::default(),
+        threads: Default::default(),
+        sent: Default::default(),
+        workflow: Some(wordcraft_engine::cmd::workflow::Workflow { target: "main".into(), branch: "ada-docs".into(), fresh: false }),
+    });
+    let _ = h.state_mut().run("ui.dialog", serde_json::json!({"name": "saveVersion"}));
+    h.run_steps(4);
+    assert!(h.query_by_label("Request the merge into main").is_some());
+    assert!(h.query_by_label("Saved on your branch ada-docs; main is locked.").is_some());
+}

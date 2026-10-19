@@ -2413,3 +2413,7 @@
 	TypeScript	TypeScript
 	YAML	YAML
 	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Збережено у вашій гілці {branch}; гілку {target} заблоковано.
+	Merge request {n} into {target} is open: this version goes in it.	Запит на злиття {n} у {target} відкрито: ця версія увійде до нього.
+	Request the merge into {target}	Запросити злиття в {target}
+	Version {id} saved; merge request {n} opened	Версію {id} збережено; відкрито запит на злиття {n}

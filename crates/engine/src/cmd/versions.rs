@@ -272,6 +272,9 @@ pub struct Remote {
     pub threads: std::collections::BTreeMap<u32, (wordcraft_vcs::forge::ReplyTo, String)>,
     /// The document's comments already on the forge (brought in, or replies sent).
     pub sent: std::collections::BTreeSet<u32>,
+    /// Plume: the repository's work-branch workflow, when it has one ([`super::workflow`]):
+    /// versions go on `doc.branch`, this person's work branch, and reviews into the target.
+    pub workflow: Option<super::workflow::Workflow>,
 }
 
 pub use remote::{DeviceSignIn, ForgeListing, parse_web_address};
@@ -538,17 +541,38 @@ mod remote {
         };
         let t = transport(s)?;
         let c = Client { transport: t.as_ref(), token: token(s, &doc.forge)? };
-        let (d, sha) = load(&c, &doc, None)?;
+        let mut doc = doc;
+        // A locked main branch: the document opens on this person's work branch.
+        let flow = crate::cmd::workflow::apply(&c, &mut doc)?;
+        let (d, sha) = match (&flow, c.read(&doc, None)) {
+            // Not on the work branch yet (added to the target since): the target's copy, saved
+            // on the work branch as a new file.
+            (Some((w, _)), Err(ForgeError::NotFound)) => (load(&c, &DocRef { branch: w.target.clone(), ..doc.clone() }, None)?.0, String::new()),
+            _ => load(&c, &doc, None)?,
+        };
         s.set_document(d);
         let name = doc.path.rsplit('/').next().unwrap_or(&doc.path).to_string();
         s.path = None;
         s.file_name = Some(name.trim_end_matches(".markdown").trim_end_matches(".md").to_string());
-        s.forge =
-            Some(Remote { doc, sha: sha.clone(), review: None, imported: Default::default(), threads: Default::default(), sent: Default::default() });
+        let (workflow, review) = flow.map_or((None, None), |(w, r)| (Some(w), r));
+        let branch = doc.branch.clone();
+        s.forge = Some(Remote {
+            doc,
+            sha: sha.clone(),
+            review,
+            imported: Default::default(),
+            threads: Default::default(),
+            sent: Default::default(),
+            workflow: workflow.clone(),
+        });
         s.imported_from = None;
         s.import_report.clear();
         s.dirty = false;
-        Ok(json!({"opened": true, "version": sha}))
+        let mut out = json!({"opened": true, "version": sha, "branch": branch});
+        if let Some(w) = workflow {
+            out["workflow"] = json!({"target": w.target, "branch": w.branch, "fresh": w.fresh});
+        }
+        Ok(out)
     }
 
     /// Save the document (new, or from anywhere) as a Markdown file in a forge repository; it
@@ -571,6 +595,8 @@ mod remote {
         };
         let t = transport(s)?;
         let c = Client { transport: t.as_ref(), token: token(s, &doc.forge)? };
+        let mut doc = doc;
+        let flow = crate::cmd::workflow::apply(&c, &mut doc)?;
         let existing = match c.read(&doc, None) {
             Ok((_, sha)) => Some(sha),
             Err(ForgeError::NotFound) => None,
@@ -595,18 +621,23 @@ mod remote {
         s.path = None;
         s.file_name = Some(name.trim_end_matches(".markdown").trim_end_matches(".md").to_string());
         let saved = doc.path.clone();
-        s.forge = Some(Remote { doc, sha, review: None, imported: Default::default(), threads: Default::default(), sent: Default::default() });
+        let (workflow, review) = flow.map_or((None, None), |(w, r)| (Some(w), r));
+        let branch = doc.branch.clone();
+        s.forge = Some(Remote { doc, sha, review, imported: Default::default(), threads: Default::default(), sent: Default::default(), workflow });
         s.imported_from = None;
         s.dirty = false;
         let short = id.get(..7).unwrap_or(&id).to_string();
-        Ok(json!({"saved": true, "path": saved, "version": {"id": id, "short": short, "message": message}}))
+        Ok(json!({"saved": true, "path": saved, "branch": branch, "version": {"id": id, "short": short, "message": message}}))
     }
 
     pub(super) fn status(s: &mut Session, _: &Value) -> CmdResult {
         let r = current(s)?;
-        Ok(
-            json!({"versioned": true, "forge": r.doc.forge.kind.name(), "repo": r.doc.repo, "branch": r.doc.branch, "file": r.doc.path, "modified": s.dirty}),
-        )
+        let mut out = json!({"versioned": true, "forge": r.doc.forge.kind.name(), "repo": r.doc.repo, "branch": r.doc.branch, "file": r.doc.path, "modified": s.dirty});
+        if let Some(w) = &r.workflow {
+            out["workflow"] =
+                json!({"target": w.target, "branch": w.branch, "review": r.review.as_ref().map(|v| json!({"number": v.number, "url": v.url}))});
+        }
+        Ok(out)
     }
 
     pub(super) fn init(_: &mut Session, _: &Value) -> CmdResult {
@@ -636,7 +667,9 @@ mod remote {
         let assets: Vec<(String, Vec<u8>)> =
             bundle.assets.iter().filter_map(|(p, b)| normalize(&format!("{dir}{p}")).map(|full| (full, b.to_vec()))).collect();
         let message = p::str(v, "message").unwrap_or("");
-        let id = match c.save_version(&r.doc, bundle.text.as_bytes(), &assets, message, Some(&r.sha)) {
+        // No blob id: the file is new on this branch (a work branch made after it was added).
+        let expected = (!r.sha.is_empty()).then_some(r.sha.as_str());
+        let id = match c.save_version(&r.doc, bundle.text.as_bytes(), &assets, message, expected) {
             Ok(id) => id,
             Err(ForgeError::Conflict) => {
                 return Err(CmdError::Failed("someone saved a newer version: use Synchronize to see their changes first".into()));
@@ -724,6 +757,20 @@ mod remote {
         }
         let title = p::str(v, "title").unwrap_or("").trim().to_string();
         let message = p::str(v, "message").unwrap_or("").to_string();
+        // The workflow: this person's work branch goes into the locked target, as it is saved.
+        if let Some(w) = r.workflow.clone() {
+            if s.dirty {
+                save_version(s, &json!({"message": if title.is_empty() { "Version for review".to_string() } else { title.clone() }}))?;
+            }
+            let t = transport(s)?;
+            let c = Client { transport: t.as_ref(), token: token(s, &r.doc.forge)? };
+            let into = DocRef { branch: w.target.clone(), ..r.doc.clone() };
+            let review = c.open_review(&into, &w.branch, if title.is_empty() { "Review request" } else { &title }, &message).map_err(ferr)?;
+            if let Some(f) = s.forge.as_mut() {
+                f.review = Some(review.clone());
+            }
+            return Ok(json!({"review": {"number": review.number, "url": review.url, "branch": review.branch}, "target": w.target}));
+        }
         // review/<file>-<yyyymmdd-hhmmss>: a new branch for this review's versions.
         let stem: String = r
             .doc

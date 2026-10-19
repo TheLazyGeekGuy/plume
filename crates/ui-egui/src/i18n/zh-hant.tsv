@@ -2402,3 +2402,7 @@
 	TypeScript	TypeScript
 	YAML	YAML
 	C#	C#
+	Saved on your branch {branch}; {target} is locked.	已儲存到你的分支 {branch}；{target} 已鎖定。
+	Merge request {n} into {target} is open: this version goes in it.	合併要求 {n}（合併到 {target}）已開啟：此版本會包含在內。
+	Request the merge into {target}	要求合併到 {target}
+	Version {id} saved; merge request {n} opened	已儲存版本 {id}；已開啟合併要求 {n}

@@ -50,6 +50,7 @@ pub mod tools;
 pub mod versions;
 pub mod view;
 pub mod wordart;
+pub mod workflow;
 
 use serde_json::{Value, json};
 use wordcraft_doc::props::CharProps;

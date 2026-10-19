@@ -2767,3 +2767,7 @@ preview	Title	Título
 	TypeScript	TypeScript
 	YAML	YAML
 	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Guardado en su rama {branch}; {target} está bloqueada.
+	Merge request {n} into {target} is open: this version goes in it.	La solicitud de fusión {n} hacia {target} está abierta: esta versión entra en ella.
+	Request the merge into {target}	Solicitar la fusión en {target}
+	Version {id} saved; merge request {n} opened	Versión {id} guardada; solicitud de fusión {n} abierta

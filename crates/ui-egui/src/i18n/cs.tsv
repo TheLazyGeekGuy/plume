@@ -2792,3 +2792,7 @@ preview	Title	Ukázka
 	TypeScript	TypeScript
 	YAML	YAML
 	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Uloženo ve vaší větvi {branch}; {target} je zamčená.
+	Merge request {n} into {target} is open: this version goes in it.	Žádost o sloučení {n} do {target} je otevřená: tato verze do ní přibude.
+	Request the merge into {target}	Požádat o sloučení do {target}
+	Version {id} saved; merge request {n} opened	Verze {id} uložena; otevřena žádost o sloučení {n}
