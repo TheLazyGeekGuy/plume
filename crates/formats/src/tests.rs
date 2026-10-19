@@ -792,7 +792,8 @@ fn native_markdown_assets_are_content_named() {
     assert!(plain.media.is_empty());
 }
 
-/// Cell lines, bookmarks and merged cells: written without HTML and reported.
+/// Cell lines (kept with `<br>`, the one HTML a table cell has), bookmarks and merged cells:
+/// written without other HTML and reported.
 #[test]
 fn native_markdown_reports_adaptations() {
     use crate::markdown::{Adaptation, NativeOptions, export, export_native, html_lines};
@@ -801,7 +802,7 @@ fn native_markdown_reports_adaptations() {
     assert!(!html_lines(&legacy).is_empty(), "{legacy}");
     let b = export_native(&d, &NativeOptions::default());
     assert!(html_lines(&b.text).is_empty(), "{}", b.text);
-    assert!(b.text.contains("one two"), "{}", b.text);
+    assert!(b.text.contains("| one<br>two | x |"), "{}", b.text);
     assert!(b.report.counts.contains_key(&Adaptation::CellParagraphs), "{:?}", b.report);
     assert!(b.report.counts.contains_key(&Adaptation::Bookmark), "{:?}", b.report);
     assert!(!b.report.is_lossless() && !b.report.lines().is_empty());
@@ -1104,4 +1105,26 @@ Term
     // A container nested in another is kept as written.
     let nested = ":::: warning Outer\n::: tip Inner\nText.\n:::\n::::\n";
     assert_eq!(export_native(&import(nested), &NativeOptions::default()).text, nested);
+}
+
+/// Plume: a cell keeps its paragraphs and list items apart with `<br>`, its bullets and numbers
+/// with them; a header loses the bold it doesn't need; a table in a cell is written after its
+/// table, numbered from the cell and labelled by its row and column. Stable on a second save.
+#[test]
+fn table_cells_keep_their_structure() {
+    use crate::markdown::{NativeOptions, export_native, import};
+    let html = "<table border=\"1\"><tr><th><b>Option</b></th><th><b>Detail</b></th></tr>\
+        <tr><td>Text</td><td><p>First.</p><p>Second.</p></td></tr>\
+        <tr><td>Bullets</td><td><ul><li>one</li><li>two</li></ul></td></tr>\
+        <tr><td>Steps</td><td><ol><li>open</li><li>save</li></ol></td></tr>\
+        <tr><td>Nested</td><td><table border=\"1\"><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table></td></tr></table>";
+    let d = crate::html::import(html);
+    let out = export_native(&d, &NativeOptions::default()).text;
+    assert!(out.starts_with("| Option | Detail |\n| --- | --- |\n"), "{out}");
+    assert!(out.contains("| Text | First.<br>Second. |"), "{out}");
+    assert!(out.contains("| Bullets | - one<br>- two |"), "{out}");
+    assert!(out.contains("| Steps | 1. open<br>2. save |"), "{out}");
+    assert!(out.contains("| Nested | \\[↓ 1\\] |\n\n**\\[1\\]** Nested – Detail\n\n| a | b |\n| --- | --- |\n| c | d |"), "{out}");
+    assert!(crate::markdown::html_lines(&out).is_empty(), "{out}");
+    assert_eq!(export_native(&import(&out), &NativeOptions::default()).text, out);
 }

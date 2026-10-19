@@ -342,7 +342,7 @@ fn the_first_save_is_already_stable() {
             // blank line is a backslash): it goes. A no-break space at the end is text, kept.
             assert!(first.contains("\nEnds with a break\n\nEnds with a no-break space\u{a0}\n"), "{first}");
             assert!(
-                first.contains("| Cell with a break | Cell with a no-break space\u{a0} |\n| --- | --- |\n| Two lines in a cell | x |\n"),
+                first.contains("| Cell with a break | Cell with a no-break space\u{a0} |\n| --- | --- |\n| Two lines<br>in a cell | x |\n"),
                 "{first}"
             );
             assert!(!first.contains("\\\n\n") && !first.contains("\\ |"), "no break left dangling:\n{first}");

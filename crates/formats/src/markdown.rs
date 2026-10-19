@@ -1941,8 +1941,8 @@ impl Adaptation {
             Adaptation::Alignment => "paragraph alignment left to the publication profile",
             Adaptation::PageBreak => "page breaks left out",
             Adaptation::Bookmark => "bookmarks (not on a heading) left out",
-            Adaptation::CellParagraphs => "table cells with several lines joined on one line",
-            Adaptation::NestedTable => "nested tables flattened into their cell",
+            Adaptation::CellParagraphs => "table cells with several lines or a list kept with <br>",
+            Adaptation::NestedTable => "nested tables written after their table, numbered from their cell",
             Adaptation::MergedCells => "merged cells rebuilt: a short label repeated beside each of its rows, other merged text written once",
             Adaptation::Figure => "charts and drawings kept as their alt text",
             Adaptation::Equation => "equations written as linear text",
@@ -2028,6 +2028,11 @@ struct Ctx {
     /// Comment threads whose range is open while writing, and the text each one covers.
     open_comments: Vec<u32>,
     covered: BTreeMap<u32, String>,
+    /// Tables found in the cells of the table being written: written after it, each under its
+    /// number (`[↓ 1]` in the cell).
+    cell_tables: Vec<(u32, FTable)>,
+    /// The last number given to a table written out of its cell.
+    cell_table_count: u32,
 }
 
 impl Ctx {
@@ -2367,20 +2372,55 @@ fn marker(m: Mark) -> &'static str {
 
 fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
     let cols = t.cols().max(1);
-    // A native copy has no `<br>`: the lines of a cell are joined with a space.
-    let cell_md = |c: &Cell, ctx: &mut Ctx| -> String {
-        let br = if ctx.native { " " } else { "<br>" };
+    // A cell's paragraphs, lines and list items are kept apart by `<br>`, the one HTML element a
+    // Markdown table cell has for a line break. A table inside the cell is written after this one.
+    let cell_md = |c: &Cell, header: bool, ctx: &mut Ctx| -> String {
+        let br = "<br>";
         let mut parts = Vec::new();
+        let mut counters = [0u32; 9];
         for b in &c.blocks {
             match b {
                 FBlock::Para(p) => {
+                    let mut p = p.clone();
+                    // A header is bold already: bold over all of it says nothing.
+                    let texts =
+                        || p.inlines.iter().filter_map(|i| if let Inline::Text(t, f) = i { (!t.trim().is_empty()).then_some(f) } else { None });
+                    if ctx.native && header && texts().count() > 0 && texts().all(|f| f.bold) {
+                        for i in &mut p.inlines {
+                            if let Inline::Text(_, f) = i {
+                                f.bold = false;
+                            }
+                        }
+                    }
                     let md = inlines_md_impl(&p.inlines, true, ctx);
                     let md = if ctx.native { tidy(&md) } else { md };
                     if md.contains("\\\n") {
                         ctx.note(Adaptation::CellParagraphs);
                     }
-                    let md = md.replace("\\\n", br);
+                    let mut md = md.replace("\\\n", br);
+                    // A list item keeps its bullet or number.
+                    if ctx.native
+                        && let Some(li) = p.list
+                        && !md.is_empty()
+                    {
+                        let lv = li.level.min(8) as usize;
+                        let n = counters.get_mut(lv).map_or(1, |c| {
+                            *c += 1;
+                            *c
+                        });
+                        counters.iter_mut().skip(lv + 1).for_each(|c| *c = 0);
+                        let indent = "&nbsp;&nbsp;".repeat(lv);
+                        md = if li.ordered { format!("{indent}{n}. {md}") } else { format!("{indent}- {md}") };
+                        ctx.note(Adaptation::CellParagraphs);
+                    }
                     parts.push(if ctx.native { tidy(&md) } else { md });
+                }
+                FBlock::Table(inner) if ctx.native => {
+                    ctx.note(Adaptation::NestedTable);
+                    ctx.cell_table_count = ctx.cell_table_count.saturating_add(1);
+                    let n = ctx.cell_table_count;
+                    ctx.cell_tables.push((n, inner.clone()));
+                    parts.push(format!("\\[↓ {n}\\]"));
                 }
                 FBlock::Table(inner) => {
                     ctx.note(Adaptation::NestedTable);
@@ -2431,6 +2471,9 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
     // the columns such a cell covers.
     let mut spans_columns = vec![false; t.rows.len()];
     let mut wide: Vec<Vec<bool>> = vec![vec![false; cols]; t.rows.len()];
+    // Tables in cells: their number, row and logical column.
+    let mut placed: Vec<(u32, usize, usize)> = Vec::new();
+    let outer_tables = std::mem::take(&mut ctx.cell_tables);
     for (ri, r) in t.rows.iter().enumerate() {
         let mut v: Vec<String> = vec![String::new(); cols];
         let mut at = 0usize;
@@ -2454,7 +2497,17 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
                 let above = grid.get(ri.wrapping_sub(1)).and_then(|row| row.get(first)).cloned().unwrap_or_default();
                 if ctx.native && above.chars().count() <= 80 { copy(&above) } else { String::new() }
             } else {
-                cell_md(c, ctx)
+                let before = ctx.cell_tables.len();
+                // The header: the first row, rows Word marks, and the row under a first row that
+                // spans columns (a two-level header).
+                let header = ri == 0 || c.header || (ri == 1 && spans_columns.first().copied().unwrap_or(false));
+                let md = cell_md(c, header, ctx);
+                for k in before..ctx.cell_tables.len() {
+                    if let Some((n, _)) = ctx.cell_tables.get(k) {
+                        placed.push((*n, ri, first));
+                    }
+                }
+                md
             };
             if ri == 0
                 && let Some(a) = aligns.get_mut(first)
@@ -2474,6 +2527,17 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
         grid.push(v);
     }
     aligns.resize(cols, None);
+    // Each table in a cell is labelled by its row's first value and its column's header.
+    let labels: Vec<(u32, String)> = placed
+        .iter()
+        .map(|(n, ri, col)| {
+            let row = if *col > 0 { grid.get(*ri).and_then(|r| r.first()).map(|x| copy(x)).unwrap_or_default() } else { String::new() };
+            let head = if *ri > 0 { grid.first().and_then(|r| r.get(*col)).map(|x| copy(x)).unwrap_or_default() } else { String::new() };
+            let label = [row.trim(), head.trim()].into_iter().filter(|x| !x.is_empty()).collect::<Vec<_>>().join(" – ");
+            (*n, label)
+        })
+        .collect();
+    let inner_tables = std::mem::replace(&mut ctx.cell_tables, outer_tables);
     if grid.is_empty() {
         return;
     }
@@ -2556,6 +2620,14 @@ fn table_md(t: &FTable, out: &mut Vec<String>, ctx: &mut Ctx) {
     out.push(format!("| {} |", delim.join(" | ")));
     for r in &body {
         out.push(format!("| {} |", pick(r).join(" | ")));
+    }
+    // The tables that were in its cells, each under its number and label.
+    for (n, inner) in inner_tables {
+        let label = labels.iter().find(|(k, _)| *k == n).map(|(_, l)| l.as_str()).unwrap_or("");
+        out.push(String::new());
+        out.push(format!("**\\[{n}\\]** {label}").trim_end().to_string());
+        out.push(String::new());
+        table_md(&inner, out, ctx);
     }
 }
 
@@ -3005,7 +3077,8 @@ fn comments_view(doc: &Document, keys: &BTreeMap<u32, u32>, covered: &BTreeMap<u
 }
 
 /// Lines (1-based) of `md` that hold HTML other than comments: what a native copy must never
-/// contain. Code blocks and code spans are skipped, and so are autolinks (`<https://…>`).
+/// contain. Code blocks and code spans are skipped, and so are autolinks (`<https://…>`) and the
+/// `<br>` of a table row (the only line break a Markdown table cell has).
 pub fn html_lines(md: &str) -> Vec<usize> {
     let mut bad = Vec::new();
     let mut open_fence: Option<(char, usize)> = None;
@@ -3051,6 +3124,14 @@ pub fn html_lines(md: &str) -> Vec<usize> {
             let autolink = !inner.is_empty() && !inner.contains([' ', '<']) && (inner.contains(':') || inner.contains('@'));
             // A link destination in angle brackets: `](<path with spaces>)`.
             let destination = before.ends_with("](");
+            let cell_break = t.starts_with('|') && {
+                let tag = inner.trim_end_matches('/').trim().to_ascii_lowercase();
+                tag == "br"
+            };
+            if cell_break {
+                rest = after.get(1..).unwrap_or("");
+                continue;
+            }
             let tagish = after.get(1..).and_then(|a| a.chars().next()).is_some_and(|c| c.is_ascii_alphabetic() || c == '/' || c == '!');
             if tagish && !autolink && !destination {
                 found = true;
