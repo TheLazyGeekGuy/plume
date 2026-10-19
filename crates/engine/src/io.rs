@@ -163,6 +163,7 @@ pub fn region_page(region: &wordcraft_geom::Region) -> wordcraft_doc::SectionPro
 /// [`open_bytes_with`] in `region`: a file that gives no page size opens on the region's paper
 /// (see [`region_page`]); a document with its own page size keeps it.
 pub fn open_bytes_in(name: &str, bytes: &[u8], password: Option<&str>, region: &wordcraft_geom::Region) -> Result<(Document, bool), String> {
+    crate::diagrams::register();
     let page = region_page(region);
     let (doc, encrypted) = read_bytes(name, bytes, password, &page)?;
     load_embedded_fonts(&doc);
@@ -352,6 +353,7 @@ pub fn open_path_with(path: &std::path::Path, password: Option<&str>) -> Result<
 /// [`open_path_with`] in `region` (see [`open_bytes_in`]).
 #[cfg(not(target_arch = "wasm32"))]
 pub fn open_path_in(path: &std::path::Path, password: Option<&str>, region: &wordcraft_geom::Region) -> Result<(Document, bool), String> {
+    crate::diagrams::register();
     crate::file_access::check_read(&path.to_string_lossy())?;
     let meta = std::fs::metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
     if meta.len() > 2 << 30 {
@@ -722,6 +724,34 @@ fn has_graphics(blocks: &wordcraft_doc::Blocks, depth: usize) -> bool {
 fn graphics_as_pictures(src: &Document, out: &mut Document, b: &mut wordcraft_doc::Block, drawn: &mut usize, depth: usize) {
     match b {
         wordcraft_doc::Block::Para(p) => {
+            // Plume: a chart or SmartArt graphic alone in its paragraph becomes a diagram in
+            // text (Mermaid), drawn; the Markdown gets its source.
+            if *drawn < MAX_GRAPHICS
+                && let Some((source, pic)) = graphic_as_mermaid(src, p)
+            {
+                *drawn += 1;
+                let media = out.add_media(pic.png.to_vec(), "png");
+                let k = if pic.width > 450.0 { 450.0 / pic.width } else { 1.0 };
+                for o in &mut p.objects {
+                    if let wordcraft_doc::InlineObject::Graphic { alt, .. } = o {
+                        let alt = alt.clone();
+                        *o = wordcraft_doc::InlineObject::Image {
+                            media: media.clone(),
+                            w: pic.width * k,
+                            h: pic.height * k,
+                            alt,
+                            float: Default::default(),
+                            crop: [0.0; 4],
+                            ole: None,
+                        };
+                    }
+                }
+                let md = p.props.md.get_or_insert_with(Default::default);
+                md.code = Some(wordcraft_doc::props::MdCode { id: 0, info: "mermaid".into() });
+                md.diagram = Some(source);
+                p.touch();
+                return;
+            }
             let mut changed = false;
             for o in &mut p.objects {
                 let wordcraft_doc::InlineObject::Graphic { w, h, alt, .. } = o else { continue };
@@ -748,6 +778,32 @@ fn graphics_as_pictures(src: &Document, out: &mut Document, b: &mut wordcraft_do
         }
         wordcraft_doc::Block::Table(_) => {}
     }
+}
+
+/// Plume: a paragraph holding one chart or SmartArt graphic and no text, as Mermaid source and
+/// its picture. The graphic's model when Plume made it, else what its parts say.
+fn graphic_as_mermaid(src: &Document, p: &wordcraft_doc::Paragraph) -> Option<(String, wordcraft_diagram::Picture)> {
+    if !p.plain_text().trim().is_empty() || p.objects.iter().filter(|o| !o.is_marker()).count() != 1 {
+        return None;
+    }
+    let g = p.objects.iter().find_map(|o| match o {
+        wordcraft_doc::InlineObject::Graphic { graphic, .. } => Some(graphic.clone()),
+        _ => None,
+    })?;
+    let part = |kind: &str| {
+        g.source.as_ref()?.refs.iter().find(|r| !r.external && r.kind.ends_with(kind)).and_then(|r| src.passthrough.get(&r.target)).cloned()
+    };
+    let source = if let Some(spec) = &g.smart_art {
+        wordcraft_diagram::mermaid::from_smart_art(spec)?
+    } else if let Some(spec) = &g.chart {
+        wordcraft_diagram::mermaid::from_chart(spec)?
+    } else if let Some(data) = part("/diagramData") {
+        wordcraft_diagram::mermaid::from_smart_art(&wordcraft_docx::smart_art_outline(&data)?)?
+    } else {
+        wordcraft_diagram::mermaid::from_chart(&wordcraft_docx::chart_outline(&part("/chart")?)?)?
+    };
+    let pic = wordcraft_diagram::draw(&source).ok()?;
+    Some((source, pic))
 }
 
 /// A PNG of one inline object `w`×`h` points: laid out alone, inline, on a page its size.

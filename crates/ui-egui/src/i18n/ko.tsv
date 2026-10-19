@@ -2664,3 +2664,12 @@ preview	Title	제목
 	Request the merge into {target}	{target}(으)로 병합 요청
 	Version {id} saved; merge request {n} opened	버전 {id} 저장됨, 병합 요청 {n} 열림
 	Markdown indents list items only	Markdown은 목록 항목만 들여씁니다
+	Diagram	다이어그램
+	Edit\nDiagram	다이어그램\n편집
+	Mermaid source	Mermaid 원본
+	Mermaid syntax	Mermaid 구문
+	Sequence	시퀀스
+	Flowchart	순서도
+	Gantt	간트
+	Class	클래스
+	Mind map	마인드맵

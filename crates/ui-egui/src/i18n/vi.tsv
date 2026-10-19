@@ -2845,3 +2845,12 @@ template	Letter	Thư
 	Request the merge into {target}	Yêu cầu hợp nhất vào {target}
 	Version {id} saved; merge request {n} opened	Đã lưu phiên bản {id}; đã mở yêu cầu hợp nhất {n}
 	Markdown indents list items only	Markdown chỉ thụt lề các mục danh sách
+	Diagram	Sơ đồ
+	Edit\nDiagram	Sửa\nsơ đồ
+	Mermaid source	Mã nguồn Mermaid
+	Mermaid syntax	Cú pháp Mermaid
+	Sequence	Tuần tự
+	Flowchart	Lưu đồ
+	Gantt	Gantt
+	Class	Lớp
+	Mind map	Sơ đồ tư duy

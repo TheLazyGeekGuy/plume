@@ -2803,3 +2803,12 @@ preview	Title	Пример
 	Request the merge into {target}	Запросить слияние в {target}
 	Version {id} saved; merge request {n} opened	Версия {id} сохранена; открыт запрос на слияние {n}
 	Markdown indents list items only	Markdown делает отступ только у элементов списка
+	Diagram	Диаграмма
+	Edit\nDiagram	Изменить\nдиаграмму
+	Mermaid source	Исходный текст Mermaid
+	Mermaid syntax	Синтаксис Mermaid
+	Sequence	Последовательность
+	Flowchart	Блок-схема
+	Gantt	Гант
+	Class	Классы
+	Mind map	Ментальная карта

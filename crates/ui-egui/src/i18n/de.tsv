@@ -2405,3 +2405,12 @@
 	Request the merge into {target}	Merge in {target} anfordern
 	Version {id} saved; merge request {n} opened	Version {id} gespeichert; Merge-Request {n} geöffnet
 	Markdown indents list items only	Markdown rückt nur Listenelemente ein
+	Diagram	Diagramm
+	Edit\nDiagram	Diagramm\nbearbeiten
+	Mermaid source	Mermaid-Quelltext
+	Mermaid syntax	Mermaid-Syntax
+	Sequence	Sequenz
+	Flowchart	Flussdiagramm
+	Gantt	Gantt
+	Class	Klassen
+	Mind map	Mindmap

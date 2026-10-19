@@ -46,6 +46,8 @@ pub const TABLE: &[(&str, Class)] = &[
     ("docx", Class::Layer(2)),
     ("docbin", Class::Layer(2)),
     ("formats", Class::Layer(2)),
+    // Plume: Mermaid diagrams drawn as pictures (fonts below it, the engine above).
+    ("diagram", Class::Layer(2)),
     ("render", Class::Layer(3)),
     ("pdf", Class::Layer(3)),
     ("engine", Class::Layer(4)),

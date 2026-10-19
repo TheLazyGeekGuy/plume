@@ -2406,3 +2406,12 @@
 	Request the merge into {target}	{target} へのマージをリクエスト
 	Version {id} saved; merge request {n} opened	バージョン {id} を保存し、マージ リクエスト {n} を開きました
 	Markdown indents list items only	Markdown でインデントできるのはリスト項目だけです
+	Diagram	図
+	Edit\nDiagram	図の\n編集
+	Mermaid source	Mermaid ソース
+	Mermaid syntax	Mermaid の構文
+	Sequence	シーケンス
+	Flowchart	フローチャート
+	Gantt	ガント
+	Class	クラス
+	Mind map	マインドマップ

@@ -670,3 +670,4 @@ markdown markdown.callout
 markdown markdown.codeLanguage
 markdown markdown.leaveBlock
 markdown markdown.block
+markdown markdown.diagram

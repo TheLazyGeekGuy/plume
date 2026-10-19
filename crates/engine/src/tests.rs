@@ -7713,28 +7713,37 @@ fn forge_document_versions() {
     assert!(s.forge.is_none(), "the comparison is a new document");
 }
 
-/// A chart and a SmartArt diagram are saved to Markdown as pictures of themselves.
+/// Plume: a chart and a SmartArt diagram are saved to Markdown as diagrams in text (Mermaid),
+/// and come back drawn, the source kept.
 #[cfg(not(target_arch = "wasm32"))]
 #[test]
 fn native_markdown_draws_charts_and_diagrams() {
     let mut s = Session::new(crate::sample::sample_document());
+    // Each in a paragraph of its own, as Word places them.
     s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.newParagraph", &json!({})).unwrap();
     s.run("insert.chart", &json!({"type": "column", "title": "Sales"})).unwrap();
     s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.newParagraph", &json!({})).unwrap();
     s.run("insert.smartArt", &json!({"layout": "process"})).unwrap();
     let dir = scratch_dir("native-md-charts");
     let md = dir.join("charts.md");
-    let report = crate::io::save_markdown(&md, &s.doc).unwrap();
-    assert!(!report.counts.contains_key(&wordcraft_formats::markdown::Adaptation::Figure), "{report:?}");
+    crate::io::save_markdown(&md, &s.doc).unwrap();
     let text = std::fs::read_to_string(&md).unwrap();
-    let pictures: Vec<&str> = text.split("](assets/").skip(1).filter_map(|r| r.split(')').next()).collect();
-    assert_eq!(pictures.len(), 2, "{text}");
-    for p in pictures {
-        let img = image::load_from_memory(&std::fs::read(dir.join("assets").join(p)).unwrap()).unwrap().to_rgba8();
-        // Something is drawn: not one flat colour.
-        let first = *img.get_pixel(0, 0);
-        assert!(img.pixels().any(|px| *px != first), "{p} is blank");
-    }
+    assert!(text.contains("```mermaid\nxychart-beta\n    title \"Sales\"\n"), "{text}");
+    assert!(text.contains("```mermaid\nflowchart LR\n"), "{text}");
+    assert!(!text.contains("](assets/"), "no pictures: {text}");
+    // Read back: drawn diagrams, the same source written again.
+    let back = crate::io::open_path(&md).unwrap();
+    let diagrams = back
+        .body
+        .iter()
+        .filter(
+            |b| matches!(&***b, wordcraft_doc::Block::Para(p) if p.props.md.as_ref().is_some_and(|m| m.diagram.is_some()) && !p.objects.is_empty()),
+        )
+        .count();
+    assert_eq!(diagrams, 2);
+    assert_eq!(wordcraft_formats::markdown::export_native(&back, &Default::default()).text, text);
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -8243,5 +8252,26 @@ fn markdown_indents_list_items_only() {
     assert!(s.markdown_blocks("para.indent").is_some());
     s.run("caret.set", &json!({"pos": {"block": 2, "off": 0}})).unwrap();
     assert!(s.markdown_blocks("para.indent").is_none());
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Plume: a diagram from its Mermaid source: inserted after the caret's paragraph, drawn,
+/// changed in place, refused when it can't be drawn; saved as its source.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn diagrams_from_mermaid_source() {
+    let dir = scratch_dir("md-diagram");
+    let md = dir.join("d.md");
+    std::fs::write(&md, "Intro.\n\nAfter.\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    s.run("markdown.diagram", &json!({"source": "flowchart LR\n    A --> B"})).unwrap();
+    assert_eq!(s.run("markdown.block", &json!({})).unwrap()["diagram"], "flowchart LR\n    A --> B");
+    s.run("markdown.diagram", &json!({"source": "flowchart LR\n    A --> C"})).unwrap();
+    assert!(s.run("markdown.diagram", &json!({"source": "not mermaid at all"})).is_err());
+    assert!(s.run("markdown.diagram", &json!({"source": 3})).is_err());
+    s.run("file.save", &json!({})).unwrap();
+    assert_eq!(std::fs::read_to_string(&md).unwrap(), "Intro.\n\n```mermaid\nflowchart LR\n    A --> C\n```\n\nAfter.\n");
     let _ = std::fs::remove_dir_all(&dir);
 }

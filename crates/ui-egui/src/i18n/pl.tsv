@@ -2795,3 +2795,12 @@ preview	Title	Tytuł
 	Request the merge into {target}	Poproś o scalenie do {target}
 	Version {id} saved; merge request {n} opened	Zapisano wersję {id}; otwarto prośbę o scalenie {n}
 	Markdown indents list items only	Markdown wcina tylko elementy listy
+	Diagram	Diagram
+	Edit\nDiagram	Edytuj\ndiagram
+	Mermaid source	Źródło Mermaid
+	Mermaid syntax	Składnia Mermaid
+	Sequence	Sekwencja
+	Flowchart	Schemat blokowy
+	Gantt	Gantt
+	Class	Klasy
+	Mind map	Mapa myśli

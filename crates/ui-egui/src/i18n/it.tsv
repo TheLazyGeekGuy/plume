@@ -2814,3 +2814,12 @@ preview	Title	Esempio
 	Request the merge into {target}	Richiedi il merge in {target}
 	Version {id} saved; merge request {n} opened	Versione {id} salvata; richiesta di merge {n} aperta
 	Markdown indents list items only	Markdown rientra solo gli elementi di elenco
+	Diagram	Diagramma
+	Edit\nDiagram	Modifica\ndiagramma
+	Mermaid source	Sorgente Mermaid
+	Mermaid syntax	Sintassi Mermaid
+	Sequence	Sequenza
+	Flowchart	Diagramma di flusso
+	Gantt	Gantt
+	Class	Classi
+	Mind map	Mappa mentale

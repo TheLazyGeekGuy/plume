@@ -29,6 +29,7 @@ wordcraft-control-key = { path = "crates/control-key" }
 wordcraft-brand = { path = "crates/brand" }
 wordcraft-ui-egui = { path = "crates/ui-egui" }
 wordcraft-metafile = { path = "crates/metafile" }
+wordcraft-diagram = { path = "crates/diagram" }
 wordcraft-vcs = { path = "crates/vcs" }
 
 # foundation

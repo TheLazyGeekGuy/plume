@@ -156,6 +156,13 @@ pub enum Dialog {
         /// Plume's workflow: also request the merge into the locked branch.
         merge: bool,
     },
+    /// Insert › Markdown › Diagram (Plume): a diagram's Mermaid source, drawn beside it as it is
+    /// typed.
+    Diagram {
+        source: String,
+        error: String,
+        focus: bool,
+    },
     /// Review › Versions › Request Review (Plume): a pull or merge request for colleagues.
     RequestReview {
         title: String,
@@ -814,6 +821,7 @@ impl Dialog {
         match self {
             Dialog::RenameDocument { .. } => "renameDocument",
             Dialog::SaveVersion { .. } => "saveVersion",
+            Dialog::Diagram { .. } => "diagram",
             Dialog::OpenFromForge(fb) if fb.saving => "saveToForge",
             Dialog::OpenFromForge(_) => "openFromForge",
             Dialog::RequestReview { .. } => "requestReview",
@@ -1075,6 +1083,11 @@ impl Dialog {
             "pasteSpecial" => Dialog::paste_special(app, &json!({})),
             "renameDocument" => Dialog::RenameDocument { name: app.title_stem(), message: String::new(), focus: true },
             "saveVersion" => Dialog::SaveVersion { message: String::new(), error: String::new(), focus: true, merge: false },
+            "diagram" => {
+                let block = app.session.run("markdown.block", &json!({})).unwrap_or_default();
+                let source = block.get("diagram").and_then(Value::as_str).map_or_else(|| DIAGRAM_TEMPLATES[0].1.to_string(), str::to_string);
+                Dialog::Diagram { source, error: String::new(), focus: true }
+            }
             "requestReview" => Dialog::RequestReview { title: String::new(), message: String::new(), error: String::new(), focus: true },
             "openFromForge" => Dialog::OpenFromForge(Box::new(ForgeBrowser { remember: true, ..Default::default() })),
             "saveToForge" => Dialog::OpenFromForge(Box::new(ForgeBrowser {
@@ -1281,6 +1294,7 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
     let title = match &d {
         Dialog::RenameDocument { .. } => "Rename Document",
         Dialog::SaveVersion { .. } => "Save Version",
+        Dialog::Diagram { .. } => "Diagram",
         Dialog::OpenFromForge(fb) if fb.saving => "Save to a Forge",
         Dialog::OpenFromForge(_) => "Open from a Forge",
         Dialog::RequestReview { .. } => "Request Review",
@@ -1469,6 +1483,35 @@ fn page_paper_group(ui: &mut Ui, paper: &mut (f32, f32), landscape: &mut bool, c
         }
         ui.end_row();
     });
+}
+
+/// Plume: the diagram templates Insert › Markdown › Diagram offers: name and Mermaid source.
+pub(crate) const DIAGRAM_TEMPLATES: [(&str, &str); 7] = [
+    (
+        "Sequence",
+        "sequenceDiagram\n    participant Author\n    participant Reviewer\n    Author->>Reviewer: Request review\n    Reviewer-->>Author: Comments\n    Author->>Reviewer: New version",
+    ),
+    ("Flowchart", "flowchart LR\n    A[Draft] --> B{Reviewed?}\n    B -->|yes| C[Publish]\n    B -->|no| A"),
+    ("Gantt", "gantt\n    title Plan\n    dateFormat YYYY-MM-DD\n    section Writing\n    Draft :a1, 2026-11-02, 10d\n    Review :after a1, 5d"),
+    ("Class", "classDiagram\n    class Document {\n        title\n        save()\n    }\n    class Version\n    Document --> Version"),
+    ("State", "stateDiagram-v2\n    [*] --> Draft\n    Draft --> InReview\n    InReview --> Published\n    InReview --> Draft"),
+    ("Pie", "pie title Time spent\n    \"Writing\" : 60\n    \"Review\" : 25\n    \"Layout\" : 15"),
+    ("Mind map", "mindmap\n    Handbook\n        Space\n        Tools\n        People"),
+];
+
+/// A diagram's preview, drawn from `source` (kept while the source stays the same).
+fn diagram_preview(ctx: &egui::Context, source: &str) -> Result<egui::TextureHandle, String> {
+    let id = egui::Id::new(("diagram-preview", source));
+    if let Some(t) = ctx.data(|d| d.get_temp::<Result<egui::TextureHandle, String>>(id)) {
+        return t;
+    }
+    let made = wordcraft_engine::diagram::draw(source).map_err(|e| e.to_string()).and_then(|p| {
+        let img = image::load_from_memory(&p.png).map_err(|e| e.to_string())?.to_rgba8();
+        let ci = egui::ColorImage::from_rgba_unmultiplied([img.width() as usize, img.height() as usize], img.as_raw());
+        Ok(ctx.load_texture("diagram-preview", ci, egui::TextureOptions::LINEAR))
+    });
+    ctx.data_mut(|d| d.insert_temp(id, made.clone()));
+    made
 }
 
 pub(crate) fn buttons(ui: &mut Ui, ok: &str) -> (bool, bool) {
@@ -1666,6 +1709,45 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
             false
         }
         Dialog::OpenFromForge(fb) => forge_browser(app, ui, fb),
+        Dialog::Diagram { source, error, focus } => {
+            ui.horizontal_top(|ui| {
+                ui.vertical(|ui| {
+                    ui.label(tl!("Mermaid source"));
+                    let r = ui.add(egui::TextEdit::multiline(source).code_editor().desired_width(360.0).desired_rows(18).char_limit(64 * 1024));
+                    if *focus {
+                        r.request_focus();
+                        *focus = false;
+                    }
+                    ui.hyperlink_to(tl!("Mermaid syntax"), "https://mermaid.js.org/intro/syntax-reference.html");
+                });
+                ui.add_space(12.0);
+                ui.vertical(|ui| {
+                    ui.label(tl!("Preview"));
+                    match diagram_preview(ui.ctx(), source) {
+                        Ok(tex) => {
+                            ui.add(egui::Image::new(&tex).max_size(vec2(440.0, 380.0)).bg_fill(egui::Color32::WHITE));
+                        }
+                        Err(e) => {
+                            ui.colored_label(ui.visuals().warn_fg_color, e);
+                        }
+                    }
+                });
+            });
+            if !error.is_empty() {
+                ui.colored_label(ui.visuals().error_fg_color, error.as_str());
+            }
+            let (ok, cancel) = buttons(ui, tl!("Apply"));
+            if cancel {
+                return true;
+            }
+            if ok {
+                match app.run("markdown.diagram", json!({"source": source})) {
+                    Ok(_) => return true,
+                    Err(e) => *error = e,
+                }
+            }
+            false
+        }
         Dialog::RequestReview { title, message, error, focus } => {
             ui.label(tl!("What should your colleagues review?"));
             let r = ui.add(egui::TextEdit::singleline(title).desired_width(360.0).char_limit(200));

@@ -2407,3 +2407,12 @@
 	Request the merge into {target}	要求合併到 {target}
 	Version {id} saved; merge request {n} opened	已儲存版本 {id}；已開啟合併要求 {n}
 	Markdown indents list items only	Markdown 只能縮排清單項目
+	Diagram	圖表
+	Edit\nDiagram	編輯\n圖表
+	Mermaid source	Mermaid 原始碼
+	Mermaid syntax	Mermaid 語法
+	Sequence	循序圖
+	Flowchart	流程圖
+	Gantt	甘特圖
+	Class	類別圖
+	Mind map	心智圖

@@ -2418,3 +2418,12 @@
 	Request the merge into {target}	请求合并到 {target}
 	Version {id} saved; merge request {n} opened	已保存版本 {id}；已打开合并请求 {n}
 	Markdown indents list items only	Markdown 只能缩进列表项
+	Diagram	图表
+	Edit\nDiagram	编辑\n图表
+	Mermaid source	Mermaid 源
+	Mermaid syntax	Mermaid 语法
+	Sequence	时序图
+	Flowchart	流程图
+	Gantt	甘特图
+	Class	类图
+	Mind map	思维导图

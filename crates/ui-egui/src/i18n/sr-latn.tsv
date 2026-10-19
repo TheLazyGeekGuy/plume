@@ -2416,3 +2416,12 @@
 	Request the merge into {target}	Zatraži spajanje u {target}
 	Version {id} saved; merge request {n} opened	Verzija {id} sačuvana; otvoren zahtev za spajanje {n}
 	Markdown indents list items only	Markdown uvlači samo stavke liste
+	Diagram	Dijagram
+	Edit\nDiagram	Uredi\ndijagram
+	Mermaid source	Mermaid izvor
+	Mermaid syntax	Mermaid sintaksa
+	Sequence	Sekvenca
+	Flowchart	Dijagram toka
+	Gantt	Gant
+	Class	Klase
+	Mind map	Mapa uma

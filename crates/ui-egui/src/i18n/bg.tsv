@@ -2794,3 +2794,12 @@
 	Request the merge into {target}	Заявка за сливане в {target}
 	Version {id} saved; merge request {n} opened	Версия {id} е записана; отворена е заявка за сливане {n}
 	Markdown indents list items only	Markdown отстъпва само елементи от списък
+	Diagram	Диаграма
+	Edit\nDiagram	Редактиране\nна диаграмата
+	Mermaid source	Източник на Mermaid
+	Mermaid syntax	Синтаксис на Mermaid
+	Sequence	Последователност
+	Flowchart	Блок-схема
+	Gantt	Гант
+	Class	Класове
+	Mind map	Мисловна карта

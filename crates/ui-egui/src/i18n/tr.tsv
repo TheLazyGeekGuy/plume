@@ -2802,3 +2802,12 @@ preview	Title	Örnek
 	Request the merge into {target}	{target} dalına birleştirme iste
 	Version {id} saved; merge request {n} opened	{id} sürümü kaydedildi; {n} numaralı birleştirme isteği açıldı
 	Markdown indents list items only	Markdown yalnızca liste öğelerini girintiler
+	Diagram	Diyagram
+	Edit\nDiagram	Diyagramı\ndüzenle
+	Mermaid source	Mermaid kaynağı
+	Mermaid syntax	Mermaid söz dizimi
+	Sequence	Sıra
+	Flowchart	Akış şeması
+	Gantt	Gantt
+	Class	Sınıflar
+	Mind map	Zihin haritası

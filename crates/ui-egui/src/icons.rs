@@ -559,6 +559,14 @@ pub fn paint(p: &Painter, r: Rect, name: &str, c: Color32, accent: Color32) {
             pen.line(&[(13.0, 7.0), (15.5, 10.0), (13.0, 13.0)]);
             pen.line(&[(11.0, 6.5), (9.0, 13.5)]);
         }
+        // Plume: a diagram (three boxes, two arrows).
+        "diagram" => {
+            pen.rect(2.5, 3.0, 8.0, 7.5, c);
+            pen.rect(12.0, 3.0, 17.5, 7.5, c);
+            pen.frect(7.0, 13.0, 13.0, 17.5, a);
+            pen.line(&[(5.25, 7.5), (5.25, 15.25), (7.0, 15.25)]);
+            pen.line(&[(14.75, 7.5), (14.75, 15.25), (13.0, 15.25)]);
+        }
         "callout" => {
             pen.frect(3.0, 4.0, 17.5, 16.0, a.linear_multiply(0.18));
             pen.frect(3.0, 4.0, 4.8, 16.0, a);

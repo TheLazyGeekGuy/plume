@@ -705,6 +705,34 @@ fn raw_para(line: &str, id: u32) -> FBlock {
     FBlock::Para(p)
 }
 
+/// Plume: draws a diagram from its code block's info string and source: PNG bytes and the size
+/// it shows at, points. Set by the engine ([`set_diagram_renderer`]); without it, diagrams stay
+/// code blocks.
+pub type DiagramRenderer = fn(&str, &str) -> Option<(Arc<Vec<u8>>, f32, f32)>;
+
+static DIAGRAMS: std::sync::OnceLock<DiagramRenderer> = std::sync::OnceLock::new();
+
+/// Plume: how diagrams are drawn (the first one set stays).
+pub fn set_diagram_renderer(f: DiagramRenderer) {
+    let _ = DIAGRAMS.set(f);
+}
+
+/// Widest a diagram shows, points (a page's text width).
+const MAX_DIAGRAM_WIDTH: f32 = 450.0;
+
+/// A diagram's paragraph: its picture, with its source and info string kept for the Markdown.
+pub fn diagram_para(info: &str, source: &str, id: u32) -> Option<Para> {
+    let draw = DIAGRAMS.get()?;
+    let (png, w, h) = draw(info, source)?;
+    let k = if w > MAX_DIAGRAM_WIDTH { MAX_DIAGRAM_WIDTH / w } else { 1.0 };
+    let alt = source.lines().map(str::trim).find(|l| !l.is_empty()).unwrap_or("diagram").chars().take(80).collect();
+    let mut p = Para::new(Kind::Normal);
+    p.align = Some(Align::Center);
+    p.inlines.push(Inline::Image(Img { data: png, ext: "png".into(), w: w * k, h: h * k, alt }));
+    p.md = Some(Box::new(MdBlock { code: Some(MdCode { id, info: info.to_string() }), diagram: Some(source.to_string()), ..Default::default() }));
+    Some(p)
+}
+
 thread_local! {
     /// The last id given to a Markdown block (code, container, source) by the current parse.
     static BLOCK_ID: std::cell::Cell<u32> = const { std::cell::Cell::new(0) };
@@ -976,14 +1004,23 @@ fn parse_blocks(lines: &[String], depth: usize, level: u8) -> Vec<FBlock> {
             let block = MdCode { id: next_block_id(), info: t.trim_start_matches(fc).trim().to_string() };
             let before = out.len();
             i += 1;
+            let mut body: Vec<&str> = Vec::new();
             while let Some(l) = lines.get(i) {
                 i += 1;
                 let lt = l.trim_start();
                 if indent(l) < 4 && fence(lt).is_some_and(|(c, n)| c == fc && n >= fl) && lt.trim_start_matches(fc).trim().is_empty() {
                     break;
                 }
-                out.push(code_para(strip_indent(l, ind), &block));
+                body.push(strip_indent(l, ind));
             }
+            // A diagram written as text (` ```mermaid `) shows drawn; one Plume can't draw stays code.
+            if block.info.split_whitespace().next().is_some_and(|w| w.eq_ignore_ascii_case("mermaid"))
+                && let Some(p) = diagram_para(&block.info, &body.join("\n"), block.id)
+            {
+                out.push(FBlock::Para(p));
+                continue;
+            }
+            out.extend(body.into_iter().map(|l| code_para(l, &block)));
             // An empty block stays a block.
             if out.len() == before {
                 out.push(code_para("", &block));
@@ -3199,6 +3236,21 @@ fn write_blocks(blocks: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
             }
             write_container(&c, &inner, out, ctx);
             prev_list = false;
+            continue;
+        }
+        // Plume: a diagram: its source, in its fence.
+        if let FBlock::Para(p) = b
+            && let Some(src) = p.md.as_ref().and_then(|m| m.diagram.clone())
+        {
+            let info = p.md.as_ref().and_then(|m| m.code.as_ref()).map_or_else(|| "mermaid".to_string(), |c| c.info.replace('\n', " "));
+            let longest = src.lines().map(|l| l.trim_start().chars().take_while(|c| *c == '`').count()).max().unwrap_or(0);
+            let fence = "`".repeat(3.max(longest + 1).min(64));
+            out.push(format!("{fence}{info}"));
+            out.extend(src.lines().map(str::to_string));
+            out.push(fence);
+            out.push(String::new());
+            prev_list = false;
+            i += 1;
             continue;
         }
         // Plume: source kept as written.

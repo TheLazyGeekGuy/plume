@@ -2440,3 +2440,12 @@
 	Request the merge into {target}	Taotle ühendamist harusse {target}
 	Version {id} saved; merge request {n} opened	Versioon {id} salvestatud; ühendamistaotlus {n} avatud
 	Markdown indents list items only	Markdown taandab ainult loendi üksusi
+	Diagram	Diagramm
+	Edit\nDiagram	Muuda\ndiagrammi
+	Mermaid source	Mermaidi lähtetekst
+	Mermaid syntax	Mermaidi süntaks
+	Sequence	Jada
+	Flowchart	Plokkskeem
+	Gantt	Gantt
+	Class	Klassid
+	Mind map	Mõttekaart

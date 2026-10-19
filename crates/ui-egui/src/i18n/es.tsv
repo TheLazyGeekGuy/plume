@@ -2772,3 +2772,12 @@ preview	Title	Título
 	Request the merge into {target}	Solicitar la fusión en {target}
 	Version {id} saved; merge request {n} opened	Versión {id} guardada; solicitud de fusión {n} abierta
 	Markdown indents list items only	Markdown solo aplica sangría a los elementos de lista
+	Diagram	Diagrama
+	Edit\nDiagram	Editar\ndiagrama
+	Mermaid source	Código Mermaid
+	Mermaid syntax	Sintaxis de Mermaid
+	Sequence	Secuencia
+	Flowchart	Diagrama de flujo
+	Gantt	Gantt
+	Class	Clases
+	Mind map	Mapa mental

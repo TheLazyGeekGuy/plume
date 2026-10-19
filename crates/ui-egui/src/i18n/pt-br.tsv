@@ -2418,3 +2418,12 @@
 	Request the merge into {target}	Solicitar a mesclagem em {target}
 	Version {id} saved; merge request {n} opened	Versão {id} salva; solicitação de mesclagem {n} aberta
 	Markdown indents list items only	O Markdown recua apenas itens de lista
+	Diagram	Diagrama
+	Edit\nDiagram	Editar\ndiagrama
+	Mermaid source	Código Mermaid
+	Mermaid syntax	Sintaxe do Mermaid
+	Sequence	Sequência
+	Flowchart	Fluxograma
+	Gantt	Gantt
+	Class	Classes
+	Mind map	Mapa mental

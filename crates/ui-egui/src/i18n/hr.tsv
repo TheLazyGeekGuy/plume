@@ -2806,3 +2806,12 @@ preview	Title	Naslov
 	Request the merge into {target}	Zatraži spajanje u {target}
 	Version {id} saved; merge request {n} opened	Verzija {id} spremljena; otvoren zahtjev za spajanje {n}
 	Markdown indents list items only	Markdown uvlači samo stavke popisa
+	Diagram	Dijagram
+	Edit\nDiagram	Uredi\ndijagram
+	Mermaid source	Izvor Mermaid
+	Mermaid syntax	Sintaksa Mermaid
+	Sequence	Slijed
+	Flowchart	Dijagram toka
+	Gantt	Gantt
+	Class	Klase
+	Mind map	Mentalna mapa

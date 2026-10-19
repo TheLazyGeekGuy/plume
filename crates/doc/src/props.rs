@@ -852,6 +852,10 @@ pub struct MdBlock {
     /// The paragraph is its container's title line (`::: tip Title`; an alert's label).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub title: bool,
+    /// A diagram written as text (` ```mermaid `): its source. The paragraph shows it drawn
+    /// (a picture); Markdown gets the source back, with `code`'s info string.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub diagram: Option<String>,
 }
 
 impl MdBlock {
@@ -881,7 +885,8 @@ impl MdBlock {
             rule = Some(Border { style: BorderStyle::Single, width: 3.0, color: Some(line), space: 6.0 });
             indent = 12.0;
         }
-        if self.code.is_some() || self.raw.is_some() {
+        // A diagram shows as its picture, on the page itself.
+        if (self.code.is_some() && self.diagram.is_none()) || self.raw.is_some() {
             shading = Some(Rgb(0xF3, 0xF4, 0xF6));
             indent += 6.0;
         }

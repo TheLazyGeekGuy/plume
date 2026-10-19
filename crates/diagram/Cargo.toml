@@ -1,0 +1,15 @@
+[package]
+name = "wordcraft-diagram"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Plume diagrams: Mermaid sources drawn as pictures (mermaid-svg to SVG, resvg to PNG), with the bundled fonts"
+
+[lints]
+workspace = true
+
+[dependencies]
+wordcraft-fonts = { workspace = true }
+wordcraft-doc = { workspace = true }
+mermaid-svg = "0.7.0"
+resvg = { version = "0.45", default-features = false, features = ["text"] }

@@ -491,9 +491,8 @@ pub(crate) fn size_menu(ui: &mut Ui, app: &mut WordApp) {
 }
 
 /// Plume: the languages a code block offers first (its info string; any other can be typed).
-const CODE_LANGUAGES: [(&str, &str); 14] = [
+const CODE_LANGUAGES: [(&str, &str); 13] = [
     ("Plain text", ""),
-    ("Mermaid diagram", "mermaid"),
     ("Bash", "bash"),
     ("JavaScript", "js"),
     ("TypeScript", "ts"),
@@ -1074,8 +1073,19 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
                 mi(ui, app, l, "markdown.callout", json!({"kind": kind}));
             }
         });
+        menu_button(ui, app, "diagram", Some("Diagram"), "Diagram", true, "markdown.diagram", |ui, app| {
+            for (name, src) in crate::dialogs::DIAGRAM_TEMPLATES {
+                if ui.button(tl!(name)).clicked() && app.run("markdown.diagram", json!({"source": src})).is_ok() {
+                    let _ = app.run("ui.dialog", json!({"name": "diagram"}));
+                    ui.close();
+                }
+            }
+        });
         // In a code block: its language; in any block: back to plain text.
         let block = app.session.run("markdown.block", &json!({})).unwrap_or_default();
+        if block.get("diagram").is_some() {
+            big(ui, app, "diagram", "Edit\nDiagram", "ui.dialog", json!({"name": "diagram"}), false);
+        }
         if let Some(lang) = block.get("code").and_then(|c| c.get("language")).and_then(Value::as_str).map(str::to_string) {
             stack(ui, |ui| {
                 let shown = if lang.is_empty() { tl!("Plain text").to_string() } else { lang.clone() };

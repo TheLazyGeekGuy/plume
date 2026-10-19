@@ -2801,3 +2801,12 @@
 	Request the merge into {target}	Egyesítés kérése a(z) {target} ágba
 	Version {id} saved; merge request {n} opened	{id} verzió mentve; {n}. egyesítési kérés megnyitva
 	Markdown indents list items only	A Markdown csak a listaelemeket húzza be
+	Diagram	Diagram
+	Edit\nDiagram	Diagram\nszerkesztése
+	Mermaid source	Mermaid-forrás
+	Mermaid syntax	Mermaid-szintaxis
+	Sequence	Szekvencia
+	Flowchart	Folyamatábra
+	Gantt	Gantt
+	Class	Osztályok
+	Mind map	Gondolattérkép

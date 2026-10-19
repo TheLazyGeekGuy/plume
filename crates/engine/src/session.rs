@@ -618,6 +618,7 @@ impl Session {
     }
 
     pub fn new(doc: Document) -> Self {
+        crate::diagrams::register();
         let start = doc.start_of(StoryRef::Body);
         let bib_style = doc_bib_style(&doc);
         Session {

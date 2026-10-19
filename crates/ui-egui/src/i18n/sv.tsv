@@ -2821,3 +2821,12 @@ preview	Title	Titel
 	Request the merge into {target}	Begär sammanslagning till {target}
 	Version {id} saved; merge request {n} opened	Version {id} sparad; sammanslagningsbegäran {n} öppnad
 	Markdown indents list items only	Markdown drar bara in listobjekt
+	Diagram	Diagram
+	Edit\nDiagram	Redigera\ndiagram
+	Mermaid source	Mermaid-källa
+	Mermaid syntax	Mermaid-syntax
+	Sequence	Sekvens
+	Flowchart	Flödesschema
+	Gantt	Gantt
+	Class	Klasser
+	Mind map	Tankekarta

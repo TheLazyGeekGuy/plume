@@ -2418,3 +2418,12 @@
 	Request the merge into {target}	Запросити злиття в {target}
 	Version {id} saved; merge request {n} opened	Версію {id} збережено; відкрито запит на злиття {n}
 	Markdown indents list items only	Markdown робить відступ лише для елементів списку
+	Diagram	Діаграма
+	Edit\nDiagram	Змінити\nдіаграму
+	Mermaid source	Джерело Mermaid
+	Mermaid syntax	Синтаксис Mermaid
+	Sequence	Послідовність
+	Flowchart	Блок-схема
+	Gantt	Гант
+	Class	Класи
+	Mind map	Ментальна карта

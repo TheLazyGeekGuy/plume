@@ -2797,3 +2797,12 @@ preview	Title	Ukázka
 	Request the merge into {target}	Požádat o sloučení do {target}
 	Version {id} saved; merge request {n} opened	Verze {id} uložena; otevřena žádost o sloučení {n}
 	Markdown indents list items only	Markdown odsazuje jen položky seznamu
+	Diagram	Diagram
+	Edit\nDiagram	Upravit\ndiagram
+	Mermaid source	Zdroj Mermaid
+	Mermaid syntax	Syntaxe Mermaid
+	Sequence	Sekvence
+	Flowchart	Vývojový diagram
+	Gantt	Gantt
+	Class	Třídy
+	Mind map	Myšlenková mapa

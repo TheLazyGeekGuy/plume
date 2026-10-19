@@ -132,3 +132,18 @@ fn save_version_offers_the_merge_request() {
     assert!(h.query_by_label("Request the merge into main").is_some());
     assert!(h.query_by_label("Saved on your branch ada-docs; main is locked.").is_some());
 }
+
+/// Insert › Markdown › Diagram; the diagram editor shows the source and its preview.
+#[test]
+fn the_diagram_editor_previews_the_source() {
+    let mut h = harness(true);
+    h.state_mut().ui.tab = "Insert".into();
+    h.run_steps(4);
+    assert!(h.query_by_label("Diagram").is_some());
+    h.state_mut().run("markdown.diagram", serde_json::json!({"source": "flowchart LR\n    A --> B"})).unwrap();
+    h.run_steps(4);
+    assert!(h.state_mut().session.run("markdown.block", &serde_json::json!({})).unwrap().get("diagram").is_some(), "the caret is on the diagram");
+    let _ = h.state_mut().run("ui.dialog", serde_json::json!({"name": "diagram"}));
+    h.run_steps(4);
+    assert!(h.query_by_label("Mermaid source").is_some() && h.query_by_label("Preview").is_some());
+}

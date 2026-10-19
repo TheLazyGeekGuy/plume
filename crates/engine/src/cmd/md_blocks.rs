@@ -38,6 +38,8 @@ pub fn specs() -> Vec<CommandSpec> {
             .params(r#"{"language": string} — the code block at the caret"#),
         CommandSpec::new("markdown.leaveBlock", "Leave Block", "Insert › Markdown", leave_block),
         CommandSpec::new("markdown.block", "Markdown Block", "Insert › Markdown", |s, _| Ok(block_at_caret(s))).pure(),
+        CommandSpec::new("markdown.diagram", "Diagram", "Insert › Markdown", diagram)
+            .params(r#"{"source": string (Mermaid)} — the diagram at the caret takes this source, or a new one goes after the caret's paragraph; refused when the source can't be drawn"#),
     ]
 }
 
@@ -56,7 +58,55 @@ fn block_at_caret(s: &Session) -> Value {
     if md.raw.is_some() {
         out["source"] = json!(true);
     }
+    if let Some(src) = &md.diagram {
+        out["diagram"] = json!(src);
+    }
     out
+}
+
+/// A diagram from its Mermaid source: drawn into the diagram at the caret, into an empty
+/// paragraph there, or into a new paragraph after the caret's.
+fn diagram(s: &mut Session, v: &Value) -> CmdResult {
+    let source = match v.get("source") {
+        Some(Value::String(x)) if x.len() <= wordcraft_diagram::MAX_SOURCE => x.replace("\r\n", "\n").trim_end().to_string(),
+        _ => return Err(CmdError::Params(format!("`source`: the diagram's Mermaid text, at most {} bytes", wordcraft_diagram::MAX_SOURCE))),
+    };
+    let pic = wordcraft_diagram::draw(&source).map_err(|e| CmdError::Params(e.to_string()))?;
+    let story = s.sel.focus.story;
+    let at = s.sel.focus.path.clone();
+    let here = s.doc.para(story, &at).ok_or_else(|| CmdError::Disabled("markdown.diagram: the caret is not in a paragraph".into()))?;
+    let existing = here.props.md.as_deref().filter(|m| m.diagram.is_some()).and_then(|m| m.code.as_ref()).map(|c| c.id);
+    let empty = here.plain_text().trim().is_empty() && here.objects.is_empty();
+    let id = existing.unwrap_or_else(|| new_id(s));
+    // At most a text column wide.
+    let k = if pic.width > 450.0 { 450.0 / pic.width } else { 1.0 };
+    let media = s.doc.add_media(pic.png.to_vec(), "png");
+    let alt: String = source.lines().map(str::trim).find(|l| !l.is_empty()).unwrap_or("diagram").chars().take(80).collect();
+    let obj = wordcraft_doc::para::InlineObject::Image {
+        media,
+        w: pic.width * k,
+        h: pic.height * k,
+        alt,
+        float: Default::default(),
+        crop: [0.0; 4],
+        ole: None,
+    };
+    let mut p = wordcraft_doc::Paragraph::new();
+    p.insert_object(0, obj, &wordcraft_doc::CharProps::default())?;
+    p.props.align = Some(wordcraft_doc::Align::Center);
+    p.props.md = Some(Box::new(MdBlock { code: Some(MdCode { id, info: "mermaid".into() }), diagram: Some(source), ..Default::default() }));
+    let target = if existing.is_some() || empty {
+        let para = s.doc.para_mut(story, &at)?;
+        *para = p;
+        para.touch();
+        at
+    } else {
+        let next = at.with_last(at.last() + 1);
+        s.doc.insert_block(story, &next, Block::Para(p))?;
+        next
+    };
+    s.sel = crate::Selection::caret(wordcraft_doc::Pos { story, path: target, off: 0 });
+    Ok(json!({"diagram": true, "width": pic.width * k, "height": pic.height * k}))
 }
 
 /// Every paragraph's Markdown block in `blocks` (tables included), for ids.
