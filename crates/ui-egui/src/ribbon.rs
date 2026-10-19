@@ -1133,7 +1133,10 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
                 ui.ctx().data_mut(|d| d.insert_temp(id, (current, text)));
             }
         });
-        if let Some(lang) = block.get("code").and_then(|c| c.get("language")).and_then(Value::as_str).map(str::to_string) {
+        // (A diagram is edited as a diagram, not as code.)
+        if let Some(lang) =
+            block.get("code").filter(|_| block.get("diagram").is_none()).and_then(|c| c.get("language")).and_then(Value::as_str).map(str::to_string)
+        {
             stack(ui, |ui| {
                 let shown = if lang.is_empty() { tl!("Plain text").to_string() } else { lang.clone() };
                 if let Some(v) =
@@ -1186,7 +1189,9 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
     group(ui, "Links", None, app, |ui, app| {
         stack(ui, |ui| {
             small(ui, app, "link", Some("Link"), "Link", "ui.dialog", json!({"name": "link"}), false);
-            small(ui, app, "bookmark", Some("Bookmark"), "Bookmark", "ui.dialog", json!({"name": "bookmark"}), false);
+            if !crate::widgets::hidden(app, "insert.bookmark") {
+                small(ui, app, "bookmark", Some("Bookmark"), "Bookmark", "ui.dialog", json!({"name": "bookmark"}), false);
+            }
             small(ui, app, "crossRef", Some("Cross-reference"), "Cross-reference", "insert.crossReference", json!({}), false);
         });
     });
@@ -1231,7 +1236,7 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
                 }
                 mi(ui, app, "Field…", "ui.dialog", json!({"name": "field"}));
             });
-            menu_button(ui, app, "wordArt", Some("WordArt"), "WordArt", false, "", |ui, app| {
+            menu_button(ui, app, "wordArt", Some("WordArt"), "WordArt", false, "insert.wordArt", |ui, app| {
                 crate::wordart_menus::style_gallery(ui, app, "insert.wordArt")
             });
             small(ui, app, "dropCap", Some("Drop Cap"), "Drop Cap", "insert.dropCap", json!({}), false);

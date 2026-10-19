@@ -350,7 +350,13 @@ thread_local! {
 }
 
 /// A ribbon group: content, a centred label below and a divider on the right.
+/// Plume's Markdown profile: ribbon groups whose every command is Office-only, not drawn.
+const OFFICE_GROUPS: [&str; 7] = ["Pages", "Header & Footer", "Research", "Captions", "Index", "Table of Authorities", "Compare"];
+
 pub fn group(ui: &mut Ui, title: &str, launcher: Option<&str>, app: &mut WordApp, add: impl FnOnce(&mut Ui, &mut WordApp)) {
+    if OFFICE_GROUPS.contains(&title) && profile_on(app) {
+        return;
+    }
     // The English title keys the launcher's id; the drawn title is translated.
     group_titled(ui, title, tl!(title), launcher, app, add);
 }

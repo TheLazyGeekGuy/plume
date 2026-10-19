@@ -538,7 +538,7 @@ fn front_matter_fields(app: &mut WordApp, ui: &mut Ui, body: &str, focused: &mut
                 ui.label(egui::RichText::new(tl!("(several values: edit the source)")).color(t.text_dim));
             } else {
                 let mut value = v.clone();
-                let r = ui.add(egui::TextEdit::singleline(&mut value).id_salt(("front-matter", &k)).desired_width(240.0)).labelled_by(label.id);
+                let r = ui.add_sized([280.0, 22.0], egui::TextEdit::singleline(&mut value).id_salt(("front-matter", &k))).labelled_by(label.id);
                 if r.changed() {
                     change = Some((k.clone(), Some(value)));
                 }
@@ -554,8 +554,8 @@ fn front_matter_fields(app: &mut WordApp, ui: &mut Ui, body: &str, focused: &mut
         // A new field: its name and value, added together.
         let id = egui::Id::new("front-matter-new");
         let (mut key, mut value) = ui.ctx().data(|d| d.get_temp::<(String, String)>(id)).unwrap_or_default();
-        ui.add(egui::TextEdit::singleline(&mut key).hint_text(tl!("New field")).desired_width(110.0));
-        ui.add(egui::TextEdit::singleline(&mut value).hint_text(tl!("Value")).desired_width(240.0));
+        ui.add_sized([120.0, 22.0], egui::TextEdit::singleline(&mut key).hint_text(tl!("New field")));
+        ui.add_sized([280.0, 22.0], egui::TextEdit::singleline(&mut value).hint_text(tl!("Value")));
         let ok = fm::valid_key(key.trim());
         if ui.add_enabled(ok, egui::Button::new(tl!("Add"))).on_disabled_hover_text(tl!("Letters, digits, - and _ only")).clicked() {
             change = Some((key.trim().to_string(), Some(value.clone())));
