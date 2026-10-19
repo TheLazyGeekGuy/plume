@@ -2374,3 +2374,30 @@
 	Remove this field	この項目を削除
 	New field	新しい項目
 	Letters, digits, - and _ only	英数字、- と _ のみ
+	Callout	コールアウト
+	Code Block	コード ブロック
+	Code Language	コードの言語
+	Leave Block	ブロックを抜ける
+	Markdown Block	Markdown ブロック
+	Mermaid diagram	Mermaid 図
+	Plain text	プレーン テキスト
+	Note	注記
+	Tip	ヒント
+	Important	重要
+	Warning	警告
+	Caution	注意
+	Danger	危険
+	Details	詳細
+	Insert › Markdown	挿入 › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

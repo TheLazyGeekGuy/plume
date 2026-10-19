@@ -8109,3 +8109,41 @@ fn word_properties_go_into_the_front_matter() {
     assert!(saved.contains("category: \"Finance\"\n") && saved.contains("toto: \"valeur perso\"\n"), "{saved}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// Plume: code blocks and callouts from the ribbon. The selected paragraphs become a code block
+/// with its language, or go in a callout under its title line; the language changes for the
+/// whole block; a paragraph leaves its block. Saved as VitePress and GitHub write them.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn code_blocks_and_callouts_from_the_ribbon() {
+    let dir = scratch_dir("md-insert-blocks");
+    let md = dir.join("blocks.md");
+    std::fs::write(&md, "Intro\n\nlet a = 1;\n\nlet b = 2;\n\nBe careful.\n\nCheck twice.\n\nAfter.\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    s.run("select.range", &json!({"anchor": {"block": 1, "off": 0}, "focus": {"block": 2, "off": 3}})).unwrap();
+    s.run("markdown.codeBlock", &json!({"language": "js"})).unwrap();
+    s.run("caret.set", &json!({"pos": {"block": 1, "off": 0}})).unwrap();
+    assert_eq!(s.run("markdown.block", &json!({})).unwrap()["code"]["language"], "js");
+    s.run("markdown.codeLanguage", &json!({"language": "rust"})).unwrap();
+    s.run("select.range", &json!({"anchor": {"block": 3, "off": 0}, "focus": {"block": 4, "off": 2}})).unwrap();
+    let r = s.run("markdown.callout", &json!({"kind": "warning", "title": "Attention"})).unwrap();
+    assert_eq!(r["alert"], false);
+    // A callout in a callout is refused; a GitHub-only kind is an alert.
+    assert!(s.run("markdown.callout", &json!({"kind": "tip"})).is_err());
+    s.run("caret.set", &json!({"pos": {"block": 6, "off": 0}})).unwrap();
+    assert_eq!(s.run("markdown.callout", &json!({"kind": "note"})).unwrap()["alert"], true);
+    s.run("file.save", &json!({})).unwrap();
+    let saved = std::fs::read_to_string(&md).unwrap();
+    assert_eq!(
+        saved,
+        "Intro\n\n```rust\nlet a = 1;\nlet b = 2;\n```\n\n::: warning Attention\nBe careful.\n\nCheck twice.\n:::\n\n> [!NOTE]\n> After.\n"
+    );
+    // Leaving the block: a plain paragraph again.
+    s.run("caret.set", &json!({"pos": {"block": 1, "off": 0}})).unwrap();
+    s.run("markdown.leaveBlock", &json!({})).unwrap();
+    s.run("file.save", &json!({})).unwrap();
+    assert!(std::fs::read_to_string(&md).unwrap().starts_with("Intro\n\nlet a = 1;\n\n```rust\nlet b = 2;\n```\n"));
+    let _ = std::fs::remove_dir_all(&dir);
+}

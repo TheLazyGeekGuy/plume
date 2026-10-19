@@ -490,6 +490,24 @@ pub(crate) fn size_menu(ui: &mut Ui, app: &mut WordApp) {
     mi(ui, app, crate::dialogs::PAPER_LABELS.more, "ui.dialog", json!({"name": "pageSetup"}));
 }
 
+/// Plume: the languages a code block offers first (its info string; any other can be typed).
+const CODE_LANGUAGES: [(&str, &str); 14] = [
+    ("Plain text", ""),
+    ("Mermaid diagram", "mermaid"),
+    ("Bash", "bash"),
+    ("JavaScript", "js"),
+    ("TypeScript", "ts"),
+    ("Python", "python"),
+    ("Rust", "rust"),
+    ("Java", "java"),
+    ("C#", "csharp"),
+    ("SQL", "sql"),
+    ("JSON", "json"),
+    ("YAML", "yaml"),
+    ("HTML", "html"),
+    ("CSS", "css"),
+];
+
 pub(crate) fn mi(ui: &mut Ui, app: &mut WordApp, label: &str, id: &str, params: Value) {
     mi_text(ui, app, tl!(label), id, params);
 }
@@ -1034,6 +1052,43 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
                 mi(ui, app, "Calendar", "table.quick", json!({"kind": "calendar"}));
             });
         });
+    });
+    // Plume: Markdown's own blocks.
+    group(ui, "Markdown", None, app, |ui, app| {
+        menu_button(ui, app, "codeBlock", Some("Code Block"), "Code Block", true, "markdown.codeBlock", |ui, app| {
+            for (l, lang) in CODE_LANGUAGES {
+                mi(ui, app, l, "markdown.codeBlock", json!({"language": lang}));
+            }
+        });
+        menu_button(ui, app, "callout", Some("Callout"), "Callout", true, "markdown.callout", |ui, app| {
+            for (l, kind) in [
+                ("Note", "note"),
+                ("Tip", "tip"),
+                ("Important", "important"),
+                ("Warning", "warning"),
+                ("Caution", "caution"),
+                ("Info", "info"),
+                ("Danger", "danger"),
+                ("Details", "details"),
+            ] {
+                mi(ui, app, l, "markdown.callout", json!({"kind": kind}));
+            }
+        });
+        // In a code block: its language; in any block: back to plain text.
+        let block = app.session.run("markdown.block", &json!({})).unwrap_or_default();
+        if let Some(lang) = block.get("code").and_then(|c| c.get("language")).and_then(Value::as_str).map(str::to_string) {
+            stack(ui, |ui| {
+                let shown = if lang.is_empty() { tl!("Plain text").to_string() } else { lang.clone() };
+                if let Some(v) =
+                    combo(ui, "code-language", 110.0, &shown, &CODE_LANGUAGES.iter().map(|(_, l)| (*l).to_string()).collect::<Vec<_>>(), None)
+                {
+                    let _ = app.run("markdown.codeLanguage", json!({"language": v}));
+                }
+                small(ui, app, "close", Some("Leave Block"), "Leave Block", "markdown.leaveBlock", json!({}), false);
+            });
+        } else if block.get("callout").is_some() {
+            small(ui, app, "close", Some("Leave Block"), "Leave Block", "markdown.leaveBlock", json!({}), false);
+        }
     });
     group(ui, "Illustrations", None, app, |ui, app| {
         big(ui, app, "picture", "Pictures", "insert.picture", json!({}), false);

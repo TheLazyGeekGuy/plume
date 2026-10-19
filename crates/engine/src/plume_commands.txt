@@ -665,3 +665,8 @@ office wordArt.style
 office wordArt.textFill
 office wordArt.textOutline
 office wordArt.transform
+markdown markdown.codeBlock
+markdown markdown.callout
+markdown markdown.codeLanguage
+markdown markdown.leaveBlock
+markdown markdown.block

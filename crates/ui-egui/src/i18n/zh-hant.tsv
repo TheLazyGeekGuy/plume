@@ -2375,3 +2375,30 @@
 	Remove this field	移除此欄位
 	New field	新欄位
 	Letters, digits, - and _ only	僅限字母、數字、- 和 _
+	Callout	標註框
+	Code Block	程式碼區塊
+	Code Language	程式碼語言
+	Leave Block	離開區塊
+	Markdown Block	Markdown 區塊
+	Mermaid diagram	Mermaid 圖
+	Plain text	純文字
+	Note	附註
+	Tip	提示
+	Important	重要
+	Warning	警告
+	Caution	小心
+	Danger	危險
+	Details	詳細資料
+	Insert › Markdown	插入 › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

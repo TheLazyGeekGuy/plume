@@ -2762,3 +2762,30 @@
 	Remove this field	Премахване на това поле
 	New field	Ново поле
 	Letters, digits, - and _ only	Само букви, цифри, - и _
+	Callout	Каре
+	Code Block	Блок с код
+	Code Language	Език на кода
+	Leave Block	Изход от блока
+	Markdown Block	Markdown блок
+	Mermaid diagram	Mermaid диаграма
+	Plain text	Обикновен текст
+	Note	Бележка
+	Tip	Съвет
+	Important	Важно
+	Warning	Предупреждение
+	Caution	Внимание
+	Danger	Опасност
+	Details	Подробности
+	Insert › Markdown	Вмъкване › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

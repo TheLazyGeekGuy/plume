@@ -2769,3 +2769,30 @@
 	Remove this field	Mező eltávolítása
 	New field	Új mező
 	Letters, digits, - and _ only	Csak betűk, számjegyek, - és _
+	Callout	Kiemelt blokk
+	Code Block	Kódblokk
+	Code Language	Kód nyelve
+	Leave Block	Kilépés a blokkból
+	Markdown Block	Markdown-blokk
+	Mermaid diagram	Mermaid-diagram
+	Plain text	Egyszerű szöveg
+	Note	Megjegyzés
+	Tip	Tipp
+	Important	Fontos
+	Warning	Figyelmeztetés
+	Caution	Vigyázat
+	Danger	Veszély
+	Details	Részletek
+	Insert › Markdown	Beszúrás › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

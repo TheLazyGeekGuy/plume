@@ -849,6 +849,59 @@ pub struct MdBlock {
     /// block's id.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub raw: Option<u32>,
+    /// The paragraph is its container's title line (`::: tip Title`; an alert's label).
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub title: bool,
+}
+
+impl MdBlock {
+    /// Whether a paragraph of `next` continues the block of a paragraph of `self` (they are one
+    /// band on the page): the same container, or, outside containers, the same code block or
+    /// source.
+    pub fn joins(&self, next: &MdBlock) -> bool {
+        match (&self.container, &next.container) {
+            (Some(a), Some(b)) => a.id == b.id,
+            (None, None) => {
+                (self.code.as_ref().zip(next.code.as_ref()).is_some_and(|(a, b)| a.id == b.id)) || (self.raw.is_some() && self.raw == next.raw)
+            }
+            _ => false,
+        }
+    }
+
+    /// How the block looks on the page: a container is a tinted band with a coloured rule on
+    /// its left (the colour tells its kind), a code block a grey band, source kept as written a
+    /// grey band with a dotted rule. Plume's own colours.
+    pub fn look(&self) -> (Option<Rgb>, Option<Border>, f32) {
+        let mut shading = None;
+        let mut rule = None;
+        let mut indent = 0.0;
+        if let Some(c) = &self.container {
+            let (line, tint) = container_colors(&c.kind);
+            shading = Some(tint);
+            rule = Some(Border { style: BorderStyle::Single, width: 3.0, color: Some(line), space: 6.0 });
+            indent = 12.0;
+        }
+        if self.code.is_some() || self.raw.is_some() {
+            shading = Some(Rgb(0xF3, 0xF4, 0xF6));
+            indent += 6.0;
+        }
+        if self.raw.is_some() && rule.is_none() {
+            rule = Some(Border { style: BorderStyle::Dotted, width: 1.5, color: Some(Rgb(0x9A, 0xA0, 0xA6)), space: 4.0 });
+        }
+        (shading, rule, indent)
+    }
+}
+
+/// A container kind's rule and tint (`tip`, `NOTE`, `warning`…; other kinds are grey).
+pub fn container_colors(kind: &str) -> (Rgb, Rgb) {
+    match kind.to_ascii_lowercase().as_str() {
+        "note" | "info" => (Rgb(0x2F, 0x6F, 0xDB), Rgb(0xEE, 0xF4, 0xFD)),
+        "tip" => (Rgb(0x1F, 0x88, 0x3D), Rgb(0xED, 0xF7, 0xEF)),
+        "important" => (Rgb(0x82, 0x50, 0xDF), Rgb(0xF4, 0xEF, 0xFD)),
+        "warning" => (Rgb(0xB5, 0x81, 0x05), Rgb(0xFD, 0xF6, 0xE3)),
+        "caution" | "danger" => (Rgb(0xCF, 0x22, 0x2E), Rgb(0xFD, 0xEE, 0xEE)),
+        _ => (Rgb(0x8C, 0x95, 0x9F), Rgb(0xF4, 0xF5, 0xF7)),
+    }
 }
 
 /// A fenced code block: its id and its info string as written (`js`, `js{2}`, `mermaid`,

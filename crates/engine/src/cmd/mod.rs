@@ -24,6 +24,7 @@ pub mod insert;
 pub mod inspector;
 pub mod lists;
 pub mod mailings;
+pub mod md_blocks;
 pub mod moves;
 pub mod objects;
 pub mod options;
@@ -102,6 +103,7 @@ pub fn registry() -> Registry {
     v.extend(speech::specs());
     v.extend(controls::specs());
     v.extend(versions::specs());
+    v.extend(md_blocks::specs());
     v.extend(crate::pdf_template::specs());
     v.extend(crate::ai::specs());
     Registry::new(v)

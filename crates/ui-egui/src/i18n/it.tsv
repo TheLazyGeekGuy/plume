@@ -2782,3 +2782,30 @@ preview	Title	Esempio
 	Remove this field	Rimuovi questo campo
 	New field	Nuovo campo
 	Letters, digits, - and _ only	Solo lettere, cifre, - e _
+	Callout	Riquadro
+	Code Block	Blocco di codice
+	Code Language	Linguaggio del codice
+	Leave Block	Esci dal blocco
+	Markdown Block	Blocco Markdown
+	Mermaid diagram	Diagramma Mermaid
+	Plain text	Testo semplice
+	Note	Nota
+	Tip	Suggerimento
+	Important	Importante
+	Warning	Avviso
+	Caution	Attenzione
+	Danger	Pericolo
+	Details	Dettagli
+	Insert › Markdown	Inserisci › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

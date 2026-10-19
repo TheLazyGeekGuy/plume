@@ -2774,3 +2774,30 @@ preview	Title	Naslov
 	Remove this field	Ukloni ovo polje
 	New field	Novo polje
 	Letters, digits, - and _ only	Samo slova, znamenke, - i _
+	Callout	Istaknuti okvir
+	Code Block	Blok koda
+	Code Language	Jezik koda
+	Leave Block	Izađi iz bloka
+	Markdown Block	Markdown blok
+	Mermaid diagram	Mermaid dijagram
+	Plain text	Običan tekst
+	Note	Napomena
+	Tip	Savjet
+	Important	Važno
+	Warning	Upozorenje
+	Caution	Oprez
+	Danger	Opasnost
+	Details	Pojedinosti
+	Insert › Markdown	Umetanje › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

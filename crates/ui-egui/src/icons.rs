@@ -551,6 +551,19 @@ pub fn paint(p: &Painter, r: Rect, name: &str, c: Color32, accent: Color32) {
             pen.fcircle(10.0, 10.0, 3.5, a);
         }
         "equation" => pen.text(10.0, 10.0, 17.0, "π", a, false),
+        // Plume: a fenced code block (angle brackets on a grey band) and a callout (a band with
+        // a coloured rule on its left).
+        "codeBlock" => {
+            pen.frect(2.5, 4.0, 17.5, 16.0, c.linear_multiply(0.15));
+            pen.line(&[(7.0, 7.0), (4.5, 10.0), (7.0, 13.0)]);
+            pen.line(&[(13.0, 7.0), (15.5, 10.0), (13.0, 13.0)]);
+            pen.line(&[(11.0, 6.5), (9.0, 13.5)]);
+        }
+        "callout" => {
+            pen.frect(3.0, 4.0, 17.5, 16.0, a.linear_multiply(0.18));
+            pen.frect(3.0, 4.0, 4.8, 16.0, a);
+            pen.lines(7.0, 15.5, &[8.0, 11.0, 14.0]);
+        }
         "symbol" => pen.text(10.0, 10.0, 17.0, "Ω", c, false),
         // Draw
         "pen" => {

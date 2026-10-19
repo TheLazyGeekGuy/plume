@@ -830,11 +830,32 @@ fn container_close(l: &str, n: usize) -> bool {
     t.len() >= n && t.chars().all(|c| c == ':')
 }
 
-/// Mark every paragraph of `blocks` as inside `c`. `None` when they can't all carry it (a table,
-/// a container already, nothing at all): the caller keeps the source as written instead.
+/// The title a container shows when its source gives none: VitePress's defaults, GitHub's alert
+/// labels. A code group shows none.
+pub fn default_title(c: &MdContainer) -> Option<String> {
+    if c.alert {
+        return ALERTS.iter().find(|(k, _)| k.eq_ignore_ascii_case(&c.kind)).map(|(_, l)| (*l).to_string());
+    }
+    match c.kind.to_ascii_lowercase().as_str() {
+        "code-group" => None,
+        "details" => Some("Details".into()),
+        k => Some(k.to_ascii_uppercase()),
+    }
+}
+
+/// Mark every paragraph of `blocks` as inside `c`, after a title line (its title, or the one
+/// the site shows by default). `None` when they can't all carry it (a table, a container
+/// already, nothing at all): the caller keeps the source as written instead.
 fn in_container(mut blocks: Vec<FBlock>, c: &MdContainer) -> Option<Vec<FBlock>> {
     if blocks.is_empty() {
         return None;
+    }
+    let title = if c.title.trim().is_empty() { default_title(c) } else { Some(c.title.trim().to_string()) };
+    if let Some(t) = title {
+        let mut p = Para::new(Kind::Normal);
+        p.push_text(&t, &Fmt { bold: true, ..Fmt::default() });
+        p.md = Some(Box::new(MdBlock { title: true, ..Default::default() }));
+        blocks.insert(0, FBlock::Para(p));
     }
     for b in &mut blocks {
         let FBlock::Para(p) = b else { return None };
@@ -2338,6 +2359,12 @@ fn inlines_md_impl(inlines: &[Inline], in_table: bool, ctx: &mut Ctx) -> String 
 /// A container's paragraphs (`inner`, its mark removed), inside a VitePress fence or as a GitHub
 /// alert.
 fn write_container(c: &MdContainer, inner: &[FBlock], out: &mut Vec<String>, ctx: &mut Ctx) {
+    // Its title line: the title, unless it is the one the site shows anyway.
+    let (title, inner) = match inner.split_first() {
+        Some((FBlock::Para(p), rest)) if p.md.as_ref().is_some_and(|m| m.title) => (p.text().trim().to_string(), rest),
+        _ => (String::new(), inner),
+    };
+    let title = if Some(&title) == default_title(c).as_ref() { String::new() } else { title };
     let mut body = Vec::new();
     write_blocks(inner, &mut body, ctx);
     let mut lines: Vec<String> = body.join("\n").split('\n').map(str::to_string).collect();
@@ -2351,7 +2378,7 @@ fn write_container(c: &MdContainer, inner: &[FBlock], out: &mut Vec<String>, ctx
         // Colons inside (a container kept as written): the fence takes more.
         let inside = lines.iter().map(|l| l.trim_start().chars().take_while(|c| *c == ':').count()).max().unwrap_or(0);
         let fence = ":".repeat(3.max(inside + 1).min(64));
-        out.push(format!("{fence} {} {}", c.kind, c.title.replace('\n', " ")).trim_end().to_string());
+        out.push(format!("{fence} {} {}", c.kind, title.replace('\n', " ")).trim_end().to_string());
         out.extend(lines);
         out.push(fence);
     }

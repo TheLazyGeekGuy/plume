@@ -471,7 +471,7 @@ fn raw_style() -> Style {
     }
 }
 
-fn code_style() -> Style {
+pub fn code_style() -> Style {
     Style {
         id: CODE_STYLE.into(),
         name: CODE_STYLE.into(),

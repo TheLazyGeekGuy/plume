@@ -319,6 +319,21 @@ impl StyleSheet {
         }
         base.overlay(&direct);
         let mut rp = ResolvedPara::from(&base, &style);
+        // Plume: a Markdown block's look (a container's band, a code block's).
+        if let Some(md) = &p.md {
+            let (shading, rule, indent) = md.look();
+            if shading.is_some() {
+                rp.shading = shading;
+            }
+            if let Some(rule) = rule {
+                rp.borders = Some(Borders { left: Some(rule), ..Default::default() });
+            }
+            rp.indent_left += indent;
+            rp.indent_right += indent / 2.0;
+            if md.title {
+                rp.space_after = rp.space_after.min(3.0);
+            }
+        }
         // Indents in characters: measured in the style's font size here; layout measures them in
         // the paragraph mark's (`set_char_unit`), which direct formatting may change.
         if rp.indent_chars.iter().any(|c| *c != 0.0) {

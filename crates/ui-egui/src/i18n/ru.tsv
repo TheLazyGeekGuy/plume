@@ -2771,3 +2771,30 @@ preview	Title	Пример
 	Remove this field	Удалить это поле
 	New field	Новое поле
 	Letters, digits, - and _ only	Только буквы, цифры, - и _
+	Callout	Выноска
+	Code Block	Блок кода
+	Code Language	Язык кода
+	Leave Block	Выйти из блока
+	Markdown Block	Блок Markdown
+	Mermaid diagram	Диаграмма Mermaid
+	Plain text	Обычный текст
+	Note	Примечание
+	Tip	Совет
+	Important	Важно
+	Warning	Предупреждение
+	Caution	Осторожно
+	Danger	Опасно
+	Details	Подробности
+	Insert › Markdown	Вставка › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

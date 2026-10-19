@@ -2386,3 +2386,30 @@
 	Remove this field	Remover este campo
 	New field	Novo campo
 	Letters, digits, - and _ only	Somente letras, dígitos, - e _
+	Callout	Destaque
+	Code Block	Bloco de código
+	Code Language	Linguagem do código
+	Leave Block	Sair do bloco
+	Markdown Block	Bloco Markdown
+	Mermaid diagram	Diagrama Mermaid
+	Plain text	Texto simples
+	Note	Nota
+	Tip	Dica
+	Important	Importante
+	Warning	Aviso
+	Caution	Cuidado
+	Danger	Perigo
+	Details	Detalhes
+	Insert › Markdown	Inserir › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

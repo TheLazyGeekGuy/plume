@@ -2373,3 +2373,30 @@
 	Remove this field	Dieses Feld entfernen
 	New field	Neues Feld
 	Letters, digits, - and _ only	Nur Buchstaben, Ziffern, - und _
+	Callout	Hinweisfeld
+	Code Block	Codeblock
+	Code Language	Codesprache
+	Leave Block	Block verlassen
+	Markdown Block	Markdown-Block
+	Mermaid diagram	Mermaid-Diagramm
+	Plain text	Nur Text
+	Note	Hinweis
+	Tip	Tipp
+	Important	Wichtig
+	Warning	Warnung
+	Caution	Vorsicht
+	Danger	Gefahr
+	Details	Details
+	Insert › Markdown	Einfügen › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

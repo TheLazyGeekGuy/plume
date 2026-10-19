@@ -2740,3 +2740,30 @@ preview	Title	Título
 	Remove this field	Quitar este campo
 	New field	Nuevo campo
 	Letters, digits, - and _ only	Solo letras, dígitos, - y _
+	Callout	Destacado
+	Code Block	Bloque de código
+	Code Language	Lenguaje del código
+	Leave Block	Salir del bloque
+	Markdown Block	Bloque Markdown
+	Mermaid diagram	Diagrama Mermaid
+	Plain text	Texto sin formato
+	Note	Nota
+	Tip	Consejo
+	Important	Importante
+	Warning	Advertencia
+	Caution	Precaución
+	Danger	Peligro
+	Details	Detalles
+	Insert › Markdown	Insertar › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

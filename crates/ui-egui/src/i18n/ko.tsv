@@ -2632,3 +2632,30 @@ preview	Title	제목
 	Remove this field	이 필드 제거
 	New field	새 필드
 	Letters, digits, - and _ only	문자, 숫자, - 및 _만
+	Callout	콜아웃
+	Code Block	코드 블록
+	Code Language	코드 언어
+	Leave Block	블록 나가기
+	Markdown Block	Markdown 블록
+	Mermaid diagram	Mermaid 다이어그램
+	Plain text	일반 텍스트
+	Note	참고
+	Tip	팁
+	Important	중요
+	Warning	경고
+	Caution	주의
+	Danger	위험
+	Details	세부 정보
+	Insert › Markdown	삽입 › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

@@ -2408,3 +2408,30 @@
 	Remove this field	Eemalda see väli
 	New field	Uus väli
 	Letters, digits, - and _ only	Ainult tähed, numbrid, - ja _
+	Callout	Esiletõstetud plokk
+	Code Block	Koodiplokk
+	Code Language	Koodi keel
+	Leave Block	Lahku plokist
+	Markdown Block	Markdowni plokk
+	Mermaid diagram	Mermaidi diagramm
+	Plain text	Lihttekst
+	Note	Märkus
+	Tip	Nõuanne
+	Important	Oluline
+	Warning	Hoiatus
+	Caution	Ettevaatust
+	Danger	Oht
+	Details	Üksikasjad
+	Insert › Markdown	Lisa › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

@@ -98,3 +98,16 @@ fn a_markdown_document_is_named_by_its_title() {
     assert!(h.query_by_label("Guide d'installation").is_some());
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// Insert › Markdown: Code Block and Callout; in a code block, Leave Block too.
+#[test]
+fn insert_offers_markdown_blocks() {
+    let mut h = harness(true);
+    h.state_mut().ui.tab = "Insert".into();
+    h.run_steps(4);
+    assert!(h.query_by_label("Code Block").is_some() && h.query_by_label("Callout").is_some());
+    assert!(h.query_by_label("Leave Block").is_none());
+    h.state_mut().run("markdown.codeBlock", serde_json::json!({"language": "js"})).unwrap();
+    h.run_steps(4);
+    assert!(h.query_by_label("Leave Block").is_some());
+}

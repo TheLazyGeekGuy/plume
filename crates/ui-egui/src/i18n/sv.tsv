@@ -2789,3 +2789,30 @@ preview	Title	Titel
 	Remove this field	Ta bort fältet
 	New field	Nytt fält
 	Letters, digits, - and _ only	Endast bokstäver, siffror, - och _
+	Callout	Faktaruta
+	Code Block	Kodblock
+	Code Language	Kodspråk
+	Leave Block	Lämna blocket
+	Markdown Block	Markdown-block
+	Mermaid diagram	Mermaid-diagram
+	Plain text	Oformaterad text
+	Note	Obs
+	Tip	Tips
+	Important	Viktigt
+	Warning	Varning
+	Caution	Försiktighet
+	Danger	Fara
+	Details	Detaljer
+	Insert › Markdown	Infoga › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

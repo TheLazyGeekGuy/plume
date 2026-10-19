@@ -2763,3 +2763,30 @@ preview	Title	Tytuł
 	Remove this field	Usuń to pole
 	New field	Nowe pole
 	Letters, digits, - and _ only	Tylko litery, cyfry, - i _
+	Callout	Ramka
+	Code Block	Blok kodu
+	Code Language	Język kodu
+	Leave Block	Opuść blok
+	Markdown Block	Blok Markdown
+	Mermaid diagram	Diagram Mermaid
+	Plain text	Zwykły tekst
+	Note	Uwaga
+	Tip	Wskazówka
+	Important	Ważne
+	Warning	Ostrzeżenie
+	Caution	Przestroga
+	Danger	Niebezpieczeństwo
+	Details	Szczegóły
+	Insert › Markdown	Wstawianie › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

@@ -2765,3 +2765,30 @@ preview	Title	Ukázka
 	Remove this field	Odebrat toto pole
 	New field	Nové pole
 	Letters, digits, - and _ only	Pouze písmena, číslice, - a _
+	Callout	Zvýrazněný blok
+	Code Block	Blok kódu
+	Code Language	Jazyk kódu
+	Leave Block	Opustit blok
+	Markdown Block	Blok Markdown
+	Mermaid diagram	Diagram Mermaid
+	Plain text	Prostý text
+	Note	Poznámka
+	Tip	Tip
+	Important	Důležité
+	Warning	Upozornění
+	Caution	Pozor
+	Danger	Nebezpečí
+	Details	Podrobnosti
+	Insert › Markdown	Vložení › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

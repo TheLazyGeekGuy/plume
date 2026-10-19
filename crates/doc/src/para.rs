@@ -1206,6 +1206,11 @@ impl Paragraph {
         if tail.text.is_empty() {
             tail.mark = self.props_at(off).unlinked();
         }
+        // Plume: a container's title line stays one line; what follows it is the container's text.
+        if let Some(md) = tail.props.md.as_mut().filter(|m| m.title) {
+            md.title = false;
+            tail.mark.bold = None;
+        }
         self.normalize();
         tail.normalize();
         self.touch();

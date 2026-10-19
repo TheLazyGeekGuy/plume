@@ -2813,3 +2813,30 @@ template	Letter	Thư
 	Remove this field	Xóa trường này
 	New field	Trường mới
 	Letters, digits, - and _ only	Chỉ chữ cái, chữ số, - và _
+	Callout	Khung chú thích
+	Code Block	Khối mã
+	Code Language	Ngôn ngữ mã
+	Leave Block	Rời khối
+	Markdown Block	Khối Markdown
+	Mermaid diagram	Sơ đồ Mermaid
+	Plain text	Văn bản thuần
+	Note	Ghi chú
+	Tip	Mẹo
+	Important	Quan trọng
+	Warning	Cảnh báo
+	Caution	Thận trọng
+	Danger	Nguy hiểm
+	Details	Chi tiết
+	Insert › Markdown	Chèn › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#

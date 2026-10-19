@@ -2388,3 +2388,30 @@
 	Remove this field	Уклони ово поље
 	New field	Ново поље
 	Letters, digits, - and _ only	Само слова, цифре, - и _
+	Callout	Истакнути оквир
+	Code Block	Блок кода
+	Code Language	Језик кода
+	Leave Block	Изађи из блока
+	Markdown Block	Markdown блок
+	Mermaid diagram	Mermaid дијаграм
+	Plain text	Обичан текст
+	Note	Напомена
+	Tip	Савет
+	Important	Важно
+	Warning	Упозорење
+	Caution	Опрез
+	Danger	Опасност
+	Details	Појединости
+	Insert › Markdown	Уметање › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
