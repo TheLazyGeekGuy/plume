@@ -2815,3 +2815,31 @@ preview	Title	Tytuł
 	Discard	Odrzuć
 	Save this document first: an included file is found beside it.	Najpierw zapisz ten dokument: dołączony plik leży obok.
 	View › Markdown Source	Widok › Źródło Markdown
+	Shapes and Connectors	Kształty i łączniki
+	Add Message	Dodaj wiadomość
+	Add Participant	Dodaj uczestnika
+	Add at least one participant.	Dodaj co najmniej jednego uczestnika.
+	Arrowhead	Grot strzałki
+	Chart type	Typ wykresu
+	Click in the canvas to place the shape.	Kliknij w obszarze rysowania, aby umieścić kształt.
+	Connector	Łącznik
+	Drag a shape to move it; drag from a blue handle to another shape to connect them.	Przeciągnij kształt, aby go przenieść; przeciągnij z niebieskiego uchwytu do innego kształtu, aby je połączyć.
+	Drag from one shape to another to connect them.	Przeciągnij z jednego kształtu do drugiego, aby je połączyć.
+	Draw at least one shape.	Narysuj co najmniej jeden kształt.
+	Enter at least one value above zero.	Wprowadź co najmniej jedną wartość większą od zera.
+	From	Od
+	Label	Etykieta
+	Message	Wiadomość
+	Messages	Wiadomości
+	Participant	Uczestnik
+	Participants	Uczestnicy
+	Pick a shape above, then click here to place it.	Wybierz kształt powyżej, a następnie kliknij tutaj, aby go umieścić.
+	Place the shapes step by step along the arrows	Rozmieść kształty krok po kroku wzdłuż strzałek
+	Plume lays the diagram out; the canvas sets the order and direction.	Plume rozmieszcza diagram; obszar rysowania ustala kolejność i kierunek.
+	Remove Series	Usuń serię
+	Reverse Direction	Odwróć kierunek
+	Select a shape or a connector to change it.	Zaznacz kształt lub łącznik, aby go zmienić.
+	Series	Seria
+	Shape	Kształt
+	This kind of diagram has no visual editor yet; its text is kept as written.	Ten rodzaj diagramu nie ma jeszcze edytora wizualnego; jego tekst pozostaje bez zmian.
+	To	Do

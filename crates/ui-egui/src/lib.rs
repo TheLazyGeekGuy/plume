@@ -35,6 +35,7 @@ pub mod control;
 pub mod credits;
 pub mod crop;
 pub mod desktop_theme;
+pub mod diagram_editor;
 pub mod dialogs;
 pub mod dialogs_chart;
 pub mod dialogs_controls;

@@ -2865,3 +2865,31 @@ template	Letter	Thư
 	Discard	Bỏ
 	Save this document first: an included file is found beside it.	Hãy lưu tài liệu này trước: tệp được bao gồm nằm cạnh nó.
 	View › Markdown Source	Xem › Mã nguồn Markdown
+	Shapes and Connectors	Hình và đường kết nối
+	Add Message	Thêm thông điệp
+	Add Participant	Thêm người tham gia
+	Add at least one participant.	Hãy thêm ít nhất một người tham gia.
+	Arrowhead	Đầu mũi tên
+	Chart type	Loại biểu đồ
+	Click in the canvas to place the shape.	Bấm vào vùng vẽ để đặt hình.
+	Connector	Đường kết nối
+	Drag a shape to move it; drag from a blue handle to another shape to connect them.	Kéo một hình để di chuyển; kéo từ tay nắm màu xanh sang hình khác để nối chúng.
+	Drag from one shape to another to connect them.	Kéo từ hình này sang hình khác để nối chúng.
+	Draw at least one shape.	Hãy vẽ ít nhất một hình.
+	Enter at least one value above zero.	Hãy nhập ít nhất một giá trị lớn hơn không.
+	From	Từ
+	Label	Nhãn
+	Message	Thông điệp
+	Messages	Thông điệp
+	Participant	Người tham gia
+	Participants	Những người tham gia
+	Pick a shape above, then click here to place it.	Chọn một hình ở trên, rồi bấm vào đây để đặt nó.
+	Place the shapes step by step along the arrows	Sắp xếp các hình từng bước theo mũi tên
+	Plume lays the diagram out; the canvas sets the order and direction.	Plume tự bố trí sơ đồ; vùng vẽ quyết định thứ tự và hướng.
+	Remove Series	Xóa chuỗi
+	Reverse Direction	Đảo hướng
+	Select a shape or a connector to change it.	Chọn một hình hoặc đường kết nối để thay đổi.
+	Series	Chuỗi
+	Shape	Hình
+	This kind of diagram has no visual editor yet; its text is kept as written.	Loại sơ đồ này chưa có trình chỉnh sửa trực quan; văn bản được giữ nguyên.
+	To	Đến

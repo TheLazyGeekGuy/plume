@@ -113,6 +113,94 @@ pub fn from_chart(spec: &ChartSpec) -> Option<String> {
     }
 }
 
+/// A label read back: quotes and `#quot;` undone.
+fn unlabel(s: &str) -> String {
+    let s = s.trim();
+    s.strip_prefix('"').and_then(|r| r.strip_suffix('"')).unwrap_or(s).replace("#quot;", "\"").chars().take(MAX_LABEL).collect()
+}
+
+/// `[a, "b", 3]`'s items (commas inside quotes kept).
+fn list(s: &str) -> Option<Vec<String>> {
+    let inner = s.trim().strip_prefix('[')?.strip_suffix(']')?;
+    let (mut out, mut cur, mut quoted) = (Vec::new(), String::new(), false);
+    for c in inner.chars() {
+        match c {
+            '"' => {
+                quoted = !quoted;
+                cur.push(c);
+            }
+            ',' if !quoted => out.push(unlabel(&std::mem::take(&mut cur))),
+            _ => cur.push(c),
+        }
+        if out.len() > MAX_ITEMS {
+            return None;
+        }
+    }
+    if !cur.trim().is_empty() {
+        out.push(unlabel(&cur));
+    }
+    Some(out)
+}
+
+/// A Mermaid `pie` or `xychart-beta` read back as a chart, for the chart editor; `None` for
+/// anything else or what the editor can't show.
+pub fn chart_of(src: &str) -> Option<ChartSpec> {
+    let mut lines = src.lines().map(str::trim).filter(|l| !l.is_empty() && !l.starts_with("%%"));
+    let head = lines.next()?;
+    if let Some(rest) = head.strip_prefix("pie") {
+        let mut rest = rest.trim();
+        rest = rest.strip_prefix("showData").map_or(rest, str::trim);
+        let title = rest.strip_prefix("title").map(|t| t.trim().to_string()).filter(|t| !t.is_empty());
+        let (mut categories, mut values) = (Vec::new(), Vec::new());
+        for l in lines.take(MAX_ITEMS + 1) {
+            let (c, v) = l.rsplit_once(':')?;
+            categories.push(unlabel(c));
+            values.push(Some(v.trim().parse::<f64>().ok().filter(|f| f.is_finite())?));
+        }
+        return Some(ChartSpec {
+            kind: ChartType::Pie,
+            categories,
+            series: vec![wordcraft_doc::chart::ChartSeries { name: String::new(), values }],
+            title,
+            ..Default::default()
+        });
+    }
+    let horizontal = match head {
+        "xychart-beta" | "xychart" => false,
+        "xychart-beta horizontal" | "xychart horizontal" => true,
+        _ => return None,
+    };
+    let (mut title, mut categories, mut series, mut lines_only) = (None, Vec::new(), Vec::new(), true);
+    for l in lines.take(40) {
+        if let Some(t) = l.strip_prefix("title") {
+            title = Some(unlabel(t)).filter(|t| !t.is_empty());
+        } else if let Some(x) = l.strip_prefix("x-axis") {
+            categories = list(x)?;
+        } else if l.starts_with("y-axis") {
+        } else if let Some((mark, vals)) = l.split_once(' ') {
+            if !matches!(mark, "bar" | "line") {
+                return None;
+            }
+            lines_only &= mark == "line";
+            let values = list(vals)?.iter().map(|v| v.parse::<f64>().ok().filter(|f| f.is_finite())).collect::<Vec<_>>();
+            series.push(wordcraft_doc::chart::ChartSeries { name: format!("Series {}", series.len() + 1), values });
+        } else {
+            return None;
+        }
+    }
+    if series.is_empty() {
+        return None;
+    }
+    let kind = if lines_only {
+        ChartType::Line
+    } else if horizontal {
+        ChartType::Bar
+    } else {
+        ChartType::Column
+    };
+    Some(ChartSpec { kind, categories, series, title, ..Default::default() })
+}
+
 #[cfg(test)]
 mod tests {
     use wordcraft_doc::chart::ChartSeries;
@@ -146,6 +234,15 @@ mod tests {
         for src in [src, from_smart_art(&tree).unwrap(), from_chart(&pie).unwrap(), from_chart(&columns).unwrap()] {
             assert!(crate::draw(&src).is_ok(), "{src}");
         }
+        for c in [pie.clone(), columns.clone(), ChartSpec { kind: ChartType::Line, ..pie.clone() }] {
+            let back = chart_of(&from_chart(&c).unwrap()).unwrap();
+            assert_eq!((back.kind, &back.categories, &back.series[0].values, &back.title), (c.kind, &c.categories, &c.series[0].values, &c.title));
+        }
+        assert!(
+            chart_of("pie\n \"a\" : x").is_none()
+                && chart_of("gantt").is_none()
+                && chart_of("xychart-beta\n x-axis [a, \"b, c\"]\n bar [1, 2]").is_some()
+        );
         assert!(from_chart(&ChartSpec { kind: ChartType::Scatter, ..pie }).is_none());
     }
 }

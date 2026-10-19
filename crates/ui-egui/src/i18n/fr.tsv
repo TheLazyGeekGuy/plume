@@ -2433,3 +2433,32 @@
 	Discard	Abandonner
 	Save this document first: an included file is found beside it.	Enregistrez d'abord ce document : le fichier inclus se trouve à côté.
 	View › Markdown Source	Affichage › Source Markdown
+	Shapes and Connectors	Formes et connecteurs
+	Add Message	Ajouter un message
+	Add Participant	Ajouter un participant
+	Add at least one participant.	Ajoutez au moins un participant.
+	Arrowhead	Pointe de flèche
+	Category	Catégorie
+	Chart type	Type de graphique
+	Click in the canvas to place the shape.	Cliquez dans la zone de dessin pour placer la forme.
+	Connector	Connecteur
+	Drag a shape to move it; drag from a blue handle to another shape to connect them.	Faites glisser une forme pour la déplacer ; tirez d’une poignée bleue vers une autre forme pour les relier.
+	Drag from one shape to another to connect them.	Tirez d’une forme vers une autre pour les relier.
+	Draw at least one shape.	Dessinez au moins une forme.
+	Enter at least one value above zero.	Saisissez au moins une valeur supérieure à zéro.
+	From	De
+	Label	Étiquette
+	Message	Message
+	Messages	Messages
+	Participant	Participant
+	Participants	Participants
+	Pick a shape above, then click here to place it.	Choisissez une forme ci-dessus, puis cliquez ici pour la placer.
+	Place the shapes step by step along the arrows	Ranger les formes étape par étape le long des flèches
+	Plume lays the diagram out; the canvas sets the order and direction.	Plume met le diagramme en page ; la zone de dessin fixe l’ordre et le sens.
+	Remove Series	Supprimer la série
+	Reverse Direction	Inverser le sens
+	Select a shape or a connector to change it.	Sélectionnez une forme ou un connecteur pour le modifier.
+	Series	Série
+	Shape	Forme
+	This kind of diagram has no visual editor yet; its text is kept as written.	Ce type de diagramme n’a pas encore d’éditeur visuel ; son texte est gardé tel qu’écrit.
+	To	À

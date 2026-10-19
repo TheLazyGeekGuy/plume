@@ -8276,6 +8276,76 @@ fn diagrams_from_mermaid_source() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+/// Plume: a diagram drawn as shapes joined by connectors becomes a Mermaid flowchart, which
+/// reopens as the same shapes (where they were put) for the canvas.
+#[test]
+fn drawn_diagrams_become_flowcharts() {
+    let mut s = Session::new(wordcraft_doc::Document::from_text("Intro."));
+    s.native_markdown = true;
+    let sketch = json!({"nodes": [
+        {"text": "Draft", "shape": "stadium", "x": 60, "y": 40},
+        {"text": "Reviewed?", "shape": "diamond", "x": 60, "y": 160},
+        {"text": "Publish", "x": 60, "y": 280}
+    ], "edges": [{"from": 0, "to": 1, "arrow": true}, {"from": 1, "to": 2, "label": "yes", "arrow": true, "line": "dotted"}]});
+    s.run("markdown.diagram", &json!({"sketch": sketch})).unwrap();
+    let block = s.run("markdown.block", &json!({})).unwrap();
+    let src = block["diagram"].as_str().unwrap();
+    assert!(src.starts_with("flowchart TD\n    n1([\"Draft\"])\n    n2{\"Reviewed?\"}\n"), "{src}");
+    assert!(src.contains("n2 -.->|\"yes\"| n3") && src.contains("%% plume n3 60 280"), "{src}");
+    assert_eq!(block["sketch"]["nodes"][1]["shape"], "diamond");
+    assert_eq!(block["sketch"]["nodes"][2]["y"], 280.0);
+    for bad in [json!({"nodes": []}), json!({"nodes": [{"text": "a"}], "edges": [{"from": 0, "to": 3}]}), json!({"nodes": "x"})] {
+        assert!(s.run("markdown.diagram", &json!({"sketch": bad})).is_err(), "{bad}");
+    }
+}
+
+/// Plume: a Word drawing canvas of shapes glued to connectors is saved as a Mermaid flowchart.
+#[test]
+fn word_drawings_with_connectors_become_mermaid() {
+    use wordcraft_doc::connector::{ConnEnd, ShapeExtra};
+    use wordcraft_doc::para::{GroupChild, InlineObject, ShapeKind};
+    let mut doc = wordcraft_doc::Document::from_text("Before.");
+    let story =
+        |doc: &mut wordcraft_doc::Document, t: &str| doc.add_part(wordcraft_doc::PartKind::TextBox, wordcraft_doc::Document::from_text(t).body);
+    let (a, b) = (story(&mut doc, "Ask"), story(&mut doc, "Answer"));
+    let shape = |kind: ShapeKind, story: Option<u32>, extra: ShapeExtra| InlineObject::Shape {
+        kind,
+        w: 100.0,
+        h: 40.0,
+        fill: None,
+        stroke: None,
+        stroke_width: 1.0,
+        float: Default::default(),
+        story,
+        freeform: None,
+        effects: Default::default(),
+        extra,
+    };
+    let children = vec![
+        GroupChild { x: 0.0, y: 0.0, obj: shape(ShapeKind::TextBox, Some(a), ShapeExtra { id: 4, ..Default::default() }) },
+        GroupChild { x: 0.0, y: 120.0, obj: shape(ShapeKind::Diamond, Some(b), ShapeExtra { id: 5, ..Default::default() }) },
+        GroupChild {
+            x: 50.0,
+            y: 40.0,
+            obj: shape(
+                ShapeKind::StraightConnector,
+                None,
+                ShapeExtra { start: Some(ConnEnd { id: 4, site: 2 }), end: Some(ConnEnd { id: 5, site: 0 }), arrow_end: true, ..Default::default() },
+            ),
+        },
+    ];
+    let mut p = wordcraft_doc::Paragraph::new();
+    p.insert_object(
+        0,
+        InlineObject::Group { w: 200.0, h: 200.0, float: Default::default(), ch_w: 200.0, ch_h: 200.0, children, canvas: Some(Default::default()) },
+        &Default::default(),
+    )
+    .unwrap();
+    doc.body.push(wordcraft_doc::para_block(p));
+    let text = crate::io::markdown_text(&doc);
+    assert!(text.contains("```mermaid\nflowchart TD\n    n1[\"Ask\"]\n    n2{\"Answer\"}\n    n1 --> n2\n"), "{text}");
+}
+
 /// Plume: heading anchors (`{#anchor}`), include directives and the Markdown source view.
 #[cfg(not(target_arch = "wasm32"))]
 #[test]

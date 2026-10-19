@@ -133,9 +133,10 @@ fn save_version_offers_the_merge_request() {
     assert!(h.query_by_label("Saved on your branch ada-docs; main is locked.").is_some());
 }
 
-/// Insert › Markdown › Diagram; the diagram editor shows the source and its preview.
+/// Insert › Markdown › Diagram; a flowchart opens on the canvas of shapes and connectors, with
+/// its preview, never as Mermaid text.
 #[test]
-fn the_diagram_editor_previews_the_source() {
+fn the_diagram_editor_draws_shapes_and_connectors() {
     let mut h = harness(true);
     h.state_mut().ui.tab = "Insert".into();
     h.run_steps(4);
@@ -145,7 +146,10 @@ fn the_diagram_editor_previews_the_source() {
     assert!(h.state_mut().session.run("markdown.block", &serde_json::json!({})).unwrap().get("diagram").is_some(), "the caret is on the diagram");
     let _ = h.state_mut().run("ui.dialog", serde_json::json!({"name": "diagram"}));
     h.run_steps(4);
-    assert!(h.query_by_label("Mermaid source").is_some() && h.query_by_label("Preview").is_some());
+    assert!(h.query_by_label("Shapes and Connectors").is_some() && h.query_by_label("Preview").is_some());
+    assert!(h.query_by_label("Arrange").is_some() && h.query_by_label("Mermaid source").is_none());
+    let Some(crate::dialogs::Dialog::Diagram(e)) = &h.state().dialog else { panic!("the diagram editor is open") };
+    assert_eq!((e.kind, e.sketch.nodes.len(), e.sketch.edges.len()), (crate::diagram_editor::Kind::Shapes, 2, 1));
 }
 
 /// View › Markdown Source shows the document as its file is written; edited and applied, the

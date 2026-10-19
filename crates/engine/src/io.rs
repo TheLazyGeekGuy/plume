@@ -726,7 +726,14 @@ const MAX_GRAPHICS: usize = 200;
 fn has_graphics(blocks: &wordcraft_doc::Blocks, depth: usize) -> bool {
     depth < 8
         && blocks.iter().any(|b| match &**b {
-            wordcraft_doc::Block::Para(p) => p.objects.iter().any(|o| matches!(o, wordcraft_doc::InlineObject::Graphic { .. })),
+            wordcraft_doc::Block::Para(p) => p.objects.iter().any(|o| match o {
+                wordcraft_doc::InlineObject::Graphic { .. } => true,
+                // A drawing of shapes joined by connectors (Plume: becomes a Mermaid flowchart).
+                wordcraft_doc::InlineObject::Group { children, .. } => children
+                    .iter()
+                    .any(|c| matches!(&c.obj, wordcraft_doc::InlineObject::Shape { extra, .. } if extra.start.is_some() && extra.end.is_some())),
+                _ => false,
+            }),
             wordcraft_doc::Block::Table(t) => t.rows.iter().flat_map(|r| &r.cells).any(|c| has_graphics(&c.blocks, depth + 1)),
         })
 }
@@ -744,8 +751,12 @@ fn graphics_as_pictures(src: &Document, out: &mut Document, b: &mut wordcraft_do
                 let media = out.add_media(pic.png.to_vec(), "png");
                 let k = if pic.width > 450.0 { 450.0 / pic.width } else { 1.0 };
                 for o in &mut p.objects {
-                    if let wordcraft_doc::InlineObject::Graphic { alt, .. } = o {
-                        let alt = alt.clone();
+                    let alt = match o {
+                        wordcraft_doc::InlineObject::Graphic { alt, .. } => Some(alt.clone()),
+                        wordcraft_doc::InlineObject::Group { .. } => Some(String::new()),
+                        _ => None,
+                    };
+                    if let Some(alt) = alt {
                         *o = wordcraft_doc::InlineObject::Image {
                             media: media.clone(),
                             w: pic.width * k,
@@ -791,11 +802,21 @@ fn graphics_as_pictures(src: &Document, out: &mut Document, b: &mut wordcraft_do
     }
 }
 
-/// Plume: a paragraph holding one chart or SmartArt graphic and no text, as Mermaid source and
-/// its picture. The graphic's model when Plume made it, else what its parts say.
+/// Plume: a paragraph holding one chart, SmartArt graphic or drawing of shapes joined by
+/// connectors and no text, as Mermaid source and its picture. The graphic's model when Plume
+/// made it, else what its parts say.
 fn graphic_as_mermaid(src: &Document, p: &wordcraft_doc::Paragraph) -> Option<(String, wordcraft_diagram::Picture)> {
     if !p.plain_text().trim().is_empty() || p.objects.iter().filter(|o| !o.is_marker()).count() != 1 {
         return None;
+    }
+    if let Some(children) = p.objects.iter().find_map(|o| match o {
+        wordcraft_doc::InlineObject::Group { children, .. } => Some(children),
+        _ => None,
+    }) {
+        let text = |id: u32| src.plain_text(wordcraft_doc::StoryRef::Part(id)).split_whitespace().collect::<Vec<_>>().join(" ");
+        let source = wordcraft_diagram::sketch::Sketch::from_drawing(children, &text)?.to_mermaid();
+        let pic = wordcraft_diagram::draw(&source).ok()?;
+        return Some((source, pic));
     }
     let g = p.objects.iter().find_map(|o| match o {
         wordcraft_doc::InlineObject::Graphic { graphic, .. } => Some(graphic.clone()),

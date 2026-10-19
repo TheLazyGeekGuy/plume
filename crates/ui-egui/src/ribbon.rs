@@ -1094,9 +1094,10 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
             }
         });
         menu_button(ui, app, "diagram", Some("Diagram"), "Diagram", true, "markdown.diagram", |ui, app| {
-            for (name, src) in crate::dialogs::DIAGRAM_TEMPLATES {
-                if ui.button(tl!(name)).clicked() && app.run("markdown.diagram", json!({"source": src})).is_ok() {
-                    let _ = app.run("ui.dialog", json!({"name": "diagram"}));
+            use crate::diagram_editor::{DiagramEditor, Kind};
+            for (label, kind) in [("Shapes and Connectors", Kind::Shapes), ("Sequence", Kind::Sequence), ("Chart", Kind::Chart)] {
+                if ui.button(tl!(label)).clicked() {
+                    app.dialog = Some(crate::dialogs::Dialog::Diagram(Box::new(DiagramEditor::new(kind))));
                     ui.close();
                 }
             }

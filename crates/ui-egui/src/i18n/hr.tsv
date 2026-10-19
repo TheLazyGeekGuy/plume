@@ -2826,3 +2826,31 @@ preview	Title	Naslov
 	Discard	Odbaci
 	Save this document first: an included file is found beside it.	Najprije spremite ovaj dokument: uključena datoteka nalazi se pokraj njega.
 	View › Markdown Source	Prikaz › Markdown izvor
+	Shapes and Connectors	Oblici i spojnice
+	Add Message	Dodaj poruku
+	Add Participant	Dodaj sudionika
+	Add at least one participant.	Dodajte barem jednog sudionika.
+	Arrowhead	Vrh strelice
+	Chart type	Vrsta grafikona
+	Click in the canvas to place the shape.	Kliknite na platno da biste postavili oblik.
+	Connector	Spojnica
+	Drag a shape to move it; drag from a blue handle to another shape to connect them.	Povucite oblik da biste ga premjestili; povucite s plave ručice na drugi oblik da biste ih spojili.
+	Drag from one shape to another to connect them.	Povucite s jednog oblika na drugi da biste ih spojili.
+	Draw at least one shape.	Nacrtajte barem jedan oblik.
+	Enter at least one value above zero.	Unesite barem jednu vrijednost veću od nule.
+	From	Od
+	Label	Oznaka
+	Message	Poruka
+	Messages	Poruke
+	Participant	Sudionik
+	Participants	Sudionici
+	Pick a shape above, then click here to place it.	Odaberite oblik gore, a zatim kliknite ovdje da biste ga postavili.
+	Place the shapes step by step along the arrows	Posloži oblike korak po korak duž strelica
+	Plume lays the diagram out; the canvas sets the order and direction.	Plume raspoređuje dijagram; platno određuje redoslijed i smjer.
+	Remove Series	Ukloni niz
+	Reverse Direction	Obrni smjer
+	Select a shape or a connector to change it.	Odaberite oblik ili spojnicu da biste ih promijenili.
+	Series	Niz
+	Shape	Oblik
+	This kind of diagram has no visual editor yet; its text is kept as written.	Ova vrsta dijagrama još nema vizualni uređivač; tekst se čuva kako je napisan.
+	To	Za

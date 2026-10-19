@@ -11,5 +11,6 @@ workspace = true
 [dependencies]
 wordcraft-fonts = { workspace = true }
 wordcraft-doc = { workspace = true }
+serde = { workspace = true }
 mermaid-svg = "0.7.0"
 resvg = { version = "0.45", default-features = false, features = ["text"] }

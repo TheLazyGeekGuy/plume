@@ -48,7 +48,7 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("markdown.setSource", "Apply Markdown Source", "View › Markdown Source", set_source)
             .params(r#"{"text": string} — the document becomes what this Markdown says (undoable)"#),
         CommandSpec::new("markdown.diagram", "Diagram", "Insert › Markdown", diagram)
-            .params(r#"{"source": string (Mermaid)} — the diagram at the caret takes this source, or a new one goes after the caret's paragraph; refused when the source can't be drawn"#),
+            .params(r#"{"source": string (Mermaid)} | {"sketch": {"nodes": [{"text", "shape": "rectangle"|"rounded"|"stadium"|"circle"|"diamond"|"hexagon"|"parallelogram"|"database", "x", "y"}], "edges": [{"from": index, "to": index, "label", "arrow": bool, "line": "solid"|"dotted"|"thick"}]}} (shapes joined by connectors, written as a Mermaid flowchart) — the diagram at the caret takes it, or a new one goes after the caret's paragraph; refused when it can't be drawn"#),
     ]
 }
 
@@ -69,6 +69,10 @@ fn block_at_caret(s: &Session) -> Value {
     }
     if let Some(src) = &md.diagram {
         out["diagram"] = json!(src);
+        // A flowchart the canvas can open: its shapes and connectors.
+        if let Some(sk) = wordcraft_diagram::sketch::Sketch::parse(src) {
+            out["sketch"] = serde_json::to_value(sk).unwrap_or_default();
+        }
     }
     if let Some(a) = &md.anchor {
         out["anchor"] = json!(a);
@@ -154,8 +158,9 @@ fn set_source(s: &mut Session, v: &Value) -> CmdResult {
 /// A diagram from its Mermaid source: drawn into the diagram at the caret, into an empty
 /// paragraph there, or into a new paragraph after the caret's.
 fn diagram(s: &mut Session, v: &Value) -> CmdResult {
-    let source = match v.get("source") {
-        Some(Value::String(x)) if x.len() <= wordcraft_diagram::MAX_SOURCE => x.replace("\r\n", "\n").trim_end().to_string(),
+    let source = match (v.get("source"), v.get("sketch")) {
+        (Some(Value::String(x)), _) if x.len() <= wordcraft_diagram::MAX_SOURCE => x.replace("\r\n", "\n").trim_end().to_string(),
+        (None, Some(sk)) => sketch_source(sk)?,
         _ => return Err(CmdError::Params(format!("`source`: the diagram's Mermaid text, at most {} bytes", wordcraft_diagram::MAX_SOURCE))),
     };
     let pic = wordcraft_diagram::draw(&source).map_err(|e| CmdError::Params(e.to_string()))?;
@@ -194,6 +199,32 @@ fn diagram(s: &mut Session, v: &Value) -> CmdResult {
     };
     s.sel = crate::Selection::caret(wordcraft_doc::Pos { story, path: target, off: 0 });
     Ok(json!({"diagram": true, "width": pic.width * k, "height": pic.height * k}))
+}
+
+/// A drawn diagram's Mermaid source, from its shapes and connectors.
+fn sketch_source(v: &Value) -> Result<String, CmdError> {
+    use wordcraft_diagram::sketch::{MAX_EDGES, MAX_NODES, Sketch};
+    let bad = |m: &str| CmdError::Params(format!("`sketch`: {m}"));
+    let given: Sketch = serde_json::from_value(v.clone()).map_err(|e| bad(&e.to_string()))?;
+    if given.nodes.is_empty() || given.nodes.len() > MAX_NODES || given.edges.len() > MAX_EDGES {
+        return Err(bad(&format!("1 to {MAX_NODES} shapes and at most {MAX_EDGES} connectors")));
+    }
+    // Shapes get fresh ids (whatever was given), connectors must join two of them.
+    let mut sk = Sketch::default();
+    for n in &given.nodes {
+        sk.add(n.shape, &n.text, n.x, n.y).ok_or_else(|| bad("too many shapes"))?;
+    }
+    for e in &given.edges {
+        let k = sk
+            .connect(e.from, e.to)
+            .ok_or_else(|| bad(&format!("a connector from {} to {} doesn't join two shapes (or repeats one)", e.from, e.to)))?;
+        if let Some(edge) = sk.edges.get_mut(k) {
+            edge.label = e.label.chars().take(wordcraft_diagram::sketch::MAX_TEXT).collect();
+            edge.arrow = e.arrow;
+            edge.line = e.line;
+        }
+    }
+    Ok(sk.to_mermaid())
 }
 
 /// Every paragraph's Markdown block in `blocks` (tables included), for ids.
