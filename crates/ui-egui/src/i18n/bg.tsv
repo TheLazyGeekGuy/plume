@@ -2793,3 +2793,4 @@
 	Merge request {n} into {target} is open: this version goes in it.	Заявката за сливане {n} към {target} е отворена: тази версия влиза в нея.
 	Request the merge into {target}	Заявка за сливане в {target}
 	Version {id} saved; merge request {n} opened	Версия {id} е записана; отворена е заявка за сливане {n}
+	Markdown indents list items only	Markdown отстъпва само елементи от списък

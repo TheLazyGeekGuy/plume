@@ -2417,3 +2417,4 @@
 	Merge request {n} into {target} is open: this version goes in it.	合并请求 {n}（合并到 {target}）已打开：此版本将包含在内。
 	Request the merge into {target}	请求合并到 {target}
 	Version {id} saved; merge request {n} opened	已保存版本 {id}；已打开合并请求 {n}
+	Markdown indents list items only	Markdown 只能缩进列表项

@@ -2663,3 +2663,4 @@ preview	Title	제목
 	Merge request {n} into {target} is open: this version goes in it.	{target}(으)로의 병합 요청 {n}이(가) 열려 있습니다. 이 버전도 포함됩니다.
 	Request the merge into {target}	{target}(으)로 병합 요청
 	Version {id} saved; merge request {n} opened	버전 {id} 저장됨, 병합 요청 {n} 열림
+	Markdown indents list items only	Markdown은 목록 항목만 들여씁니다

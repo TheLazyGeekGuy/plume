@@ -2771,3 +2771,4 @@ preview	Title	Título
 	Merge request {n} into {target} is open: this version goes in it.	La solicitud de fusión {n} hacia {target} está abierta: esta versión entra en ella.
 	Request the merge into {target}	Solicitar la fusión en {target}
 	Version {id} saved; merge request {n} opened	Versión {id} guardada; solicitud de fusión {n} abierta
+	Markdown indents list items only	Markdown solo aplica sangría a los elementos de lista

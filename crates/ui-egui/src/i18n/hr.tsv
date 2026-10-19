@@ -2805,3 +2805,4 @@ preview	Title	Naslov
 	Merge request {n} into {target} is open: this version goes in it.	Zahtjev za spajanje {n} u {target} je otvoren: ova verzija ulazi u njega.
 	Request the merge into {target}	Zatraži spajanje u {target}
 	Version {id} saved; merge request {n} opened	Verzija {id} spremljena; otvoren zahtjev za spajanje {n}
+	Markdown indents list items only	Markdown uvlači samo stavke popisa

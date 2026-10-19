@@ -1227,8 +1227,18 @@ impl Session {
         if !self.prefs.markdown_strict || !self.is_markdown() {
             return None;
         }
-        (crate::plume::is_office(id) || crate::cmd::versions::NOT_IN_MARKDOWN.contains(&id))
-            .then_some("Markdown can't keep this formatting (strict Markdown mode)")
+        if crate::plume::is_office(id) || crate::cmd::versions::NOT_IN_MARKDOWN.contains(&id) {
+            return Some("Markdown can't keep this formatting (strict Markdown mode)");
+        }
+        // Markdown indents list items only (a list level); other paragraphs have no indent.
+        if matches!(id, "para.indent" | "para.outdent") {
+            let listed = self
+                .doc
+                .para(self.sel.focus.story, &self.sel.focus.path)
+                .is_some_and(|p| self.doc.styles.resolve_para(&p.props).numbering.is_some_and(|n| n.num != 0));
+            return (!listed).then_some("Markdown indents list items only");
+        }
+        None
     }
 
     pub fn run(&mut self, id: &str, params: &Value) -> Result<Value, CmdError> {

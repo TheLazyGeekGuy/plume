@@ -2844,3 +2844,4 @@ template	Letter	Thư
 	Merge request {n} into {target} is open: this version goes in it.	Yêu cầu hợp nhất {n} vào {target} đang mở: phiên bản này sẽ vào đó.
 	Request the merge into {target}	Yêu cầu hợp nhất vào {target}
 	Version {id} saved; merge request {n} opened	Đã lưu phiên bản {id}; đã mở yêu cầu hợp nhất {n}
+	Markdown indents list items only	Markdown chỉ thụt lề các mục danh sách

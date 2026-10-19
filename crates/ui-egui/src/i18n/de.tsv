@@ -2404,3 +2404,4 @@
 	Merge request {n} into {target} is open: this version goes in it.	Merge-Request {n} nach {target} ist offen: diese Version fließt ein.
 	Request the merge into {target}	Merge in {target} anfordern
 	Version {id} saved; merge request {n} opened	Version {id} gespeichert; Merge-Request {n} geöffnet
+	Markdown indents list items only	Markdown rückt nur Listenelemente ein

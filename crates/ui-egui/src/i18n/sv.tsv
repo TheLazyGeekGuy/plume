@@ -2820,3 +2820,4 @@ preview	Title	Titel
 	Merge request {n} into {target} is open: this version goes in it.	Sammanslagningsbegäran {n} till {target} är öppen: den här versionen ingår.
 	Request the merge into {target}	Begär sammanslagning till {target}
 	Version {id} saved; merge request {n} opened	Version {id} sparad; sammanslagningsbegäran {n} öppnad
+	Markdown indents list items only	Markdown drar bara in listobjekt

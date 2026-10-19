@@ -8229,3 +8229,19 @@ fn locked_main_work_branch_workflow() {
     assert!(s.forge.as_ref().unwrap().review.is_none());
     assert!(s.doc.plain_text(StoryRef::Body).contains("World."));
 }
+
+/// Plume: in a Markdown document, Increase Indent works in a list only.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn markdown_indents_list_items_only() {
+    let dir = scratch_dir("md-indent");
+    let md = dir.join("indent.md");
+    std::fs::write(&md, "Text.\n\n- one\n- two\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    assert!(s.markdown_blocks("para.indent").is_some());
+    s.run("caret.set", &json!({"pos": {"block": 2, "off": 0}})).unwrap();
+    assert!(s.markdown_blocks("para.indent").is_none());
+    let _ = std::fs::remove_dir_all(&dir);
+}

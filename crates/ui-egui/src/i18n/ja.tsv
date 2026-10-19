@@ -2405,3 +2405,4 @@
 	Merge request {n} into {target} is open: this version goes in it.	{target} へのマージ リクエスト {n} が開いています: このバージョンも含まれます。
 	Request the merge into {target}	{target} へのマージをリクエスト
 	Version {id} saved; merge request {n} opened	バージョン {id} を保存し、マージ リクエスト {n} を開きました
+	Markdown indents list items only	Markdown でインデントできるのはリスト項目だけです

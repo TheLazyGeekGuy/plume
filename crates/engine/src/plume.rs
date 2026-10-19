@@ -92,6 +92,13 @@ mod tests {
             "draw.pen",
             "review.compare",
             "review.trackingOptions",
+            // Their effect doesn't survive a Markdown save (audit, section 6.1).
+            "insert.bookmark",
+            "para.rtl",
+            "styles.modify",
+            "picture.size",
+            "table.repeatHeader",
+            "file.privacyOptions",
         ] {
             assert!(is_office(id), "{id} is Office");
         }

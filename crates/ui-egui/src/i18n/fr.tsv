@@ -2412,3 +2412,4 @@
 	Merge request {n} into {target} is open: this version goes in it.	La demande de fusion {n} vers {target} est ouverte : cette version y entre.
 	Request the merge into {target}	Demander la fusion dans {target}
 	Version {id} saved; merge request {n} opened	Version {id} enregistrée ; demande de fusion {n} ouverte
+	Markdown indents list items only	Le Markdown ne met en retrait que les éléments de liste

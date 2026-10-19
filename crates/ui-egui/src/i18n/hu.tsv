@@ -2800,3 +2800,4 @@
 	Merge request {n} into {target} is open: this version goes in it.	A(z) {n}. egyesítési kérés a(z) {target} ágba nyitva van: ez a verzió bekerül.
 	Request the merge into {target}	Egyesítés kérése a(z) {target} ágba
 	Version {id} saved; merge request {n} opened	{id} verzió mentve; {n}. egyesítési kérés megnyitva
+	Markdown indents list items only	A Markdown csak a listaelemeket húzza be

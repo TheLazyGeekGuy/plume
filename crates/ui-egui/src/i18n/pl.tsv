@@ -2794,3 +2794,4 @@ preview	Title	Tytuł
 	Merge request {n} into {target} is open: this version goes in it.	Prośba o scalenie {n} do {target} jest otwarta: ta wersja do niej trafi.
 	Request the merge into {target}	Poproś o scalenie do {target}
 	Version {id} saved; merge request {n} opened	Zapisano wersję {id}; otwarto prośbę o scalenie {n}
+	Markdown indents list items only	Markdown wcina tylko elementy listy
