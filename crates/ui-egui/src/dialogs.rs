@@ -4317,6 +4317,7 @@ pub struct ForgeBrowser {
     replace: bool,
     /// Signing in on the forge's page: the OAuth client id typed, and the sign-in under way.
     /// (`kind:host`, client id): offered again when that forge is picked.
+    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
     client_id: Option<(String, String)>,
     device: Option<ForgeDevice>,
 }
@@ -4369,6 +4370,7 @@ fn forge_device_start(app: &WordApp, ctx: &egui::Context, acc: &ForgeAccount, cl
 
 /// The OAuth client id to offer for a forge: the one used last, else `PLUME_GITHUB_CLIENT_ID` /
 /// `PLUME_GITLAB_CLIENT_ID`.
+#[cfg_attr(target_arch = "wasm32", allow(dead_code))]
 fn forge_client_id(app: &WordApp, kind: &str, host: &str) -> String {
     if let Some(id) = app.ui.forge_client_ids.get(&format!("{kind}:{host}")) {
         return id.clone();

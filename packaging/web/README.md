@@ -12,6 +12,15 @@ static site in `wordcraft-web-<version>/`:
 
 There is no server-side code. Upload the folder's contents anywhere that serves static files.
 
+## GitHub Pages
+
+Plume publishes itself on GitHub Pages from `main`: `.github/workflows/pages.yml` builds with
+Trunk and deploys on every push to `main` (and on demand, Actions › Web (GitHub Pages) › Run
+workflow). One-time setting: Settings › Pages › Build and deployment › Source: **GitHub
+Actions**. The site is `https://<owner>.github.io/<repo>/`. Pages serves `.wasm` as
+`application/wasm`, compresses with gzip and uses HTTPS; it doesn't let you set
+`Cache-Control`, which only costs a re-download after a release.
+
 ## Any path works
 
 All URLs in `index.html` are relative (`public_url = "./"` in `apps/wordcraft-web/Trunk.toml`),

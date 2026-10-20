@@ -529,6 +529,7 @@ fn run_with_timeout(exe: &Path, args: &[&str], dir: &Path) -> Result<bool, CmdEr
 }
 
 /// The first error a TeX run reported (`! …` and the line after), else the end of its output.
+#[cfg_attr(target_arch = "wasm32", allow(dead_code))]
 fn tex_error(dir: &Path) -> String {
     let text = ["document.log", "engine-output.txt"].iter().filter_map(|f| fs::read_work_text(&dir.join(f))).collect::<Vec<_>>().join("\n");
     let lines: Vec<&str> = text.lines().collect();
