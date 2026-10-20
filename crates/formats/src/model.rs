@@ -2,21 +2,24 @@
 //! quote, code…), list membership, alignment and formatted inline spans; tables of cells holding
 //! blocks. [`to_doc`] and [`from_doc`] convert between it and the full [`Document`].
 
+use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use wordcraft_doc::numbering::{AbstractNum, Level, ListKind, Num, levels_for};
-use wordcraft_doc::para::{InlineObject, OBJ, PAGE_BREAK, Run};
+use wordcraft_doc::para::{InlineObject, NoteKind, OBJ, PAGE_BREAK, Run};
 use wordcraft_doc::props::{
     Border, BorderStyle, Borders, CellProps, CharProps, NumRef, ParaProps, PropChange, RowProps, TextColor, Underline, VMerge, VertAlign,
 };
 use wordcraft_doc::section::NumFormat;
 use wordcraft_doc::styles::{Style, StyleKind};
-use wordcraft_doc::{Align, Block, Blocks, Document, Paragraph, Revision, RevisionKind, Rgb, Table, para_block};
+use wordcraft_doc::{Align, Block, Blocks, Document, Paragraph, PartKind, Revision, RevisionKind, Rgb, Table, para_block};
 
 /// Font used for code spans and code blocks.
 pub const MONO_FONT: &str = "Courier New";
 /// Style id of code-block paragraphs.
 pub const CODE_STYLE: &str = "Code";
+/// Plume: character style id of Markdown source kept as written ([`Fmt::raw`]).
+pub const RAW_STYLE: &str = "MarkdownSource";
 /// Nesting limit for tables in tables (hostile input).
 pub const MAX_DEPTH: usize = 8;
 
@@ -41,6 +44,9 @@ pub struct Fmt {
     pub ins: Option<RevMark>,
     /// Tracked deletion of this text. Only [`from_doc_tracked`] keeps deleted text in a flow.
     pub del: Option<RevMark>,
+    /// Plume: Markdown source written back as it was read (inline HTML, an image Plume can't
+    /// load): never escaped, never interpreted.
+    pub raw: bool,
     /// Tracked formatting change of this text: who made it and the formatting before it (only
     /// [`from_doc_tracked`] and formats that keep revisions set it).
     pub fmt_change: Option<Box<FmtChange<Fmt>>>,
@@ -91,6 +97,37 @@ pub enum Inline {
         linear: String,
         display: bool,
     },
+    /// A footnote (or endnote) reference and the note's text. Only Markdown carries notes
+    /// through the flow ([`from_doc_notes`]); other formats never see it.
+    Note {
+        endnote: bool,
+        blocks: Vec<FBlock>,
+    },
+    /// A drawing's text (shapes and text boxes, alone or grouped), as blocks in reading order.
+    /// Only Markdown carries it: the drawing itself has no Markdown form, its words must not be
+    /// lost.
+    Drawing(Vec<FBlock>),
+    /// The start (`end: false`) or end of a commented range. `id` is the comment's id in a flow
+    /// read from a document ([`from_doc_markdown`]), and its number (`cN`) in [`Flow::comments`]
+    /// in a flow parsed from Markdown.
+    Comment {
+        id: u32,
+        end: bool,
+    },
+}
+
+/// A comment carried by a flow parsed from Markdown: `n` numbers the thread (`c1`), `reply` is
+/// 0 for the comment itself and k for its k-th reply.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct FComment {
+    pub n: u32,
+    pub reply: u32,
+    pub author: String,
+    /// ISO 8601 (empty = unknown).
+    pub date: String,
+    pub resolved: bool,
+    /// Paragraphs separated by `\n`.
+    pub text: String,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -148,6 +185,10 @@ pub struct Para {
     /// Tracked deletion of the paragraph mark (only [`from_doc_tracked`] and formats that keep
     /// revisions set it).
     pub mark_del: Option<Box<RevMark>>,
+    /// A table of contents entry, at this level (Markdown writes the contents from its headings).
+    pub toc: Option<u8>,
+    /// Plume: the Markdown block the paragraph belongs to (code block, container, source).
+    pub md: Option<Box<wordcraft_doc::props::MdBlock>>,
     /// Tracked formatting change of the paragraph: the paragraph's formatting before it (kind,
     /// list, alignment, page break, spacing and borders of `old`; its inlines are unused).
     pub fmt_change: Option<Box<FmtChange<Para>>>,
@@ -176,7 +217,7 @@ impl Para {
         for i in &self.inlines {
             match i {
                 Inline::Text(t, _) | Inline::Equation { linear: t, .. } => s.push_str(t),
-                Inline::Image(_) | Inline::Anchor(_) | Inline::Figure(_) => {}
+                Inline::Image(_) | Inline::Anchor(_) | Inline::Figure(_) | Inline::Note { .. } | Inline::Comment { .. } | Inline::Drawing(_) => {}
             }
         }
         s
@@ -192,7 +233,7 @@ impl Para {
                     _ => s.push_str(t),
                 },
                 Inline::Equation { linear: t, .. } => s.push_str(t),
-                Inline::Image(_) | Inline::Anchor(_) | Inline::Figure(_) => {}
+                Inline::Image(_) | Inline::Anchor(_) | Inline::Figure(_) | Inline::Note { .. } | Inline::Comment { .. } | Inline::Drawing(_) => {}
             }
         }
         s
@@ -338,12 +379,52 @@ pub struct Meta {
     pub keywords: String,
     pub description: String,
     pub created: String,
+    /// The front matter's other settings (a PDF template's, for instance), as their YAML lines,
+    /// kept as written so they survive opening and saving.
+    pub extra: String,
+    /// Equations' LaTeX as the source wrote it, by their linear form: written back as it was,
+    /// rather than as regenerated from the linear form.
+    pub math: BTreeMap<String, String>,
 }
+
+/// Where a document keeps its equations' source LaTeX ([`Meta::math`]): `linear\tlatex` lines.
+pub const MATH_PART: &str = "markdown/math.tsv";
+
+fn math_tsv(math: &BTreeMap<String, String>) -> String {
+    let esc = |s: &str| s.replace('\\', "\\\\").replace('\t', "\\t").replace('\n', "\\n");
+    math.iter().map(|(k, v)| format!("{}\t{}\n", esc(k), esc(v))).collect()
+}
+
+fn parse_math_tsv(s: &str) -> BTreeMap<String, String> {
+    let unesc = |s: &str| {
+        let mut o = String::new();
+        let mut it = s.chars();
+        while let Some(c) = it.next() {
+            if c == '\\' {
+                match it.next() {
+                    Some('t') => o.push('\t'),
+                    Some('n') => o.push('\n'),
+                    Some(n) => o.push(n),
+                    None => {}
+                }
+            } else {
+                o.push(c);
+            }
+        }
+        o
+    };
+    s.lines().filter_map(|l| l.split_once('\t')).map(|(k, v)| (unesc(k), unesc(v))).take(100_000).collect()
+}
+
+/// Where a document keeps its Markdown front matter's other settings ([`Meta::extra`]).
+pub const FRONT_MATTER_PART: &str = "markdown/front-matter.yaml";
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Flow {
     pub blocks: Vec<FBlock>,
     pub meta: Meta,
+    /// Comments the source keeps outside the text (Markdown's comment block).
+    pub comments: Vec<FComment>,
 }
 
 /// `inlines` with equations as their linear text (default formatting), for formats that have no
@@ -390,11 +471,24 @@ pub fn char_props(f: &Fmt) -> CharProps {
         size: f.size.filter(|s| s.is_finite() && *s >= 1.0 && *s <= 1638.0),
         font: if f.code { Some(MONO_FONT.to_string()) } else { f.font.clone().filter(|s| !s.is_empty()) },
         shading: f.background,
+        style: f.raw.then(|| RAW_STYLE.to_string()),
         ..Default::default()
     }
 }
 
-fn code_style() -> Style {
+/// Plume: the character style Markdown source kept as written is shown in (grey, monospaced).
+fn raw_style() -> Style {
+    Style {
+        id: RAW_STYLE.into(),
+        name: "Markdown Source".into(),
+        kind: StyleKind::Character,
+        chr: CharProps { font: Some(MONO_FONT.into()), color: Some(TextColor::Rgb(Rgb(0x6A, 0x73, 0x7D))), ..Default::default() },
+        quick: false,
+        ..Default::default()
+    }
+}
+
+pub fn code_style() -> Style {
     Style {
         id: CODE_STYLE.into(),
         name: CODE_STYLE.into(),
@@ -470,6 +564,8 @@ fn para_props(p: &Para, list_num: Option<u32>) -> ParaProps {
 
 struct Builder<'a> {
     doc: &'a mut Document,
+    /// Markdown comment number → the document comment made for it.
+    comment_ids: std::collections::BTreeMap<u32, u32>,
     /// Revisions already in `doc` by (kind, author, date), so each change is added once.
     revs: std::collections::HashMap<(u8, RevMark), u32>,
 }
@@ -491,7 +587,7 @@ impl<'a> Builder<'a> {
                 revs.entry((rev_key(r.kind), mark)).or_insert(i as u32);
             }
         }
-        Builder { doc, revs }
+        Builder { doc, revs, comment_ids: Default::default() }
     }
 
     /// The document revision for a tracked change, added the first time it is seen.
@@ -509,6 +605,7 @@ impl<'a> Builder<'a> {
     fn para(&mut self, p: &Para, list_num: Option<u32>) -> Paragraph {
         let mut out = Paragraph::new();
         out.props = para_props(p, list_num);
+        out.props.md = p.md.clone();
         if let Some(c) = &p.fmt_change {
             // A list item stays in its list instance (only its level may differ); an old list on a
             // paragraph that is no list now gets an instance of its own, so Reject can restore it.
@@ -560,7 +657,47 @@ impl<'a> Builder<'a> {
                     append(&mut out, "", &CharProps::default(), Some(InlineObject::BookmarkStart { name: name.clone() }));
                     append(&mut out, "", &CharProps::default(), Some(InlineObject::BookmarkEnd { name: name.clone() }));
                 }
-                Inline::Figure(_) => {}
+                Inline::Figure(_) | Inline::Drawing(_) => {}
+                Inline::Comment { id, end } => {
+                    if let Some(doc_id) = self.comment_ids.get(id) {
+                        let obj = if *end { InlineObject::CommentEnd { id: *doc_id } } else { InlineObject::CommentStart { id: *doc_id } };
+                        append(&mut out, "", &CharProps::default(), Some(obj));
+                    }
+                }
+                Inline::Note { endnote, blocks } => {
+                    let (kind, pk, style, refstyle) = if *endnote {
+                        (NoteKind::Endnote, PartKind::Endnote, "EndnoteText", "EndnoteReference")
+                    } else {
+                        (NoteKind::Footnote, PartKind::Footnote, "FootnoteText", "FootnoteReference")
+                    };
+                    let id = self.doc.add_part(pk, Vec::new());
+                    let mut body = self.blocks(blocks, MAX_DEPTH.saturating_sub(2));
+                    // Word's note starts with its own reference mark and a space.
+                    let mark = InlineObject::NoteRef { kind, id, custom: String::new() };
+                    let refprops = CharProps { style: Some(refstyle.into()), ..Default::default() };
+                    let mut first = Paragraph::new();
+                    if let Some(Block::Para(p)) = body.first().map(|b| &**b) {
+                        first = p.clone();
+                        body.remove(0);
+                    }
+                    if first.props.style.is_none() {
+                        first.props.style = Some(style.into());
+                    }
+                    let _ = first.insert_text(0, " ", &CharProps::default());
+                    let _ = first.insert_object(0, mark.clone(), &refprops);
+                    body.insert(0, para_block(first));
+                    for b in body.iter_mut().skip(1) {
+                        if let Block::Para(p) = Arc::make_mut(b)
+                            && p.props.style.is_none()
+                        {
+                            p.props.style = Some(style.into());
+                        }
+                    }
+                    if let Some(part) = self.doc.parts.get_mut(&id) {
+                        part.blocks = body;
+                    }
+                    append(&mut out, "", &refprops, Some(mark));
+                }
                 Inline::Equation { linear, display } => {
                     let linear = clean_text(linear);
                     if !linear.is_empty() {
@@ -739,7 +876,13 @@ pub fn to_doc_in(flow: &Flow, section: wordcraft_doc::SectionProps) -> Document 
     if uses_code {
         doc.styles.upsert(code_style());
     }
-    let body = Builder::new(&mut doc).blocks(&flow.blocks, 0);
+    if uses_raw(&flow.blocks, 0) {
+        doc.styles.upsert(raw_style());
+    }
+    let comment_ids = add_comments(&mut doc, &flow.comments);
+    let mut b = Builder::new(&mut doc);
+    b.comment_ids = comment_ids;
+    let body = b.blocks(&flow.blocks, 0);
     doc.body = body;
     let m = &flow.meta;
     doc.core.title = m.title.clone();
@@ -748,8 +891,57 @@ pub fn to_doc_in(flow: &Flow, section: wordcraft_doc::SectionProps) -> Document 
     doc.core.keywords = m.keywords.clone();
     doc.core.description = m.description.clone();
     doc.core.created = m.created.clone();
+    if !m.extra.trim().is_empty() {
+        doc.passthrough.insert(FRONT_MATTER_PART.to_string(), std::sync::Arc::new(m.extra.clone().into_bytes()));
+    }
+    if !m.math.is_empty() {
+        doc.passthrough.insert(MATH_PART.to_string(), std::sync::Arc::new(math_tsv(&m.math).into_bytes()));
+    }
     doc.ensure_nonempty();
     doc
+}
+
+/// Most comments one flow adds.
+const MAX_COMMENTS: usize = 5_000;
+
+/// Add `comments` to `doc` (replies under their thread): comment number → document comment id.
+fn add_comments(doc: &mut Document, comments: &[FComment]) -> std::collections::BTreeMap<u32, u32> {
+    let mut ids = std::collections::BTreeMap::new();
+    let mut ordered: Vec<&FComment> = comments.iter().take(MAX_COMMENTS).collect();
+    ordered.sort_by_key(|c| (c.n, c.reply));
+    for c in ordered {
+        let parent = if c.reply == 0 {
+            if ids.contains_key(&c.n) {
+                continue;
+            }
+            None
+        } else {
+            match ids.get(&c.n) {
+                Some(p) => Some(*p),
+                None => continue,
+            }
+        };
+        let blocks: Blocks = c.text.split('\n').map(|t| para_block(Paragraph::with_text(&clean_text(t), CharProps::default()))).collect();
+        let part = doc.add_part(PartKind::Comment, blocks);
+        let id = doc.comments.keys().next_back().map(|k| k + 1).unwrap_or(0);
+        let initials: String = c.author.split_whitespace().filter_map(|w| w.chars().next()).take(3).collect();
+        doc.comments.insert(
+            id,
+            wordcraft_doc::Comment {
+                author: c.author.clone(),
+                initials,
+                date: c.date.clone(),
+                parent,
+                resolved: c.resolved,
+                part,
+                ..Default::default()
+            },
+        );
+        if parent.is_none() {
+            ids.insert(c.n, id);
+        }
+    }
+    ids
 }
 
 /// `blocks` as document blocks of `doc` (their pictures go into its media), for a header,
@@ -770,13 +962,35 @@ fn uses_kind(blocks: &[FBlock], k: Kind, depth: usize) -> bool {
         })
 }
 
+/// Whether any text in `blocks` is Markdown source kept as written ([`Fmt::raw`]).
+fn uses_raw(blocks: &[FBlock], depth: usize) -> bool {
+    depth <= MAX_DEPTH
+        && blocks.iter().any(|b| match b {
+            FBlock::Para(p) => p.inlines.iter().any(|i| matches!(i, Inline::Text(_, f) if f.raw)),
+            FBlock::Table(t) => t.rows.iter().flatten().any(|c| uses_raw(&c.blocks, depth + 1)),
+        })
+}
+
 // ---------------------------------------------------------------------------------------------
 // Document → Flow
 
-/// Is this a monospace family name?
+/// Is this a monospace family name? Whole words count, so "Arial Unicode MS" and "Monotype
+/// Corsiva" are not code fonts while "Source Code Pro" and "Noto Sans Mono" are.
 pub fn is_mono(font: &str) -> bool {
     let f = font.to_ascii_lowercase();
-    f.contains("courier") || f.contains("mono") || f.contains("consolas") || f.contains("menlo") || f.contains("code") || f == "monaco"
+    let words: Vec<&str> = f.split(|c: char| !c.is_ascii_alphanumeric()).filter(|w| !w.is_empty()).collect();
+    words.iter().any(|w| matches!(*w, "mono" | "monospace" | "monospaced" | "code" | "courier" | "consolas" | "menlo" | "monaco" | "inconsolata"))
+        || f.starts_with("lucida console")
+        || f.starts_with("lucida sans typewriter")
+        || f.ends_with("mono")
+}
+
+/// A character style meant for code ("Code", "HTML Code", "Source Code"…).
+fn is_code_char_style(doc: &Document, id: &str) -> bool {
+    doc.styles.chain(id).iter().filter(|s| s.kind == StyleKind::Character).any(|s| {
+        let name = format!("{} {}", s.id, s.name).to_ascii_lowercase();
+        name.split(|c: char| !c.is_ascii_alphanumeric()).any(|w| w == "code" || w == "verbatim")
+    })
 }
 
 fn is_code_style(doc: &Document, id: &str) -> bool {
@@ -805,8 +1019,11 @@ fn effective(doc: &Document, cp: &CharProps) -> CharProps {
 }
 
 fn fmt_of(doc: &Document, cp: &CharProps, in_code: bool) -> Fmt {
+    if cp.style.as_deref() == Some(RAW_STYLE) {
+        return Fmt { raw: true, link: cp.link.clone(), ..Fmt::default() };
+    }
     let e = effective(doc, cp);
-    let code = !in_code && e.font.as_deref().is_some_and(is_mono);
+    let code = !in_code && (e.font.as_deref().is_some_and(is_mono) || cp.style.as_deref().is_some_and(|cs| is_code_char_style(doc, cs)));
     Fmt {
         bold: e.bold.unwrap_or(false),
         italic: e.italic.unwrap_or(false),
@@ -825,6 +1042,7 @@ fn fmt_of(doc: &Document, cp: &CharProps, in_code: bool) -> Fmt {
         background: e.highlight.and_then(|h| h.rgb()).or(e.shading),
         ins: None,
         del: None,
+        raw: false,
         fmt_change: None,
     }
 }
@@ -837,6 +1055,58 @@ fn rev_mark(doc: &Document, i: u32) -> RevMark {
 /// The insertion and deletion `cp` tracks, as flow marks.
 fn rev_marks(doc: &Document, cp: &CharProps) -> (Option<RevMark>, Option<RevMark>) {
     (cp.ins.map(|i| rev_mark(doc, i)), cp.del.map(|i| rev_mark(doc, i)))
+}
+
+/// "heading 1" … "heading 9" in the style's chain: the heading level.
+fn named_heading(doc: &Document, style: &str) -> Option<u8> {
+    let chain = doc.styles.chain(style);
+    // A style that states its outline level ("body text", as a TOC Heading does) has the last word.
+    if chain.iter().any(|s| s.para.outline_level.is_some()) {
+        return None;
+    }
+    // The most derived style first (`chain` goes from the base style down).
+    chain.iter().rev().find_map(|s| {
+        let n = s.name.to_ascii_lowercase();
+        let rest = n.strip_prefix("heading ")?;
+        rest.trim().parse::<u8>().ok().filter(|l| (1..=9).contains(l)).map(|l| l.min(6))
+    })
+}
+
+/// A table of contents entry's level: its style is "toc 1" … "toc 9" (Word's built-in names), or
+/// one based on them.
+pub fn toc_level(doc: &Document, style: &str) -> Option<u8> {
+    // The most derived style first ("toc 2" based on "toc 1" is level 2).
+    doc.styles.chain(style).iter().rev().find_map(|s| {
+        let n = s.name.to_ascii_lowercase();
+        let lvl =
+            n.strip_prefix("toc ").and_then(|r| r.trim().parse::<u8>().ok()).or_else(|| s.id.strip_prefix("TOC").and_then(|r| r.parse::<u8>().ok()));
+        lvl.filter(|l| (1..=9).contains(l))
+    })
+}
+
+/// A drawing's text boxes in reading order: a group's boxes by rows (boxes whose tops are within
+/// half a box's height of each other share a row), each row left to right — not the order the
+/// file lists them in.
+fn reading_order(o: &InlineObject) -> Vec<u32> {
+    if !matches!(o, InlineObject::Group { .. }) {
+        return o.text_boxes();
+    }
+    let mut boxes: Vec<([f32; 4], u32)> =
+        o.group_rects(0.0, 0.0, 1000.0, 1000.0).into_iter().filter_map(|(r, m)| m.text_box().map(|id| (r, id))).collect();
+    boxes.sort_by(|a, b| a.0[1].total_cmp(&b.0[1]));
+    let mut rows: Vec<Vec<([f32; 4], u32)>> = Vec::new();
+    for b in boxes {
+        match rows.last_mut() {
+            Some(row) if row.first().is_some_and(|f| (b.0[1] - f.0[1]).abs() < f.0[3].min(b.0[3]).max(1.0) / 2.0) => row.push(b),
+            _ => rows.push(vec![b]),
+        }
+    }
+    rows.into_iter()
+        .flat_map(|mut row| {
+            row.sort_by(|a, b| a.0[0].total_cmp(&b.0[0]));
+            row.into_iter().map(|(_, id)| id)
+        })
+        .collect()
 }
 
 /// Paragraph kind and list membership of a document paragraph.
@@ -852,6 +1122,10 @@ fn props_kind(doc: &Document, props: &ParaProps, blank: bool) -> (Kind, Option<L
     let style = props.style.as_deref().unwrap_or("Normal");
     let kind = if let Some(l) = rp.outline_level {
         Kind::Heading((l + 1).min(6))
+    } else if let Some(l) = named_heading(doc, style) {
+        // A style named "heading N" (Word keeps the built-in names in English) whose outline
+        // level the file doesn't state.
+        Kind::Heading(l)
     } else if doc.styles.chain(style).iter().any(|s| s.id == "Title") {
         Kind::Title
     } else if doc.styles.chain(style).iter().any(|s| s.id == "Quote" || s.id == "IntenseQuote") {
@@ -884,12 +1158,23 @@ fn media_ext(key: &str, data: &[u8]) -> String {
 /// A document paragraph as flow paragraphs: a page break character inside the text ends the
 /// paragraph, and the text after it starts a new one that carries `page_break`.
 pub fn flow_paras(doc: &Document, p: &Paragraph) -> Vec<Para> {
-    flow_paras_in(doc, p, false)
+    flow_paras_in(doc, p, FlowOpts::default())
 }
 
 /// [`flow_paras`]; `tracked` keeps tracked changes: deleted text stays, and text carries its
 /// insertion and deletion marks.
-fn flow_paras_in(doc: &Document, p: &Paragraph, tracked: bool) -> Vec<Para> {
+/// What a flow keeps beyond the plain body.
+#[derive(Clone, Copy, Debug, Default)]
+struct FlowOpts {
+    /// Tracked changes: deleted text stays, with marks.
+    tracked: bool,
+    /// Footnotes and endnotes as [`Inline::Note`] (not inside a note), and commented ranges as
+    /// [`Inline::Comment`]: what Markdown keeps.
+    notes: bool,
+}
+
+fn flow_paras_in(doc: &Document, p: &Paragraph, opts: FlowOpts) -> Vec<Para> {
+    let tracked = opts.tracked;
     let (kind, list) = para_kind(doc, p);
     let mut done: Vec<Para> = Vec::new();
     let borders = if kind == Kind::Rule { None } else { p.props.borders.filter(|b| b.any_visible()) };
@@ -905,6 +1190,8 @@ fn flow_paras_in(doc: &Document, p: &Paragraph, tracked: bool) -> Vec<Para> {
         section: None,
         mark_ins: None,
         mark_del: None,
+        toc: toc_level(doc, p.props.style.as_deref().unwrap_or("Normal")),
+        md: p.props.md.clone(),
         fmt_change: None,
     };
     let in_code = kind == Kind::Code;
@@ -936,6 +1223,8 @@ fn flow_paras_in(doc: &Document, p: &Paragraph, tracked: bool) -> Vec<Para> {
                         section: None,
                         mark_ins: None,
                         mark_del: None,
+                        toc: None,
+                        md: p.props.md.clone(),
                         fmt_change: None,
                     };
                     let prev = std::mem::replace(&mut out, next);
@@ -988,6 +1277,49 @@ fn flow_paras_in(doc: &Document, p: &Paragraph, tracked: bool) -> Vec<Para> {
                     let linear = if linear.is_empty() { wordcraft_doc::math::to_linear(&math.nodes) } else { linear.clone() };
                     out.inlines.push(Inline::Equation { linear, display: *display });
                 }
+                Some(InlineObject::NoteRef { kind, id, .. }) if opts.notes => {
+                    if !buf.is_empty() {
+                        out.push_text(&std::mem::take(&mut buf), &f);
+                    }
+                    if let Some(part) = doc.parts.get(id) {
+                        // The note's own text: its leading reference mark (plain text "") drops out,
+                        // and so do notes inside it.
+                        let inner = FlowOpts { notes: false, ..opts };
+                        let mut blocks = flow_blocks(doc, &part.blocks, MAX_DEPTH.saturating_sub(2), inner);
+                        if let Some(FBlock::Para(first)) = blocks.first_mut() {
+                            first.trim_with(&[' ', '\t'], &[]);
+                        }
+                        blocks.retain(|b| !matches!(b, FBlock::Para(q) if q.is_empty()));
+                        let endnote = matches!(kind, wordcraft_doc::para::NoteKind::Endnote);
+                        out.inlines.push(Inline::Note { endnote, blocks });
+                    }
+                }
+                Some(InlineObject::CommentStart { id }) if opts.notes => {
+                    out.push_text(&std::mem::take(&mut buf), &f);
+                    out.inlines.push(Inline::Comment { id: *id, end: false });
+                }
+                Some(InlineObject::CommentEnd { id }) if opts.notes => {
+                    out.push_text(&std::mem::take(&mut buf), &f);
+                    out.inlines.push(Inline::Comment { id: *id, end: true });
+                }
+                Some(o @ (InlineObject::Shape { .. } | InlineObject::Group { .. })) if opts.notes => {
+                    let mut blocks = Vec::new();
+                    for id in reading_order(o) {
+                        if let Some(part) = doc.parts.get(&id) {
+                            let inner = FlowOpts { notes: false, ..opts };
+                            blocks.extend(flow_blocks(doc, &part.blocks, MAX_DEPTH.saturating_sub(2), inner));
+                        }
+                    }
+                    blocks.retain(|b| !matches!(b, FBlock::Para(q) if q.is_empty()));
+                    if !blocks.is_empty() {
+                        if !buf.is_empty() {
+                            out.push_text(&std::mem::take(&mut buf), &f);
+                        }
+                        out.inlines.push(Inline::Drawing(blocks));
+                    } else {
+                        out.inlines.push(Inline::Drawing(Vec::new()));
+                    }
+                }
                 Some(InlineObject::BookmarkStart { name }) if name != "_GoBack" => {
                     if !buf.is_empty() {
                         out.push_text(&std::mem::take(&mut buf), &f);
@@ -1019,7 +1351,7 @@ fn flow_paras_in(doc: &Document, p: &Paragraph, tracked: bool) -> Vec<Para> {
     done
 }
 
-fn flow_blocks(doc: &Document, bl: &Blocks, depth: usize, tracked: bool) -> Vec<FBlock> {
+fn flow_blocks(doc: &Document, bl: &Blocks, depth: usize, tracked: FlowOpts) -> Vec<FBlock> {
     let mut out = Vec::new();
     for b in bl {
         match &**b {
@@ -1037,7 +1369,7 @@ fn flow_blocks(doc: &Document, bl: &Blocks, depth: usize, tracked: bool) -> Vec<
     out
 }
 
-fn flow_table(doc: &Document, t: &Table, depth: usize, tracked: bool) -> FTable {
+fn flow_table(doc: &Document, t: &Table, depth: usize, tracked: FlowOpts) -> FTable {
     let mut rows = Vec::new();
     for (ri, r) in t.rows.iter().enumerate() {
         let header = r.props.header || (ri == 0 && t.props.look.header_row && t.rows.len() > 1);
@@ -1075,18 +1407,25 @@ fn flow_table(doc: &Document, t: &Table, depth: usize, tracked: bool) -> FTable 
 
 /// The document body as a flow.
 pub fn from_doc(doc: &Document) -> Flow {
-    flow_of(doc, false)
+    flow_of(doc, FlowOpts::default())
+}
+
+/// [`from_doc`] with what Markdown keeps: footnotes and endnotes as [`Inline::Note`] at their
+/// references, commented ranges as [`Inline::Comment`].
+pub fn from_doc_markdown(doc: &Document) -> Flow {
+    flow_of(doc, FlowOpts { tracked: false, notes: true })
 }
 
 /// [`from_doc`] keeping tracked changes: deleted text stays, and text carries its insertion and
 /// deletion marks ([`Fmt::ins`], [`Fmt::del`]), for formats that can write revisions (RTF).
 pub fn from_doc_tracked(doc: &Document) -> Flow {
-    flow_of(doc, true)
+    flow_of(doc, FlowOpts { tracked: true, notes: false })
 }
 
-fn flow_of(doc: &Document, tracked: bool) -> Flow {
+fn flow_of(doc: &Document, tracked: FlowOpts) -> Flow {
     let c = &doc.core;
     Flow {
+        comments: Vec::new(),
         blocks: flow_blocks(doc, &doc.body, 0, tracked),
         meta: Meta {
             title: c.title.clone(),
@@ -1095,6 +1434,8 @@ fn flow_of(doc: &Document, tracked: bool) -> Flow {
             keywords: c.keywords.clone(),
             description: c.description.clone(),
             created: c.created.clone(),
+            extra: doc.passthrough.get(FRONT_MATTER_PART).map(|b| String::from_utf8_lossy(b).into_owned()).unwrap_or_default(),
+            math: doc.passthrough.get(MATH_PART).map(|b| parse_math_tsv(&String::from_utf8_lossy(b))).unwrap_or_default(),
         },
     }
 }

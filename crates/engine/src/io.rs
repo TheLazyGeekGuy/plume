@@ -4,6 +4,8 @@ use wordcraft_doc::Document;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod safe_save;
+pub mod templates;
+pub mod textbundle;
 
 /// Formats WordCraft opens.
 pub const OPEN_EXTS: &[&str] = &[
@@ -16,6 +18,8 @@ pub const OPEN_EXTS: &[&str] = &[
     "txt",
     "md",
     "markdown",
+    "textbundle",
+    "textpack",
     "html",
     "htm",
     "rtf",
@@ -28,7 +32,8 @@ pub const OPEN_EXTS: &[&str] = &[
     "json",
 ];
 /// Formats WordCraft saves (Save As).
-pub const SAVE_EXTS: &[&str] = &["docx", "docm", "dotx", "dotm", "pdf", "txt", "md", "html", "rtf", "odt", "tex", "png", "json", "xml"];
+pub const SAVE_EXTS: &[&str] =
+    &["docx", "docm", "dotx", "dotm", "pdf", "txt", "md", "textbundle", "textpack", "html", "rtf", "odt", "tex", "png", "json", "xml"];
 
 /// Magic number for ZIP package signatures (used by .docx/.docm/.dotx/.dotm).
 const ZIP_SIG: &[u8] = b"PK\x03\x04";
@@ -40,6 +45,58 @@ const OLE_SIG: &[u8] = &[0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1];
 fn ext_of(name: &str) -> String {
     let file = name.rsplit(['/', '\\']).next().unwrap_or(name);
     file.rsplit_once('.').map(|(_, ext)| ext.to_ascii_lowercase()).unwrap_or_default()
+}
+
+/// Plume: is `ext` a Markdown document's own format: a Markdown file (`.md`, `.markdown`), a
+/// TextBundle folder (`.textbundle`) or a TextPack (`.textpack`)?
+pub fn is_markdown_ext(ext: &str) -> bool {
+    matches!(ext.to_ascii_lowercase().as_str(), "md" | "markdown" | "textbundle" | "textpack")
+}
+
+/// [`is_markdown_ext`] for a file name or path.
+pub fn is_markdown_name(name: &str) -> bool {
+    is_markdown_ext(&ext_of(name))
+}
+
+/// A TextBundle's or TextPack's text as a document: Markdown with its pictures (`resolve` gives
+/// a picture's bytes by its path in the bundle), or plain text when the bundle says so.
+fn bundle_document(
+    text: &[u8],
+    markdown: bool,
+    page: &wordcraft_doc::SectionProps,
+    resolve: &dyn Fn(&str) -> Option<std::sync::Arc<Vec<u8>>>,
+) -> Document {
+    let mut doc = if markdown {
+        let text = wordcraft_formats::txt::decode(text);
+        let mut doc = wordcraft_formats::markdown::import_with(&text, page, resolve);
+        wordcraft_formats::markdown::apply_theme(&mut doc, Default::default());
+        doc
+    } else {
+        wordcraft_formats::txt::import_on(text, page)
+    };
+    fit_pictures(&mut doc);
+    doc.ensure_nonempty();
+    doc
+}
+
+/// A TextPack's document.
+fn open_textpack(bytes: &[u8], page: &wordcraft_doc::SectionProps) -> Result<Document, String> {
+    let u = textbundle::unpack(bytes)?;
+    Ok(bundle_document(&u.text, u.is_markdown(), page, &|src| u.file(src).map(|b| std::sync::Arc::new(b.to_vec()))))
+}
+
+/// A TextBundle folder's document: its `info.json` and text file, its pictures read from the
+/// folder (within it only, with the limits of [`LocalImages`]).
+#[cfg(not(target_arch = "wasm32"))]
+fn open_textbundle(dir: &std::path::Path, page: &wordcraft_doc::SectionProps) -> Result<Document, String> {
+    let entries = std::fs::read_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    let names: Vec<String> = entries.flatten().filter(|e| e.path().is_file()).filter_map(|e| e.file_name().into_string().ok()).take(10_000).collect();
+    let text_name = textbundle::pick_text(names.iter().map(String::as_str))
+        .ok_or_else(|| format!("{}: the TextBundle has no text file (text.md)", dir.display()))?;
+    let text = read_regular_file(&dir.join(text_name), 64 << 20).ok_or_else(|| format!("{}: can't read {text_name}", dir.display()))?;
+    let info = read_regular_file(&dir.join("info.json"), textbundle::MAX_INFO).map(|b| textbundle::parse_info(&b)).unwrap_or_default();
+    let images = LocalImages::new(dir);
+    Ok(bundle_document(&text, textbundle::is_markdown_type(&info), page, &|src| images.load(src)))
 }
 
 /// Is `ext` one of Word's package formats (.docx/.docm/.dotx/.dotm), which save without loss?
@@ -162,6 +219,7 @@ pub fn region_page(region: &wordcraft_geom::Region) -> wordcraft_doc::SectionPro
 /// [`open_bytes_with`] in `region`: a file that gives no page size opens on the region's paper
 /// (see [`region_page`]); a document with its own page size keeps it.
 pub fn open_bytes_in(name: &str, bytes: &[u8], password: Option<&str>, region: &wordcraft_geom::Region) -> Result<(Document, bool), String> {
+    crate::diagrams::register();
     let page = region_page(region);
     let (doc, encrypted) = read_bytes(name, bytes, password, &page)?;
     load_embedded_fonts(&doc);
@@ -204,11 +262,17 @@ fn read_bytes(name: &str, bytes: &[u8], password: Option<&str>, page: &wordcraft
             d.normalize_runs();
             d
         }
+        "textpack" => open_textpack(bytes, page).map_err(|e| format!("{name}: {e}"))?,
+        "textbundle" => return Err(format!("{name}: a TextBundle is a folder; open the folder, or a .textpack file")),
         other => match crate::io_ext::open(other, bytes, page) {
             Some(r) => r?,
             None => return open_by_content(name, other, bytes, password, page),
         },
     };
+    // Markdown looks as the site it's read on shows it.
+    if matches!(ext.as_str(), "md" | "markdown") {
+        wordcraft_formats::markdown::apply_theme(&mut doc, Default::default());
+    }
     opened(&mut doc);
     Ok((doc, false))
 }
@@ -331,10 +395,11 @@ fn open_by_content(
     let (mut doc, encrypted) = if bytes.starts_with(OLE_SIG) && wordcraft_docx::is_encrypted(bytes) {
         (wordcraft_docx::read_with_password(bytes, password).map_err(|e| e.to_string())?, true)
     } else if bytes.starts_with(ZIP_SIG) {
-        (wordcraft_docx::read(bytes).map_err(|e| format!("{name}: not a document WordCraft can open ({e})"))?, false)
+        (wordcraft_docx::read(bytes).map_err(|e| format!("{name}: not a document {} can open ({e})", wordcraft_brand::APP_NAME))?, false)
     } else if bytes.starts_with(OLE_SIG) {
-        open_binary_doc(bytes, password)
-            .map_err(|e| if needs_password(&e) || wrong_password(&e) { e } else { format!("{name}: not a document WordCraft can open ({e})") })?
+        open_binary_doc(bytes, password).map_err(|e| {
+            if needs_password(&e) || wrong_password(&e) { e } else { format!("{name}: not a document {} can open ({e})", wordcraft_brand::APP_NAME) }
+        })?
     } else if bytes.starts_with(b"{\\rtf") {
         (wordcraft_formats::rtf::import(bytes)?, false)
     } else if is_word_xml(bytes) {
@@ -345,7 +410,7 @@ fn open_by_content(
     } else if wordcraft_formats::txt::is_text(bytes) {
         (wordcraft_formats::txt::import_on(bytes, page), false)
     } else if ext.is_empty() {
-        return Err(format!("{name}: not a document or text file WordCraft can open"));
+        return Err(format!("{name}: not a document or text file {} can open", wordcraft_brand::APP_NAME));
     } else {
         return Err(format!("{name}: unsupported format `.{ext}` (not a document or text file)"));
     };
@@ -368,6 +433,8 @@ pub fn save_bytes_opts(name: &str, doc: &Document, opts: &ExportOptions) -> Resu
             Ok(if opts.markup && opts.comments { wordcraft_formats::comments::append("txt", doc, bytes) } else { bytes })
         }
         "json" => serde_json::to_vec_pretty(doc).map_err(|e| e.to_string()),
+        "textpack" => textpack_bytes(doc, None).map(|(bytes, _)| bytes),
+        "textbundle" => Err(format!("{name}: a TextBundle is a folder; save a .textpack to download it")),
         other => match crate::io_ext::save(other, doc, opts) {
             Some(r) => r,
             None => Err(format!("{name}: can't save as `.{other}`")),
@@ -398,8 +465,15 @@ pub fn open_path_with(path: &std::path::Path, password: Option<&str>) -> Result<
 /// [`open_path_with`] in `region` (see [`open_bytes_in`]).
 #[cfg(not(target_arch = "wasm32"))]
 pub fn open_path_in(path: &std::path::Path, password: Option<&str>, region: &wordcraft_geom::Region) -> Result<(Document, bool), String> {
+    crate::diagrams::register();
     crate::file_access::check_read(&path.to_string_lossy())?;
     let meta = std::fs::metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    // A TextBundle is a folder.
+    if meta.is_dir() && ext_of(&path.to_string_lossy()) == "textbundle" {
+        let mut doc = open_textbundle(path, &region_page(region))?;
+        opened(&mut doc);
+        return Ok((doc, false));
+    }
     if meta.len() > 2 << 30 {
         return Err(format!("{}: file is larger than 2 GB", path.display()));
     }
@@ -412,6 +486,21 @@ pub fn open_path_in(path: &std::path::Path, password: Option<&str>, region: &wor
         let mut doc = wordcraft_formats::html::import_on(&html, &|src| images.load(src), &region_page(region));
         fit_pictures(&mut doc);
         opened(&mut doc);
+        return Ok((doc, false));
+    }
+    if is_markdown(&ext_of(&name)) {
+        // Pictures named by a relative path (the `assets` folder a native save writes) load from
+        // beside the Markdown file, with the same limits as HTML.
+        let images = LocalImages::new(path.parent().unwrap_or(std::path::Path::new("")));
+        let text = wordcraft_formats::txt::decode(&bytes);
+        let mut doc = wordcraft_formats::markdown::import_with(&text, &region_page(region), &|src| images.load(src));
+        wordcraft_formats::markdown::apply_theme(&mut doc, Default::default());
+        // The folder's publication profile: page, margins, fonts, theme.
+        if let Some((profile, _)) = crate::publication::Profile::for_document(path) {
+            profile.apply(&mut doc);
+        }
+        fit_pictures(&mut doc);
+        doc.ensure_nonempty();
         return Ok((doc, false));
     }
     open_bytes_in(&name, &bytes, password, region)
@@ -626,13 +715,387 @@ pub fn save_path(path: &std::path::Path, doc: &Document) -> Result<(), String> {
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save_path_with(path: &std::path::Path, doc: &Document, password: Option<&str>, opts: &ExportOptions) -> Result<(), String> {
     crate::file_access::check_write(&path.to_string_lossy())?;
+    if is_markdown_name(&path.to_string_lossy()) {
+        return save_markdown(path, doc).map(|_| ());
+    }
     let bytes = save_bytes_with(&path.to_string_lossy(), doc, password, opts)?;
     safe_save::write(path, &bytes).map_err(|e| format!("{}: {e}", path.display()))
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn is_markdown(ext: &str) -> bool {
+    matches!(ext, "md" | "markdown")
+}
+
+/// A TextPack of `doc` (its Markdown, pictures and `info.json`), over the TextPack `existing`
+/// when there is one: its other files and other applications' metadata are kept.
+pub fn textpack_bytes(doc: &Document, existing: Option<&[u8]>) -> Result<(Vec<u8>, wordcraft_formats::markdown::Report), String> {
+    let old = existing.and_then(|b| textbundle::unpack(b).ok());
+    let bundle = wordcraft_formats::markdown::export_native(&markdown_ready(doc), &wordcraft_formats::markdown::NativeOptions::default());
+    let info = textbundle::info_for_save(old.as_ref().map(|o| &o.info));
+    let text_name = old.as_ref().map_or(textbundle::TEXT_NAME, |o| o.text_name.as_str());
+    let mut files: Vec<(String, &[u8])> = bundle.assets.iter().map(|(p, b)| (p.clone(), b.as_slice())).collect();
+    if let Some(o) = &old {
+        files.extend(o.files.iter().map(|(p, b)| (p.clone(), b.as_slice())));
+    }
+    Ok((textbundle::pack(&info, text_name, bundle.text.as_bytes(), &files)?, bundle.report))
+}
+
+/// Save `doc` as a TextBundle folder: its text file (`text.md`, or the one the folder has), its
+/// pictures under `assets/`, `info.json` with other applications' metadata kept. Nothing else in
+/// the folder is touched.
+#[cfg(not(target_arch = "wasm32"))]
+fn save_textbundle(dir: &std::path::Path, doc: &Document) -> Result<wordcraft_formats::markdown::Report, String> {
+    if dir.is_file() {
+        return Err(format!("{}: a file is there, not a TextBundle folder", dir.display()));
+    }
+    std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    let names: Vec<String> = std::fs::read_dir(dir)
+        .map_err(|e| format!("{}: {e}", dir.display()))?
+        .flatten()
+        .filter_map(|e| e.file_name().into_string().ok())
+        .take(10_000)
+        .collect();
+    let text_name = textbundle::pick_text(names.iter().map(String::as_str)).unwrap_or(textbundle::TEXT_NAME).to_string();
+    let old = read_regular_file(&dir.join("info.json"), textbundle::MAX_INFO).map(|b| textbundle::parse_info(&b));
+    let bundle = wordcraft_formats::markdown::export_native(&markdown_ready(doc), &wordcraft_formats::markdown::NativeOptions::default());
+    for (rel, bytes) in &bundle.assets {
+        let target = dir.join(rel);
+        if target.is_file() {
+            continue;
+        }
+        crate::file_access::check_write(&target.to_string_lossy())?;
+        if let Some(parent) = target.parent() {
+            std::fs::create_dir_all(parent).map_err(|e| format!("{}: {e}", parent.display()))?;
+        }
+        safe_save::write(&target, bytes).map_err(|e| format!("{}: {e}", target.display()))?;
+    }
+    let text = dir.join(&text_name);
+    safe_save::write(&text, bundle.text.as_bytes()).map_err(|e| format!("{}: {e}", text.display()))?;
+    let info = dir.join("info.json");
+    safe_save::write(&info, &textbundle::info_bytes(&textbundle::info_for_save(old.as_ref()))).map_err(|e| format!("{}: {e}", info.display()))?;
+    Ok(bundle.report)
+}
+
+/// Save `doc` as a TextPack at `path`, over the one there (see [`textpack_bytes`]).
+#[cfg(not(target_arch = "wasm32"))]
+fn save_textpack(path: &std::path::Path, doc: &Document) -> Result<wordcraft_formats::markdown::Report, String> {
+    let existing = if path.is_file() { read_regular_file(path, 2 << 30) } else { None };
+    let (bytes, report) = textpack_bytes(doc, existing.as_deref())?;
+    safe_save::write(path, &bytes).map_err(|e| format!("{}: {e}", path.display()))?;
+    Ok(report)
+}
+
+/// Save `doc` as a Markdown-native file ([`wordcraft_formats::markdown::export_native`]): the
+/// text at `path`, its pictures in an `assets` folder beside it (an asset already there with the
+/// same name has the same bytes, so it isn't written again). Returns what Markdown couldn't hold.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn save_markdown(path: &std::path::Path, doc: &Document) -> Result<wordcraft_formats::markdown::Report, String> {
+    save_markdown_files(path, doc).map(|(report, _)| report)
+}
+
+/// [`save_markdown`], also giving the asset files the Markdown references (what a version of the
+/// document must hold besides the Markdown itself).
+#[cfg(not(target_arch = "wasm32"))]
+pub fn save_markdown_files(path: &std::path::Path, doc: &Document) -> Result<(wordcraft_formats::markdown::Report, Vec<std::path::PathBuf>), String> {
+    crate::file_access::check_write(&path.to_string_lossy())?;
+    // TextBundle and TextPack hold their pictures themselves.
+    match ext_of(&path.to_string_lossy()).as_str() {
+        "textbundle" => return save_textbundle(path, doc).map(|r| (r, Vec::new())),
+        "textpack" => return save_textpack(path, doc).map(|r| (r, Vec::new())),
+        _ => {}
+    }
+    let doc = markdown_ready(doc);
+    let bundle = wordcraft_formats::markdown::export_native(&doc, &wordcraft_formats::markdown::NativeOptions::default());
+    let dir = path.parent().unwrap_or(std::path::Path::new(""));
+    for (rel, bytes) in &bundle.assets {
+        let target = dir.join(rel);
+        if target.is_file() {
+            continue;
+        }
+        crate::file_access::check_write(&target.to_string_lossy())?;
+        if let Some(parent) = target.parent() {
+            std::fs::create_dir_all(parent).map_err(|e| format!("{}: {e}", parent.display()))?;
+        }
+        safe_save::write(&target, bytes).map_err(|e| format!("{}: {e}", target.display()))?;
+    }
+    safe_save::write(path, bundle.text.as_bytes()).map_err(|e| format!("{}: {e}", path.display()))?;
+    let assets = bundle.assets.iter().map(|(rel, _)| dir.join(rel)).collect();
+    Ok((bundle.report, assets))
 }
 
 #[cfg(target_arch = "wasm32")]
 pub fn save_path_with(path: &std::path::Path, _doc: &Document, _password: Option<&str>, _opts: &ExportOptions) -> Result<(), String> {
     Err(format!("{}: files are saved through the browser on the web", path.display()))
+}
+
+/// The download for a Markdown-native save in the browser: `name` and the Markdown when the
+/// document has no pictures, else `<name>.zip` holding the Markdown and its `assets/` folder.
+pub fn markdown_download(name: &str, doc: &Document) -> Result<(String, Vec<u8>), String> {
+    // A TextPack downloads as itself, a TextBundle (a folder) as the TextPack holding it.
+    match ext_of(name).as_str() {
+        "textpack" => return textpack_bytes(doc, None).map(|(b, _)| (name.to_string(), b)),
+        "textbundle" => {
+            let stem = name.rsplit_once('.').map_or(name, |(stem, _)| stem);
+            return textpack_bytes(doc, None).map(|(b, _)| (format!("{stem}.textpack"), b));
+        }
+        _ => {}
+    }
+    let doc = markdown_ready(doc);
+    let bundle = wordcraft_formats::markdown::export_native(&doc, &wordcraft_formats::markdown::NativeOptions::default());
+    if bundle.assets.is_empty() {
+        return Ok((name.to_string(), bundle.text.into_bytes()));
+    }
+    let file = name.rsplit(['/', '\\']).next().unwrap_or(name);
+    let zip = wordcraft_formats::markdown::bundle_zip(file, &bundle)?;
+    Ok((format!("{}.zip", name.rsplit_once('.').map(|(stem, _)| stem).unwrap_or(name)), zip))
+}
+
+/// `doc` with its metafile pictures (WMF, EMF) drawn as PNG, for copies read on the web
+/// (Markdown): browsers and Markdown renderers can't show metafiles. Borrowed when there are none.
+/// Plume: the Markdown `doc` is saved as (pictures as the web shows them, Word properties in
+/// the front matter, charts and SmartArt as diagrams).
+pub fn markdown_text(doc: &Document) -> String {
+    markdown_bundle(doc).text
+}
+
+/// [`markdown_text`] with the pictures it names (`assets/…`), not yet on disk perhaps.
+pub fn markdown_bundle(doc: &Document) -> wordcraft_formats::markdown::Bundle {
+    wordcraft_formats::markdown::export_native(&markdown_ready(doc), &wordcraft_formats::markdown::NativeOptions::default())
+}
+
+/// `doc` as its Markdown copy is written: pictures the web shows ([`web_pictures`]), and a
+/// document converted from Word with its Word properties in the front matter
+/// ([`wordcraft_formats::front_matter::adopt_office`]).
+fn markdown_ready(doc: &Document) -> std::borrow::Cow<'_, Document> {
+    let doc = web_pictures(doc);
+    if doc.passthrough.contains_key(wordcraft_formats::model::FRONT_MATTER_PART) {
+        return doc;
+    }
+    let mut doc = doc.into_owned();
+    wordcraft_formats::front_matter::adopt_office(&mut doc);
+    std::borrow::Cow::Owned(doc)
+}
+
+pub fn web_pictures(doc: &Document) -> std::borrow::Cow<'_, Document> {
+    let metafiles: Vec<(String, f32, f32)> =
+        doc.media.iter().filter_map(|(k, b)| wordcraft_render::metafile_size(b).map(|(w, h, _)| (k.clone(), w, h))).collect();
+    let graphics = has_graphics(&doc.body, 0);
+    if metafiles.is_empty() && !graphics {
+        return std::borrow::Cow::Borrowed(doc);
+    }
+    let mut out = doc.clone();
+    if graphics {
+        // Charts, SmartArt and diagrams: drawn as they show on the page, kept as pictures.
+        let mut drawn = 0usize;
+        let mut body = std::mem::take(&mut out.body);
+        for b in &mut body {
+            graphics_as_pictures(doc, &mut out, std::sync::Arc::make_mut(b), &mut drawn, 0);
+        }
+        out.body = body;
+    }
+    for (key, w, h) in metafiles {
+        // Two pixels per point, at most 2048 pixels on the longer side.
+        let scale = (2048.0 / w.max(h).max(1.0)).min(2.0);
+        let item = wordcraft_layout::display::Draw::Image {
+            rect: wordcraft_geom::Rect { x: 0.0, y: 0.0, w, h },
+            media: key.clone(),
+            crop: [0.0; 4],
+            alpha: 1.0,
+            alt: String::new(),
+        };
+        let png = wordcraft_render::render_items(doc, &[item], 0.0, 0.0, w, h, scale, &Default::default()).to_png();
+        if !png.is_empty() {
+            out.media.insert(key, std::sync::Arc::new(png));
+        }
+    }
+    std::borrow::Cow::Owned(out)
+}
+
+/// Most charts and diagrams drawn as pictures for one copy.
+const MAX_GRAPHICS: usize = 200;
+
+fn has_graphics(blocks: &wordcraft_doc::Blocks, depth: usize) -> bool {
+    depth < 8
+        && blocks.iter().any(|b| match &**b {
+            wordcraft_doc::Block::Para(p) => p.objects.iter().any(|o| match o {
+                wordcraft_doc::InlineObject::Graphic { .. } => true,
+                // A drawing of shapes joined by connectors (Plume: becomes a Mermaid flowchart).
+                wordcraft_doc::InlineObject::Group { children, .. } => children
+                    .iter()
+                    .any(|c| matches!(&c.obj, wordcraft_doc::InlineObject::Shape { extra, .. } if extra.start.is_some() && extra.end.is_some())),
+                _ => false,
+            }),
+            wordcraft_doc::Block::Table(t) => t.rows.iter().flat_map(|r| &r.cells).any(|c| has_graphics(&c.blocks, depth + 1)),
+        })
+}
+
+/// Replace the graphics in `b` (charts, SmartArt…) by pictures of them, drawn from `src`.
+fn graphics_as_pictures(src: &Document, out: &mut Document, b: &mut wordcraft_doc::Block, drawn: &mut usize, depth: usize) {
+    match b {
+        wordcraft_doc::Block::Para(p) => {
+            // Plume: a chart or SmartArt graphic alone in its paragraph becomes a diagram in
+            // text (Mermaid), drawn; the Markdown gets its source.
+            if *drawn < MAX_GRAPHICS
+                && let Some((source, pic)) = graphic_as_mermaid(src, p)
+            {
+                *drawn += 1;
+                let media = out.add_media(pic.png.to_vec(), "png");
+                let k = if pic.width > 450.0 { 450.0 / pic.width } else { 1.0 };
+                for o in &mut p.objects {
+                    let alt = match o {
+                        wordcraft_doc::InlineObject::Graphic { alt, .. } => Some(alt.clone()),
+                        wordcraft_doc::InlineObject::Group { .. } => Some(String::new()),
+                        _ => None,
+                    };
+                    if let Some(alt) = alt {
+                        *o = wordcraft_doc::InlineObject::Image {
+                            media: media.clone(),
+                            w: pic.width * k,
+                            h: pic.height * k,
+                            alt,
+                            float: Default::default(),
+                            crop: [0.0; 4],
+                            ole: None,
+                        };
+                    }
+                }
+                let md = p.props.md.get_or_insert_with(Default::default);
+                md.code = Some(wordcraft_doc::props::MdCode { id: 0, info: "mermaid".into() });
+                md.diagram = Some(source);
+                p.touch();
+                return;
+            }
+            let mut changed = false;
+            for o in &mut p.objects {
+                let wordcraft_doc::InlineObject::Graphic { w, h, alt, .. } = o else { continue };
+                if *drawn >= MAX_GRAPHICS || !(w.is_finite() && h.is_finite() && *w >= 1.0 && *h >= 1.0) {
+                    continue;
+                }
+                let (w, h, alt) = (w.min(1584.0), h.min(1584.0), alt.clone());
+                let Some(png) = draw_object(src, o, w, h) else { continue };
+                *drawn += 1;
+                let media = out.add_media(png, "png");
+                *o = wordcraft_doc::InlineObject::Image { media, w, h, alt, float: Default::default(), crop: [0.0; 4], ole: None };
+                changed = true;
+            }
+            if changed {
+                p.touch();
+            }
+        }
+        wordcraft_doc::Block::Table(t) if depth < 8 => {
+            for c in t.rows.iter_mut().flat_map(|r| r.cells.iter_mut()) {
+                for cb in &mut c.blocks {
+                    graphics_as_pictures(src, out, std::sync::Arc::make_mut(cb), drawn, depth + 1);
+                }
+            }
+        }
+        wordcraft_doc::Block::Table(_) => {}
+    }
+}
+
+/// Plume: a paragraph holding one chart, SmartArt graphic or drawing of shapes joined by
+/// connectors and no text, as Mermaid source and its picture. The graphic's model when Plume
+/// made it, else what its parts say.
+fn graphic_as_mermaid(src: &Document, p: &wordcraft_doc::Paragraph) -> Option<(String, wordcraft_diagram::Picture)> {
+    if !p.plain_text().trim().is_empty() || p.objects.iter().filter(|o| !o.is_marker()).count() != 1 {
+        return None;
+    }
+    if let Some(children) = p.objects.iter().find_map(|o| match o {
+        wordcraft_doc::InlineObject::Group { children, .. } => Some(children),
+        _ => None,
+    }) {
+        let text = |id: u32| src.plain_text(wordcraft_doc::StoryRef::Part(id)).split_whitespace().collect::<Vec<_>>().join(" ");
+        let source = wordcraft_diagram::sketch::Sketch::from_drawing(children, &text)?.to_mermaid();
+        let pic = wordcraft_diagram::draw(&source).ok()?;
+        return Some((source, pic));
+    }
+    let g = p.objects.iter().find_map(|o| match o {
+        wordcraft_doc::InlineObject::Graphic { graphic, .. } => Some(graphic.clone()),
+        _ => None,
+    })?;
+    let part = |kind: &str| {
+        g.source.as_ref()?.refs.iter().find(|r| !r.external && r.kind.ends_with(kind)).and_then(|r| src.passthrough.get(&r.target)).cloned()
+    };
+    let source = if let Some(spec) = &g.smart_art {
+        wordcraft_diagram::mermaid::from_smart_art(spec)?
+    } else if let Some(spec) = &g.chart {
+        wordcraft_diagram::mermaid::from_chart(spec)?
+    } else if let Some(data) = part("/diagramData") {
+        wordcraft_diagram::mermaid::from_smart_art(&wordcraft_docx::smart_art_outline(&data)?)?
+    } else {
+        wordcraft_diagram::mermaid::from_chart(&wordcraft_docx::chart_outline(&part("/chart")?)?)?
+    };
+    let pic = wordcraft_diagram::draw(&source).ok()?;
+    Some((source, pic))
+}
+
+/// A PNG of one inline object `w`×`h` points: laid out alone, inline, on a page its size.
+fn draw_object(src: &Document, obj: &wordcraft_doc::InlineObject, w: f32, h: f32) -> Option<Vec<u8>> {
+    const M: f32 = 18.0;
+    let mut obj = obj.clone();
+    if let wordcraft_doc::InlineObject::Graphic { float, .. } = &mut obj {
+        *float = Default::default();
+    }
+    let mut tmp = src.clone();
+    tmp.parts.retain(|_, p| !matches!(p.kind, wordcraft_doc::PartKind::Header | wordcraft_doc::PartKind::Footer));
+    let mut para = wordcraft_doc::Paragraph::new();
+    para.props.space_before = Some(0.0);
+    para.props.space_after = Some(0.0);
+    para.props.line_spacing = Some(Default::default());
+    para.insert_object(0, obj, &Default::default()).ok()?;
+    tmp.body = vec![wordcraft_doc::para_block(para)];
+    tmp.last_section = wordcraft_doc::SectionProps {
+        page_w: w + 2.0 * M,
+        page_h: h + 2.0 * M + 24.0,
+        margin_top: M,
+        margin_bottom: M,
+        margin_left: M,
+        margin_right: M,
+        header: 0.0,
+        footer: 0.0,
+        ..Default::default()
+    };
+    let l = wordcraft_layout::layout(&tmp, &mut wordcraft_layout::LayoutCache::new(), &Default::default());
+    let page = l.pages.first()?;
+    let scale = (2048.0 / w.max(h).max(1.0)).min(2.0);
+    let png = wordcraft_render::render_area(&tmp, page, M, M, w, h, scale, &Default::default()).to_png();
+    (!png.is_empty()).then_some(png)
+}
+
+/// Most documents listed from one folder tree.
+pub const MAX_DOCUMENTS: usize = 2_000;
+
+/// The Markdown documents under `root` (folders in name order, at most a few levels deep;
+/// hidden folders, `assets` and build folders skipped), as paths relative to `root`.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn markdown_documents(root: &std::path::Path) -> Result<Vec<String>, String> {
+    crate::file_access::check_read(&root.to_string_lossy())?;
+    fn walk(dir: &std::path::Path, rel: &str, depth: usize, out: &mut Vec<String>) {
+        if depth > 6 || out.len() >= MAX_DOCUMENTS {
+            return;
+        }
+        let Ok(rd) = std::fs::read_dir(dir) else { return };
+        let mut entries: Vec<(String, bool)> =
+            rd.filter_map(Result::ok).filter_map(|e| Some((e.file_name().into_string().ok()?, e.file_type().ok()?.is_dir()))).collect();
+        entries.sort();
+        for (name, is_dir) in entries {
+            if out.len() >= MAX_DOCUMENTS {
+                return;
+            }
+            let path = if rel.is_empty() { name.clone() } else { format!("{rel}/{name}") };
+            if is_dir {
+                if !name.starts_with('.') && !matches!(name.as_str(), "assets" | "node_modules" | "target" | "dist" | "build") {
+                    walk(&dir.join(&name), &path, depth + 1, out);
+                }
+            } else if name.rsplit_once('.').is_some_and(|(_, e)| e.eq_ignore_ascii_case("md") || e.eq_ignore_ascii_case("markdown")) {
+                out.push(path);
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(root, "", 0, &mut out);
+    Ok(out)
 }
 
 /// Decode text bytes: UTF-8 (with or without BOM), UTF-16 LE/BE (BOM or sniffed), else the

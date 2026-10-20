@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Plume app icon: a quill feather writing a Markdown heading mark. Original artwork, hand-written
+       path data; MIT OR Apache-2.0. Keep the full-bleed 512 tile with rx=112 (packaging/icons.sh
+       derives the macOS variant from this viewBox). -->
+  <rect width="512" height="512" rx="112" fill="#1f4e5f"/>
+  <!-- Markdown heading mark, in amber ink. -->
+  <g stroke="#f5b841" stroke-width="24" stroke-linecap="round" fill="none">
+    <path d="M362 322 L348 436"/>
+    <path d="M414 322 L400 436"/>
+    <path d="M330 358 L440 358"/>
+    <path d="M324 404 L434 404"/>
+  </g>
+  <!-- The feather, drawn upright and turned so the nib rests bottom left. -->
+  <g transform="translate(-22 -18) rotate(38 256 256)">
+    <!-- Vane. -->
+    <path d="M262 36 C302 78 326 150 322 230 C319 300 294 352 266 398 L248 398 C220 356 192 304 192 236 C192 150 224 82 262 36 Z" fill="#f4efe4"/>
+    <!-- Splits in the vane. -->
+    <g fill="#1f4e5f">
+      <path d="M324 196 L322 218 L280 258 Z"/>
+      <path d="M193 258 L196 278 L236 316 Z"/>
+      <path d="M309 300 L302 318 L268 350 Z"/>
+    </g>
+    <!-- Barbs. -->
+    <g stroke="#1f4e5f" stroke-width="4" stroke-linecap="round" opacity="0.3" fill="none">
+      <path d="M259 130 L292 100"/>
+      <path d="M258 178 L314 140"/>
+      <path d="M257 236 L320 196"/>
+      <path d="M257 300 L304 268"/>
+      <path d="M259 156 L222 122"/>
+      <path d="M258 210 L198 176"/>
+      <path d="M257 268 L196 228"/>
+      <path d="M256 342 L222 314"/>
+    </g>
+    <!-- Rachis, curving slightly toward the tip. -->
+    <path d="M261 72 Q258 240 256 398" stroke="#1f4e5f" stroke-width="7" stroke-linecap="round" fill="none"/>
+    <!-- Quill and nib. -->
+    <path d="M248 394 L264 394 L262 444 L256 472 L250 444 Z" fill="#f4efe4"/>
+    <path d="M256 436 L256 456" stroke="#1f4e5f" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>

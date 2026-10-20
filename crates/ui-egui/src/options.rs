@@ -190,15 +190,14 @@ fn general(app: &mut WordApp, ui: &mut Ui) {
     {
         let _ = app.run("view.darkMode", json!({"value": dark_page}));
     }
-    ui.checkbox(&mut app.ui.show_discord, tl!("Show the community button in the title bar"));
     default_app_button(app, ui);
     ui.add_space(8.0);
     section(ui, "Start-up");
     let mut start = app.ui.start_screen;
     if ui
-        .checkbox(&mut start, tl!("Show the Start screen when WordCraft starts"))
+        .checkbox(&mut start, tl!("Show the Start screen when Plume starts"))
         .on_hover_text(tl!(
-            "On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document."
+            "On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document."
         ))
         .changed()
     {
@@ -397,7 +396,7 @@ fn save(app: &mut WordApp, ui: &mut Ui) {
     // The browser can't write to the user's files, so AutoSave can't be turned on there (#176).
     let browser = app.autosave_block() == Some(crate::AutoSaveBlock::Browser);
     let mut autosave = app.autosave && !browser;
-    let r = ui.add_enabled(!browser, egui::Checkbox::new(&mut autosave, tl!("AutoSave documents you have saved in WordCraft")));
+    let r = ui.add_enabled(!browser, egui::Checkbox::new(&mut autosave, tl!("AutoSave documents you have saved in Plume")));
     if browser {
         r.on_disabled_hover_text(crate::AutoSaveBlock::Browser.reason());
     } else if r.changed() {
@@ -405,6 +404,21 @@ fn save(app: &mut WordApp, ui: &mut Ui) {
         app.session.autosave = autosave;
     }
     note(ui, "AutoSave writes your changes to the file a moment after you stop typing.");
+    ui.add_space(8.0);
+    // Plume: what happens to formatting Markdown can't keep.
+    section(ui, "Markdown");
+    let mut strict = app.session.prefs.markdown_strict;
+    if ui.checkbox(&mut strict, tl!("Keep to Markdown")).changed() {
+        let _ = app.run("markdown.strict", json!({"value": strict}));
+    }
+    note(
+        ui,
+        "On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.",
+    );
+    ui.add_space(8.0);
+    // Plume: the language model that restructures old documents' tables (off by default).
+    section(ui, "Artificial intelligence");
+    crate::ai_tables::settings(app, ui);
     ui.add_space(8.0);
     // The open document's `file.privacyOptions` (#1062): saved with it, honoured when it is saved.
     section(ui, "Privacy for this document");
@@ -692,17 +706,17 @@ fn overlay<T: DeserializeOwned>(root: &mut Value, path: &mut Vec<String>, input:
 fn default_app_button(app: &mut WordApp, ui: &mut Ui) {
     if app.services.make_default_app.is_some() {
         let hint = if cfg!(target_os = "windows") {
-            tl!("Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.")
+            tl!("Opens Settings › Default apps, where you choose Plume for .docx and the other document types.")
         } else {
-            tl!("Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.")
+            tl!("Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.")
         };
-        if ui.button(tl!("Make WordCraft the default for Word documents…")).on_hover_text(hint).clicked() {
+        if ui.button(tl!("Make Plume the default for Word documents…")).on_hover_text(hint).clicked() {
             // Straight to the hook, not through `run`: only a click may change system defaults.
             let _ = app.make_default_app();
         }
     } else if cfg!(target_os = "macos") {
         ui.label(
-            egui::RichText::new(tl!("To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All."))
+            egui::RichText::new(tl!("To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All."))
                 .small()
                 .weak(),
         );
@@ -1031,10 +1045,10 @@ mod tests {
         );
         h.run_steps(4);
         assert!(h.query_by_label("Start-up").is_some(), "the section is there");
-        h.get_by_label("Show the Start screen when WordCraft starts").click();
+        h.get_by_label("Show the Start screen when Plume starts").click();
         h.run_steps(4);
         assert!(!h.state().ui.start_screen, "the checkbox turns it off");
-        h.get_by_label("Show the Start screen when WordCraft starts").click();
+        h.get_by_label("Show the Start screen when Plume starts").click();
         h.run_steps(4);
         assert!(h.state().ui.start_screen, "and on again");
     }

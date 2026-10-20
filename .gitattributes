@@ -1,0 +1,3 @@
+# Plume keeps in sync with storytold/wordcraft by merging it regularly (docs/plume/sync.md).
+# Interface catalogues: both sides append translations, so a merge keeps both sides' lines.
+crates/ui-egui/src/i18n/*.tsv merge=union

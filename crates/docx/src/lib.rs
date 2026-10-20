@@ -13,6 +13,7 @@ mod crypt;
 mod custom;
 mod flat;
 mod fonts;
+mod outline;
 mod package;
 mod read;
 mod smart_art;
@@ -30,6 +31,7 @@ pub use crypt::{
 };
 pub use flat::{XmlKind, sniff_xml, write as write_flat};
 pub use fonts::{EmbeddedFont, embedded_fonts};
+pub use outline::{chart_outline, smart_art_outline};
 pub use read::read;
 pub use smart_art::smart_art_items;
 pub use wordml2003_write::write as write_wordml2003;

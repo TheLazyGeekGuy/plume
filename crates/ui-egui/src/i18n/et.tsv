@@ -7,13 +7,15 @@
 # No Microsoft Word or other product localisation was consulted or copied.
 # Use short commands and plain Estonian. Keep product and format names.
 # Use count-neutral labels. This catalog does not add Estonian spell checking.
-# Author: @henno with Codex; MIT OR Apache-2.0, like WordCraft.
+# Author: @henno with Codex; MIT OR Apache-2.0, like Plume.
 
 	(no suggestions)	(soovitused puuduvad)
 	1.5 Line Spacing	Reavahe 1,5
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	Tasuta avatud lähtekoodiga tekstitöötlusprogramm, mis on kirjutatud Rustis.\nArtCrafti meeskonna Crafting Appsi osa.
+	A free, open-source word processor written in Rust, with Markdown as its native format.	Tasuta avatud lähtekoodiga tekstitöötlusprogramm, kirjutatud Rustis, omavorminguks on Markdown.
+	Plume — based on WordCraft by the ArtCraft team.	Plume — põhineb ArtCrafti meeskonna WordCraftil.
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	About	Teave
-	About WordCraft	WordCrafti teave
+	About Plume	Plume'i teave
 	Accept	Nõustu
 	Accept All Changes	Nõustu kõigi muudatustega
 	Accept This Change	Nõustu selle muudatusega
@@ -150,7 +152,6 @@
 	Comment	Kommentaar
 	Comments	Kommentaarid
 	Comments Pane	Kommentaaripaan
-	Community\nDiscord	Discordi\nkogukond
 	Compact	Tihe
 	Compare	Võrdle
 	Compress Pictures	Tihenda pildid
@@ -204,8 +205,6 @@
 	Different First Page	Erinev esileht
 	Different Odd & Even Pages	Erinevad paaris- ja paaritud lehed
 	Direct formatting	Otsevormindus
-	Discord	Discord
-	Discord community	Discordi kogukond
 	Display	Kuva
 	Display for Review	Kuva läbivaatuseks
 	Distribute Columns	Jaota veerud ühtlaselt
@@ -387,8 +386,6 @@
 	Interface language	Kasutajaliidese keel
 	Interface language:	Kasutajaliidese keel:
 	Italic	Kaldkiri
-	Join the ArtCraft community on Discord	Liitu ArtCrafti kogukonnaga Discordis
-	Join us on Discord: discord.gg/artcraft	Liitu meiega Discordis: discord.gg/artcraft
 	Justify	Rööpjoonda
 	Keep Lines Together	Hoia read koos
 	Keep Text Only	Säilita ainult tekst
@@ -401,7 +398,7 @@
 	Landscape	Rõhtpaigutus
 	Language	Keel
 	{language} (no dictionary)	{language} (sõnastik puudub)
-	No spelling dictionary for {language} is installed, so it isn't checked. WordCraft looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Keele {language} õigekirjasõnastikku pole paigaldatud, seega seda ei kontrollita. WordCraft otsib Hunspelli sõnastikku {name} kaustast WORDCRAFT_DICTIONARIES ja tavalistest süsteemikohtadest.
+	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Keele {language} õigekirjasõnastikku pole paigaldatud, seega seda ei kontrollita. Plume otsib Hunspelli sõnastikku {name} kaustast WORDCRAFT_DICTIONARIES ja tavalistest süsteemikohtadest.
 	Lasso	Lasso
 	Last Column	Viimane veerg
 	Last commit	Viimane commit
@@ -431,7 +428,7 @@
 	Links	Lingid
 	Location: {path}	Asukoht: {path}
 	Mirror indents	Peegelda taanded
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Autoriõigus (c) 2026 ArtCrafti meeskond ja WordCrafti kaasautorid.
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 Plume'i kaastöötajad, ArtCrafti meeskond ja WordCrafti kaastöötajad.
 	Macros	Makrod
 	Mailings	Postitused
 	Manage Sources	Halda allikaid
@@ -728,7 +725,6 @@
 	Animation	Animatsioon
 	Animate the caret (it glides and fades)	Animeeri tekstikursorit (libiseb ja hajub)
 	On: the caret glides to its new place when you type or use the arrow keys, and its blink fades. Off: it jumps and blinks on and off.	Sees: tekstikursor libiseb tippimisel või nooleklahvide kasutamisel uude kohta ja selle vilkumine hajub sujuvalt. Väljas: kursor hüppab ja vilgub järsult.
-	Show the community button in the title bar	Kuva tiitliribal kogukonna nupp
 	Show the mini toolbar when text is selected	Kuva teksti valimisel minitööriistariba
 	Show/Hide ¶	Kuva/peida ¶
 	Show\nComments	Kuva\nkommentaarid
@@ -744,7 +740,7 @@
 	Small caps	Kapiteelkiri
 	SmartArt	SmartArt
 	Sort	Sordi
-	Source code: github.com/storytold/wordcraft	Lähtekood: github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	Lähtekood: github.com/TheLazyGeekGuy/plume
 	Space before/after:	Vahe enne/pärast:
 	Spaces	Tühikud
 	Spacing	Vahe
@@ -895,7 +891,7 @@
 	Word XML Document (*.xml)	Wordi XML-dokument (*.xml)
 	Word 2003 XML Document (*.xml)	Word 2003 XML-dokument (*.xml)
 	WordArt	WordArt
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	Sõnad
 	Words only	Ainult sõnad
 	Wrap Text	Mähi tekst
@@ -960,7 +956,7 @@
 	Stopped	Lõpetatud
 	Speed	Kiirus
 	Normal speed	Tavaline kiirus
-	AutoSave documents you have saved in WordCraft	Salvesta WordCraftis salvestatud dokumendid automaatselt
+	AutoSave documents you have saved in Plume	Salvesta Plume'is salvestatud dokumendid automaatselt
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	Automaatsalvestus ebaõnnestus: {error}. Selle uuesti sisse lülitamiseks salvesta dokument.
 	Couldn't download {name}: {error}	Faili {name} allalaadimine ebaõnnestus: {error}
 	Do you want to save changes to {name}?	Kas soovid faili {name} muudatused salvestada?
@@ -1130,7 +1126,6 @@
 	Left Margin	Vasak veeris
 	Repeat as header row on each page	Korda päisereana igal lehel
 	Insert a new equation (Alt+=)	Lisa uus võrrand (Alt+=)
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Bottom Margin	Alumine veeris
 	Cell	Lahter
 	Specify height:	Määra kõrgus:
@@ -1224,7 +1219,7 @@
 	The document will be saved with a password. Save it to protect it.	Dokument salvestatakse parooliga. Kaitsmiseks salvesta see.
 	The password is removed. Save the document to keep the change.	Parool on eemaldatud. Muudatuse säilitamiseks salvesta dokument.
 	The passwords don't match.	Paroolid ei ühti.
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	Hoia parooli kindlas kohas: ilma selleta ei saa keegi, ka WordCraft, dokumenti avada. Parooli eemaldamiseks jäta mõlemad väljad tühjaks.
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Hoia parooli kindlas kohas: ilma selleta ei saa keegi, ka Plume, dokumenti avada. Parooli eemaldamiseks jäta mõlemad väljad tühjaks.
 	Align Top Left	Joonda üles vasakule
 	Align Top Center	Joonda üles keskele
 	Align Top Right	Joonda üles paremale
@@ -1650,13 +1645,13 @@
 	Hindi	Hindi
 	Context	Kontekst
 	System	Süsteem
-	Couldn't make WordCraft the default: {error}	WordCrafti ei õnnestunud vaikerakenduseks määrata: {error}
-	In Default apps, choose WordCraft for the document types you want it to open.	Vali jaotises „Vaikerakendused“ WordCraft nende dokumenditüüpide jaoks, mida see peaks avama.
-	Make WordCraft the default for Word documents…	Määra WordCraft Wordi dokumentide vaikerakenduseks…
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	Edaspidi avatakse .docx-, .doc-, .rtf- ja .odt-failid ning Wordi mallid WordCraftiga.
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	Avab Sätted › Vaikerakendused, kus saad valida WordCrafti .docx-i ja teiste dokumenditüüpide jaoks.
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	Wordi dokumentide vaikimisi avamiseks WordCraftiga vali Finderis üks dokument, vali Fail › Hangi teave, vali jaotises „Ava rakendusega“ WordCraft ja klõpsa „Muuda kõiki“.
-	WordCraft is now the default app for Word documents.	WordCraft on nüüd Wordi dokumentide vaikerakendus.
+	Couldn't make Plume the default: {error}	Plume'i ei õnnestunud vaikerakenduseks määrata: {error}
+	In Default apps, choose Plume for the document types you want it to open.	Vali jaotises „Vaikerakendused“ Plume nende dokumenditüüpide jaoks, mida see peaks avama.
+	Make Plume the default for Word documents…	Määra Plume Wordi dokumentide vaikerakenduseks…
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	Edaspidi avatakse .docx-, .doc-, .rtf- ja .odt-failid ning Wordi mallid Plume'iga.
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	Avab Sätted › Vaikerakendused, kus saad valida Plume'i .docx-i ja teiste dokumenditüüpide jaoks.
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	Wordi dokumentide vaikimisi avamiseks Plume'iga vali Finderis üks dokument, vali Fail › Hangi teave, vali jaotises „Ava rakendusega“ Plume ja klõpsa „Muuda kõiki“.
+	Plume is now the default app for Word documents.	Plume on nüüd Wordi dokumentide vaikerakendus.
 	Templates	Mallid
 	Templates and Add-ins	Mallid ja lisandmoodulid
 	Attach Template	Manusta mall
@@ -1759,7 +1754,7 @@
 	Word document	Wordi dokument
 	All files	Kõik failid
 	Recipient lists	Adressaatide loendid
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Süsteemi failidialoog pole saadaval, seega näitab WordCraft enda oma. Süsteemi dialoogi saamiseks paigalda failivalija portaal (näiteks xdg-desktop-portal-gtk) või zenity.
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Süsteemi failidialoog pole saadaval, seega näitab Plume enda oma. Süsteemi dialoogi saamiseks paigalda failivalija portaal (näiteks xdg-desktop-portal-gtk) või zenity.
 	Up one level	Taseme võrra üles
 	Home folder	Kodukaust
 	{name} wasn't found.	{name} ei leitud.
@@ -1767,8 +1762,8 @@
 	This folder can't be read: {error}	Seda kausta ei saa lugeda: {error}
 	Showing the first {count} items.	Kuvatud on ainult esimesed kirjed: {count}.
 	File name:	Faili nimi:
-	Browse in WordCraft…	Sirvi WordCraftis…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	Ava fail WordCrafti enda failisirvijaga, kui süsteemi failidialoog ei ilmu.
+	Browse in Plume…	Sirvi Plume'is…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	Ava fail Plume'i enda failisirvijaga, kui süsteemi failidialoog ei ilmu.
 	Hide White Space	Peida tühi ala lehtede vahel
 	All pages	Kõik leheküljed
 	Current page	Praegune lehekülg
@@ -2185,8 +2180,8 @@
 	Number only, without the label's words	Ainult number, ilma sildi sõnadeta
 	Add whether it is above or below	Lisa, kas see on üleval või all
 	Start-up	Käivitamine
-	Show the Start screen when WordCraft starts	Näita WordCrafti käivitamisel avakuva
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Sees: WordCraft avaneb vaates Fail › Avaleht, kus on tühi dokument, mallid ja hiljutised dokumendid. Väljas: avaneb tühi dokument.
+	Show the Start screen when Plume starts	Näita Plume'i käivitamisel avakuva
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Sees: Plume avaneb vaates Fail › Avaleht, kus on tühi dokument, mallid ja hiljutised dokumendid. Väljas: avaneb tühi dokument.
 	Copy to	Kopeeri asukohta
 
 # Document naming and account controls.
@@ -2217,7 +2212,7 @@
 	{name}   {height} × {width} mm	{name}   {height} × {width} mm
 	{width} × {height} mm	{width} × {height} mm
 	{kind}, {columns} × {rows}, {size} ({paper})	{kind}, {columns} × {rows}, {size} ({paper})
-	Researcher needs an online service; WordCraft keeps your documents offline.	Uurija vajab võrguteenust; WordCraft hoiab teie dokumendid võrguühenduseta.
+	Researcher needs an online service; Plume keeps your documents offline.	Uurija vajab võrguteenust; Plume hoiab teie dokumendid võrguühenduseta.
 	These settings will be used for new documents.	Neid sätteid kasutatakse uute dokumentide puhul.
 	can't split at the first row	tabelit ei saa esimese rea kohalt tükeldada
 	select two or more cells to merge	valige ühendamiseks kaks või rohkem lahtrit
@@ -2261,6 +2256,78 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Selle kausta Hunspelli .aff- ja .dic-failid (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) on eelistatud süsteemi omadele.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: sõnastikku ei leitud
+	Version Status	Versioonide olek
+	Start Keeping Versions	Alusta versioonide hoidmist
+	Save Version	Salvesta versioon
+	Show Changes	Näita muudatusi
+	Compare with Version	Võrdle versiooniga
+	Restore Version	Taasta versioon
+	Synchronize	Sünkrooni
+	Versions	Versioonid
+	Describe your changes	Kirjeldage oma muudatusi
+	No versions yet	Versioone veel pole
+	Restore	Taasta
+	Save\nVersion	Salvesta\nversioon
+	Version\nHistory	Versiooni-\najalugu
+	Save the document as Markdown first (File › Save As).	Salvestage dokument esmalt Markdownina (Fail › Salvesta nimega).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Selle dokumendi kaust ei hoia veel versioone: alustamiseks kasutage käsku Salvesta versioon.
+	Version {id} saved	Versioon {id} salvestatud
+	Save the document as Markdown first	Salvestage dokument esmalt Markdownina
+	Imported as Markdown	Imporditud Markdownina
+	Saved as Markdown	Salvestatud Markdownina
+	Sign In to a Forge	Logi sisse forge'i
+	Sign Out of Forges	Logi forge'idest välja
+	Open from a Forge	Ava forge'ist
+	Open from a Forge…	Ava forge'ist…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Avage Markdowni dokument GitHubist, GitLabist või Forgejost; Salvesta versioon salvestab versioonid sinna.
+	Server	Server
+	Repository	Hoidla
+	Branch	Haru
+	Access token	Juurdepääsuluba
+	kept in the keychain	hoitakse võtmerõngas
+	Remember the token in the keychain	Jäta luba võtmerõngasse meelde
+	Enter an access token for this forge.	Sisestage selle forge'i juurdepääsuluba.
+	Keep to Markdown	Piirdu Markdowniga
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown ei suuda seda vormingut säilitada (range Markdowni režiim)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Sees: käsud, mida Markdown ei säilita (teksti värv, allakriipsutus, tekstiväljad, veerud…), on välja lülitatud. Väljas: need töötavad ja salvestamisel öeldakse, mida Markdown ei säilitanud.
+	Request Review	Taotle ülevaatust
+	Get Review Comments	Too ülevaatuse kommentaarid
+	Send Replies	Saada vastused
+	Review Status	Ülevaatuse olek
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Ülevaatuse taotlemiseks avage dokument GitHubist, GitLabist või Forgejost
+	What should your colleagues review?	Mida peaksid kolleegid üle vaatama?
+	Details (optional)	Üksikasjad (valikuline)
+	Review requested: {url}	Ülevaatust taotleti: {url}
+	Documents Pane	Dokumentide paan
+	Save the document as Markdown to see the documents beside it.	Salvestage dokument Markdownina, et näha selle kõrval olevaid dokumente.
+	No Markdown documents here yet.	Siin pole veel Markdowni dokumente.
+	save the document first	salvestage esmalt dokument
+	Address of the Markdown file (copy it from your browser)	Markdowni faili aadress (kopeerige see brauserist)
+	Paste the address of the Markdown file's page (it ends in .md).	Kleepige Markdowni faili lehe aadress (lõpeb .md-ga).
+	Accounts	Kontod
+	New connection	Uus ühendus
+	Connect	Ühenda
+	Projects	Projektid
+	Filter	Filter
+	No projects on this account.	Sellel kontol pole projekte.
+	Waiting for the forge…	Ootan forge’i…
+	Save to a Forge…	Salvesta forge’i…
+	Save to a Forge	Salvesta forge’i
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Salvestab dokumendi Markdownina GitHubi, GitLabi või Forgejo projekti; „Salvesta versioon“ salvestab seejärel versioonid sinna.
+	Replace the document that has this name	Asenda selle nimega dokument
+	Saved to the forge:	Salvestatud forge’i:
+	Permissions the token needs:	Tokenile vajalikud õigused:
+	Or sign in with the browser	Või logi sisse brauseris
+	OAuth app client ID	OAuth-rakenduse kliendi ID
+	Sign in with the browser	Logi sisse brauseris
+	Type this code on the forge's page:	Sisesta see kood forge’i lehel:
+	Open the page	Ava leht
+	Copy the code	Kopeeri kood
+	No Markdown documents in this project.	Selles projektis pole Markdowni dokumente.
+	Or paste the document's address	Või kleepige dokumendi aadress
+	Forge Repositories	Forge'i hoidlad
+	Forge Documents	Forge'i dokumendid
 
 # Backstage › Recover (#586)
 	Recover	Taasta
@@ -2283,6 +2350,138 @@
 # Reading Mode column widths (#1040)
 	Narrow	Kitsas
 	Medium	Keskmine
+	(not saved)	(salvestamata)
+	Edit template…	Muuda malli…
+	Export PDF…	Ekspordi PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Küljenda dokument malliga: tiitelleht, päised ja jalused, kaaned ja kirjaplank. Dokumendi YAML-päis määrab malli suvandid.
+	Layout (LaTeX)	Paigutus (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	PDF-i loomine… (esimesel korral võib TeX-mootor vajaliku alla laadida)
+	New template created: it is the one exports use now.	Uus mall on loodud: eksport kasutab nüüd seda.
+	New template from this one:	Uus mall selle põhjal:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	TeX-mootorit ei leitud. Installige Tectonic (brew install tectonic) või MacTeX ja eksportige uuesti.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Suvandid nagu titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Dokumendi YAML-päis alistab need.
+	PDF with a template	PDF malliga
+	Restore the original	Taasta originaal
+	Save and preview	Salvesta ja kuva eelvaade
+	Settings (YAML)	Sätted (YAML)
+	Template saved.	Mall on salvestatud.
+	Template:	Mall:
+	Template: {name}	Mall: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX-mall pandoci mallikeeles ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	koopia
+	Export LaTeX with a Template	Ekspordi LaTeX malliga
+	Export PDF with a Template	Ekspordi PDF malliga
+	New PDF Template	Uus PDF-mall
+	PDF Engine	PDF-mootor
+	PDF Templates	PDF-mallid
+	Read PDF Template	Loe PDF-malli
+	Restore PDF Template	Taasta PDF-mall
+	Save PDF Template	Salvesta PDF-mall
+	Tables for AI	Tabelid tehisintellektile
+	AI Request for a Table	Tehisintellekti päring tabeli jaoks
+	Restructure Tables	Struktureeri tabelid ümber
+	A language model can't be reached from here.	Siit ei saa keelemudelini jõuda.
+	A language model can't be reached from the browser.	Brauserist ei saa keelemudelini jõuda.
+	AI	TI
+	Artificial intelligence	Tehisintellekt
+	Block	Plokk
+	Block {index}: {rows} × {cols}, {words} words	Plokk {index}: {rows} × {cols}, sõnu: {words}
+	Changed	Muudetud
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Valige esmalt keelemudel: Fail › Suvandid › Salvestamine › Tehisintellekt.
+	Choose a model	Valige mudel
+	High	Kõrge
+	Low	Madal
+	Model's default	Mudeli vaikesäte
+	Model:	Mudel:
+	Model: {model} at {url}	Mudel: {model} aadressil {url}
+	No table to restructure.	Ümberstruktureeritavaid tabeleid pole.
+	No table was changed.	Ühtegi tabelit ei muudetud.
+	Other server	Muu server
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume palub sel ümber struktureerida tabelid, mida Markdown ei mahuta (vormid ja tabelitesse küljendatud lehed), ning jätab ümberkirjutuse alles vaid siis, kui iga sõna on veel olemas. Ollama ja LM Studio töötavad selles arvutis: midagi ei lahku sellest.
+	Reasoning:	Arutlus:
+	Restructure	Struktureeri ümber
+	Restructure\nTables	Struktureeri\ntabelid ümber
+	Server:	Server:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollamas soovitatud: gpt-oss:20b vähemalt 16 GB mäluga, qwen3:4b 8 GB-ga (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tabel {i}/{n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Serveril pole veel mudeleid: laadige esmalt üks alla (ollama pull gpt-oss:20b).
+	No table in this document needs a model: Markdown holds its tables as they are.	Ükski selle dokumendi tabel ei vaja mudelit: Markdown hoiab selle tabelid muutmata.
+	Unchanged	Muutmata
+	Use a language model	Kasuta keelemudelit
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Ümber struktureeritud {applied} tabelit {n}-st. Võta tagasi (Ctrl+Z) taastab kõik.
+	{n} models on the server.	Serveris on {n} mudelit.
+	{ready} of {n} tables can be sent to the model.	Mudelile saab saata {ready} tabelit {n}-st.
+	Saved to {forge}	Salvestatud: {forge}
+	Changes Since Last Version	Muudatused pärast viimast versiooni
+	No changes since the last version.	Pärast viimast versiooni muudatusi pole.
+	Showing the changes since the last version ({n} paragraphs).	Kuvatakse muudatused pärast viimast versiooni (lõike: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Jälgimine nüüdsest: viimast versiooni ei saa lugeda ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Määra front matter'i väli
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Väljad, mida loevad GitHub, VitePress ja PDF-mallid, salvestatud Markdowni faili algusesse.
+	(several values: edit the source)	(mitu väärtust: muutke lähteteksti)
+	Remove this field	Eemalda see väli
+	New field	Uus väli
+	Letters, digits, - and _ only	Ainult tähed, numbrid, - ja _
+	Callout	Esiletõstetud plokk
+	Code Block	Koodiplokk
+	Code Language	Koodi keel
+	Leave Block	Lahku plokist
+	Markdown Block	Markdowni plokk
+	Mermaid diagram	Mermaidi diagramm
+	Plain text	Lihttekst
+	Note	Märkus
+	Tip	Nõuanne
+	Important	Oluline
+	Warning	Hoiatus
+	Caution	Ettevaatust
+	Danger	Oht
+	Details	Üksikasjad
+	Insert › Markdown	Lisa › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Salvestatud teie harusse {branch}; {target} on lukus.
+	Merge request {n} into {target} is open: this version goes in it.	Ühendamistaotlus {n} harusse {target} on avatud: see versioon läheb sinna.
+	Request the merge into {target}	Taotle ühendamist harusse {target}
+	Version {id} saved; merge request {n} opened	Versioon {id} salvestatud; ühendamistaotlus {n} avatud
+	Markdown indents list items only	Markdown taandab ainult loendi üksusi
+	Diagram	Diagramm
+	Edit\nDiagram	Muuda\ndiagrammi
+	Mermaid source	Mermaidi lähtetekst
+	Mermaid syntax	Mermaidi süntaks
+	Sequence	Jada
+	Flowchart	Plokkskeem
+	Gantt	Gantt
+	Class	Klassid
+	Mind map	Mõttekaart
+	Markdown Source	Markdowni lähtetekst
+	Apply Markdown Source	Rakenda Markdowni lähtetekst
+	Heading Anchor	Pealkirja ankur
+	Include File	Kaasa fail
+	Include	Kaasa
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Kaasatav Markdowni fail selle suhtes (VitePress näitab siin selle teksti)
+	Open Included File	Ava kaasatud fail
+	Anchor	Ankur
+	Discard	Loobu
+	Save this document first: an included file is found beside it.	Salvestage see dokument esmalt: kaasatud fail asub selle kõrval.
+	View › Markdown Source	Vaade › Markdowni lähtetekst
+	Shapes and Connectors	Kujundid ja ühendusjooned
+	All Diagrams…	Kõik diagrammid…
+	Planning	Planeerimine
+	Structure	Struktuur
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)
 # Split Cells and Convert Text to Table (#2592)
 	Merge cells before split	Ühenda lahtrid enne tükeldamist
 	Table size	Tabeli suurus

@@ -17,9 +17,7 @@
 	(no style)	(ingen stil)
 	(no suggestions)	(inga förslag)
 	1.5 Line Spacing	Radavstånd 1,5
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	En gratis ordbehandlare med öppen källkod, skriven från grunden i Rust.\nEn del av Crafting Apps från ArtCraft-teamet.
 	About	Om
-	About WordCraft	Om WordCraft
 	Accept	Acceptera
 	Accept All Changes	Acceptera alla ändringar
 	Accept This Change	Acceptera den här ändringen
@@ -273,7 +271,6 @@
 	Comment	Kommentar
 	Comments	Kommentarer
 	Comments Pane	Kommentarspanel
-	Community\nDiscord	Discord-\ncommunity
 	Compact	Kompakt
 	Compare	Jämför
 	Compress Pictures	Komprimera bilder
@@ -287,7 +284,6 @@
 	Copy	Kopiera
 	Copy Formatting	Kopiera formatering
 	Corrections	Korrigeringar
-	Couldn't make WordCraft the default: {error}	Det gick inte att göra WordCraft till standardprogram: {error}
 	Count words in text boxes and notes	Räkna ord i textrutor, fotnoter och slutnoter
 	Cover Page	Försättsblad
 	Create	Skapa
@@ -328,8 +324,6 @@
 	Different First Page	Annan första sida
 	Different Odd & Even Pages	Olika udda och jämna sidor
 	Direct formatting	Direkt formatering
-	Discord	Discord
-	Discord community	Discord-community
 	Display	Visning
 	Display for Review	Visning för granskning
 	Distribute Columns	Fördela kolumner
@@ -463,7 +457,6 @@
 	Immersive	Fördjupning
 	Immersive Reader	Fördjupad läsning
 	Immersive\nReader	Fördjupad\nläsning
-	In Default apps, choose WordCraft for the document types you want it to open.	I Standardappar väljer du WordCraft för de dokumenttyper som den ska öppna.
 	Increase Font Size	Öka teckenstorleken
 	Increase Indent	Öka indraget
 	Indent	Indrag
@@ -506,8 +499,6 @@
 	Inspect Styles at Selection	Inspektera stilar vid markeringen
 	Interface language:	Gränssnittsspråk:
 	Italic	Kursiv
-	Join the ArtCraft community on Discord	Gå med i ArtCrafts community på Discord
-	Join us on Discord: discord.gg/artcraft	Gå med i ArtCrafts community på Discord: discord.gg/artcraft
 	Justify	Marginaljustera
 	Keep Lines Together	Håll ihop raderna
 	Keep Text Only	Behåll bara texten
@@ -548,10 +539,8 @@
 	Link to Previous	Länka till föregående
 	Links	Länkar
 	Location: {path}	Plats: {path}
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft-teamet och WordCrafts bidragsgivare.
 	Macros	Makron
 	Mailings	Utskick
-	Make WordCraft the default for Word documents…	Gör WordCraft till standardprogram för Word-dokument…
 	Manage Sources	Hantera källor
 	Many pages	Många sidor
 	Margins	Marginaler
@@ -628,8 +617,6 @@
 	One Page	En sida
 	Open	Öppna
 	OpenDocument Text (*.odt)	OpenDocument-text (*.odt)
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	Öppnar .docx-, .doc-, .rtf- och .odt-filer och Word-mallar med WordCraft från och med nu.
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	Öppnar Inställningar › Standardappar, där du väljer WordCraft för .docx och de andra dokumenttyperna.
 	Optional Hyphen	Mjukt bindestreck
 	Copyright Sign	Copyrighttecken
 	Ellipsis	Ellips
@@ -842,7 +829,6 @@
 	Animation	Animering
 	Animate the caret (it glides and fades)	Animera markören (den glider och tonas)
 	On: the caret glides to its new place when you type or use the arrow keys, and its blink fades. Off: it jumps and blinks on and off.	På: markören glider till sin nya plats när du skriver eller använder piltangenterna, och blinkningen tonas mjukt. Av: den hoppar och blinkar av och på.
-	Show the community button in the title bar	Visa community-knappen i namnlisten
 	Show/Hide ¶	Visa/dölj ¶
 	Show\nComments	Visa\nkommentarer
 	Shrink Font 1 Point	Minska teckenstorleken 1 punkt
@@ -858,7 +844,6 @@
 	Small caps	Kapitäler
 	SmartArt	SmartArt
 	Sort	Sortera
-	Source code: github.com/storytold/wordcraft	Källkod: github.com/storytold/wordcraft
 	Space	Blanksteg
 	Space before/after:	Avstånd före/efter:
 	Spacing	Avstånd
@@ -944,7 +929,6 @@
 	Tight	Tät
 	TOC Heading	Innehållsrubrik
 	TOC {n}	Innehåll {n}
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	Så här öppnar du Word-dokument med WordCraft som standard: markera ett dokument i Finder, välj Arkiv › Hämta info, välj WordCraft under Öppna med och klicka sedan på Ändra alla.
 	Top Border	Övre kantlinje
 	Top Margin	Övre marginal
 	Top of Page	Överst på sidan
@@ -1008,8 +992,6 @@
 	Word document (*.docx)	Word-dokument (*.docx)
 	Word XML Document (*.xml)	Word XML-dokument (*.xml)
 	WordArt	WordArt
-	WordCraft	WordCraft
-	WordCraft is now the default app for Word documents.	WordCraft är nu standardprogram för Word-dokument.
 	Words	Ord
 	Words only	Bara ord
 	Wrap Text	Textombrytning
@@ -1078,7 +1060,6 @@
 	Stopped	Stoppad
 	Speed	Hastighet
 	Normal speed	Normal hastighet
-	AutoSave documents you have saved in WordCraft	Autospara dokument som du har sparat i WordCraft
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	Autospara misslyckades: {error}. Spara dokumentet för att slå på Autospara igen.
 	Couldn't download {name}: {error}	Det gick inte att ladda ner {name}: {error}
 	Do you want to save changes to {name}?	Vill du spara ändringarna i {name}?
@@ -1248,7 +1229,6 @@
 	Insert a new equation (Alt+=)	Infoga en ny ekvation (Alt+=)
 	Leave the equation (Esc)	Lämna ekvationen (Esc)
 	Preview	Förhandsvisning
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Draw Ink	Rita med bläck
 	Erase Ink	Sudda bläck
 	Hide Ink	Dölj bläck
@@ -1387,7 +1367,6 @@
 	The document will be saved with a password. Save it to protect it.	Dokumentet sparas med lösenord. Spara det för att skydda det.
 	The password is removed. Save the document to keep the change.	Lösenordet är borttaget. Spara dokumentet för att behålla ändringen.
 	The passwords don't match.	Lösenorden stämmer inte överens.
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	Förvara lösenordet på ett säkert ställe: utan det kan ingen, inte heller WordCraft, öppna dokumentet. Lämna båda rutorna tomma för att ta bort lösenordet.
 
 # Interface text routed through translation (#313)
 	Align Top Left	Justera uppe till vänster
@@ -1778,7 +1757,6 @@
 	Word document	Word-dokument
 	All files	Alla filer
 	Recipient lists	Mottagarlistor
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Systemets fildialogruta är inte tillgänglig, så WordCraft visar sin egen. Installera en filväljarportal (till exempel xdg-desktop-portal-gtk) eller zenity för att få systemets dialogruta.
 	Up one level	Upp en nivå
 	Home folder	Hemmapp
 	{name} wasn't found.	{name} hittades inte.
@@ -1787,8 +1765,6 @@
 	Showing the first {count} items.	Visar de första {count} objekten.
 	No items to show.	Inga objekt att visa.
 	File name:	Filnamn:
-	Browse in WordCraft…	Bläddra i WordCraft…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	Öppna en fil med WordCrafts egen filbläddrare när systemets fildialogruta inte visas.
 	Hide White Space	Dölj tomrum
 	All pages	Alla sidor
 	Current page	Aktuell sida
@@ -2449,8 +2425,6 @@ preview	Title	Titel
 	Region:	Region:
 	Automatic ({region})	Automatisk ({region})
 	Start-up	Start
-	Show the Start screen when WordCraft starts	Visa startskärmen när WordCraft startar
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	På: WordCraft öppnas på Arkiv › Start, med ett tomt dokument, mallarna och dina senaste dokument. Av: ett tomt dokument öppnas.
 
 # Strings the Spanish catalog lacks: paper sizes, citation and table styles, list levels and
 # proofing messages.
@@ -2501,7 +2475,6 @@ preview	Title	Titel
 	Edit Document	Redigera dokument
 	Go to what:	Gå till:
 	Reading Mode	Läsläge
-	Researcher needs an online service; WordCraft keeps your documents offline.	Efterforska kräver en onlinetjänst; WordCraft håller dina dokument offline.
 	Suggested	Förslag
 	Text size	Textstorlek
 	These settings will be used for new documents.	De här inställningarna används för nya dokument.
@@ -2545,7 +2518,6 @@ preview	Title	Titel
 	Hidden bookmarks	Dolda bokmärken
 	Sort by:	Sortera efter:
 	{language} (no dictionary)	{language} (ingen ordlista)
-	No spelling dictionary for {language} is installed, so it isn't checked. WordCraft looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Ingen stavningsordlista för {language} är installerad, så språket kontrolleras inte. WordCraft letar efter Hunspell-ordlistan {name} i mappen WORDCRAFT_DICTIONARIES och på systemets vanliga platser.
 	Word 2003 XML Document (*.xml)	Word 2003 XML-dokument (*.xml)
 	Type Character Code	Skriv teckenkod
 	Auto ({percent}%)	Automatisk ({percent} %)
@@ -2662,6 +2634,234 @@ preview	Title	Titel
 	Bottom Right Cell	Nedre högra cellen
 	Inside Horizontal Border	Inre vågrät kantlinje
 	Inside Vertical Border	Inre lodrät kantlinje
+# Plume
+	A free, open-source word processor written in Rust, with Markdown as its native format.	En fri ordbehandlare med öppen källkod, skriven i Rust, med Markdown som eget format.
+	Plume — based on WordCraft by the ArtCraft team.	Plume — baserad på WordCraft från ArtCraft-teamet.
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
+	About Plume	Om Plume
+	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Ingen stavningsordlista för {language} är installerad, så språket kontrolleras inte. Plume letar efter Hunspell-ordlistan {name} i mappen WORDCRAFT_DICTIONARIES och på systemets vanliga platser.
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 Plumes bidragsgivare, ArtCraft-teamet och WordCrafts bidragsgivare.
+	Source code: github.com/TheLazyGeekGuy/plume	Källkod: github.com/TheLazyGeekGuy/plume
+	Plume	Plume
+	AutoSave documents you have saved in Plume	Autospara dokument som du har sparat i Plume
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Förvara lösenordet på ett säkert ställe: utan det kan ingen, inte heller Plume, öppna dokumentet. Lämna båda rutorna tomma för att ta bort lösenordet.
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Systemets fildialogruta är inte tillgänglig, så Plume visar sin egen. Installera en filväljarportal (till exempel xdg-desktop-portal-gtk) eller zenity för att få systemets dialogruta.
+	Browse in Plume…	Bläddra i Plume…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	Öppna en fil med Plumes egen filbläddrare när systemets fildialogruta inte visas.
+	Couldn't make Plume the default: {error}	Det gick inte att göra Plume till standardprogram: {error}
+	In Default apps, choose Plume for the document types you want it to open.	I Standardappar väljer du Plume för de dokumenttyper som den ska öppna.
+	Make Plume the default for Word documents…	Gör Plume till standardprogram för Word-dokument…
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	Öppnar .docx-, .doc-, .rtf- och .odt-filer och Word-mallar med Plume från och med nu.
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	Öppnar Inställningar › Standardappar, där du väljer Plume för .docx och de andra dokumenttyperna.
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	Så här öppnar du Word-dokument med Plume som standard: markera ett dokument i Finder, välj Arkiv › Hämta info, välj Plume under Öppna med och klicka sedan på Ändra alla.
+	Plume is now the default app for Word documents.	Plume är nu standardprogram för Word-dokument.
+	Show the Start screen when Plume starts	Visa startskärmen när Plume startar
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	På: Plume öppnas på Arkiv › Start, med ett tomt dokument, mallarna och dina senaste dokument. Av: ett tomt dokument öppnas.
+	Researcher needs an online service; Plume keeps your documents offline.	Efterforska kräver en onlinetjänst; Plume håller dina dokument offline.
+	Version Status	Versionsstatus
+	Start Keeping Versions	Börja spara versioner
+	Save Version	Spara version
+	Show Changes	Visa ändringar
+	Compare with Version	Jämför med version
+	Restore Version	Återställ version
+	Synchronize	Synkronisera
+	Versions	Versioner
+	Describe your changes	Beskriv dina ändringar
+	No versions yet	Inga versioner ännu
+	Restore	Återställ
+	Save\nVersion	Spara\nversion
+	Version\nHistory	Versions-\nhistorik
+	Save the document as Markdown first (File › Save As).	Spara först dokumentet som Markdown (Arkiv › Spara som).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Dokumentets mapp sparar inga versioner ännu: börja med Spara version.
+	Version {id} saved	Version {id} sparad
+	Save the document as Markdown first	Spara först dokumentet som Markdown
+	Imported as Markdown	Importerat som Markdown
+	Saved as Markdown	Sparat som Markdown
+	Sign In to a Forge	Logga in på en forge
+	Sign Out of Forges	Logga ut från forges
+	Open from a Forge	Öppna från en forge
+	Open from a Forge…	Öppna från en forge…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Öppna ett Markdown-dokument från GitHub, GitLab eller Forgejo; Spara version sparar versionerna där.
+	Server	Server
+	Repository	Arkiv
+	Branch	Gren
+	Access token	Åtkomsttoken
+	kept in the keychain	sparas i nyckelringen
+	Remember the token in the keychain	Kom ihåg token i nyckelringen
+	Enter an access token for this forge.	Ange en åtkomsttoken för den här forgen.
+	Keep to Markdown	Håll dig till Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown kan inte behålla den här formateringen (strikt Markdown-läge)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	På: kommandon som Markdown inte kan behålla (textfärg, understrykning, textrutor, spalter…) stängs av. Av: de fungerar och sparandet talar om vad Markdown inte behöll.
+	Request Review	Begär granskning
+	Get Review Comments	Hämta granskningskommentarer
+	Send Replies	Skicka svar
+	Review Status	Granskningsstatus
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Öppna dokumentet från GitHub, GitLab eller Forgejo för att begära en granskning
+	What should your colleagues review?	Vad ska dina kollegor granska?
+	Details (optional)	Detaljer (valfritt)
+	Review requested: {url}	Granskning begärd: {url}
+	Documents Pane	Fönstret Dokument
+	Save the document as Markdown to see the documents beside it.	Spara dokumentet som Markdown för att se dokumenten bredvid det.
+	No Markdown documents here yet.	Inga Markdown-dokument här ännu.
+	save the document first	spara dokumentet först
+	Address of the Markdown file (copy it from your browser)	Markdown-filens adress (kopiera den från webbläsaren)
+	Paste the address of the Markdown file's page (it ends in .md).	Klistra in adressen till Markdown-filens sida (den slutar på .md).
+	Accounts	Konton
+	New connection	Ny anslutning
+	Connect	Anslut
+	Projects	Projekt
+	Filter	Filter
+	No projects on this account.	Inga projekt på det här kontot.
+	Waiting for the forge…	Väntar på forgen…
+	Save to a Forge…	Spara i en forge…
+	Save to a Forge	Spara i en forge
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Sparar dokumentet som Markdown i ett GitHub-, GitLab- eller Forgejo-projekt; Spara version sparar sedan versionerna där.
+	Replace the document that has this name	Ersätt dokumentet med det här namnet
+	Saved to the forge:	Sparat i forgen:
+	Permissions the token needs:	Behörigheter som token behöver:
+	Or sign in with the browser	Eller logga in med webbläsaren
+	OAuth app client ID	OAuth-appens klient-ID
+	Sign in with the browser	Logga in med webbläsaren
+	Type this code on the forge's page:	Skriv den här koden på forgens sida:
+	Open the page	Öppna sidan
+	Copy the code	Kopiera koden
+	No Markdown documents in this project.	Inga Markdown-dokument i det här projektet.
+	Or paste the document's address	Eller klistra in dokumentets adress
+	Forge Repositories	Forge-arkiv
+	Forge Documents	Forge-dokument
+	(not saved)	(inte sparad)
+	Edit template…	Redigera mall…
+	Export PDF…	Exportera PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Gör dokumentets layout med en mall: titelsida, sidhuvuden och sidfötter, omslag och brevpapper. Dokumentets front matter ställer in mallens alternativ.
+	Layout (LaTeX)	Layout (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Skapar PDF… (första gången kan TeX-motorn hämta det den behöver)
+	New template created: it is the one exports use now.	Ny mall skapad: det är den som exporter använder nu.
+	New template from this one:	Ny mall utifrån den här:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Ingen TeX-motor hittades. Installera Tectonic (brew install tectonic) eller MacTeX och exportera igen.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Alternativ som titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Ett dokuments front matter ersätter dem.
+	PDF with a template	PDF med en mall
+	Restore the original	Återställ originalet
+	Save and preview	Spara och förhandsgranska
+	Settings (YAML)	Inställningar (YAML)
+	Template saved.	Mallen har sparats.
+	Template:	Mall:
+	Template: {name}	Mall: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX-mallen, i pandocs mallspråk ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	kopia
+	Export LaTeX with a Template	Exportera LaTeX med mall
+	Export PDF with a Template	Exportera PDF med mall
+	New PDF Template	Ny PDF-mall
+	PDF Engine	PDF-motor
+	PDF Templates	PDF-mallar
+	Read PDF Template	Läs PDF-mall
+	Restore PDF Template	Återställ PDF-mall
+	Save PDF Template	Spara PDF-mall
+	Tables for AI	Tabeller för AI
+	AI Request for a Table	AI-begäran för en tabell
+	Restructure Tables	Strukturera om tabeller
+	A language model can't be reached from here.	Ingen språkmodell kan nås härifrån.
+	A language model can't be reached from the browser.	Ingen språkmodell kan nås från webbläsaren.
+	AI	AI
+	Artificial intelligence	Artificiell intelligens
+	Block	Block
+	Block {index}: {rows} × {cols}, {words} words	Block {index}: {rows} × {cols}, {words} ord
+	Changed	Ändrad
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Välj först en språkmodell: Arkiv › Alternativ › Spara › Artificiell intelligens.
+	Choose a model	Välj en modell
+	High	Hög
+	Low	Låg
+	Model's default	Modellens standard
+	Model:	Modell:
+	Model: {model} at {url}	Modell: {model} på {url}
+	No table to restructure.	Ingen tabell att strukturera om.
+	No table was changed.	Ingen tabell ändrades.
+	Other server	Annan server
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume ber den strukturera om tabeller som Markdown inte kan rymma (formulär och sidor uppställda i tabeller) och behåller en omskrivning bara om varje ord finns kvar. Ollama och LM Studio körs på den här datorn: inget lämnar den.
+	Reasoning:	Resonemang:
+	Restructure	Strukturera om
+	Restructure\nTables	Strukturera\nom tabeller
+	Server:	Server:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Rekommenderas i Ollama: gpt-oss:20b med 16 GB minne eller mer, qwen3:4b med 8 GB (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tabell {i} av {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Servern har inga modeller ännu: hämta en först (ollama pull gpt-oss:20b).
+	No table in this document needs a model: Markdown holds its tables as they are.	Ingen tabell i dokumentet behöver en modell: Markdown behåller tabellerna som de är.
+	Unchanged	Oförändrad
+	Use a language model	Använd en språkmodell
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{applied} av {n} tabeller omstrukturerade. Ångra (Ctrl+Z) återställer alla.
+	{n} models on the server.	{n} modeller på servern.
+	{ready} of {n} tables can be sent to the model.	{ready} av {n} tabeller kan skickas till modellen.
+	Saved to {forge}	Sparat i {forge}
+	Changes Since Last Version	Ändringar sedan senaste versionen
+	No changes since the last version.	Inga ändringar sedan senaste versionen.
+	Showing the changes since the last version ({n} paragraphs).	Visar ändringarna sedan senaste versionen ({n} stycken).
+	Tracking from now on: the last version can't be read ({error}).	Spårar från och med nu: den senaste versionen kan inte läsas ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Ange fält i front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Fält som GitHub, VitePress och PDF-mallar läser, sparade överst i Markdown-filen.
+	(several values: edit the source)	(flera värden: redigera källan)
+	Remove this field	Ta bort fältet
+	New field	Nytt fält
+	Letters, digits, - and _ only	Endast bokstäver, siffror, - och _
+	Callout	Faktaruta
+	Code Block	Kodblock
+	Code Language	Kodspråk
+	Leave Block	Lämna blocket
+	Markdown Block	Markdown-block
+	Mermaid diagram	Mermaid-diagram
+	Plain text	Oformaterad text
+	Note	Obs
+	Tip	Tips
+	Important	Viktigt
+	Warning	Varning
+	Caution	Försiktighet
+	Danger	Fara
+	Details	Detaljer
+	Insert › Markdown	Infoga › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Sparat på din gren {branch}; {target} är låst.
+	Merge request {n} into {target} is open: this version goes in it.	Sammanslagningsbegäran {n} till {target} är öppen: den här versionen ingår.
+	Request the merge into {target}	Begär sammanslagning till {target}
+	Version {id} saved; merge request {n} opened	Version {id} sparad; sammanslagningsbegäran {n} öppnad
+	Markdown indents list items only	Markdown drar bara in listobjekt
+	Diagram	Diagram
+	Edit\nDiagram	Redigera\ndiagram
+	Mermaid source	Mermaid-källa
+	Mermaid syntax	Mermaid-syntax
+	Sequence	Sekvens
+	Flowchart	Flödesschema
+	Gantt	Gantt
+	Class	Klasser
+	Mind map	Tankekarta
+	Markdown Source	Markdown-källa
+	Apply Markdown Source	Verkställ Markdown-källan
+	Heading Anchor	Rubrikankare
+	Include File	Inkludera fil
+	Include	Inkludera
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Markdown-filen som ska inkluderas, relativt den här (VitePress visar dess text här)
+	Open Included File	Öppna inkluderad fil
+	Anchor	Ankare
+	Discard	Ignorera
+	Save this document first: an included file is found beside it.	Spara dokumentet först: den inkluderade filen ligger bredvid.
+	View › Markdown Source	Visa › Markdown-källa
+	Shapes and Connectors	Former och kopplingar
+	All Diagrams…	Alla diagram…
+	Planning	Planering
+	Structure	Struktur
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)
 # Split Cells and Convert Text to Table (#2592)
 	Merge cells before split	Sammanfoga celler före delning
 	Table size	Tabellstorlek

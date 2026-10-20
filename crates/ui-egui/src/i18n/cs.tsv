@@ -10,7 +10,7 @@
 # Clean room: every entry was written from the plain meaning of the English label in ordinary
 # Czech computing and typography vocabulary. No Microsoft Word (or other product) localisation,
 # string table or translated UI was consulted or copied; add entries the same way.
-# Product, format and technology names (WordCraft, PDF, Markdown, MCP …) stay in Latin letters.
+# Product, format and technology names (Plume, PDF, Markdown, MCP …) stay in Latin letters.
 # Counts use count-neutral wording (`Počet slov: 21`), so no plural forms are needed.
 
 	(All)	(Vše)
@@ -24,14 +24,16 @@
 	1/4 Em Space	Čtvrtčtverčíková mezera
 	3-D	3D
 	A file dialog is already open.	Dialogové okno souboru je již otevřené.
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	Bezplatný textový procesor s otevřeným zdrojovým kódem napsaný od základu v jazyce Rust.\nSoučást sady Crafting Apps od týmu ArtCraft.
+	A free, open-source word processor written in Rust, with Markdown as its native format.	Bezplatný textový editor s otevřeným zdrojovým kódem napsaný v Rustu, s Markdownem jako nativním formátem.
+	Plume — based on WordCraft by the ArtCraft team.	Plume — založeno na WordCraft od týmu ArtCraft.
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	AaBbCcDd	AaÁáBbCc
 	A mail merge field	Pole hromadné korespondence
 	A numbered sequence (figures, tables…)	Číslovaná posloupnost (obrázky, tabulky…)
 	A password is required to open this document.	K otevření tohoto dokumentu je vyžadováno heslo.
 	A table of contents	Obsah
 	About	O aplikaci
-	About WordCraft	O aplikaci WordCraft
+	About Plume	O aplikaci Plume
 	Accent	Diakritika
 	Accept	Přijmout
 	Accept All Changes	Přijmout všechny změny
@@ -112,7 +114,7 @@
 	Automatic Table 1 (3 levels)	Automatický obsah 1 (3 úrovně)
 	Automatic Table 2 (2 levels)	Automatický obsah 2 (2 úrovně)
 	AutoSave	Automatické ukládání
-	AutoSave documents you have saved in WordCraft	Automaticky ukládat dokumenty uložené ve WordCraftu
+	AutoSave documents you have saved in Plume	Automaticky ukládat dokumenty uložené ve Plume
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	Automatické ukládání selhalo: {error}. Uložením dokumentu automatické ukládání znovu zapnete.
 	AutoSave isn't available in the browser: it can't write to your files. Save downloads a copy.	Automatické ukládání není v prohlížeči dostupné, protože nemůže zapisovat do vašich souborů. Příkaz Uložit stáhne kopii.
 	AutoSave only keeps .docx, .odt and .rtf files; {name} can't keep all formatting. Save as .docx to turn on AutoSave.	Automatické ukládání podporuje pouze soubory .docx, .odt a .rtf; formát {name} nedokáže zachovat veškeré formátování. Pro zapnutí automatického ukládání uložte dokument jako .docx.
@@ -242,7 +244,6 @@
 	Comment	Komentář
 	Comments	Komentáře
 	Comments Pane	Podokno komentářů
-	Community\nDiscord	Komunita\nDiscord
 	Compact	Kompaktní
 	Company	Společnost
 	Compare	Porovnat
@@ -324,8 +325,6 @@
 	Direct formatting	Přímé formátování
 	Direction:	Směr:
 	Directory	Katalog
-	Discord	Discord
-	Discord community	Komunita na Discordu
 	Display	Zobrazení
 	Display for Review	Zobrazení k revizi
 	Distribute Columns	Rovnoměrně rozložit sloupce
@@ -489,7 +488,6 @@
 	✓ None	✓ Žádné
 	Function	Funkce
 	General	Obecné
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Glow	Záře
 	Glow Colors	Barvy záře
 	Go To	Přejít na
@@ -603,15 +601,13 @@
 	Interface theme:	Motiv rozhraní:
 	Interface\nTheme	Motiv\nrozhraní
 	Italic	Kurzíva
-	Join the ArtCraft community on Discord	Připojte se ke komunitě ArtCraft na Discordu
-	Join us on Discord: discord.gg/artcraft	Připojte se k nám na Discordu: discord.gg/artcraft
 	Justification	Zarovnání
 	Justified	Do bloku
 	Justify	Do bloku
 	Keep Lines Together	Svázat řádky
 	Keep lines together	Svázat řádky
 	Keep Text Only	Zachovat pouze text
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	Heslo si bezpečně uložte: bez něj dokument nikdo (včetně aplikace WordCraft) neotevře. Chcete-li heslo odebrat, ponechte obě pole prázdná.
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Heslo si bezpečně uložte: bez něj dokument nikdo (včetně aplikace Plume) neotevře. Chcete-li heslo odebrat, ponechte obě pole prázdná.
 	Keep with Next	Svázat s následujícím
 	Keep with next	Svázat s následujícím
 	Keywords	Klíčová slova
@@ -620,7 +616,7 @@
 	Landscape	Na šířku
 	Language	Jazyk
 	{language} (no dictionary)	{language} (bez slovníku)
-	No spelling dictionary for {language} is installed, so it isn't checked. WordCraft looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Pro jazyk {language} není nainstalován žádný pravopisný slovník, proto se nekontroluje. WordCraft hledá slovník Hunspell {name} ve složce WORDCRAFT_DICTIONARIES a na obvyklých místech v systému.
+	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Pro jazyk {language} není nainstalován žádný pravopisný slovník, proto se nekontroluje. Plume hledá slovník Hunspell {name} ve složce WORDCRAFT_DICTIONARIES a na obvyklých místech v systému.
 	Large\nOperator	Velký\noperátor
 	Lasso	Laso
 	Last Column	Poslední sloupec
@@ -697,7 +693,7 @@
 	Merge Record #	Číslo slučovaného záznamu
 	Merged PRs	Sloučené PR
 	Mirrored	Zrcadlové
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team a přispěvatelé projektu WordCraft.
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 přispěvatelé Plume, tým ArtCraft a přispěvatelé WordCraft.
 	Moderate	Střední
 	Modify Style	Upravit styl
 	Modify Table Style	Upravit styl tabulky
@@ -1105,7 +1101,6 @@
 	Show or Hide Style	Zobrazit nebo skrýt styl
 	Show revisions in balloons	Zobrazit revize v bublinách
 	Show rulers	Zobrazit pravítka
-	Show the community button in the title bar	Zobrazit tlačítko komunity v záhlaví okna
 	Show/Hide ¶	Zobrazit/skrýt ¶
 	Show\nComments	Zobrazit\nkomentáře
 	Shrink Font 1 Point	Zmenšit písmo o 1 bod
@@ -1128,7 +1123,7 @@
 	Soft Edges	Měkké okraje
 	Sort	Seřadit
 	Sort order:	Pořadí řazení:
-	Source code: github.com/storytold/wordcraft	Zdrojový kód: github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	Zdrojový kód: github.com/TheLazyGeekGuy/plume
 	Space	Mezera
 	Space after	Mezera za
 	Space after: {pt} pt	Mezera za: {pt} b.
@@ -1335,7 +1330,7 @@
 	Word Left	O slovo vlevo
 	Word Right	O slovo vpravo
 	WordArt	WordArt
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	Slova
 	Words only	Pouze slova
 	Wrap Text	Obtékání textu
@@ -2318,7 +2313,7 @@ preview	Title	Ukázka
 	Word document	Dokument Word
 	All files	Všechny soubory
 	Recipient lists	Seznamy příjemců
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Systémový dialog pro práci se soubory není k dispozici, proto WordCraft zobrazuje vlastní. Chcete-li používat systémový dialog, nainstalujte portál pro výběr souborů (například xdg-desktop-portal-gtk) nebo zenity.
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Systémový dialog pro práci se soubory není k dispozici, proto Plume zobrazuje vlastní. Chcete-li používat systémový dialog, nainstalujte portál pro výběr souborů (například xdg-desktop-portal-gtk) nebo zenity.
 	Up one level	O úroveň výš
 	Home folder	Domovská složka
 	{name} wasn't found.	Položka {name} nebyla nalezena.
@@ -2327,8 +2322,8 @@ preview	Title	Ukázka
 	Showing the first {count} items.	Zobrazuje se prvních {count} položek.
 	No items to show.	Žádné položky k zobrazení.
 	File name:	Název souboru:
-	Browse in WordCraft…	Procházet ve WordCraftu…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	Otevřít soubor pomocí vlastního prohlížeče souborů WordCraftu, když se systémový dialog pro práci se soubory nezobrazí.
+	Browse in Plume…	Procházet ve Plume…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	Otevřít soubor pomocí vlastního prohlížeče souborů Plume, když se systémový dialog pro práci se soubory nezobrazí.
 	Hide White Space	Skrýt prázdné místo
 	All pages	Všechny stránky
 	Current page	Aktuální stránka
@@ -2466,15 +2461,15 @@ preview	Title	Ukázka
 	Undo 1 Action	Vrátit 1 akci
 	Undo {n} Actions	Vrátit akce: {n}
 	Start-up	Spuštění
-	Show the Start screen when WordCraft starts	Při spuštění WordCraftu zobrazit úvodní obrazovku
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Zapnuto: WordCraft se otevře na kartě Soubor › Domů s prázdným dokumentem, šablonami a nedávnými dokumenty. Vypnuto: otevře prázdný dokument.
-	Couldn't make WordCraft the default: {error}	WordCraft se nepodařilo nastavit jako výchozí: {error}
-	In Default apps, choose WordCraft for the document types you want it to open.	Ve Výchozích aplikacích vyberte WordCraft pro typy dokumentů, které má otevírat.
-	Make WordCraft the default for Word documents…	Nastavit WordCraft jako výchozí pro dokumenty Word…
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	Soubory .docx, .doc, .rtf a .odt a šablony Wordu se od teď otevírají ve WordCraftu.
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	Otevře Nastavení › Výchozí aplikace, kde zvolíte WordCraft pro .docx a další typy dokumentů.
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	Chcete-li dokumenty Word otevírat ve WordCraftu jako výchozí: vyberte jeden ve Finderu, zvolte Soubor › Informace, v části „Otevřít v aplikaci“ vyberte WordCraft a klikněte na „Změnit vše“.
-	WordCraft is now the default app for Word documents.	WordCraft je nyní výchozí aplikací pro dokumenty Word.
+	Show the Start screen when Plume starts	Při spuštění Plume zobrazit úvodní obrazovku
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Zapnuto: Plume se otevře na kartě Soubor › Domů s prázdným dokumentem, šablonami a nedávnými dokumenty. Vypnuto: otevře prázdný dokument.
+	Couldn't make Plume the default: {error}	Plume se nepodařilo nastavit jako výchozí: {error}
+	In Default apps, choose Plume for the document types you want it to open.	Ve Výchozích aplikacích vyberte Plume pro typy dokumentů, které má otevírat.
+	Make Plume the default for Word documents…	Nastavit Plume jako výchozí pro dokumenty Word…
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	Soubory .docx, .doc, .rtf a .odt a šablony Wordu se od teď otevírají ve Plume.
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	Otevře Nastavení › Výchozí aplikace, kde zvolíte Plume pro .docx a další typy dokumentů.
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	Chcete-li dokumenty Word otevírat ve Plume jako výchozí: vyberte jeden ve Finderu, zvolte Soubor › Informace, v části „Otevřít v aplikaci“ vyberte Plume a klikněte na „Změnit vše“.
+	Plume is now the default app for Word documents.	Plume je nyní výchozí aplikací pro dokumenty Word.
 	Numerals:	Číslice:
 	Numerals	Číslice
 	Hindi	Hindské
@@ -2568,7 +2563,7 @@ preview	Title	Ukázka
 	{name}   {height} × {width} mm	{name}   {height} × {width} mm
 	{width} × {height} mm	{width} × {height} mm
 	{kind}, {columns} × {rows}, {size} ({paper})	{kind}, {columns} × {rows}, {size} ({paper})
-	Researcher needs an online service; WordCraft keeps your documents offline.	Výzkumník potřebuje online službu; WordCraft vaše dokumenty uchovává offline.
+	Researcher needs an online service; Plume keeps your documents offline.	Výzkumník potřebuje online službu; Plume vaše dokumenty uchovává offline.
 	These settings will be used for new documents.	Tato nastavení se použijí pro nové dokumenty.
 	can't split at the first row	tabulku nelze rozdělit na prvním řádku
 	select two or more cells to merge	vyberte ke sloučení dvě nebo více buněk
@@ -2619,6 +2614,78 @@ preview	Title	Ukázka
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Soubory Hunspell .aff a .dic z této složky (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) mají přednost před systémovými.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: slovník nebyl nalezen
+	Version Status	Stav verzí
+	Start Keeping Versions	Začít uchovávat verze
+	Save Version	Uložit verzi
+	Show Changes	Zobrazit změny
+	Compare with Version	Porovnat s verzí
+	Restore Version	Obnovit verzi
+	Synchronize	Synchronizovat
+	Versions	Verze
+	Describe your changes	Popište své změny
+	No versions yet	Zatím žádné verze
+	Restore	Obnovit
+	Save\nVersion	Uložit\nverzi
+	Version\nHistory	Historie\nverzí
+	Save the document as Markdown first (File › Save As).	Nejprve dokument uložte jako Markdown (Soubor › Uložit jako).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Složka tohoto dokumentu zatím verze neuchovává: začněte příkazem Uložit verzi.
+	Version {id} saved	Verze {id} uložena
+	Save the document as Markdown first	Nejprve dokument uložte jako Markdown
+	Imported as Markdown	Importováno jako Markdown
+	Saved as Markdown	Uloženo jako Markdown
+	Sign In to a Forge	Přihlásit se ke forge
+	Sign Out of Forges	Odhlásit se od forge
+	Open from a Forge	Otevřít z forge
+	Open from a Forge…	Otevřít z forge…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Otevřete dokument Markdown z GitHubu, GitLabu nebo Forgejo; Uložit verzi tam ukládá verze.
+	Server	Server
+	Repository	Repozitář
+	Branch	Větev
+	Access token	Přístupový token
+	kept in the keychain	uložen v klíčence
+	Remember the token in the keychain	Zapamatovat token v klíčence
+	Enter an access token for this forge.	Zadejte přístupový token pro tento forge.
+	Keep to Markdown	Držet se Markdownu
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown toto formátování neudrží (přísný režim Markdown)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Zapnuto: příkazy, které Markdown neudrží (barva textu, podtržení, textová pole, sloupce…), jsou vypnuté. Vypnuto: fungují a uložení řekne, co Markdown neudržel.
+	Request Review	Požádat o revizi
+	Get Review Comments	Načíst komentáře z revize
+	Send Replies	Odeslat odpovědi
+	Review Status	Stav revize
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Chcete-li požádat o revizi, otevřete dokument z GitHubu, GitLabu nebo Forgejo
+	What should your colleagues review?	Co mají kolegové zkontrolovat?
+	Details (optional)	Podrobnosti (nepovinné)
+	Review requested: {url}	Revize vyžádána: {url}
+	Documents Pane	Podokno Dokumenty
+	Save the document as Markdown to see the documents beside it.	Uložte dokument jako Markdown, abyste viděli dokumenty vedle něj.
+	No Markdown documents here yet.	Zatím tu nejsou žádné dokumenty Markdown.
+	save the document first	nejprve dokument uložte
+	Address of the Markdown file (copy it from your browser)	Adresa souboru Markdown (zkopírujte ji z prohlížeče)
+	Paste the address of the Markdown file's page (it ends in .md).	Vložte adresu stránky souboru Markdown (končí na .md).
+	Accounts	Účty
+	New connection	Nové připojení
+	Connect	Připojit
+	Projects	Projekty
+	Filter	Filtr
+	No projects on this account.	Tento účet nemá žádné projekty.
+	Waiting for the forge…	Čeká se na forge…
+	Save to a Forge…	Uložit do forge…
+	Save to a Forge	Uložit do forge
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Uloží dokument jako Markdown do projektu na GitHubu, GitLabu nebo Forgejo; Uložit verzi pak ukládá verze tam.
+	Replace the document that has this name	Nahradit dokument s tímto názvem
+	Saved to the forge:	Uloženo do forge:
+	Permissions the token needs:	Oprávnění, která token potřebuje:
+	Or sign in with the browser	Nebo se přihlaste v prohlížeči
+	OAuth app client ID	Client ID aplikace OAuth
+	Sign in with the browser	Přihlásit v prohlížeči
+	Type this code on the forge's page:	Zadejte tento kód na stránce forge:
+	Open the page	Otevřít stránku
+	Copy the code	Zkopírovat kód
+	No Markdown documents in this project.	V tomto projektu nejsou žádné dokumenty Markdown.
+	Or paste the document's address	Nebo vložte adresu dokumentu
+	Forge Repositories	Repozitáře forge
+	Forge Documents	Dokumenty forge
 
 # Backstage › Recover (#586)
 	Recover	Obnovit
@@ -2641,6 +2708,138 @@ preview	Title	Ukázka
 # Reading Mode column widths (#1040)
 	Narrow	Úzká
 	Medium	Střední
+	(not saved)	(neuloženo)
+	Edit template…	Upravit šablonu…
+	Export PDF…	Exportovat PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Vysázet dokument podle šablony: titulní strana, záhlaví a zápatí, obálky a hlavičkový papír. Úvodní blok YAML dokumentu nastavuje možnosti šablony.
+	Layout (LaTeX)	Rozvržení (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Vytváření PDF… (poprvé si modul TeX může stáhnout, co potřebuje)
+	New template created: it is the one exports use now.	Nová šablona vytvořena: exporty teď používají ji.
+	New template from this one:	Nová šablona z této:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Nebyl nalezen žádný modul TeX. Nainstalujte Tectonic (brew install tectonic) nebo MacTeX a exportujte znovu.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Možnosti jako titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Úvodní blok YAML dokumentu je přepíše.
+	PDF with a template	PDF se šablonou
+	Restore the original	Obnovit původní
+	Save and preview	Uložit a zobrazit náhled
+	Settings (YAML)	Nastavení (YAML)
+	Template saved.	Šablona uložena.
+	Template:	Šablona:
+	Template: {name}	Šablona: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Šablona LaTeX v jazyce šablon pandocu ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	kopie
+	Export LaTeX with a Template	Exportovat LaTeX se šablonou
+	Export PDF with a Template	Exportovat PDF se šablonou
+	New PDF Template	Nová šablona PDF
+	PDF Engine	Modul PDF
+	PDF Templates	Šablony PDF
+	Read PDF Template	Načíst šablonu PDF
+	Restore PDF Template	Obnovit šablonu PDF
+	Save PDF Template	Uložit šablonu PDF
+	Tables for AI	Tabulky pro AI
+	AI Request for a Table	Požadavek AI pro tabulku
+	Restructure Tables	Přestavět tabulky
+	A language model can't be reached from here.	Odsud nelze jazykový model zastihnout.
+	A language model can't be reached from the browser.	Z prohlížeče nelze jazykový model zastihnout.
+	AI	AI
+	Artificial intelligence	Umělá inteligence
+	Block	Blok
+	Block {index}: {rows} × {cols}, {words} words	Blok {index}: {rows} × {cols}, slov: {words}
+	Changed	Změněno
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Nejprve vyberte jazykový model: Soubor › Možnosti › Uložení › Umělá inteligence.
+	Choose a model	Vybrat model
+	High	Vysoké
+	Low	Nízké
+	Model's default	Výchozí modelu
+	Model:	Model:
+	Model: {model} at {url}	Model: {model} na {url}
+	No table to restructure.	Žádná tabulka k přestavbě.
+	No table was changed.	Žádná tabulka nebyla změněna.
+	Other server	Jiný server
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume ho požádá o přestavbu tabulek, které Markdown neudrží (formuláře a stránky sázené v tabulkách), a nový zápis ponechá jen tehdy, když v něm zůstalo každé slovo. Ollama a LM Studio běží na tomto počítači: nic ho neopouští.
+	Reasoning:	Uvažování:
+	Restructure	Přestavět
+	Restructure\nTables	Přestavět\ntabulky
+	Server:	Server:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Doporučeno v Ollamě: gpt-oss:20b pro 16 GB paměti a více, qwen3:4b pro 8 GB (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tabulka {i} z {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Server zatím nemá žádné modely: nejprve jeden stáhněte (ollama pull gpt-oss:20b).
+	No table in this document needs a model: Markdown holds its tables as they are.	Žádná tabulka v tomto dokumentu nepotřebuje model: Markdown zachová tabulky tak, jak jsou.
+	Unchanged	Beze změny
+	Use a language model	Používat jazykový model
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Přestavěno tabulek: {applied} z {n}. Zpět (Ctrl+Z) vrátí všechny.
+	{n} models on the server.	Modelů na serveru: {n}.
+	{ready} of {n} tables can be sent to the model.	Modelu lze odeslat tabulek: {ready} z {n}.
+	Saved to {forge}	Uloženo v {forge}
+	Changes Since Last Version	Změny od poslední verze
+	No changes since the last version.	Od poslední verze žádné změny.
+	Showing the changes since the last version ({n} paragraphs).	Zobrazeny změny od poslední verze (odstavců: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Sledování od teď: poslední verzi nelze přečíst ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Nastavit pole front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Pole, která čtou GitHub, VitePress a šablony PDF, uložená na začátku souboru Markdown.
+	(several values: edit the source)	(více hodnot: upravte zdroj)
+	Remove this field	Odebrat toto pole
+	New field	Nové pole
+	Letters, digits, - and _ only	Pouze písmena, číslice, - a _
+	Callout	Zvýrazněný blok
+	Code Block	Blok kódu
+	Code Language	Jazyk kódu
+	Leave Block	Opustit blok
+	Markdown Block	Blok Markdown
+	Mermaid diagram	Diagram Mermaid
+	Plain text	Prostý text
+	Note	Poznámka
+	Tip	Tip
+	Important	Důležité
+	Warning	Upozornění
+	Caution	Pozor
+	Danger	Nebezpečí
+	Details	Podrobnosti
+	Insert › Markdown	Vložení › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Uloženo ve vaší větvi {branch}; {target} je zamčená.
+	Merge request {n} into {target} is open: this version goes in it.	Žádost o sloučení {n} do {target} je otevřená: tato verze do ní přibude.
+	Request the merge into {target}	Požádat o sloučení do {target}
+	Version {id} saved; merge request {n} opened	Verze {id} uložena; otevřena žádost o sloučení {n}
+	Markdown indents list items only	Markdown odsazuje jen položky seznamu
+	Diagram	Diagram
+	Edit\nDiagram	Upravit\ndiagram
+	Mermaid source	Zdroj Mermaid
+	Mermaid syntax	Syntaxe Mermaid
+	Sequence	Sekvence
+	Flowchart	Vývojový diagram
+	Gantt	Gantt
+	Class	Třídy
+	Mind map	Myšlenková mapa
+	Markdown Source	Zdroj Markdown
+	Apply Markdown Source	Použít zdroj Markdown
+	Heading Anchor	Kotva nadpisu
+	Include File	Vložit soubor
+	Include	Vložit
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Soubor Markdown k vložení, relativně k tomuto (VitePress zde zobrazí jeho text)
+	Open Included File	Otevřít vložený soubor
+	Anchor	Kotva
+	Discard	Zahodit
+	Save this document first: an included file is found beside it.	Nejprve tento dokument uložte: vložený soubor leží vedle.
+	View › Markdown Source	Zobrazení › Zdroj Markdown
+	Shapes and Connectors	Tvary a spojnice
+	All Diagrams…	Všechny diagramy…
+	Planning	Plánování
+	Structure	Struktura
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)
 # Split Cells and Convert Text to Table (#2592)
 	Merge cells before split	Před rozdělením buňky sloučit
 	Table size	Velikost tabulky

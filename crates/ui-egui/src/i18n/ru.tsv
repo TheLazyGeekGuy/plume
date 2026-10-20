@@ -10,15 +10,17 @@
 # Clean room: every entry was written from the plain meaning of the English label in ordinary
 # computing vocabulary. No Microsoft Word (or other product) localisation, string table or
 # translated UI was consulted or copied; add entries the same way.
-# Product, format and technology names (WordCraft, PDF, Markdown, MCP …) stay in Latin letters.
+# Product, format and technology names (Plume, PDF, Markdown, MCP …) stay in Latin letters.
 # Counts use count-neutral wording (`Слов: 21`), so no plural forms are needed.
 
 	(no suggestions)	(нет вариантов)
 	1.5 Line Spacing	Полуторный интервал
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	Бесплатный текстовый процессор с открытым исходным кодом, написанный с нуля на Rust.\nВходит в Crafting Apps от команды ArtCraft.
+	A free, open-source word processor written in Rust, with Markdown as its native format.	Бесплатный текстовый процессор с открытым исходным кодом, написанный на Rust, с Markdown в качестве основного формата.
+	Plume — based on WordCraft by the ArtCraft team.	Plume — основан на WordCraft от команды ArtCraft.
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	AaBbCcDd	АаБбВвГг
 	About	О программе
-	About WordCraft	О WordCraft
+	About Plume	О Plume
 	Accept	Принять
 	Accept All Changes	Принять все изменения
 	Accept This Change	Принять это изменение
@@ -146,7 +148,6 @@
 	Comment	Комментарий
 	Comments	Комментарии
 	Comments Pane	Область комментариев
-	Community\nDiscord	Сообщество\nDiscord
 	Compact	Компактный
 	Compare	Сравнить
 	Compress Pictures	Сжать рисунки
@@ -203,8 +204,6 @@
 	Dictate	Диктовка
 	Different First Page	Особая первая страница
 	Different Odd & Even Pages	Разные для чётных и нечётных страниц
-	Discord	Discord
-	Discord community	Сообщество в Discord
 	Display	Отображение
 	Display for Review	Отображение исправлений
 	Distribute Columns	Выровнять ширину столбцов
@@ -375,8 +374,6 @@
 	Intense Reference	Сильная ссылка
 	Interface language:	Язык интерфейса:
 	Italic	Курсив
-	Join the ArtCraft community on Discord	Присоединяйтесь к сообществу ArtCraft в Discord
-	Join us on Discord: discord.gg/artcraft	Присоединяйтесь к нам в Discord: discord.gg/artcraft
 	Justify	По ширине
 	Keep Lines Together	Не разрывать абзац
 	Keep lines together	Не разрывать абзац
@@ -388,7 +385,7 @@
 	Landscape	Альбомная
 	Language	Язык
 	{language} (no dictionary)	{language} (нет словаря)
-	No spelling dictionary for {language} is installed, so it isn't checked. WordCraft looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Орфографический словарь для языка «{language}» не установлен, поэтому текст не проверяется. WordCraft ищет словарь Hunspell {name} в папке WORDCRAFT_DICTIONARIES и в обычных системных расположениях.
+	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Орфографический словарь для языка «{language}» не установлен, поэтому текст не проверяется. Plume ищет словарь Hunspell {name} в папке WORDCRAFT_DICTIONARIES и в обычных системных расположениях.
 	Lasso	Лассо
 	Last Column	Последний столбец
 	Last commit	Последний коммит
@@ -437,7 +434,7 @@
 	Merge Formatting	Объединить форматирование
 	Merged PRs	Принятые PR
 	Mirrored	Зеркальные
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team и участники проекта WordCraft.
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 участники проекта Plume, команда ArtCraft и участники проекта WordCraft.
 	Moderate	Средние
 	Modify Style	Изменить стиль
 	Modify…	Изменить…
@@ -678,7 +675,6 @@
 	Animate the caret (it glides and fades)	Анимировать курсор (плавно перемещается и угасает)
 	Animation	Анимация
 	On: the caret glides to its new place when you type or use the arrow keys, and its blink fades. Off: it jumps and blinks on and off.	Вкл.: при вводе текста и нажатии клавиш со стрелками курсор плавно перемещается на новое место, а его мигание плавно угасает. Выкл.: курсор перескакивает и резко мигает.
-	Show the community button in the title bar	Показывать кнопку сообщества в заголовке окна
 	Show/Hide ¶	Показать/скрыть ¶
 	Show\nComments	Показать\nкомментарии
 	Shrink Font 1 Point	Уменьшить шрифт на 1 пт
@@ -693,7 +689,7 @@
 	Small caps	Малые прописные
 	SmartArt	SmartArt
 	Sort	Сортировка
-	Source code: github.com/storytold/wordcraft	Исходный код: github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	Исходный код: github.com/TheLazyGeekGuy/plume
 	Space before/after:	Интервал перед/после:
 	Spacing	Интервал
 	Spacing (pt):	Интервал (пт):
@@ -836,7 +832,7 @@ preview	Title	Пример
 	Word Left	На слово влево
 	Word Right	На слово вправо
 	WordArt	WordArt
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	Слова
 	Words only	Только слова
 	Wrap Text	Обтекание текстом
@@ -854,7 +850,7 @@ preview	Title	Пример
 	Only web (http, https) and email (mailto) links can be followed	Переходить можно только по веб-ссылкам (http, https) и ссылкам на электронную почту (mailto)
 
 	Apply Styles	Применить стили
-	AutoSave documents you have saved in WordCraft	Автосохранение документов, уже сохранённых в WordCraft
+	AutoSave documents you have saved in Plume	Автосохранение документов, уже сохранённых в Plume
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	Ошибка автосохранения: {error}. Сохраните документ, чтобы снова включить автосохранение.
 	Bottom Margin	Нижнее поле
 	Edit Comment	Изменить комментарий
@@ -1106,7 +1102,6 @@ preview	Title	Пример
 	Insert a new equation (Alt+=)	Вставить новое уравнение (Alt+=)
 	Leave the equation (Esc)	Выйти из уравнения (Esc)
 	Preview	Предварительный просмотр
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Browse…	Обзор…
 
 # Equation gallery, themes, watermarks, paper sizes, table styles and other strings the
@@ -1542,7 +1537,7 @@ preview	Title	Пример
 	The document will be saved with a password. Save it to protect it.	Документ будет сохранён с паролем. Сохраните его, чтобы защитить.
 	The password is removed. Save the document to keep the change.	Пароль убран. Сохраните документ, чтобы изменение осталось.
 	The passwords don't match.	Пароли не совпадают.
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	Храните пароль в надёжном месте: без него никто, включая WordCraft, не сможет открыть документ. Оставьте оба поля пустыми, чтобы убрать пароль.
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Храните пароль в надёжном месте: без него никто, включая Plume, не сможет открыть документ. Оставьте оба поля пустыми, чтобы убрать пароль.
 	{cols}×{rows} Table	Таблица {cols}×{rows}
 	Name	Имя
 	PRs	PR
@@ -2029,13 +2024,13 @@ preview	Title	Пример
 	Hindi	Хинди
 	Context	Контекст
 	System	Системные
-	Couldn't make WordCraft the default: {error}	Не удалось сделать WordCraft приложением по умолчанию: {error}
-	In Default apps, choose WordCraft for the document types you want it to open.	В разделе «Приложения по умолчанию» выберите WordCraft для нужных типов документов.
-	Make WordCraft the default for Word documents…	Сделать WordCraft приложением по умолчанию для документов Word…
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	Отныне файлы .docx, .doc, .rtf и .odt и шаблоны Word будут открываться в WordCraft.
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	Открывает «Параметры» › «Приложения по умолчанию», где можно выбрать WordCraft для .docx и других типов документов.
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	Чтобы открывать документы Word в WordCraft по умолчанию: выберите документ в Finder, выберите «Файл» › «Свойства», укажите WordCraft в разделе «Открывать в программе» и нажмите «Изменить все».
-	WordCraft is now the default app for Word documents.	WordCraft теперь приложение по умолчанию для документов Word.
+	Couldn't make Plume the default: {error}	Не удалось сделать Plume приложением по умолчанию: {error}
+	In Default apps, choose Plume for the document types you want it to open.	В разделе «Приложения по умолчанию» выберите Plume для нужных типов документов.
+	Make Plume the default for Word documents…	Сделать Plume приложением по умолчанию для документов Word…
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	Отныне файлы .docx, .doc, .rtf и .odt и шаблоны Word будут открываться в Plume.
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	Открывает «Параметры» › «Приложения по умолчанию», где можно выбрать Plume для .docx и других типов документов.
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	Чтобы открывать документы Word в Plume по умолчанию: выберите документ в Finder, выберите «Файл» › «Свойства», укажите Plume в разделе «Открывать в программе» и нажмите «Изменить все».
+	Plume is now the default app for Word documents.	Plume теперь приложение по умолчанию для документов Word.
 	Templates	Шаблоны
 	Templates and Add-ins	Шаблоны и надстройки
 	Attach Template	Присоединить шаблон
@@ -2191,7 +2186,7 @@ preview	Title	Пример
 	Word document	Документ Word
 	All files	Все файлы
 	Recipient lists	Списки получателей
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Системное диалоговое окно выбора файлов недоступно, поэтому WordCraft показывает собственное. Чтобы пользоваться системным, установите портал выбора файлов (например, xdg-desktop-portal-gtk) или zenity.
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Системное диалоговое окно выбора файлов недоступно, поэтому Plume показывает собственное. Чтобы пользоваться системным, установите портал выбора файлов (например, xdg-desktop-portal-gtk) или zenity.
 	Up one level	На уровень вверх
 	Home folder	Домашняя папка
 	{name} wasn't found.	{name} не найден.
@@ -2200,8 +2195,8 @@ preview	Title	Пример
 	Showing the first {count} items.	Показаны первые элементы: {count}.
 	No items to show.	Нет элементов для показа.
 	File name:	Имя файла:
-	Browse in WordCraft…	Обзор в WordCraft…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	Открыть файл во встроенном обозревателе WordCraft, если системное диалоговое окно выбора файлов не появляется.
+	Browse in Plume…	Обзор в Plume…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	Открыть файл во встроенном обозревателе Plume, если системное диалоговое окно выбора файлов не появляется.
 	Hide White Space	Скрыть пустое место между страницами
 	All pages	Все страницы
 	Current page	Текущая страница
@@ -2535,8 +2530,8 @@ preview	Title	Пример
 	Number only, without the label's words	Только номер, без слов метки
 	Add whether it is above or below	Добавлять, выше он или ниже
 	Start-up	Запуск
-	Show the Start screen when WordCraft starts	Показывать начальный экран при запуске WordCraft
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Вкл.: WordCraft открывается на странице Файл › Главная с пустым документом, шаблонами и недавними документами. Выкл.: открывается пустой документ.
+	Show the Start screen when Plume starts	Показывать начальный экран при запуске Plume
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Вкл.: Plume открывается на странице Файл › Главная с пустым документом, шаблонами и недавними документами. Выкл.: открывается пустой документ.
 	Typing	Ввод
 	Level 4	Уровень 4
 	Level 5	Уровень 5
@@ -2574,7 +2569,7 @@ preview	Title	Пример
 	{name}   {height} × {width} mm	{name}   {height} × {width} мм
 	{width} × {height} mm	{width} × {height} мм
 	{kind}, {columns} × {rows}, {size} ({paper})	{kind}, {columns} × {rows}, {size} ({paper})
-	Researcher needs an online service; WordCraft keeps your documents offline.	Исследователю нужен онлайн-сервис, а WordCraft работает с документами без подключения к интернету.
+	Researcher needs an online service; Plume keeps your documents offline.	Исследователю нужен онлайн-сервис, а Plume работает с документами без подключения к интернету.
 	These settings will be used for new documents.	Эти параметры будут использоваться для новых документов.
 	can't split at the first row	нельзя разделить таблицу по первой строке
 	select two or more cells to merge	выделите две или более ячеек для объединения
@@ -2625,6 +2620,78 @@ preview	Title	Пример
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Файлы Hunspell .aff и .dic из этой папки (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) используются раньше системных.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: словарь не найден
+	Version Status	Состояние версий
+	Start Keeping Versions	Начать хранить версии
+	Save Version	Сохранить версию
+	Show Changes	Показать изменения
+	Compare with Version	Сравнить с версией
+	Restore Version	Восстановить версию
+	Synchronize	Синхронизировать
+	Versions	Версии
+	Describe your changes	Опишите изменения
+	No versions yet	Версий пока нет
+	Restore	Восстановить
+	Save\nVersion	Сохранить\nверсию
+	Version\nHistory	Журнал\nверсий
+	Save the document as Markdown first (File › Save As).	Сначала сохраните документ в формате Markdown (Файл › Сохранить как).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Папка этого документа пока не хранит версии: начните с команды «Сохранить версию».
+	Version {id} saved	Версия {id} сохранена
+	Save the document as Markdown first	Сначала сохраните документ в формате Markdown
+	Imported as Markdown	Импортировано в Markdown
+	Saved as Markdown	Сохранено в Markdown
+	Sign In to a Forge	Войти в forge
+	Sign Out of Forges	Выйти из forge
+	Open from a Forge	Открыть из forge
+	Open from a Forge…	Открыть из forge…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Открыть документ Markdown из GitHub, GitLab или Forgejo; «Сохранить версию» записывает версии туда.
+	Server	Сервер
+	Repository	Репозиторий
+	Branch	Ветка
+	Access token	Токен доступа
+	kept in the keychain	хранится в связке ключей
+	Remember the token in the keychain	Запомнить токен в связке ключей
+	Enter an access token for this forge.	Введите токен доступа к этому forge.
+	Keep to Markdown	Только Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown не может сохранить это форматирование (строгий режим Markdown)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Включено: команды, которые Markdown не может сохранить (цвет текста, подчёркивание, надписи, колонки…), отключены. Выключено: они работают, а при сохранении сообщается, что Markdown не сохранил.
+	Request Review	Запросить рецензию
+	Get Review Comments	Получить комментарии рецензии
+	Send Replies	Отправить ответы
+	Review Status	Состояние рецензии
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Чтобы запросить рецензию, откройте документ из GitHub, GitLab или Forgejo
+	What should your colleagues review?	Что должны проверить коллеги?
+	Details (optional)	Подробности (необязательно)
+	Review requested: {url}	Рецензия запрошена: {url}
+	Documents Pane	Область «Документы»
+	Save the document as Markdown to see the documents beside it.	Сохраните документ в Markdown, чтобы увидеть документы рядом с ним.
+	No Markdown documents here yet.	Здесь пока нет документов Markdown.
+	save the document first	сначала сохраните документ
+	Address of the Markdown file (copy it from your browser)	Адрес файла Markdown (скопируйте его из браузера)
+	Paste the address of the Markdown file's page (it ends in .md).	Вставьте адрес страницы файла Markdown (он заканчивается на .md).
+	Accounts	Учётные записи
+	New connection	Новое подключение
+	Connect	Подключить
+	Projects	Проекты
+	Filter	Фильтр
+	No projects on this account.	В этой учётной записи нет проектов.
+	Waiting for the forge…	Ожидание форджа…
+	Save to a Forge…	Сохранить в фордж…
+	Save to a Forge	Сохранить в фордж
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Сохраняет документ в формате Markdown в проекте GitHub, GitLab или Forgejo; затем «Сохранить версию» записывает версии туда.
+	Replace the document that has this name	Заменить документ с этим именем
+	Saved to the forge:	Сохранено в фордж:
+	Permissions the token needs:	Права, нужные токену:
+	Or sign in with the browser	Или войдите через браузер
+	OAuth app client ID	ID клиента OAuth-приложения
+	Sign in with the browser	Войти через браузер
+	Type this code on the forge's page:	Введите этот код на странице форджа:
+	Open the page	Открыть страницу
+	Copy the code	Скопировать код
+	No Markdown documents in this project.	В этом проекте нет документов Markdown.
+	Or paste the document's address	Или вставьте адрес документа
+	Forge Repositories	Репозитории forge
+	Forge Documents	Документы forge
 
 # Backstage › Recover (#586)
 	Recover	Восстановить
@@ -2647,6 +2714,138 @@ preview	Title	Пример
 # Reading Mode column widths (#1040)
 	Narrow	Узкая
 	Medium	Средняя
+	(not saved)	(не сохранено)
+	Edit template…	Изменить шаблон…
+	Export PDF…	Экспорт в PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Сверстать документ по шаблону: титульная страница, колонтитулы, обложки и фирменный бланк. Блок YAML в начале документа задаёт параметры шаблона.
+	Layout (LaTeX)	Макет (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Создание PDF… (в первый раз движок TeX может загрузить нужные файлы)
+	New template created: it is the one exports use now.	Новый шаблон создан: теперь экспорт использует его.
+	New template from this one:	Новый шаблон на основе этого:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Движок TeX не найден. Установите Tectonic (brew install tectonic) или MacTeX и повторите экспорт.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Параметры, например titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Блок YAML документа их переопределяет.
+	PDF with a template	PDF по шаблону
+	Restore the original	Восстановить исходный
+	Save and preview	Сохранить и просмотреть
+	Settings (YAML)	Параметры (YAML)
+	Template saved.	Шаблон сохранён.
+	Template:	Шаблон:
+	Template: {name}	Шаблон: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Шаблон LaTeX на языке шаблонов pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	копия
+	Export LaTeX with a Template	Экспорт LaTeX по шаблону
+	Export PDF with a Template	Экспорт PDF по шаблону
+	New PDF Template	Новый шаблон PDF
+	PDF Engine	Движок PDF
+	PDF Templates	Шаблоны PDF
+	Read PDF Template	Прочитать шаблон PDF
+	Restore PDF Template	Восстановить шаблон PDF
+	Save PDF Template	Сохранить шаблон PDF
+	Tables for AI	Таблицы для ИИ
+	AI Request for a Table	Запрос ИИ для таблицы
+	Restructure Tables	Перестроить таблицы
+	A language model can't be reached from here.	Отсюда нельзя связаться с языковой моделью.
+	A language model can't be reached from the browser.	Из браузера нельзя связаться с языковой моделью.
+	AI	ИИ
+	Artificial intelligence	Искусственный интеллект
+	Block	Блок
+	Block {index}: {rows} × {cols}, {words} words	Блок {index}: {rows} × {cols}, слов: {words}
+	Changed	Изменена
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Сначала выберите языковую модель: Файл › Параметры › Сохранение › Искусственный интеллект.
+	Choose a model	Выберите модель
+	High	Высокий
+	Low	Низкий
+	Model's default	По умолчанию для модели
+	Model:	Модель:
+	Model: {model} at {url}	Модель: {model} на {url}
+	No table to restructure.	Нет таблиц для перестройки.
+	No table was changed.	Ни одна таблица не изменена.
+	Other server	Другой сервер
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume просит её перестроить таблицы, которые Markdown не может хранить (формы и страницы, свёрстанные таблицами), и сохраняет новый вариант, только если в нём осталось каждое слово. Ollama и LM Studio работают на этом компьютере: ничто не уходит наружу.
+	Reasoning:	Рассуждение:
+	Restructure	Перестроить
+	Restructure\nTables	Перестроить\nтаблицы
+	Server:	Сервер:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Рекомендуется в Ollama: gpt-oss:20b при 16 ГБ памяти и больше, qwen3:4b при 8 ГБ (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Таблица {i} из {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	На сервере ещё нет моделей: сначала загрузите одну (ollama pull gpt-oss:20b).
+	No table in this document needs a model: Markdown holds its tables as they are.	Ни одной таблице в этом документе не нужна модель: Markdown сохраняет таблицы как есть.
+	Unchanged	Без изменений
+	Use a language model	Использовать языковую модель
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Перестроено таблиц: {applied} из {n}. Отменить (Ctrl+Z) вернёт их все.
+	{n} models on the server.	Моделей на сервере: {n}.
+	{ready} of {n} tables can be sent to the model.	Можно отправить модели таблиц: {ready} из {n}.
+	Saved to {forge}	Сохранено в {forge}
+	Changes Since Last Version	Изменения с последней версии
+	No changes since the last version.	Изменений с последней версии нет.
+	Showing the changes since the last version ({n} paragraphs).	Показаны изменения с последней версии (абзацев: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Отслеживание с этого момента: последнюю версию не удалось прочитать ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Задать поле front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Поля, которые читают GitHub, VitePress и шаблоны PDF, сохраняются в начале файла Markdown.
+	(several values: edit the source)	(несколько значений: измените исходный текст)
+	Remove this field	Удалить это поле
+	New field	Новое поле
+	Letters, digits, - and _ only	Только буквы, цифры, - и _
+	Callout	Выноска
+	Code Block	Блок кода
+	Code Language	Язык кода
+	Leave Block	Выйти из блока
+	Markdown Block	Блок Markdown
+	Mermaid diagram	Диаграмма Mermaid
+	Plain text	Обычный текст
+	Note	Примечание
+	Tip	Совет
+	Important	Важно
+	Warning	Предупреждение
+	Caution	Осторожно
+	Danger	Опасно
+	Details	Подробности
+	Insert › Markdown	Вставка › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Сохранено в вашей ветке {branch}; ветка {target} заблокирована.
+	Merge request {n} into {target} is open: this version goes in it.	Запрос на слияние {n} в {target} открыт: эта версия войдёт в него.
+	Request the merge into {target}	Запросить слияние в {target}
+	Version {id} saved; merge request {n} opened	Версия {id} сохранена; открыт запрос на слияние {n}
+	Markdown indents list items only	Markdown делает отступ только у элементов списка
+	Diagram	Диаграмма
+	Edit\nDiagram	Изменить\nдиаграмму
+	Mermaid source	Исходный текст Mermaid
+	Mermaid syntax	Синтаксис Mermaid
+	Sequence	Последовательность
+	Flowchart	Блок-схема
+	Gantt	Гант
+	Class	Классы
+	Mind map	Ментальная карта
+	Markdown Source	Исходный текст Markdown
+	Apply Markdown Source	Применить исходный текст Markdown
+	Heading Anchor	Якорь заголовка
+	Include File	Включить файл
+	Include	Включить
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Включаемый файл Markdown относительно этого (VitePress показывает здесь его текст)
+	Open Included File	Открыть включённый файл
+	Anchor	Якорь
+	Discard	Отменить
+	Save this document first: an included file is found beside it.	Сначала сохраните этот документ: включаемый файл лежит рядом с ним.
+	View › Markdown Source	Вид › Исходный текст Markdown
+	Shapes and Connectors	Фигуры и соединительные линии
+	All Diagrams…	Все диаграммы…
+	Planning	Планирование
+	Structure	Структура
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)
 # Split Cells and Convert Text to Table (#2592)
 	Merge cells before split	Объединить ячейки перед разбиением
 	Table size	Размер таблицы

@@ -1,6 +1,6 @@
 # German (de) interface catalog. Columns, separated by a TAB:
 #   context <TAB> English source <TAB> translation
-#   context    empty (WordCraft uses no contexts yet)
+#   context    empty (Plume uses no contexts yet)
 #   source     the English text exactly as in the code (tl!(...), ribbon labels, command labels)
 #   escapes    \n  \t  \\  inside a column. `{name}` placeholders must appear in both columns, and a
 #              trailing "…" in one needs one in the other.
@@ -9,14 +9,16 @@
 # Clean room: every entry was written from the plain meaning of the English label in ordinary
 # computing vocabulary. No Microsoft Word (or other product) localisation, string table or
 # translated UI was consulted or copied; add entries the same way.
-# Product, format and technology names (WordCraft, PDF, Markdown, MCP …) stay in Latin letters.
+# Product, format and technology names (Plume, PDF, Markdown, MCP …) stay in Latin letters.
 
 	(no style)	(keine Formatvorlage)
 	(no suggestions)	(keine Vorschläge)
 	1.5 Line Spacing	Zeilenabstand 1,5
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	Ein kostenloses, quelloffenes Textverarbeitungsprogramm, von Grund auf in Rust geschrieben.\nTeil der Crafting Apps des ArtCraft-Teams.
+	A free, open-source word processor written in Rust, with Markdown as its native format.	Ein kostenloses Open-Source-Textverarbeitungsprogramm in Rust, mit Markdown als nativem Format.
+	Plume — based on WordCraft by the ArtCraft team.	Plume — basiert auf WordCraft vom ArtCraft-Team.
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	About	Info
-	About WordCraft	Über WordCraft
+	About Plume	Über Plume
 	Accept	Annehmen
 	Accept All Changes	Alle Änderungen annehmen
 	Accept This Change	Diese Änderung annehmen
@@ -71,7 +73,7 @@
 	Automatic Table 1 (3 levels)	Automatisches Inhaltsverzeichnis 1 (3 Ebenen)
 	Automatic Table 2 (2 levels)	Automatisches Inhaltsverzeichnis 2 (2 Ebenen)
 	AutoSave	AutoSpeichern
-	AutoSave documents you have saved in WordCraft	In WordCraft gespeicherte Dokumente automatisch speichern
+	AutoSave documents you have saved in Plume	In Plume gespeicherte Dokumente automatisch speichern
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	AutoSpeichern fehlgeschlagen: {error}. Speichern Sie das Dokument, um AutoSpeichern wieder zu aktivieren.
 	Balloons	Sprechblasen
 	Bottom Margin	Unterer Rand
@@ -234,7 +236,6 @@
 	Comment	Kommentar
 	Comments	Kommentare
 	Comments Pane	Kommentarbereich
-	Community\nDiscord	Community-\nDiscord
 	Compact	Kompakt
 	Compare	Vergleichen
 	Compress Pictures	Bilder komprimieren
@@ -287,8 +288,6 @@
 	Dictate	Diktieren
 	Different First Page	Andere erste Seite
 	Different Odd & Even Pages	Andere gerade und ungerade Seiten
-	Discord	Discord
-	Discord community	Discord-Community
 	Display	Anzeige
 	Display for Review	Anzeige zur Überprüfung
 	Distribute Columns	Spalten verteilen
@@ -446,8 +445,6 @@
 	Inspect Document	Dokument prüfen
 	Interface language:	Benutzeroberflächensprache:
 	Italic	Kursiv
-	Join the ArtCraft community on Discord	Treten Sie der ArtCraft-Community auf Discord bei
-	Join us on Discord: discord.gg/artcraft	Besuchen Sie uns auf Discord: discord.gg/artcraft
 	Justify	Blocksatz
 	Keep Lines Together	Zeilen nicht trennen
 	Keep lines together	Zeilen nicht trennen
@@ -458,7 +455,7 @@
 	Landscape	Querformat
 	Language	Sprache
 	{language} (no dictionary)	{language} (kein Wörterbuch)
-	No spelling dictionary for {language} is installed, so it isn't checked. WordCraft looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Für {language} ist kein Rechtschreibwörterbuch installiert, daher wird die Sprache nicht geprüft. WordCraft sucht das Hunspell-Wörterbuch {name} im Ordner WORDCRAFT_DICTIONARIES und an den üblichen Systemorten.
+	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Für {language} ist kein Rechtschreibwörterbuch installiert, daher wird die Sprache nicht geprüft. Plume sucht das Hunspell-Wörterbuch {name} im Ordner WORDCRAFT_DICTIONARIES und an den üblichen Systemorten.
 	Lasso	Lasso
 	Last Column	Letzte Spalte
 	Last commit	Letzter Commit
@@ -505,7 +502,7 @@
 	Merge Formatting	Formatierung zusammenführen
 	Merged PRs	Zusammengeführte PRs
 	Mirrored	Gespiegelt
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 die Plume-Mitwirkenden, das ArtCraft-Team und die WordCraft-Mitwirkenden.
 	Moderate	Mittel
 	Modify Style	Formatvorlage ändern
 	Modify…	Ändern…
@@ -744,7 +741,6 @@
 	Show only comments and formatting in balloons	Nur Kommentare und Formatierung in Sprechblasen anzeigen
 	Show revisions in balloons	Änderungen in Sprechblasen anzeigen
 	Show rulers	Lineale einblenden
-	Show the community button in the title bar	Die Community-Schaltfläche in der Titelleiste anzeigen
 	Show/Hide ¶	¶ ein-/ausblenden
 	Show\nComments	Kommentare\neinblenden
 	Shrink Font 1 Point	Schrift um 1 Punkt verkleinern
@@ -759,7 +755,7 @@
 	Small caps	Kapitälchen
 	SmartArt	SmartArt
 	Sort	Sortieren
-	Source code: github.com/storytold/wordcraft	Quellcode: github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	Quellcode: github.com/TheLazyGeekGuy/plume
 	Space	Leerzeichen
 	Space before/after:	Abstand vor/nach:
 	Spacing	Abstand
@@ -898,7 +894,7 @@
 	Word Left	Wort nach links
 	Word Right	Wort nach rechts
 	WordArt	WordArt
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	Wörter
 	Words only	Nur Wörter
 	Wrap Text	Text umbrechen
@@ -1143,7 +1139,6 @@
 	Insert a new equation (Alt+=)	Eine neue Formel einfügen (Alt+=)
 	Leave the equation (Esc)	Die Formel verlassen (Esc)
 	Preview	Vorschau
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Draw Ink	Freihand zeichnen
 	Erase Ink	Freihand radieren
 	Hide Ink	Freihand ausblenden
@@ -1281,7 +1276,7 @@
 	The document will be saved with a password. Save it to protect it.	Das Dokument wird mit einem Kennwort gespeichert. Speichern Sie es, um es zu schützen.
 	The password is removed. Save the document to keep the change.	Das Kennwort ist entfernt. Speichern Sie das Dokument, um die Änderung zu behalten.
 	The passwords don't match.	Die Kennwörter stimmen nicht überein.
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	Bewahren Sie das Kennwort an einem sicheren Ort auf: Ohne es kann niemand das Dokument öffnen, auch WordCraft nicht. Lassen Sie beide Felder leer, um das Kennwort zu entfernen.
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Bewahren Sie das Kennwort an einem sicheren Ort auf: Ohne es kann niemand das Dokument öffnen, auch Plume nicht. Lassen Sie beide Felder leer, um das Kennwort zu entfernen.
 	Align Top Left	Oben links ausrichten
 	Align Top Center	Oben mittig ausrichten
 	Align Top Right	Oben rechts ausrichten
@@ -1739,7 +1734,7 @@
 	Word document	Word-Dokument
 	All files	Alle Dateien
 	Recipient lists	Empfängerlisten
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Das Dateidialogfeld des Systems ist nicht verfügbar, daher zeigt WordCraft ein eigenes an. Für das Systemdialogfeld installieren Sie ein Dateiauswahl-Portal (etwa xdg-desktop-portal-gtk) oder zenity.
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Das Dateidialogfeld des Systems ist nicht verfügbar, daher zeigt Plume ein eigenes an. Für das Systemdialogfeld installieren Sie ein Dateiauswahl-Portal (etwa xdg-desktop-portal-gtk) oder zenity.
 	Up one level	Eine Ebene höher
 	Home folder	Persönlicher Ordner
 	{name} wasn't found.	{name} wurde nicht gefunden.
@@ -1747,8 +1742,8 @@
 	This folder can't be read: {error}	Dieser Ordner kann nicht gelesen werden: {error}
 	Showing the first {count} items.	Die ersten {count} Elemente werden angezeigt.
 	File name:	Dateiname:
-	Browse in WordCraft…	In WordCraft durchsuchen…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	Öffnet eine Datei mit dem eigenen Browser von WordCraft, wenn das Dateidialogfeld des Systems nicht erscheint.
+	Browse in Plume…	In Plume durchsuchen…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	Öffnet eine Datei mit dem eigenen Browser von Plume, wenn das Dateidialogfeld des Systems nicht erscheint.
 	Hide White Space	Leerraum ausblenden
 	All pages	Alle Seiten
 	Current page	Aktuelle Seite
@@ -2080,15 +2075,15 @@
 	Your system doesn't report an animation setting, so animation effects stay on.	Ihr System meldet keine Animationseinstellung, daher bleiben Animationseffekte aktiviert.
 	Do Not Check Spelling or Grammar	Rechtschreibung und Grammatik nicht prüfen
 	Start-up	Programmstart
-	Show the Start screen when WordCraft starts	Startbildschirm beim Start von WordCraft anzeigen
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Ein: WordCraft öffnet sich auf Datei › Start mit einem leeren Dokument, den Vorlagen und Ihren zuletzt verwendeten Dokumenten. Aus: Es öffnet ein leeres Dokument.
-	Couldn't make WordCraft the default: {error}	WordCraft konnte nicht als Standard festgelegt werden: {error}
-	In Default apps, choose WordCraft for the document types you want it to open.	Wählen Sie unter „Standard-Apps“ WordCraft für die Dokumenttypen, die es öffnen soll.
-	Make WordCraft the default for Word documents…	WordCraft als Standard für Word-Dokumente festlegen…
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	Öffnet .docx-, .doc-, .rtf- und .odt-Dateien sowie Word-Vorlagen ab jetzt mit WordCraft.
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	Öffnet Einstellungen › Standard-Apps, wo Sie WordCraft für .docx und die anderen Dokumenttypen wählen.
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	Um Word-Dokumente standardmäßig mit WordCraft zu öffnen: Wählen Sie eines im Finder aus, wählen Sie Ablage › Informationen, wählen Sie WordCraft unter „Öffnen mit“ und klicken Sie auf „Alle ändern“.
-	WordCraft is now the default app for Word documents.	WordCraft ist jetzt die Standard-App für Word-Dokumente.
+	Show the Start screen when Plume starts	Startbildschirm beim Start von Plume anzeigen
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Ein: Plume öffnet sich auf Datei › Start mit einem leeren Dokument, den Vorlagen und Ihren zuletzt verwendeten Dokumenten. Aus: Es öffnet ein leeres Dokument.
+	Couldn't make Plume the default: {error}	Plume konnte nicht als Standard festgelegt werden: {error}
+	In Default apps, choose Plume for the document types you want it to open.	Wählen Sie unter „Standard-Apps“ Plume für die Dokumenttypen, die es öffnen soll.
+	Make Plume the default for Word documents…	Plume als Standard für Word-Dokumente festlegen…
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	Öffnet .docx-, .doc-, .rtf- und .odt-Dateien sowie Word-Vorlagen ab jetzt mit Plume.
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	Öffnet Einstellungen › Standard-Apps, wo Sie Plume für .docx und die anderen Dokumenttypen wählen.
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	Um Word-Dokumente standardmäßig mit Plume zu öffnen: Wählen Sie eines im Finder aus, wählen Sie Ablage › Informationen, wählen Sie Plume unter „Öffnen mit“ und klicken Sie auf „Alle ändern“.
+	Plume is now the default app for Word documents.	Plume ist jetzt die Standard-App für Word-Dokumente.
 	Numerals:	Ziffern:
 	Numerals	Ziffern
 	Hindi	Hindi
@@ -2182,7 +2177,7 @@
 	{name}   {height} × {width} mm	{name}   {height} × {width} mm
 	{width} × {height} mm	{width} × {height} mm
 	{kind}, {columns} × {rows}, {size} ({paper})	{kind}, {columns} × {rows}, {size} ({paper})
-	Researcher needs an online service; WordCraft keeps your documents offline.	Der Recherche-Assistent braucht einen Onlinedienst; WordCraft behält Ihre Dokumente offline.
+	Researcher needs an online service; Plume keeps your documents offline.	Der Recherche-Assistent braucht einen Onlinedienst; Plume behält Ihre Dokumente offline.
 	These settings will be used for new documents.	Diese Einstellungen werden für neue Dokumente verwendet.
 	can't split at the first row	die Tabelle kann nicht an der ersten Zeile geteilt werden
 	select two or more cells to merge	wählen Sie zum Verbinden zwei oder mehr Zellen aus
@@ -2226,6 +2221,78 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Hunspell-Dateien (.aff und .dic) in diesem Ordner (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) haben Vorrang vor denen des Systems.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: kein Wörterbuch gefunden
+	Version Status	Versionsstatus
+	Start Keeping Versions	Versionen aufbewahren
+	Save Version	Version speichern
+	Show Changes	Änderungen anzeigen
+	Compare with Version	Mit Version vergleichen
+	Restore Version	Version wiederherstellen
+	Synchronize	Synchronisieren
+	Versions	Versionen
+	Describe your changes	Beschreiben Sie Ihre Änderungen
+	No versions yet	Noch keine Versionen
+	Restore	Wiederherstellen
+	Save\nVersion	Version\nspeichern
+	Version\nHistory	Versions-\nverlauf
+	Save the document as Markdown first (File › Save As).	Speichern Sie das Dokument zuerst als Markdown (Datei › Speichern unter).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Der Ordner dieses Dokuments bewahrt noch keine Versionen auf: Beginnen Sie mit „Version speichern“.
+	Version {id} saved	Version {id} gespeichert
+	Save the document as Markdown first	Speichern Sie das Dokument zuerst als Markdown
+	Imported as Markdown	Als Markdown importiert
+	Saved as Markdown	Als Markdown gespeichert
+	Sign In to a Forge	Bei einer Forge anmelden
+	Sign Out of Forges	Von Forges abmelden
+	Open from a Forge	Aus einer Forge öffnen
+	Open from a Forge…	Aus einer Forge öffnen…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Ein Markdown-Dokument aus GitHub, GitLab oder Forgejo öffnen; „Version speichern“ legt dort Versionen an.
+	Server	Server
+	Repository	Repository
+	Branch	Branch
+	Access token	Zugriffstoken
+	kept in the keychain	im Schlüsselbund gespeichert
+	Remember the token in the keychain	Token im Schlüsselbund merken
+	Enter an access token for this forge.	Geben Sie ein Zugriffstoken für diese Forge ein.
+	Keep to Markdown	Bei Markdown bleiben
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown kann diese Formatierung nicht behalten (strenger Markdown-Modus)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Ein: Befehle, die Markdown nicht behalten kann (Textfarbe, Unterstreichung, Textfelder, Spalten…), sind ausgeschaltet. Aus: Sie funktionieren, und beim Speichern wird gemeldet, was Markdown nicht behalten hat.
+	Request Review	Überprüfung anfordern
+	Get Review Comments	Überprüfungskommentare abrufen
+	Send Replies	Antworten senden
+	Review Status	Überprüfungsstatus
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Öffnen Sie das Dokument aus GitHub, GitLab oder Forgejo, um eine Überprüfung anzufordern
+	What should your colleagues review?	Was sollen Ihre Kollegen prüfen?
+	Details (optional)	Details (optional)
+	Review requested: {url}	Überprüfung angefordert: {url}
+	Documents Pane	Bereich „Dokumente“
+	Save the document as Markdown to see the documents beside it.	Speichern Sie das Dokument als Markdown, um die Dokumente daneben zu sehen.
+	No Markdown documents here yet.	Hier gibt es noch keine Markdown-Dokumente.
+	save the document first	speichern Sie zuerst das Dokument
+	Address of the Markdown file (copy it from your browser)	Adresse der Markdown-Datei (aus dem Browser kopieren)
+	Paste the address of the Markdown file's page (it ends in .md).	Fügen Sie die Adresse der Seite der Markdown-Datei ein (sie endet auf .md).
+	Accounts	Konten
+	New connection	Neue Verbindung
+	Connect	Verbinden
+	Projects	Projekte
+	Filter	Filter
+	No projects on this account.	Keine Projekte in diesem Konto.
+	Waiting for the forge…	Warten auf die Forge…
+	Save to a Forge…	In einer Forge speichern…
+	Save to a Forge	In einer Forge speichern
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Speichert das Dokument als Markdown in einem GitHub-, GitLab- oder Forgejo-Projekt; „Version speichern“ hält die Versionen dann dort fest.
+	Replace the document that has this name	Das Dokument mit diesem Namen ersetzen
+	Saved to the forge:	In der Forge gespeichert:
+	Permissions the token needs:	Benötigte Berechtigungen des Tokens:
+	Or sign in with the browser	Oder im Browser anmelden
+	OAuth app client ID	Client-ID der OAuth-App
+	Sign in with the browser	Im Browser anmelden
+	Type this code on the forge's page:	Geben Sie diesen Code auf der Seite der Forge ein:
+	Open the page	Seite öffnen
+	Copy the code	Code kopieren
+	No Markdown documents in this project.	Keine Markdown-Dokumente in diesem Projekt.
+	Or paste the document's address	Oder die Adresse des Dokuments einfügen
+	Forge Repositories	Forge-Repositorys
+	Forge Documents	Forge-Dokumente
 
 # Backstage › Recover (#586)
 	Recover	Wiederherstellen
@@ -2248,6 +2315,138 @@
 # Reading Mode column widths (#1040)
 	Narrow	Schmal
 	Medium	Mittel
+	(not saved)	(nicht gespeichert)
+	Edit template…	Vorlage bearbeiten…
+	Export PDF…	Als PDF exportieren…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Das Dokument mit einer Dokumentvorlage setzen: Titelseite, Kopf- und Fußzeilen, Umschläge und Briefpapier. Der Vorspann (Front Matter) des Dokuments legt die Optionen der Vorlage fest.
+	Layout (LaTeX)	Layout (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	PDF wird erstellt… (beim ersten Mal lädt die TeX-Engine eventuell Benötigtes herunter)
+	New template created: it is the one exports use now.	Neue Vorlage erstellt: Exporte verwenden jetzt diese.
+	New template from this one:	Neue Vorlage auf Basis dieser:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Keine TeX-Engine gefunden. Installieren Sie Tectonic (brew install tectonic) oder MacTeX und exportieren Sie erneut.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Optionen wie titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Der Vorspann eines Dokuments überschreibt sie.
+	PDF with a template	PDF mit Vorlage
+	Restore the original	Original wiederherstellen
+	Save and preview	Speichern und Vorschau
+	Settings (YAML)	Einstellungen (YAML)
+	Template saved.	Vorlage gespeichert.
+	Template:	Vorlage:
+	Template: {name}	Vorlage: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Die LaTeX-Vorlage in der Vorlagensprache von pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	Kopie
+	Export LaTeX with a Template	LaTeX mit Vorlage exportieren
+	Export PDF with a Template	PDF mit Vorlage exportieren
+	New PDF Template	Neue PDF-Vorlage
+	PDF Engine	PDF-Engine
+	PDF Templates	PDF-Vorlagen
+	Read PDF Template	PDF-Vorlage lesen
+	Restore PDF Template	PDF-Vorlage wiederherstellen
+	Save PDF Template	PDF-Vorlage speichern
+	Tables for AI	Tabellen für KI
+	AI Request for a Table	KI-Anfrage für eine Tabelle
+	Restructure Tables	Tabellen umstrukturieren
+	A language model can't be reached from here.	Von hier aus ist kein Sprachmodell erreichbar.
+	A language model can't be reached from the browser.	Aus dem Browser ist kein Sprachmodell erreichbar.
+	AI	KI
+	Artificial intelligence	Künstliche Intelligenz
+	Block	Block
+	Block {index}: {rows} × {cols}, {words} words	Block {index}: {rows} × {cols}, {words} Wörter
+	Changed	Geändert
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Wählen Sie zuerst ein Sprachmodell: Datei › Optionen › Speichern › Künstliche Intelligenz.
+	Choose a model	Modell wählen
+	High	Hoch
+	Low	Niedrig
+	Model's default	Standard des Modells
+	Model:	Modell:
+	Model: {model} at {url}	Modell: {model} auf {url}
+	No table to restructure.	Keine Tabelle umzustrukturieren.
+	No table was changed.	Keine Tabelle wurde geändert.
+	Other server	Anderer Server
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume lässt es die Tabellen umstrukturieren, die Markdown nicht fassen kann (Formulare und in Tabellen gesetzte Seiten), und behält eine Neufassung nur, wenn jedes Wort noch da ist. Ollama und LM Studio laufen auf diesem Computer: nichts verlässt ihn.
+	Reasoning:	Denkaufwand:
+	Restructure	Umstrukturieren
+	Restructure\nTables	Tabellen\numstrukturieren
+	Server:	Server:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Empfohlen in Ollama: gpt-oss:20b ab 16 GB Arbeitsspeicher, qwen3:4b mit 8 GB (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tabelle {i} von {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Der Server hat noch keine Modelle: Laden Sie zuerst eines herunter (ollama pull gpt-oss:20b).
+	No table in this document needs a model: Markdown holds its tables as they are.	Keine Tabelle in diesem Dokument braucht ein Modell: Markdown behält seine Tabellen unverändert.
+	Unchanged	Unverändert
+	Use a language model	Sprachmodell verwenden
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{applied} von {n} Tabellen umstrukturiert. Rückgängig (Strg+Z) stellt alle wieder her.
+	{n} models on the server.	{n} Modelle auf dem Server.
+	{ready} of {n} tables can be sent to the model.	{ready} von {n} Tabellen können an das Modell gesendet werden.
+	Saved to {forge}	In {forge} gespeichert
+	Changes Since Last Version	Änderungen seit der letzten Version
+	No changes since the last version.	Keine Änderungen seit der letzten Version.
+	Showing the changes since the last version ({n} paragraphs).	Änderungen seit der letzten Version werden angezeigt ({n} Absätze).
+	Tracking from now on: the last version can't be read ({error}).	Verfolgung ab jetzt: Die letzte Version kann nicht gelesen werden ({error}).
+	Front Matter	Front Matter
+	Set Front Matter Field	Front-Matter-Feld festlegen
+	Front matter	Front Matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Felder, die GitHub, VitePress und PDF-Vorlagen lesen, gespeichert am Anfang der Markdown-Datei.
+	(several values: edit the source)	(mehrere Werte: Quelltext bearbeiten)
+	Remove this field	Dieses Feld entfernen
+	New field	Neues Feld
+	Letters, digits, - and _ only	Nur Buchstaben, Ziffern, - und _
+	Callout	Hinweisfeld
+	Code Block	Codeblock
+	Code Language	Codesprache
+	Leave Block	Block verlassen
+	Markdown Block	Markdown-Block
+	Mermaid diagram	Mermaid-Diagramm
+	Plain text	Nur Text
+	Note	Hinweis
+	Tip	Tipp
+	Important	Wichtig
+	Warning	Warnung
+	Caution	Vorsicht
+	Danger	Gefahr
+	Details	Details
+	Insert › Markdown	Einfügen › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Auf Ihrem Branch {branch} gespeichert; {target} ist gesperrt.
+	Merge request {n} into {target} is open: this version goes in it.	Merge-Request {n} nach {target} ist offen: diese Version fließt ein.
+	Request the merge into {target}	Merge in {target} anfordern
+	Version {id} saved; merge request {n} opened	Version {id} gespeichert; Merge-Request {n} geöffnet
+	Markdown indents list items only	Markdown rückt nur Listenelemente ein
+	Diagram	Diagramm
+	Edit\nDiagram	Diagramm\nbearbeiten
+	Mermaid source	Mermaid-Quelltext
+	Mermaid syntax	Mermaid-Syntax
+	Sequence	Sequenz
+	Flowchart	Flussdiagramm
+	Gantt	Gantt
+	Class	Klassen
+	Mind map	Mindmap
+	Markdown Source	Markdown-Quelltext
+	Apply Markdown Source	Markdown-Quelltext übernehmen
+	Heading Anchor	Überschriftenanker
+	Include File	Datei einbinden
+	Include	Einbinden
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Die einzubindende Markdown-Datei, relativ zu dieser (VitePress zeigt ihren Text hier)
+	Open Included File	Eingebundene Datei öffnen
+	Anchor	Anker
+	Discard	Verwerfen
+	Save this document first: an included file is found beside it.	Speichern Sie dieses Dokument zuerst: die eingebundene Datei liegt daneben.
+	View › Markdown Source	Ansicht › Markdown-Quelltext
+	Shapes and Connectors	Formen und Verbinder
+	All Diagrams…	Alle Diagramme…
+	Planning	Planung
+	Structure	Struktur
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)
 # Split Cells and Convert Text to Table (#2592)
 	Merge cells before split	Zellen vor dem Teilen verbinden
 	Table size	Tabellengröße

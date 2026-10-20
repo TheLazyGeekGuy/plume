@@ -3,9 +3,11 @@
 	(no style)	(スタイルなし)
 	(no suggestions)	（候補なし）
 	1.5 Line Spacing	1.5 行
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	Rust でゼロから書かれた、無料のオープンソース ワープロです。\nArtCraft チームの Crafting Apps のひとつです。
+	A free, open-source word processor written in Rust, with Markdown as its native format.	Rust で書かれた無料のオープンソース ワープロ。ネイティブ形式は Markdown です。
+	Plume — based on WordCraft by the ArtCraft team.	Plume — ArtCraft チームの WordCraft をベースにしています。
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	About	情報
-	About WordCraft	WordCraft について
+	About Plume	Plume について
 	Accept	承諾
 	Accept All Changes	すべての変更を承諾
 	Accept This Change	この変更を承諾
@@ -63,7 +65,7 @@
 	Automatic Table 1 (3 levels)	自動目次 1（3 レベル）
 	Automatic Table 2 (2 levels)	自動目次 2（2 レベル）
 	AutoSave	自動保存
-	AutoSave documents you have saved in WordCraft	WordCraft で保存した文書を自動保存する
+	AutoSave documents you have saved in Plume	Plume で保存した文書を自動保存する
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	自動保存できませんでした: {error}。文書を保存し直すと、自動保存が再開します。
 	Balloons	吹き出し
 	Bottom Margin	下余白
@@ -77,7 +79,7 @@
 	Click to switch back to inserting	クリックすると挿入モードに戻ります
 	Color only	色のみ
 	Compress punctuation at the start of a line	行頭の約物を詰める
-	Couldn't make WordCraft the default: {error}	WordCraft を既定のアプリにできませんでした: {error}
+	Couldn't make Plume the default: {error}	Plume を既定のアプリにできませんでした: {error}
 	Custom dictionary	ユーザー辞書
 	Dark page (white text on black)	ダーク ページ (黒地に白い文字)
 	Drag a rectangle to draw a table, or a line across cells to split them. Esc stops.	四角形をドラッグして表を描くか、セルを横切る線を引いて分割します。Esc で終了します。
@@ -107,7 +109,7 @@
 	Inside:	内側:
 	Latin text font:	ラテン文字のフォント:
 	Left border	左罫線
-	In Default apps, choose WordCraft for the document types you want it to open.	既定のアプリで、WordCraft で開きたい文書の種類ごとに WordCraft を選んでください。
+	In Default apps, choose Plume for the document types you want it to open.	既定のアプリで、Plume で開きたい文書の種類ごとに Plume を選んでください。
 	Left Margin	左余白
 	Indents and Spacing	インデントと間隔
 	Legal style numbering	正規形式で番号付け
@@ -130,9 +132,9 @@
 	Number style for this level:	このレベルの番号の種類:
 	Only for the selected text	選択したテキストのみ
 	Outside border	外側の罫線
-	Make WordCraft the default for Word documents…	WordCraft を Word 文書の既定のアプリにする…
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	今後、.docx、.doc、.rtf、.odt ファイルと Word テンプレートを WordCraft で開きます。
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	設定 › 既定のアプリ を開きます。そこで .docx などの文書の種類ごとに WordCraft を選びます。
+	Make Plume the default for Word documents…	Plume を Word 文書の既定のアプリにする…
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	今後、.docx、.doc、.rtf、.odt ファイルと Word テンプレートを Plume で開きます。
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	設定 › 既定のアプリ を開きます。そこで .docx などの文書の種類ごとに Plume を選びます。
 	Overtype	上書き
 	Overtype (typing replaces the characters after the caret)	上書き (入力した文字がカーソルの後ろの文字を置き換えます)
 	Show alignment guides when moving pictures and shapes	画像や図形を移動するときに配置ガイドを表示する
@@ -288,7 +290,6 @@
 	Comment	コメント
 	Comments	コメント
 	Comments Pane	コメント ウィンドウ
-	Community\nDiscord	コミュニティ\nDiscord
 	Compact	コンパクト
 	Compare	比較
 	Compress Pictures	図の圧縮
@@ -335,16 +336,14 @@
 	Delete Style	スタイルの削除
 	Delete Table	表の削除
 	Design	デザイン
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	Word 文書を既定で WordCraft で開くには: Finder で文書を選び、ファイル › 情報を見る を選んで、「このアプリケーションで開く」で WordCraft を選び、「すべてを変更」をクリックします。
-	WordCraft is now the default app for Word documents.	WordCraft が Word 文書の既定のアプリになりました。
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	Word 文書を既定で Plume で開くには: Finder で文書を選び、ファイル › 情報を見る を選んで、「このアプリケーションで開く」で Plume を選び、「すべてを変更」をクリックします。
+	Plume is now the default app for Word documents.	Plume が Word 文書の既定のアプリになりました。
 	development build	開発ビルド
 	Diagonal	対角線
 	Diamond	ひし形
 	Dictate	ディクテーション
 	Different First Page	先頭ページのみ別指定
 	Different Odd & Even Pages	奇数/偶数ページ別指定
-	Discord	Discord
-	Discord community	Discord コミュニティ
 	Display	表示
 	Display for Review	変更内容の表示
 	Distribute Columns	列の幅を揃える
@@ -503,8 +502,6 @@
 	Inspect Document	ドキュメント検査
 	Interface language:	表示言語:
 	Italic	斜体
-	Join the ArtCraft community on Discord	Discord の ArtCraft コミュニティに参加
-	Join us on Discord: discord.gg/artcraft	Discord で参加: discord.gg/artcraft
 	Justify	両端揃え
 	Keep Lines Together	段落を分割しない
 	Keep lines together	段落を分割しない
@@ -515,7 +512,7 @@
 	Landscape	横
 	Language	言語
 	{language} (no dictionary)	{language}（辞書なし）
-	No spelling dictionary for {language} is installed, so it isn't checked. WordCraft looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	{language}のスペルチェック辞書がインストールされていないため、チェックされません。WordCraft は Hunspell 辞書 {name} を WORDCRAFT_DICTIONARIES フォルダーと通常のシステムの場所から探します。
+	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	{language}のスペルチェック辞書がインストールされていないため、チェックされません。Plume は Hunspell 辞書 {name} を WORDCRAFT_DICTIONARIES フォルダーと通常のシステムの場所から探します。
 	Lasso	なげなわ
 	Last Column	最後の列
 	Last commit	最後のコミット
@@ -562,7 +559,7 @@
 	Merge Formatting	書式を結合
 	Merged PRs	マージ済みの PR
 	Mirrored	見開きページ
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0。Copyright (c) 2026 ArtCraft チームおよび WordCraft の貢献者。
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 Plume の貢献者、ArtCraft チーム、WordCraft の貢献者。
 	Moderate	やや狭い
 	Modify Style	スタイルの変更
 	Modify…	変更…
@@ -814,7 +811,6 @@
 	Animation	アニメーション
 	Animate the caret (it glides and fades)	カーソルをアニメーション表示する（滑らかに移動してフェードする）
 	On: the caret glides to its new place when you type or use the arrow keys, and its blink fades. Off: it jumps and blinks on and off.	オン: 入力や矢印キーの操作でカーソルが新しい位置へ滑らかに移動し、点滅もフェードします。オフ: カーソルは瞬時に移動し、点滅は表示と非表示が切り替わるだけです。
-	Show the community button in the title bar	タイトル バーにコミュニティ ボタンを表示する
 	Show/Hide ¶	編集記号の表示/非表示 ¶
 	Show\nComments	コメントの表示
 	Shrink Font 1 Point	フォントを 1 ポイント縮小
@@ -830,7 +826,7 @@
 	Small caps	小型英大文字
 	SmartArt	SmartArt
 	Sort	並べ替え
-	Source code: github.com/storytold/wordcraft	ソース コード: github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	ソース コード: github.com/TheLazyGeekGuy/plume
 	Space	スペース
 	Space before/after:	段落前/後の間隔:
 	Spacing	間隔
@@ -971,7 +967,7 @@
 	Word Left	前の単語へ
 	Word Right	次の単語へ
 	WordArt	ワードアート
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	単語数
 	Words only	単語のみ
 	Wrap Text	文字列の折り返し
@@ -1220,7 +1216,6 @@
 	Insert a new equation (Alt+=)	新しい数式を挿入 (Alt+=)
 	Leave the equation (Esc)	数式を終了 (Esc)
 	Preview	プレビュー
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Draw Ink	インクで描く
 	Erase Ink	インクを消す
 	Hide Ink	インクを隠す
@@ -1358,7 +1353,7 @@
 	The document will be saved with a password. Save it to protect it.	文書はパスワード付きで保存されます。保護するには文書を保存してください。
 	The password is removed. Save the document to keep the change.	パスワードを削除しました。変更を保持するには文書を保存してください。
 	The passwords don't match.	パスワードが一致しません。
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	パスワードは安全な場所に保管してください。パスワードがないと、WordCraft を含め誰も文書を開けません。パスワードを削除するには両方のボックスを空にします。
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	パスワードは安全な場所に保管してください。パスワードがないと、Plume を含め誰も文書を開けません。パスワードを削除するには両方のボックスを空にします。
 
 # Interface text routed through translation (#313)
 	Align Top Left	上揃え (左)
@@ -1758,7 +1753,7 @@
 	Word document	Word 文書
 	All files	すべてのファイル
 	Recipient lists	宛先リスト
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	システムのファイル ダイアログを利用できないため、WordCraft 独自のダイアログを表示しています。システムのダイアログを使うには、ファイル選択ポータル (xdg-desktop-portal-gtk など) または zenity をインストールしてください。
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	システムのファイル ダイアログを利用できないため、Plume 独自のダイアログを表示しています。システムのダイアログを使うには、ファイル選択ポータル (xdg-desktop-portal-gtk など) または zenity をインストールしてください。
 	Up one level	1 つ上のフォルダー
 	Home folder	ホーム フォルダー
 	{name} wasn't found.	{name} が見つかりません。
@@ -1766,8 +1761,8 @@
 	This folder can't be read: {error}	このフォルダーを読み取れません: {error}
 	Showing the first {count} items.	最初の {count} 項目を表示しています。
 	File name:	ファイル名:
-	Browse in WordCraft…	WordCraft で参照…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	システムのファイル ダイアログが表示されないときに、WordCraft 独自のブラウザーでファイルを開きます。
+	Browse in Plume…	Plume で参照…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	システムのファイル ダイアログが表示されないときに、Plume 独自のブラウザーでファイルを開きます。
 	Hide White Space	余白を非表示
 	All pages	すべてのページ
 	Current page	現在のページ
@@ -2151,8 +2146,8 @@
 	Number only, without the label's words	ラベルの語を除いて番号のみ
 	Add whether it is above or below	上にあるか下にあるかを付け加える
 	Start-up	起動
-	Show the Start screen when WordCraft starts	WordCraft の起動時にスタート画面を表示する
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	オン: WordCraft は [ファイル] › [ホーム] で開き、白紙の文書、テンプレート、最近使った文書を表示します。オフ: 白紙の文書を開きます。
+	Show the Start screen when Plume starts	Plume の起動時にスタート画面を表示する
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	オン: Plume は [ファイル] › [ホーム] で開き、白紙の文書、テンプレート、最近使った文書を表示します。オフ: 白紙の文書を開きます。
 	Copy to	コピー先
 
 # Document naming and account controls.
@@ -2183,7 +2178,7 @@
 	{name}   {height} × {width} mm	{name}   {height} × {width} mm
 	{width} × {height} mm	{width} × {height} mm
 	{kind}, {columns} × {rows}, {size} ({paper})	{kind}、{columns} × {rows}、{size} ({paper})
-	Researcher needs an online service; WordCraft keeps your documents offline.	リサーチツールにはオンライン サービスが必要です。WordCraft では文書はオフラインのままです。
+	Researcher needs an online service; Plume keeps your documents offline.	リサーチツールにはオンライン サービスが必要です。Plume では文書はオフラインのままです。
 	These settings will be used for new documents.	これらの設定は新しい文書に使用されます。
 	can't split at the first row	先頭の行では表を分割できません
 	select two or more cells to merge	結合するセルを 2 つ以上選択してください
@@ -2227,6 +2222,78 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	このフォルダーの Hunspell .aff と .dic ファイル (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) は、システムのものより優先して使われます。
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: 辞書が見つかりません
+	Version Status	バージョンの状態
+	Start Keeping Versions	バージョンの保存を開始
+	Save Version	バージョンを保存
+	Show Changes	変更を表示
+	Compare with Version	バージョンと比較
+	Restore Version	バージョンを復元
+	Synchronize	同期
+	Versions	バージョン
+	Describe your changes	変更内容を記入してください
+	No versions yet	バージョンはまだありません
+	Restore	復元
+	Save\nVersion	バージョン\nを保存
+	Version\nHistory	バージョン\n履歴
+	Save the document as Markdown first (File › Save As).	まず文書を Markdown として保存してください (ファイル › 名前を付けて保存)。
+	This document's folder doesn't keep versions yet: use Save Version to start.	この文書のフォルダーはまだバージョンを保存していません。[バージョンを保存] で開始してください。
+	Version {id} saved	バージョン {id} を保存しました
+	Save the document as Markdown first	まず文書を Markdown として保存してください
+	Imported as Markdown	Markdown としてインポートしました
+	Saved as Markdown	Markdown として保存しました
+	Sign In to a Forge	フォージにサインイン
+	Sign Out of Forges	フォージからサインアウト
+	Open from a Forge	フォージから開く
+	Open from a Forge…	フォージから開く…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	GitHub、GitLab、Forgejo の Markdown 文書を開きます。[バージョンを保存] でそこにバージョンが記録されます。
+	Server	サーバー
+	Repository	リポジトリ
+	Branch	ブランチ
+	Access token	アクセス トークン
+	kept in the keychain	キーチェーンに保存
+	Remember the token in the keychain	トークンをキーチェーンに記憶
+	Enter an access token for this forge.	このフォージのアクセス トークンを入力してください。
+	Keep to Markdown	Markdown に限定
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown ではこの書式を保持できません (厳格な Markdown モード)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	オンにすると、Markdown で保持できないコマンド (文字の色、下線、テキスト ボックス、段組み…) が無効になります。オフにすると使用でき、保存時に Markdown で保持されなかった内容が表示されます。
+	Request Review	レビューを依頼
+	Get Review Comments	レビュー コメントを取得
+	Send Replies	返信を送信
+	Review Status	レビューの状態
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	レビューを依頼するには、GitHub、GitLab、Forgejo から文書を開いてください
+	What should your colleagues review?	同僚に何をレビューしてもらいますか?
+	Details (optional)	詳細 (省略可)
+	Review requested: {url}	レビューを依頼しました: {url}
+	Documents Pane	ドキュメント ウィンドウ
+	Save the document as Markdown to see the documents beside it.	Markdown として保存すると、隣にある文書が表示されます。
+	No Markdown documents here yet.	ここにはまだ Markdown 文書がありません。
+	save the document first	まず文書を保存してください
+	Address of the Markdown file (copy it from your browser)	Markdown ファイルのアドレス (ブラウザーからコピー)
+	Paste the address of the Markdown file's page (it ends in .md).	Markdown ファイルのページのアドレスを貼り付けてください (.md で終わります)。
+	Accounts	アカウント
+	New connection	新しい接続
+	Connect	接続
+	Projects	プロジェクト
+	Filter	フィルター
+	No projects on this account.	このアカウントにはプロジェクトがありません。
+	Waiting for the forge…	フォージを待っています…
+	Save to a Forge…	フォージに保存…
+	Save to a Forge	フォージに保存
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	この文書を GitHub、GitLab、Forgejo のプロジェクトに Markdown として保存します。以後、[バージョンを保存] でそこにバージョンが記録されます。
+	Replace the document that has this name	この名前の文書を置き換える
+	Saved to the forge:	フォージに保存しました:
+	Permissions the token needs:	トークンに必要な権限:
+	Or sign in with the browser	またはブラウザーでサインイン
+	OAuth app client ID	OAuth アプリのクライアント ID
+	Sign in with the browser	ブラウザーでサインイン
+	Type this code on the forge's page:	フォージのページでこのコードを入力してください:
+	Open the page	ページを開く
+	Copy the code	コードをコピー
+	No Markdown documents in this project.	このプロジェクトには Markdown 文書がありません。
+	Or paste the document's address	または文書のアドレスを貼り付け
+	Forge Repositories	フォージのリポジトリ
+	Forge Documents	フォージの文書
 
 # Backstage › Recover (#586)
 	Recover	回復
@@ -2249,6 +2316,138 @@
 # Reading Mode column widths (#1040)
 	Narrow	狭い
 	Medium	中
+	(not saved)	(未保存)
+	Edit template…	テンプレートを編集…
+	Export PDF…	PDF をエクスポート…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	文書テンプレートで文書をレイアウトします: 表紙、ヘッダーとフッター、カバー、レターヘッド。文書のフロントマターでテンプレートのオプションを設定します。
+	Layout (LaTeX)	レイアウト (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	PDF を作成中… (初回は TeX エンジンが必要なものをダウンロードすることがあります)
+	New template created: it is the one exports use now.	新しいテンプレートを作成しました: 今後のエクスポートはこれを使います。
+	New template from this one:	このテンプレートから新規作成:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	TeX エンジンが見つかりません。Tectonic (brew install tectonic) または MacTeX をインストールしてから、もう一度エクスポートしてください。
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover などのオプション。文書のフロントマターが優先されます。
+	PDF with a template	テンプレートで PDF
+	Restore the original	元に戻す
+	Save and preview	保存してプレビュー
+	Settings (YAML)	設定 (YAML)
+	Template saved.	テンプレートを保存しました。
+	Template:	テンプレート:
+	Template: {name}	テンプレート: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	pandoc のテンプレート言語で書かれた LaTeX テンプレート ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$)。
+	copy	コピー
+	Export LaTeX with a Template	テンプレートで LaTeX をエクスポート
+	Export PDF with a Template	テンプレートで PDF をエクスポート
+	New PDF Template	新しい PDF テンプレート
+	PDF Engine	PDF エンジン
+	PDF Templates	PDF テンプレート
+	Read PDF Template	PDF テンプレートを読み込む
+	Restore PDF Template	PDF テンプレートを元に戻す
+	Save PDF Template	PDF テンプレートを保存
+	Tables for AI	AI 用の表
+	AI Request for a Table	表の AI リクエスト
+	Restructure Tables	表を再構成
+	A language model can't be reached from here.	ここから言語モデルに接続できません。
+	A language model can't be reached from the browser.	ブラウザーから言語モデルに接続できません。
+	AI	AI
+	Artificial intelligence	人工知能
+	Block	ブロック
+	Block {index}: {rows} × {cols}, {words} words	ブロック {index}: {rows} × {cols}、{words} 語
+	Changed	変更済み
+	Choose a language model first: File › Options › Save › Artificial intelligence.	まず言語モデルを選んでください: ファイル › オプション › 保存 › 人工知能。
+	Choose a model	モデルを選択
+	High	高
+	Low	低
+	Model's default	モデルの既定
+	Model:	モデル:
+	Model: {model} at {url}	モデル: {url} の {model}
+	No table to restructure.	再構成する表はありません。
+	No table was changed.	変更された表はありません。
+	Other server	その他のサーバー
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume は Markdown で保持できない表 (表で組まれたフォームやページ) の再構成をモデルに依頼し、すべての語が残っている場合だけ書き換えを採用します。Ollama と LM Studio はこのコンピューター上で動作し、何も外へ出ません。
+	Reasoning:	推論:
+	Restructure	再構成
+	Restructure\nTables	表を\n再構成
+	Server:	サーバー:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollama での推奨: メモリ 16 GB 以上なら gpt-oss:20b、8 GB なら qwen3:4b (ollama pull gpt-oss:20b)。
+	Table {i} of {n}…	表 {i}/{n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	サーバーにまだモデルがありません。まずダウンロードしてください (ollama pull gpt-oss:20b)。
+	No table in this document needs a model: Markdown holds its tables as they are.	この文書の表はどれもモデルを必要としません。Markdown は表をそのまま保持します。
+	Unchanged	変更なし
+	Use a language model	言語モデルを使用する
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{n} 個中 {applied} 個の表を再構成しました。元に戻す (Ctrl+Z) ですべて戻ります。
+	{n} models on the server.	サーバー上のモデル: {n} 個。
+	{ready} of {n} tables can be sent to the model.	{n} 個中 {ready} 個の表をモデルに送れます。
+	Saved to {forge}	{forge} に保存済み
+	Changes Since Last Version	前回のバージョン以降の変更
+	No changes since the last version.	前回のバージョン以降の変更はありません。
+	Showing the changes since the last version ({n} paragraphs).	前回のバージョン以降の変更を表示しています ({n} 段落)。
+	Tracking from now on: the last version can't be read ({error}).	今から変更を記録します: 前回のバージョンを読み込めません ({error})。
+	Front Matter	フロントマター
+	Set Front Matter Field	フロントマターの項目を設定
+	Front matter	フロントマター
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	GitHub、VitePress、PDF テンプレートが読む項目。Markdown ファイルの先頭に保存されます。
+	(several values: edit the source)	(複数の値: ソースで編集)
+	Remove this field	この項目を削除
+	New field	新しい項目
+	Letters, digits, - and _ only	英数字、- と _ のみ
+	Callout	コールアウト
+	Code Block	コード ブロック
+	Code Language	コードの言語
+	Leave Block	ブロックを抜ける
+	Markdown Block	Markdown ブロック
+	Mermaid diagram	Mermaid 図
+	Plain text	プレーン テキスト
+	Note	注記
+	Tip	ヒント
+	Important	重要
+	Warning	警告
+	Caution	注意
+	Danger	危険
+	Details	詳細
+	Insert › Markdown	挿入 › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
+	Saved on your branch {branch}; {target} is locked.	あなたのブランチ {branch} に保存しました。{target} はロックされています。
+	Merge request {n} into {target} is open: this version goes in it.	{target} へのマージ リクエスト {n} が開いています: このバージョンも含まれます。
+	Request the merge into {target}	{target} へのマージをリクエスト
+	Version {id} saved; merge request {n} opened	バージョン {id} を保存し、マージ リクエスト {n} を開きました
+	Markdown indents list items only	Markdown でインデントできるのはリスト項目だけです
+	Diagram	図
+	Edit\nDiagram	図の\n編集
+	Mermaid source	Mermaid ソース
+	Mermaid syntax	Mermaid の構文
+	Sequence	シーケンス
+	Flowchart	フローチャート
+	Gantt	ガント
+	Class	クラス
+	Mind map	マインドマップ
+	Markdown Source	Markdown ソース
+	Apply Markdown Source	Markdown ソースを適用
+	Heading Anchor	見出しのアンカー
+	Include File	ファイルを含める
+	Include	含める
+	The Markdown file to include, relative to this one (VitePress shows its text here)	含める Markdown ファイル (このファイルからの相対パス。VitePress はここにその本文を表示します)
+	Open Included File	含めたファイルを開く
+	Anchor	アンカー
+	Discard	破棄
+	Save this document first: an included file is found beside it.	先にこの文書を保存してください: 含めるファイルはその隣にあります。
+	View › Markdown Source	表示 › Markdown ソース
+	Shapes and Connectors	図形とコネクタ
+	All Diagrams…	すべての図…
+	Planning	計画
+	Structure	構造
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)
 # Split Cells and Convert Text to Table (#2592)
 	Merge cells before split	分割する前にセルを結合する
 	Table size	表のサイズ

@@ -13,11 +13,12 @@ release: 1
 section: graphics
 priority: optional
 maintainer: ${WORDCRAFT_MAINTAINER}
-vendor: Learning Machines LLC
-homepage: https://getartcraft.com/apps/wordcraft
+vendor: Plume contributors
+homepage: https://github.com/TheLazyGeekGuy/plume
 license: MIT OR Apache-2.0
 description: |-
-  Open-source, native word processor that works the way Word users expect.
+  Plume: an open-source, native word processor that works the way Word users
+  expect, with Markdown as its native format. Based on WordCraft.
   The ribbon, styles, tables, track changes, references and mail merge; reads
   and writes .docx, opens .odt, .rtf, .html, .md and .txt, and exports PDF.
   Includes wordcraft-cli, a headless converter and command runner.

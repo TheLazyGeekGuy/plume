@@ -38,7 +38,8 @@ pub type FileDialogAnswer = Result<Vec<String>, String>;
 const MAX_FONTS_PER_PICK: usize = 2000;
 
 const PICTURES: &[&str] = &["png", "jpg", "jpeg", "gif", "webp", "bmp", "wmf", "emf"];
-const DOCUMENTS: &[&str] = &["docx", "docm", "dotx", "dotm", "doc", "dot", "odt", "rtf", "txt", "md", "html", "htm", "tex", "json", "xml"];
+const DOCUMENTS: &[&str] =
+    &["docx", "docm", "dotx", "dotm", "doc", "dot", "odt", "rtf", "txt", "md", "textbundle", "textpack", "html", "htm", "tex", "json", "xml"];
 
 /// The file types Open offers, as (label, extensions; `*` is any file): pictures for Insert/Change
 /// Picture, recipient lists for Select Recipients › Use an Existing List…, documents otherwise.
@@ -63,6 +64,8 @@ pub(crate) enum AfterPick {
     SaveAs { after: AfterSave, document: u64 },
     /// Save a copy there in this format (`pdf`, `docx`, `png`…).
     Export { ext: String },
+    /// Export a PDF through the chosen document template there (Plume).
+    ExportTemplate,
     /// Write the PDF of these print settings there (File › Print › Save these pages as PDF).
     PrintPdf { settings: Value },
     /// Load the picked CSV/TSV/text file or spreadsheet as the mail-merge recipients (#240, #334).
@@ -302,6 +305,12 @@ impl WordApp {
                     self.status(crate::i18n::fmt(tl!("Exported {path}"), &[("path", &path)]));
                 }
                 r
+            }
+            AfterPick::ExportTemplate => {
+                let Some(path) = picked else { return Ok(json!({"cancelled": true})) };
+                // Started on the next frame, which has the window to wake when it's done.
+                self.pdf_templates.pending = Some(path);
+                Ok(json!({"started": true}))
             }
             AfterPick::PrintPdf { settings } => {
                 let Some(path) = picked else { return Ok(json!({"cancelled": true})) };
@@ -779,10 +788,12 @@ mod tests {
         // A second dialog can't open while one is up, so cancel before the next command.
         answer(&shown, None);
         a.poll_file_dialog();
+        // Plume: a document without a file goes to File › Save As, which offers the forges beside
+        // the computer, rather than straight to the system dialog.
         a.run("file.saveAs", json!({})).unwrap();
-        assert!(matches!(shown.borrow()[0].0, FileDialogRequest::Save { .. }));
-        answer(&shown, None);
-        a.poll_file_dialog();
+        assert!(a.ui.backstage && a.ui.backstage_page == "saveAs");
+        assert!(shown.borrow().is_empty());
+        a.ui.backstage = false;
         a.run("file.exportPng", json!({})).unwrap();
         assert!(matches!(shown.borrow()[0].0, FileDialogRequest::Save { ref name } if name.ends_with(".png")));
     }

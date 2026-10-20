@@ -22,6 +22,7 @@ macro_rules! tl {
 
 pub mod a11y;
 pub mod a11y_pane;
+pub mod ai_tables;
 pub mod async_saves;
 pub mod autoscroll;
 pub mod backstage;
@@ -34,6 +35,9 @@ pub mod control;
 pub mod credits;
 pub mod crop;
 pub mod desktop_theme;
+pub mod diagram_canvas;
+pub mod diagram_editor;
+pub mod diagram_sheet;
 pub mod dialogs;
 pub mod dialogs_chart;
 pub mod dialogs_controls;
@@ -66,6 +70,7 @@ pub mod objects;
 pub mod options;
 pub mod panes;
 pub mod paste_picture;
+pub mod pdf_templates;
 pub mod previews;
 pub mod print_page;
 pub mod printing;
@@ -92,6 +97,13 @@ use wordcraft_engine::Session;
 
 pub use control::ControlRequest;
 pub use file_dialogs::{FileDialogAnswer, FileDialogRequest, open_filters};
+
+/// A place for secrets the user asked to remember (the macOS Keychain…): read, store, forget.
+pub struct Secrets {
+    pub get: Box<dyn Fn(&str) -> Option<String>>,
+    pub set: Box<dyn Fn(&str, &str) -> Result<(), String>>,
+    pub forget: Box<dyn Fn(&str)>,
+}
 
 /// Platform services injected by the host (file dialogs, file I/O).
 #[derive(Default)]
@@ -128,6 +140,9 @@ pub struct Services {
     /// Web: told whether the document has unsaved changes after each pass, for the browser's
     /// leave-page guard (`beforeunload` runs between frames and can't ask the app).
     pub on_dirty: Option<Box<dyn Fn(bool)>>,
+    /// Plume: the system keychain, for forge access tokens (by forge API address). `None`: a
+    /// token lasts for the session only.
+    pub secrets: Option<Secrets>,
     /// Web: hand PDF bytes to the browser's print dialog (no download or intermediate file).
     /// Desktop uses `print_native` instead. An error means nothing was opened.
     pub print: Option<Box<dyn Fn(&[u8]) -> Result<(), String>>>,
@@ -243,6 +258,12 @@ pub struct UiState {
     /// Ribbon › Quick Access Toolbar) brings it back. Kept between runs.
     pub quick_access_toolbar: bool,
     pub recent: Vec<String>,
+    /// Plume: forges signed in to (their tokens are in the keychain), most recent first.
+    pub forge_accounts: Vec<dialogs::ForgeAccount>,
+    /// Plume: the OAuth application's client id used to sign in on each forge's page, by
+    /// `kind:host` (not a secret).
+    #[serde(default)]
+    pub forge_client_ids: std::collections::BTreeMap<String, String>,
     /// Symbols inserted from the Symbol dialog, most recent first (#321).
     pub recent_symbols: Vec<dialogs_insert::RecentSymbol>,
     /// Colours picked in the Colors dialog (More Colors…), most recent first (#606).
@@ -363,6 +384,8 @@ impl Default for UiState {
             ribbon_collapsed: false,
             quick_access_toolbar: true,
             recent: Vec::new(),
+            forge_accounts: Vec::new(),
+            forge_client_ids: Default::default(),
             recent_symbols: Vec::new(),
             recent_colors: Vec::new(),
             recent_fonts: Vec::new(),
@@ -509,6 +532,10 @@ pub struct WordApp {
     pub colors: Option<colors::ColorsDialog>,
     /// The Restrict Editing pane (#412).
     pub restrict: dialogs_review::RestrictPane,
+    /// File › Export › PDF with a template (Plume).
+    pub pdf_templates: pdf_templates::PdfTemplates,
+    /// Review › AI › Restructure Tables, and the model's settings (Plume).
+    pub ai_tables: ai_tables::AiTables,
     pub status_msg: Option<(String, f64)>,
     pub previews: previews::Previews,
     /// Media key of the picture a pending Change Picture replaces (#147).
@@ -615,6 +642,11 @@ pub struct WordApp {
     /// keystroke, so one visit's keystrokes make a single undo step (and anything else in
     /// between, such as an Undo, starts a new one).
     pub(crate) info_editing: Option<(&'static str, u64)>,
+    /// Plume: recent Markdown documents' titles (from their front matter), read once per path.
+    pub(crate) recent_titles: std::collections::HashMap<String, Option<String>>,
+    /// Plume: the Markdown source pane's text: the document's revision it was read at, the text,
+    /// and whether it was edited since.
+    pub(crate) md_source: Option<(u64, String, bool)>,
     recovery_seen: bool,
     /// Started on the Start screen with nothing to open (#1129): the id of the placeholder
     /// blank document the session holds until the user creates or opens one. While it is still
@@ -661,6 +693,8 @@ impl WordApp {
             dialog: None,
             colors: None,
             restrict: Default::default(),
+            pdf_templates: Default::default(),
+            ai_tables: Default::default(),
             status_msg: None,
             previews: previews::Previews::default(),
             integrated_titlebar: false,
@@ -717,6 +751,8 @@ impl WordApp {
             #[cfg(not(target_arch = "wasm32"))]
             file_browser: file_browser::State::default(),
             info_editing: None,
+            recent_titles: Default::default(),
+            md_source: None,
             recovery_seen: false,
             no_document: None,
             comment_drafts: Default::default(),
@@ -899,6 +935,20 @@ impl WordApp {
             self.select_inserted_picture(&r);
         }
         let r = system_clipboard::explain(self, id, r);
+        // Plume: tracking on a versioned document starts from its last version; say so.
+        if let Ok(v) = &r
+            && let Some(n) = v.get("sinceVersion").and_then(Value::as_u64)
+        {
+            self.status(if n == 0 {
+                tl!("No changes since the last version.").to_string()
+            } else {
+                i18n::fmt(tl!("Showing the changes since the last version ({n} paragraphs)."), &[("n", &n.to_string())])
+            });
+        } else if let Ok(v) = &r
+            && let Some(e) = v.get("sinceVersionError").and_then(Value::as_str)
+        {
+            self.status(i18n::fmt(tl!("Tracking from now on: the last version can't be read ({error})."), &[("error", e)]));
+        }
         // Check Accessibility shows its findings in the Accessibility pane, kept up to date there.
         if id == "file.accessibility" && r.is_ok() {
             self.session.view.accessibility_pane = true;
@@ -969,7 +1019,14 @@ impl WordApp {
             let password =
                 if matches!(id, "file.save" | "file.saveAs") { self.session.password.as_ref().map(wordcraft_engine::Password::as_str) } else { None };
             let opts = wordcraft_engine::cmd::file::export_options(&self.session, &params);
-            let bytes = wordcraft_engine::io::save_bytes_with(&name, &self.session.doc, password, &opts)?;
+            // Markdown as the document's own format: the native copy, with its pictures in a
+            // zip beside it when it has any.
+            let native_md = self.session.native_markdown && matches!(id, "file.save" | "file.saveAs") && is_markdown_name(&name);
+            let (name, bytes) = if native_md {
+                wordcraft_engine::io::markdown_download(&name, &self.session.doc)?
+            } else {
+                (name.clone(), wordcraft_engine::io::save_bytes_with(&name, &self.session.doc, password, &opts)?)
+            };
             // A ticket left over from an earlier call isn't this save's.
             let saves = self.services.async_saves.clone();
             if let Some(saves) = &saves {
@@ -985,7 +1042,7 @@ impl WordApp {
             }
             // An export is a copy, and so is a save in a format that doesn't keep everything (a
             // page image, plain text): the document itself still has unsaved changes.
-            let marked_saved = matches!(id, "file.save" | "file.saveAs") && keeps_everything(&name);
+            let marked_saved = matches!(id, "file.save" | "file.saveAs") && (keeps_everything(&name) || native_md);
             if marked_saved {
                 self.session.dirty = false;
             }
@@ -1041,12 +1098,27 @@ impl WordApp {
         }
         if let Ok(v) = &r {
             self.keep_web_font(id, &params, v);
+            self.say_adaptations(id, v);
         }
         self.after_command(id);
         if let Err(e) = &r {
             self.status(e.clone());
         }
         r
+    }
+
+    /// After an import or a Markdown save, say in the status bar what Markdown couldn't hold.
+    fn say_adaptations(&mut self, id: &str, result: &Value) {
+        if !matches!(id, "file.open" | "file.save" | "file.saveAs") {
+            return;
+        }
+        let lines: Vec<&str> =
+            result.get("adapted").and_then(Value::as_array).map(|a| a.iter().filter_map(Value::as_str).collect()).unwrap_or_default();
+        if lines.is_empty() {
+            return;
+        }
+        let what = if id == "file.open" { tl!("Imported as Markdown") } else { tl!("Saved as Markdown") };
+        self.status(format!("{what} — {}", lines.join("; ")));
     }
 
     /// Web: store a font added from bytes, or forget the removed ones ([`Services::store_font`]).
@@ -1193,8 +1265,12 @@ impl WordApp {
         self.saves_in_flight.iter().any(|s| s.marked_saved && s.document == document)
     }
 
-    /// The document's name as the Save Changes prompt shows it: its file's name, else its title.
+    /// The document's name as the Save Changes prompt shows it: a Markdown document's title, else
+    /// its file's name, else its title.
     fn prompt_name(&self) -> String {
+        if self.session.is_markdown() && !self.session.doc.core.title.trim().is_empty() {
+            return self.display_title();
+        }
         self.session.path.as_ref().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| self.title_stem())
     }
 
@@ -1396,6 +1472,13 @@ impl WordApp {
         if let Some(what) = req.get("open").and_then(Value::as_str) {
             match what {
                 "openFile" => self.open_dialog(),
+                // Plume: saving a document that has no file yet goes to File › Save As (as in
+                // Word), which offers the forges beside the computer. (In the browser, a save is
+                // a download.)
+                "saveAs" if self.session.path.is_none() && self.services.download.is_none() => {
+                    self.ui.backstage = true;
+                    self.ui.backstage_page = "saveAs".into();
+                }
                 "saveAs" => {
                     self.save_as_dialog();
                 }
@@ -1488,6 +1571,10 @@ impl WordApp {
                 }
                 self.colors = Some(d);
                 json!({"dialog": "colors"})
+            }
+            "ui.dialog" if s("name") == Some("aiTables") => {
+                self.ai_tables.open = true;
+                json!({"dialog": "aiTables"})
             }
             "ui.dialog" => {
                 self.dialog = dialogs::Dialog::open(s("name").unwrap_or(""), self);
@@ -1676,13 +1763,8 @@ impl WordApp {
             // MCP get an error.
             "ui.makeDefaultApp" => {
                 return Some(Err(
-                    "making WordCraft the default app needs a click in File › Options › General; scripts and agents can't change system defaults"
-                        .into(),
+                    "making Plume the default app needs a click in File › Options › General; scripts and agents can't change system defaults".into(),
                 ));
-            }
-            "ui.discord" => {
-                self.canvas.open_url = Some("https://discord.gg/artcraft".into());
-                json!({})
             }
             "ui.caretAnimation" => {
                 // File › Options › Advanced › Animation: `value` true or false turns the caret's
@@ -1743,20 +1825,20 @@ impl WordApp {
     /// command, so nothing programmatic (control channel, MCP, macros) can change system defaults.
     pub(crate) fn make_default_app(&mut self) -> Result<Value, String> {
         let Some(hook) = self.services.make_default_app.as_ref() else {
-            return Err("WordCraft can't change the default apps here; use your system's settings".into());
+            return Err("Plume can't change the default apps here; use your system's settings".into());
         };
         match hook() {
             Ok(DefaultApp::SettingsOpened) => {
-                self.status(tl!("In Default apps, choose WordCraft for the document types you want it to open."));
+                self.status(tl!("In Default apps, choose Plume for the document types you want it to open."));
                 Ok(json!({"settingsOpened": true}))
             }
             Ok(DefaultApp::MadeDefault) => {
-                self.status(tl!("WordCraft is now the default app for Word documents."));
+                self.status(tl!("Plume is now the default app for Word documents."));
                 Ok(json!({"default": true}))
             }
             Err(e) => {
                 log::warn!("make default app: {e}");
-                let msg = i18n::fmt(tl!("Couldn't make WordCraft the default: {error}"), &[("error", &e)]);
+                let msg = i18n::fmt(tl!("Couldn't make Plume the default: {error}"), &[("error", &e)]);
                 self.status(msg.clone());
                 Err(msg)
             }
@@ -1856,6 +1938,11 @@ impl WordApp {
     fn default_save_name(&self) -> String {
         let ext = self.session.path.as_ref().and_then(|p| p.extension()).map(|e| e.to_string_lossy().to_string());
         match ext {
+            // Markdown is the document's own format: everything else saves as a new `.md`.
+            Some(e) if self.session.native_markdown && wordcraft_engine::io::is_markdown_ext(&e) => {
+                format!("{}.{e}", self.title_stem())
+            }
+            _ if self.session.native_markdown => format!("{}.md", self.title_stem()),
             Some(e) if wordcraft_engine::io::is_word_package(&e) => format!("{}.{e}", self.title_stem()),
             _ => format!("{}.docx", self.title_stem()),
         }
@@ -1909,6 +1996,16 @@ impl WordApp {
         }
     }
 
+    /// The document's name as the window shows it. Plume: a Markdown document's title from its
+    /// front matter, as Office shows a document's name; else the file's ([`Self::title_stem`]).
+    pub fn display_title(&self) -> String {
+        let title = self.session.doc.core.title.trim();
+        if self.session.is_markdown() && !title.is_empty() {
+            return title.chars().take(120).collect();
+        }
+        self.title_stem()
+    }
+
     /// Document title for the title bar (and the suggested file name). An untitled document is
     /// named in the interface language, as `Document1` is in English.
     pub fn title_stem(&self) -> String {
@@ -1940,6 +2037,7 @@ impl WordApp {
 
     /// Per-frame logic before layout: control requests, screenshots, shortcuts, file drops.
     pub fn logic(&mut self, ctx: &egui::Context) {
+        pdf_templates::tick(self, ctx);
         let lang = i18n::Lang::from_pref(&self.ui.language);
         i18n::set_current(lang);
         // New documents are written in the interface's language when WordCraft can proof it
@@ -2112,7 +2210,7 @@ impl WordApp {
             return Some(AutoSaveBlock::Browser);
         }
         let Some(path) = &self.session.path else { return Some(AutoSaveBlock::Unsaved) };
-        if !keeps_everything(&path.to_string_lossy()) {
+        if !keeps_everything(&path.to_string_lossy()) && !(self.session.native_markdown && is_markdown_name(&path.to_string_lossy())) {
             let name = path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
             return Some(AutoSaveBlock::Format { name });
         }
@@ -2238,6 +2336,7 @@ impl WordApp {
         colors::show(self, &ctx);
         zotero::show_alert(self, &ctx);
         read_aloud::show(self, &ctx);
+        ai_tables::show(self, &ctx);
         crate::keytips::show(self, &ctx, ui);
         keys::global_shortcuts(self, &ctx);
         self.refocus_after_chrome_click(&ctx);
@@ -2245,9 +2344,9 @@ impl WordApp {
             ctx.open_url(egui::OpenUrl::new_tab(url));
         }
         let title = if self.has_document() {
-            format!("{}{} - WordCraft", self.title_stem(), if self.session.dirty { " •" } else { "" })
+            format!("{}{} - {}", self.display_title(), if self.session.dirty { " •" } else { "" }, wordcraft_brand::APP_NAME)
         } else {
-            "WordCraft".to_string()
+            wordcraft_brand::APP_NAME.to_string()
         };
         if title != self.sent_title {
             ctx.send_viewport_cmd(egui::ViewportCommand::Title(title.clone()));
@@ -2487,6 +2586,12 @@ pub fn keeps_everything(name: &str) -> bool {
     matches!(ext.as_str(), "docx" | "docm" | "dotx" | "dotm" | "odt" | "rtf" | "json" | "xml")
 }
 
+/// Whether `name` is a Markdown file (`.md`, `.markdown`): the document's own format when
+/// [`wordcraft_engine::Session::native_markdown`] is on.
+pub fn is_markdown_name(name: &str) -> bool {
+    wordcraft_engine::io::is_markdown_name(name)
+}
+
 /// The dialog a user-run command opens when it lacks the input it needs (scripts and agents get
 /// the command's own error or default instead): Select Recipients and Edit Recipient List without
 /// data, Insert Merge Field without a field, Find Recipient without text, the If and Skip
@@ -2585,6 +2690,10 @@ pub(crate) fn works_without_document(id: &str) -> bool {
         id,
         "file.new"
             | "file.open"
+            | "forge.open"
+            | "forge.signIn"
+            | "forge.signOut"
+            | "markdown.strict"
             | "file.close"
             | "file.options"
             | "file.setAuthor"
@@ -2615,7 +2724,6 @@ pub(crate) fn works_without_document(id: &str) -> bool {
             | "ui.openFileDialog"
             | "ui.fileBrowser"
             | "ui.makeDefaultApp"
-            | "ui.discord"
             | "ui.caretAnimation"
             | "ui.startScreen"
     ) || id.starts_with("help.")
@@ -2691,6 +2799,10 @@ fn control_click_as_secondary(events: &mut [egui::Event], held: &mut bool) {
 
 #[cfg(test)]
 mod tests_perf;
+#[cfg(test)]
+mod tests_plume;
+#[cfg(test)]
+pub(crate) use backstage::recent_title as backstage_recent_title;
 
 #[cfg(test)]
 mod tests {
@@ -2970,12 +3082,12 @@ mod tests {
         let a = h.state_mut();
         assert!(!a.ui.backstage, "Esc leaves the Start screen");
         assert!(!a.has_document(), "for an empty window, not a blank document");
-        assert_eq!(a.sent_title, "WordCraft", "the window is titled with the app alone");
+        assert_eq!(a.sent_title, wordcraft_brand::APP_NAME, "the window is titled with the app alone");
         // The ribbon's commands are off, but Help, the File tab and the settings work.
         for id in ["format.bold", "text.insert", "file.save", "file.saveAs", "file.print", "edit.paste", "insert.table", "ui.print"] {
             assert!(!widgets::enabled(a, id), "{id} is off with no document");
         }
-        for id in ["file.new", "file.open", "ui.backstage", "ui.tab", "ui.discord", "file.options", "ui.theme"] {
+        for id in ["file.new", "file.open", "ui.backstage", "ui.tab", "file.options", "ui.theme"] {
             assert!(widgets::enabled(a, id), "{id} works with no document");
         }
         assert!(!chrome::qat_enabled(a, "file.save"));
@@ -5322,7 +5434,7 @@ mod tests {
     #[test]
     fn the_default_app_button_shows_only_with_the_hosts_hook() {
         use egui_kittest::kittest::Queryable;
-        const LABEL: &str = "Make WordCraft the default for Word documents…";
+        const LABEL: &str = "Make Plume the default for Word documents…";
         for hook in [false, true] {
             let calls = std::rc::Rc::new(std::cell::Cell::new(0));
             let mut a = app();
@@ -5343,7 +5455,7 @@ mod tests {
                 a,
             );
             h.run_steps(4);
-            assert!(h.query_by_label("Show the community button in the title bar").is_some(), "hook {hook}: the Options page rendered");
+            assert!(h.query_by_label("Show the Start screen when Plume starts").is_some(), "hook {hook}: the Options page rendered");
             assert_eq!(h.query_by_label(LABEL).is_some(), hook, "hook {hook}: the button");
             if hook {
                 h.get_by_label(LABEL).click();

@@ -172,13 +172,34 @@ fn keytip_badge(ui: &Ui, rect: Rect, id: &str, name: &str) {
 }
 
 /// Whether a command exists and is enabled.
+/// Plume's Markdown profile: command `id` is Office-only, so its button and menu item are not
+/// drawn at all (rather than greyed out).
+pub fn hidden(app: &WordApp, id: &str) -> bool {
+    !id.is_empty() && wordcraft_engine::plume::is_office(id) && app.session.markdown_blocks(id).is_some()
+}
+
+/// Plume's Markdown profile is on for this document (`markdown.strict`, a Markdown document).
+pub fn profile_on(app: &WordApp) -> bool {
+    app.session.prefs.markdown_strict && app.session.is_markdown()
+}
+
+/// Plume's Markdown profile: ribbon tab `name` holds only Office commands.
+pub fn tab_hidden(app: &WordApp, name: &str) -> bool {
+    wordcraft_engine::plume::is_office_tab(name) && profile_on(app)
+}
+
+/// A response for a control that isn't drawn (nothing allocated, never clicked).
+fn nothing(ui: &mut Ui) -> Response {
+    ui.allocate_exact_size(vec2(0.0, 0.0), Sense::hover()).1
+}
+
 pub fn enabled(app: &WordApp, id: &str) -> bool {
     // No document open (#1129): only what opens one, Help and the settings.
     if !app.has_document() && !crate::works_without_document(id) {
         return false;
     }
     match app.session.registry.get(id) {
-        Some(s) => (s.enabled)(&app.session).is_none(),
+        Some(s) => (s.enabled)(&app.session).is_none() && app.session.markdown_blocks(id).is_none(),
         // Zotero: one command at a time, and only in the desktop app.
         None if id.starts_with("ui.zotero.") => app.zotero.busy.is_none() && !cfg!(target_arch = "wasm32"),
         None if id == "ui.linkTextBox" => enabled(app, "shape.link"),
@@ -243,6 +264,9 @@ pub fn label_line(ui: &Ui, cx: f32, y: f32, text: &str, font: egui::FontId, colo
 
 #[allow(clippy::too_many_arguments)]
 fn big_button(ui: &mut Ui, app: &mut WordApp, icon: &str, label: &str, id: &str, params: Value, menu: bool, checked: bool) -> Response {
+    if hidden(app, id) {
+        return nothing(ui);
+    }
     let label = tl!(label);
     let t = Tokens::get(ui.ctx());
     let galley_w =
@@ -271,6 +295,9 @@ fn big_button(ui: &mut Ui, app: &mut WordApp, icon: &str, label: &str, id: &str,
 
 /// A small button: 16 px icon with an optional label; `checked` draws the toggled state.
 pub fn small(ui: &mut Ui, app: &mut WordApp, icon: &str, label: Option<&str>, tip: &str, id: &str, params: Value, checked: bool) -> Response {
+    if hidden(app, id) {
+        return nothing(ui);
+    }
     let (label, tip) = (label.map(|l| tl!(l)), tl!(tip));
     // A compact group (#662) shows only the icon; the tooltip keeps the name.
     let label = label.filter(|_| !crate::ribbon_fit::compact(ui.ctx()));
@@ -307,6 +334,9 @@ pub fn split(
     swatch: Option<Color32>,
     menu: impl FnOnce(&mut Ui, &mut WordApp),
 ) {
+    if hidden(app, id) {
+        return;
+    }
     let tip = tl!(tip);
     let t = Tokens::get(ui.ctx());
     let (r, resp) = ui.allocate_exact_size(vec2(24.0, 22.0), Sense::click());
@@ -356,6 +386,9 @@ pub fn menu_button(
     id: &str,
     menu: impl FnOnce(&mut Ui, &mut WordApp),
 ) {
+    if hidden(app, id) {
+        return;
+    }
     let (label, tip) = (label.map(|l| tl!(l)), tl!(tip));
     let label = label.filter(|_| big_btn || !crate::ribbon_fit::compact(ui.ctx()));
     let t = Tokens::get(ui.ctx());
@@ -414,7 +447,13 @@ thread_local! {
 }
 
 /// A ribbon group: content, a centred label below and a divider on the right.
+/// Plume's Markdown profile: ribbon groups whose every command is Office-only, not drawn.
+const OFFICE_GROUPS: [&str; 7] = ["Pages", "Header & Footer", "Research", "Captions", "Index", "Table of Authorities", "Compare"];
+
 pub fn group(ui: &mut Ui, title: &str, launcher: Option<&str>, app: &mut WordApp, add: impl FnOnce(&mut Ui, &mut WordApp)) {
+    if OFFICE_GROUPS.contains(&title) && profile_on(app) {
+        return;
+    }
     // The English title keys the launcher's id; the drawn title is translated.
     group_titled(ui, title, tl!(title), launcher, app, add);
 }

@@ -7,13 +7,13 @@
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleDisplayName</key>
-  <string>WordCraft</string>
+  <string>Plume</string>
   <key>CFBundleName</key>
-  <string>WordCraft</string>
+  <string>Plume</string>
   <key>CFBundleExecutable</key>
-  <string>WordCraft</string>
+  <string>Plume</string>
   <key>CFBundleIdentifier</key>
-  <string>ai.storyteller.wordcraft</string>
+  <string>io.github.thelazygeekguy.plume</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundlePackageType</key>
@@ -29,7 +29,7 @@
   <key>WordCraftBuildCommit</key>
   <string>@BUILD_SHA@</string>
   <key>CFBundleIconFile</key>
-  <string>WordCraft</string>
+  <string>Plume</string>
   <key>LSApplicationCategoryType</key>
   <string>public.app-category.productivity</string>
   <!-- Must match MACOSX_DEPLOYMENT_TARGET in package.sh. Big Sur is the first release on
@@ -43,9 +43,9 @@
   <key>NSRequiresAquaSystemAppearance</key>
   <false/>
   <key>NSHumanReadableCopyright</key>
-  <string>Copyright © the WordCraft authors. MIT OR Apache-2.0.</string>
+  <string>Copyright © the Plume contributors and the WordCraft authors. MIT OR Apache-2.0.</string>
 
-  <!-- Documents WordCraft opens (system type declarations). -->
+  <!-- Documents Plume opens (system type declarations). -->
   <key>CFBundleDocumentTypes</key>
   <array>
     <dict>
@@ -66,6 +66,73 @@
         <string>public.html</string>
         <string>public.plain-text</string>
       </array>
+    </dict>
+    <!-- Markdown with its pictures (textbundle.org): a package folder, or one ZIP file. -->
+    <dict>
+      <key>CFBundleTypeName</key>
+      <string>TextBundle</string>
+      <key>CFBundleTypeRole</key>
+      <string>Editor</string>
+      <key>LSHandlerRank</key>
+      <string>Alternate</string>
+      <key>LSTypeIsPackage</key>
+      <true/>
+      <key>LSItemContentTypes</key>
+      <array>
+        <string>org.textbundle.package</string>
+      </array>
+    </dict>
+    <dict>
+      <key>CFBundleTypeName</key>
+      <string>TextPack</string>
+      <key>CFBundleTypeRole</key>
+      <string>Editor</string>
+      <key>LSHandlerRank</key>
+      <string>Alternate</string>
+      <key>LSItemContentTypes</key>
+      <array>
+        <string>org.textbundle.compressed</string>
+      </array>
+    </dict>
+  </array>
+
+  <!-- The TextBundle types, as textbundle.org declares them, for systems that don't know them. -->
+  <key>UTImportedTypeDeclarations</key>
+  <array>
+    <dict>
+      <key>UTTypeIdentifier</key>
+      <string>org.textbundle.package</string>
+      <key>UTTypeDescription</key>
+      <string>TextBundle</string>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>com.apple.package</string>
+        <string>public.composite-content</string>
+      </array>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key>
+        <array>
+          <string>textbundle</string>
+        </array>
+      </dict>
+    </dict>
+    <dict>
+      <key>UTTypeIdentifier</key>
+      <string>org.textbundle.compressed</string>
+      <key>UTTypeDescription</key>
+      <string>TextPack</string>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>com.pkware.zip-archive</string>
+      </array>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key>
+        <array>
+          <string>textpack</string>
+        </array>
+      </dict>
     </dict>
   </array>
 </dict>

@@ -424,7 +424,7 @@ impl Writer {
                     prev_space = false;
                 }
                 Inline::Anchor(a) => out.push_str(&format!("<text:bookmark text:name=\"{}\"/>", x(a))),
-                Inline::Figure(_) | Inline::Equation { .. } => {}
+                Inline::Figure(_) | Inline::Equation { .. } | Inline::Note { .. } | Inline::Comment { .. } | Inline::Drawing(_) => {}
             }
         }
     }
@@ -874,8 +874,10 @@ fn styles_xml(pages: &[(String, wordcraft_doc::SectionProps)], body_font: &str) 
 }
 
 fn meta_xml(m: &Meta) -> String {
-    let mut s =
-        format!("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<office:document-meta {NS}><office:meta><meta:generator>WordCraft</meta:generator>");
+    let mut s = format!(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<office:document-meta {NS}><office:meta><meta:generator>{}</meta:generator>",
+        wordcraft_brand::APP_NAME
+    );
     if !m.title.is_empty() {
         s.push_str(&format!("<dc:title>{}</dc:title>", x(&m.title)));
     }
@@ -2433,7 +2435,7 @@ fn parse_tracked(bytes: &[u8]) -> Result<(Flow, SectionProps, Option<bool>, Opti
         blocks.push(FBlock::Para(Para::default()));
     }
     let track = body.track;
-    Ok((Flow { blocks, meta }, last, track, styles.doc_font()))
+    Ok((Flow { blocks, meta, comments: Vec::new() }, last, track, styles.doc_font()))
 }
 
 /// Parse an `.odt` package into a document.

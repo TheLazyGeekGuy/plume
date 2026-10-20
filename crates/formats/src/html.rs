@@ -1306,7 +1306,7 @@ impl<'r> Builder<'r> {
         if let Some(t) = self.title.take() {
             self.meta.title = t;
         }
-        Flow { blocks, meta: self.meta }
+        Flow { blocks, meta: self.meta, comments: Vec::new() }
     }
 }
 
@@ -1567,6 +1567,8 @@ pub fn inlines_html(inlines: &[Inline]) -> String {
             Inline::Anchor(a) => o.push_str(&format!("<a id=\"{}\"></a>", esc(a))),
             // No picture to show: the browser shows the alt text in its place.
             Inline::Figure(alt) => o.push_str(&format!("<img alt=\"{}\">", esc(alt))),
+            Inline::Drawing(_) => {}
+            Inline::Note { .. } | Inline::Comment { .. } => {}
             // MathML, which browsers, Word and LibreOffice show as an equation (#816).
             Inline::Equation { linear, display } => o.push_str(&crate::mathml::linear_to_mathml(linear, *display)),
         }
@@ -1761,7 +1763,7 @@ pub fn export_flow(flow: &Flow, lang: &str) -> String {
     let mut out = String::new();
     out.push_str("<!DOCTYPE html>\n");
     out.push_str(&format!("<html lang=\"{}\">\n<head>\n<meta charset=\"utf-8\">\n", esc(lang)));
-    out.push_str("<meta name=\"generator\" content=\"WordCraft\">\n");
+    out.push_str(&format!("<meta name=\"generator\" content=\"{}\">\n", wordcraft_brand::APP_NAME));
     out.push_str(&format!("<title>{}</title>\n", esc(&m.title)));
     for (k, v) in [("author", &m.author), ("description", &m.description), ("keywords", &m.keywords), ("subject", &m.subject)] {
         if !v.is_empty() {

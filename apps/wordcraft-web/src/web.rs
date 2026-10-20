@@ -9,7 +9,7 @@ use wordcraft_engine::Session;
 use wordcraft_ui_egui::async_saves::{AsyncSaves, SaveOutcome};
 use wordcraft_ui_egui::{Inbox, Services, WordApp};
 
-const DOC_EXTS: &[&str] = &["docx", "docm", "dotx", "dotm", "doc", "dot", "odt", "rtf", "txt", "md", "html", "htm", "tex", "json", "xml"];
+const DOC_EXTS: &[&str] = &["docx", "docm", "dotx", "dotm", "doc", "dot", "odt", "rtf", "txt", "md", "textpack", "html", "htm", "tex", "json", "xml"];
 const IMAGE_EXTS: &[&str] = &["png", "jpg", "jpeg", "gif", "webp", "bmp", "wmf", "emf"];
 const RECIPIENT_EXTS: &[&str] = wordcraft_engine::cmd::mailings::RECIPIENT_EXTENSIONS;
 mod font_store;
@@ -59,6 +59,8 @@ pub fn start() {
                     let sample = query().contains("sample");
                     let doc = if sample { wordcraft_engine::sample::sample_document() } else { wordcraft_engine::blank_document(&region) };
                     let mut session = Session::new(doc);
+                    // Plume: Markdown is the document's own format.
+                    session.native_markdown = true;
                     session.system_region = region;
                     let messages = Rc::new(RefCell::new(Vec::new()));
                     let mut app = WordApp::new(session, services(inbox.clone(), cc.egui_ctx.clone(), dirty, saves.clone(), messages.clone()));
@@ -86,7 +88,10 @@ pub fn start() {
         if let Some(el) = document.get_element_by_id(LOADING_ID) {
             match result {
                 Ok(()) => el.remove(),
-                Err(e) => el.set_inner_html(&format!("<p>WordCraft failed to start: {e:?}</p><p>A browser with WebGPU or WebGL2 is required.</p>")),
+                Err(e) => el.set_inner_html(&format!(
+                    "<p>{} failed to start: {e:?}</p><p>A browser with WebGPU or WebGL2 is required.</p>",
+                    wordcraft_brand::APP_NAME
+                )),
             }
         }
     });
@@ -615,6 +620,7 @@ fn mime_for(name: &str) -> &'static str {
         Some("rtf") => "application/rtf",
         Some("html") => "text/html",
         Some("md" | "txt") => "text/plain",
+        Some("textpack") => "application/zip",
         Some("tex") => "application/x-tex",
         Some("json") => "application/json",
         Some("xml") => "application/xml",

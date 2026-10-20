@@ -1,0 +1,89 @@
+name: Upstream sync
+
+# Plume follows storytold/wordcraft by merging it (never rebasing): every Monday, and on demand,
+# upstream's main is merged into a sync branch and a pull request opens against main. A merge
+# that conflicts opens an issue listing the files instead. See docs/plume/sync.md.
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      UPSTREAM: https://github.com/storytold/wordcraft.git
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Merge upstream main
+        id: merge
+        run: |
+          git config user.name "plume-sync[bot]"
+          git config user.email "plume-sync@users.noreply.github.com"
+          git remote add upstream "$UPSTREAM"
+          git fetch --no-tags upstream main
+          behind=$(git rev-list --count HEAD..upstream/main)
+          echo "behind=$behind" >> "$GITHUB_OUTPUT"
+          if [ "$behind" = 0 ]; then
+            echo "main already has upstream's commits"
+            exit 0
+          fi
+          branch="sync/upstream-$(date -u +%Y%m%d)"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          git switch -c "$branch"
+          # .gitattributes merges the interface catalogues as a union.
+          if git merge --no-ff --no-edit upstream/main -m "Merge upstream WordCraft ($behind commits)"; then
+            echo "clean=true" >> "$GITHUB_OUTPUT"
+          else
+            git diff --name-only --diff-filter=U > conflicts.txt
+            git merge --abort
+            echo "clean=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open the pull request
+        if: steps.merge.outputs.clean == 'true'
+        run: |
+          branch='${{ steps.merge.outputs.branch }}'
+          git push --force-with-lease origin "$branch"
+          if gh pr list --head "$branch" --state open --json number --jq '.[0].number' | grep -q .; then
+            echo "pull request already open"
+            exit 0
+          fi
+          gh pr create --base main --head "$branch" \
+            --title "Sync upstream WordCraft (${{ steps.merge.outputs.behind }} commits)" \
+            --body "Merges storytold/wordcraft's main into Plume's main (a merge commit, not a squash: keep the shared history).
+
+          Before merging: run \`cargo xtask ci\` (this pull request was opened by a workflow, so other workflows don't run on it).
+
+          See docs/plume/sync.md."
+
+      - name: Report the conflicts
+        if: steps.merge.outputs.clean == 'false'
+        run: |
+          bt=$(printf '\140')
+          files=$(sed "s/^/- ${bt}/; s/\$/${bt}/" conflicts.txt)
+          title="Upstream sync needs a hand (${{ steps.merge.outputs.behind }} commits)"
+          if gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number' | grep -q .; then
+            echo "issue already open"
+            exit 0
+          fi
+          gh issue create --title "$title" --body "Merging storytold/wordcraft's main into main conflicts in:
+
+          $files
+
+          Resolve by hand, as docs/plume/sync.md describes: \`git fetch upstream && git merge upstream/main\` on a branch, then a pull request into main."

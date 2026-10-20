@@ -1,6 +1,6 @@
 # Serbian, Latin script (sr-latn) interface catalog. Columns, separated by a TAB:
 #   context <TAB> English source <TAB> translation
-#   context    empty (WordCraft uses no contexts yet)
+#   context    empty (Plume uses no contexts yet)
 #   source     the English text exactly as in the code (tl!(...), ribbon labels, command labels)
 #   escapes    \n  \t  \\  inside a column. `{name}` placeholders must appear in both columns, and a
 #              trailing "…" in one needs one in the other.
@@ -9,16 +9,18 @@
 # Clean room: every entry was written from the plain meaning of the English label in ordinary
 # computing vocabulary. No Microsoft Word (or other product) localisation, string table or
 # translated UI was consulted or copied; add entries the same way.
-# Product, format and technology names (WordCraft, PDF, Markdown, MCP …) stay in Latin letters.
+# Product, format and technology names (Plume, PDF, Markdown, MCP …) stay in Latin letters.
 
 	(no style)	(bez stila)
 	(no suggestions)	(nema predloga)
 	(picture or object)	(slika ili objekat)
 	1.5 Line Spacing	Proređenost 1,5
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	Besplatan, otvoreni obrađivač teksta napisan od nule u Rust-u.\nDeo Crafting Apps paketa tima ArtCraft.
+	A free, open-source word processor written in Rust, with Markdown as its native format.	Besplatan program za obradu teksta otvorenog koda, napisan u Rust-u, sa Markdown-om kao izvornim formatom.
+	Plume — based on WordCraft by the ArtCraft team.	Plume — zasnovan na WordCraft-u tima ArtCraft.
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	A password is required to open this document.	Za otvaranje ovog dokumenta potrebna je lozinka.
 	About	O programu
-	About WordCraft	O WordCraft-u
+	About Plume	O Plume-u
 	Accept	Prihvati
 	Accept All Changes	Prihvati sve izmene
 	Accept This Change	Prihvati ovu izmenu
@@ -80,7 +82,7 @@
 	Automatic Table 1 (3 levels)	Automatska tabela 1 (3 nivoa)
 	Automatic Table 2 (2 levels)	Automatska tabela 2 (2 nivoa)
 	AutoSave	Automatsko čuvanje
-	AutoSave documents you have saved in WordCraft	Automatski čuvaj dokumente koje ste već sačuvali u WordCraft-u
+	AutoSave documents you have saved in Plume	Automatski čuvaj dokumente koje ste već sačuvali u Plume-u
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	Automatsko čuvanje neuspelo: {error}. Sačuvajte dokument da biste ga ponovo uključili.
 	Balloons	Oblačići
 	Bottom Margin	Donja margina
@@ -104,7 +106,7 @@
 	Color: {color}	Boja: {color}
 	Compress punctuation at the start of a line	Sažmi interpunkciju na početku reda
 	Confirm password:	Potvrdite lozinku:
-	Couldn't make WordCraft the default: {error}	WordCraft nije mogao da postane podrazumevana aplikacija: {error}
+	Couldn't make Plume the default: {error}	Plume nije mogao da postane podrazumevana aplikacija: {error}
 	Custom dictionary	Prilagođeni rečnik
 	Dark page (white text on black)	Tamna stranica (beo tekst na crnom)
 	Drag a rectangle to draw a table, or a line across cells to split them. Esc stops.	Prevucite pravougaonik da nacrtate tabelu ili liniju preko ćelija da ih podelite. Esc završava.
@@ -152,10 +154,10 @@
 	Number style for this level:	Stil broja za ovaj nivo:
 	Only for the selected text	Samo za izabrani tekst
 	Outside border	Spoljna ivica
-	In Default apps, choose WordCraft for the document types you want it to open.	U podrazumevanim aplikacijama izaberite WordCraft za vrste dokumenata koje želite da otvara.
-	Make WordCraft the default for Word documents…	Postavi WordCraft kao podrazumevanu aplikaciju za Word dokumente…
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	Od sada će se .docx, .doc, .rtf i .odt datoteke i Word šabloni otvarati u WordCraft-u.
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	Otvara Podešavanja › Podrazumevane aplikacije, gde birate WordCraft za .docx i druge vrste dokumenata.
+	In Default apps, choose Plume for the document types you want it to open.	U podrazumevanim aplikacijama izaberite Plume za vrste dokumenata koje želite da otvara.
+	Make Plume the default for Word documents…	Postavi Plume kao podrazumevanu aplikaciju za Word dokumente…
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	Od sada će se .docx, .doc, .rtf i .odt datoteke i Word šabloni otvarati u Plume-u.
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	Otvara Podešavanja › Podrazumevane aplikacije, gde birate Plume za .docx i druge vrste dokumenata.
 	Overtype	Prepisivanje
 	Overtype (typing replaces the characters after the caret)	Prepisivanje (otkucano zamenjuje znakove posle kursora)
 	Show alignment guides when moving pictures and shapes	Prikazuj vodilje za poravnanje pri pomeranju slika i oblika
@@ -183,7 +185,7 @@
 	Glow Colors	Boje sjaja
 	Hide from style lists	Sakrij sa lista stilova
 	Indents and Spacing	Uvlačenja i razmaci
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	Čuvajte lozinku na sigurnom mestu: bez nje niko, pa ni WordCraft, ne može da otvori dokument. Ostavite oba polja prazna da biste uklonili lozinku.
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Čuvajte lozinku na sigurnom mestu: bez nje niko, pa ni Plume, ne može da otvori dokument. Ostavite oba polja prazna da biste uklonili lozinku.
 	Line breaking	Prelom redova
 	Linked style (paragraph and character)	Povezani stil (pasus i znakovi)
 	Manage Styles	Upravljanje stilovima
@@ -336,7 +338,6 @@
 	Comment	Komentar
 	Comments	Komentari
 	Comments Pane	Okno komentara
-	Community\nDiscord	Zajednica\nna Discord-u
 	Compact	Sažeto
 	Compare	Upoređivanje
 	Compress Pictures	Kompresuj slike
@@ -383,16 +384,14 @@
 	Delete Style	Obriši stil
 	Delete Table	Obriši tabelu
 	Design	Dizajn
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	Da bi se Word dokumenti podrazumevano otvarali u WordCraft-u: izaberite jedan u Finder-u, izaberite Datoteka › Prikaži informacije, pod „Otvori pomoću” izaberite WordCraft, pa kliknite „Promeni sve”.
-	WordCraft is now the default app for Word documents.	WordCraft je sada podrazumevana aplikacija za Word dokumente.
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	Da bi se Word dokumenti podrazumevano otvarali u Plume-u: izaberite jedan u Finder-u, izaberite Datoteka › Prikaži informacije, pod „Otvori pomoću” izaberite Plume, pa kliknite „Promeni sve”.
+	Plume is now the default app for Word documents.	Plume je sada podrazumevana aplikacija za Word dokumente.
 	development build	razvojna verzija
 	Diagonal	Dijagonalno
 	Diamond	Dijamant
 	Dictate	Diktiranje
 	Different First Page	Drugačija prva strana
 	Different Odd & Even Pages	Drugačije neparne i parne strane
-	Discord	Discord
-	Discord community	Zajednica na Discord-u
 	Display	Prikaz
 	Display for Review	Prikaz za pregled
 	Distribute Columns	Ravnomerno razmesti kolone
@@ -551,8 +550,6 @@
 	Inspect Document	Pregledaj dokument
 	Interface language:	Jezik interfejsa:
 	Italic	Kurziv
-	Join the ArtCraft community on Discord	Pridružite se ArtCraft zajednici na Discord-u
-	Join us on Discord: discord.gg/artcraft	Pridružite nam se na Discord-u: discord.gg/artcraft
 	Justify	Obostrano poravnanje
 	Keep Lines Together	Zadrži redove zajedno
 	Keep lines together	Zadrži redove zajedno
@@ -563,7 +560,7 @@
 	Landscape	Položeno
 	Language	Jezik
 	{language} (no dictionary)	{language} (nema rečnika)
-	No spelling dictionary for {language} is installed, so it isn't checked. WordCraft looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Pravopisni rečnik za {language} nije instaliran, pa se tekst ne proverava. WordCraft traži Hunspell rečnik {name} u fascikli WORDCRAFT_DICTIONARIES i na uobičajenim sistemskim lokacijama.
+	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Pravopisni rečnik za {language} nije instaliran, pa se tekst ne proverava. Plume traži Hunspell rečnik {name} u fascikli WORDCRAFT_DICTIONARIES i na uobičajenim sistemskim lokacijama.
 	Lasso	Laso
 	Last Column	Zadnja kolona
 	Last commit	Zadnji commit
@@ -610,7 +607,7 @@
 	Merge Formatting	Spoji formatiranje
 	Merged PRs	Spojeni PR-ovi
 	Mirrored	Zrcaljeno
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Autorska prava (c) 2026 ArtCraft Team i saradnici na WordCraft-u.
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 saradnici Plume-a, tim ArtCraft i saradnici WordCraft-a.
 	Moderate	Umereno
 	Modify Style	Izmeni stil
 	Modify…	Izmeni…
@@ -864,7 +861,6 @@
 	Animation	Animacija
 	Animate the caret (it glides and fades)	Animiraj kursor (klizi i postepeno se gasi)
 	On: the caret glides to its new place when you type or use the arrow keys, and its blink fades. Off: it jumps and blinks on and off.	Uključeno: kursor klizi na novo mesto dok kucate ili koristite strelice, a njegovo treptanje se postepeno gasi. Isključeno: skače i trepće naglo.
-	Show the community button in the title bar	Prikaži dugme zajednice u traci naslova
 	Show/Hide ¶	Prikaži/sakrij ¶
 	Show\nComments	Prikaži\nkomentare
 	Shrink Font 1 Point	Smanji font za 1 tačku
@@ -882,7 +878,7 @@
 	Soft Edges	Meke ivice
 	Sort	Sortiraj
 	Sort order:	Redosled sortiranja:
-	Source code: github.com/storytold/wordcraft	Izvorni kod: github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	Izvorni kod: github.com/TheLazyGeekGuy/plume
 	Space	Razmak
 	Space after: {pt} pt	Razmak posle: {pt} pt
 	Space before/after:	Razmak pre/posle:
@@ -1031,7 +1027,7 @@
 	Word Left	Reč levo
 	Word Right	Reč desno
 	WordArt	WordArt
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	Reči
 	Words only	Samo reči
 	Wrap Text	Prelomi tekst
@@ -1285,7 +1281,6 @@
 	Reset Crop	Poništi isecanje
 	Insert a new equation (Alt+=)	Umetni novu jednačinu (Alt+=)
 	Leave the equation (Esc)	Napusti jednačinu (Esc)
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Draw Ink	Crtaj mastilom
 	Erase Ink	Obriši mastilo
 	Hide Ink	Sakrij mastilo
@@ -1768,7 +1763,7 @@
 	Word document	Word dokument
 	All files	Sve datoteke
 	Recipient lists	Liste primalaca
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Sistemski dijalog za datoteke nije dostupan, pa WordCraft prikazuje svoj. Da biste dobili sistemski dijalog, instalirajte portal za izbor datoteka (na primer xdg-desktop-portal-gtk) ili zenity.
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Sistemski dijalog za datoteke nije dostupan, pa Plume prikazuje svoj. Da biste dobili sistemski dijalog, instalirajte portal za izbor datoteka (na primer xdg-desktop-portal-gtk) ili zenity.
 	Up one level	Jedan nivo gore
 	Home folder	Lična fascikla
 	{name} wasn't found.	{name} nije pronađen.
@@ -1776,8 +1771,8 @@
 	This folder can't be read: {error}	Ova fascikla ne može da se pročita: {error}
 	Showing the first {count} items.	Prikazane su samo prve stavke: {count}.
 	File name:	Ime datoteke:
-	Browse in WordCraft…	Potraži u WordCraft-u…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	Otvorite datoteku pomoću WordCraft-ovog pregledača kada se sistemski dijalog za datoteke ne pojavi.
+	Browse in Plume…	Potraži u Plume-u…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	Otvorite datoteku pomoću Plume-ovog pregledača kada se sistemski dijalog za datoteke ne pojavi.
 	Hide White Space	Sakrij prazan prostor
 	All pages	Sve stranice
 	Current page	Trenutna stranica
@@ -2161,8 +2156,8 @@
 	Number only, without the label's words	Samo broj, bez reči iz oznake
 	Add whether it is above or below	Dodaj da li je iznad ili ispod
 	Start-up	Pokretanje
-	Show the Start screen when WordCraft starts	Prikaži početni ekran pri pokretanju programa WordCraft
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Uključeno: WordCraft se otvara na Fajl › Početak, sa praznim dokumentom, šablonima i nedavnim dokumentima. Isključeno: otvara prazan dokument.
+	Show the Start screen when Plume starts	Prikaži početni ekran pri pokretanju programa Plume
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Uključeno: Plume se otvara na Fajl › Početak, sa praznim dokumentom, šablonima i nedavnim dokumentima. Isključeno: otvara prazan dokument.
 	Copy to	Kopiraj u
 
 # Document naming and account controls.
@@ -2193,7 +2188,7 @@
 	{name}   {height} × {width} mm	{name}   {height} × {width} mm
 	{width} × {height} mm	{width} × {height} mm
 	{kind}, {columns} × {rows}, {size} ({paper})	{kind}, {columns} × {rows}, {size} ({paper})
-	Researcher needs an online service; WordCraft keeps your documents offline.	Istraživaču je potrebna usluga na mreži, a WordCraft vaše dokumente čuva van mreže.
+	Researcher needs an online service; Plume keeps your documents offline.	Istraživaču je potrebna usluga na mreži, a Plume vaše dokumente čuva van mreže.
 	These settings will be used for new documents.	Ova podešavanja će se koristiti za nove dokumente.
 	can't split at the first row	tabela ne može da se podeli kod prvog reda
 	select two or more cells to merge	izaberite dve ili više ćelija za spajanje
@@ -2237,6 +2232,78 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Hunspell .aff i .dic datoteke iz ove fascikle (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) koriste se pre sistemskih.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: rečnik nije pronađen
+	Version Status	Stanje verzija
+	Start Keeping Versions	Počni čuvanje verzija
+	Save Version	Sačuvaj verziju
+	Show Changes	Prikaži izmene
+	Compare with Version	Uporedi sa verzijom
+	Restore Version	Vrati verziju
+	Synchronize	Sinhronizuj
+	Versions	Verzije
+	Describe your changes	Opišite svoje izmene
+	No versions yet	Još nema verzija
+	Restore	Vrati
+	Save\nVersion	Sačuvaj\nverziju
+	Version\nHistory	Istorija\nverzija
+	Save the document as Markdown first (File › Save As).	Prvo sačuvajte dokument kao Markdown (Datoteka › Sačuvaj kao).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Fascikla ovog dokumenta još ne čuva verzije: počnite komandom Sačuvaj verziju.
+	Version {id} saved	Verzija {id} sačuvana
+	Save the document as Markdown first	Prvo sačuvajte dokument kao Markdown
+	Imported as Markdown	Uvezeno kao Markdown
+	Saved as Markdown	Sačuvano kao Markdown
+	Sign In to a Forge	Prijavi se na forge
+	Sign Out of Forges	Odjavi se sa forge-a
+	Open from a Forge	Otvori sa forge-a
+	Open from a Forge…	Otvori sa forge-a…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Otvorite Markdown dokument sa GitHub-a, GitLab-a ili Forgejo-a; Sačuvaj verziju tamo beleži verzije.
+	Server	Server
+	Repository	Repozitorijum
+	Branch	Grana
+	Access token	Token za pristup
+	kept in the keychain	čuva se u privesku ključeva
+	Remember the token in the keychain	Zapamti token u privesku ključeva
+	Enter an access token for this forge.	Unesite token za pristup ovom forge-u.
+	Keep to Markdown	Samo Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown ne može da zadrži ovo oblikovanje (strogi Markdown režim)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Uključeno: komande koje Markdown ne može da zadrži (boja teksta, podvlačenje, okviri za tekst, kolone…) su isključene. Isključeno: rade, a čuvanje kaže šta Markdown nije zadržao.
+	Request Review	Zatraži pregled
+	Get Review Comments	Preuzmi komentare pregleda
+	Send Replies	Pošalji odgovore
+	Review Status	Stanje pregleda
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Otvorite dokument sa GitHub-a, GitLab-a ili Forgejo-a da biste zatražili pregled
+	What should your colleagues review?	Šta kolege treba da pregledaju?
+	Details (optional)	Detalji (opciono)
+	Review requested: {url}	Pregled zatražen: {url}
+	Documents Pane	Okno Dokumenti
+	Save the document as Markdown to see the documents beside it.	Sačuvajte dokument kao Markdown da biste videli dokumente pored njega.
+	No Markdown documents here yet.	Ovde još nema Markdown dokumenata.
+	save the document first	prvo sačuvajte dokument
+	Address of the Markdown file (copy it from your browser)	Adresa Markdown datoteke (kopirajte je iz pregledača)
+	Paste the address of the Markdown file's page (it ends in .md).	Nalepite adresu stranice Markdown datoteke (završava se na .md).
+	Accounts	Nalozi
+	New connection	Nova veza
+	Connect	Poveži
+	Projects	Projekti
+	Filter	Filter
+	No projects on this account.	Na ovom nalogu nema projekata.
+	Waiting for the forge…	Čeka se forge…
+	Save to a Forge…	Sačuvaj u forge…
+	Save to a Forge	Sačuvaj u forge
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Čuva dokument kao Markdown u projektu na GitHubu, GitLabu ili Forgejo; Sačuvaj verziju zatim beleži verzije tamo.
+	Replace the document that has this name	Zameni dokument sa ovim imenom
+	Saved to the forge:	Sačuvano u forge:
+	Permissions the token needs:	Dozvole potrebne tokenu:
+	Or sign in with the browser	Ili se prijavite u pregledaču
+	OAuth app client ID	ID klijenta OAuth aplikacije
+	Sign in with the browser	Prijavi se u pregledaču
+	Type this code on the forge's page:	Unesite ovaj kôd na stranici forge-a:
+	Open the page	Otvori stranicu
+	Copy the code	Kopiraj kôd
+	No Markdown documents in this project.	U ovom projektu nema Markdown dokumenata.
+	Or paste the document's address	Ili nalepite adresu dokumenta
+	Forge Repositories	Forge repozitorijumi
+	Forge Documents	Forge dokumenti
 
 # Backstage › Recover (#586)
 	Recover	Oporavi
@@ -2259,6 +2326,138 @@
 # Reading Mode column widths (#1040)
 	Narrow	Uska
 	Medium	Srednja
+	(not saved)	(nije sačuvano)
+	Edit template…	Uredi šablon…
+	Export PDF…	Izvezi PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Složi dokument po šablonu: naslovna strana, zaglavlja i podnožja, korice i memorandum. YAML blok na početku dokumenta podešava opcije šablona.
+	Layout (LaTeX)	Raspored (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Pravljenje PDF-a… (prvi put TeX mašina može da preuzme šta joj treba)
+	New template created: it is the one exports use now.	Napravljen je novi šablon: izvozi sada koriste njega.
+	New template from this one:	Novi šablon od ovog:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	TeX mašina nije pronađena. Instalirajte Tectonic (brew install tectonic) ili MacTeX, pa ponovo izvezite.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Opcije kao što su titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. YAML blok dokumenta ih zamenjuje.
+	PDF with a template	PDF sa šablonom
+	Restore the original	Vrati original
+	Save and preview	Sačuvaj i pregledaj
+	Settings (YAML)	Podešavanja (YAML)
+	Template saved.	Šablon je sačuvan.
+	Template:	Šablon:
+	Template: {name}	Šablon: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	LaTeX šablon, na jeziku šablona programa pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	kopija
+	Export LaTeX with a Template	Izvezi LaTeX sa šablonom
+	Export PDF with a Template	Izvezi PDF sa šablonom
+	New PDF Template	Novi PDF šablon
+	PDF Engine	PDF mašina
+	PDF Templates	PDF šabloni
+	Read PDF Template	Pročitaj PDF šablon
+	Restore PDF Template	Vrati PDF šablon
+	Save PDF Template	Sačuvaj PDF šablon
+	Tables for AI	Tabele za VI
+	AI Request for a Table	VI zahtev za tabelu
+	Restructure Tables	Preuredi tabele
+	A language model can't be reached from here.	Odavde se ne može doći do jezičkog modela.
+	A language model can't be reached from the browser.	Iz pregledača se ne može doći do jezičkog modela.
+	AI	VI
+	Artificial intelligence	Veštačka inteligencija
+	Block	Blok
+	Block {index}: {rows} × {cols}, {words} words	Blok {index}: {rows} × {cols}, reči: {words}
+	Changed	Promenjeno
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Prvo izaberite jezički model: Datoteka › Opcije › Čuvanje › Veštačka inteligencija.
+	Choose a model	Izaberite model
+	High	Visoko
+	Low	Nisko
+	Model's default	Podrazumevano za model
+	Model:	Model:
+	Model: {model} at {url}	Model: {model} na {url}
+	No table to restructure.	Nema tabela za preuređivanje.
+	No table was changed.	Nijedna tabela nije promenjena.
+	Other server	Drugi server
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume traži od njega da preuredi tabele koje Markdown ne može da sadrži (obrasci i strane složene u tabelama), a novi zapis zadržava samo ako je svaka reč i dalje tu. Ollama i LM Studio rade na ovom računaru: ništa ne izlazi iz njega.
+	Reasoning:	Rezonovanje:
+	Restructure	Preuredi
+	Restructure\nTables	Preuredi\ntabele
+	Server:	Server:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Preporučeno u Ollami: gpt-oss:20b uz 16 GB memorije ili više, qwen3:4b uz 8 GB (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tabela {i} od {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Server još nema modele: prvo preuzmite jedan (ollama pull gpt-oss:20b).
+	No table in this document needs a model: Markdown holds its tables as they are.	Nijedna tabela u ovom dokumentu ne treba model: Markdown čuva njegove tabele kakve jesu.
+	Unchanged	Bez promene
+	Use a language model	Koristi jezički model
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Preuređeno tabela: {applied} od {n}. Opozovi (Ctrl+Z) ih vraća sve.
+	{n} models on the server.	Modela na serveru: {n}.
+	{ready} of {n} tables can be sent to the model.	Tabela koje se mogu poslati modelu: {ready} od {n}.
+	Saved to {forge}	Sačuvano u {forge}
+	Changes Since Last Version	Izmene od poslednje verzije
+	No changes since the last version.	Nema izmena od poslednje verzije.
+	Showing the changes since the last version ({n} paragraphs).	Prikazane su izmene od poslednje verzije (pasusa: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Praćenje od sada: poslednja verzija ne može da se pročita ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Postavi polje front matter-a
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Polja koja čitaju GitHub, VitePress i PDF šabloni, sačuvana na početku Markdown datoteke.
+	(several values: edit the source)	(više vrednosti: uredite izvor)
+	Remove this field	Ukloni ovo polje
+	New field	Novo polje
+	Letters, digits, - and _ only	Samo slova, cifre, - i _
+	Callout	Istaknuti okvir
+	Code Block	Blok koda
+	Code Language	Jezik koda
+	Leave Block	Izađi iz bloka
+	Markdown Block	Markdown blok
+	Mermaid diagram	Mermaid dijagram
+	Plain text	Običan tekst
+	Note	Napomena
+	Tip	Savet
+	Important	Važno
+	Warning	Upozorenje
+	Caution	Oprez
+	Danger	Opasnost
+	Details	Pojedinosti
+	Insert › Markdown	Umetanje › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Sačuvano na vašoj grani {branch}; {target} je zaključana.
+	Merge request {n} into {target} is open: this version goes in it.	Zahtev za spajanje {n} u {target} je otvoren: ova verzija ulazi u njega.
+	Request the merge into {target}	Zatraži spajanje u {target}
+	Version {id} saved; merge request {n} opened	Verzija {id} sačuvana; otvoren zahtev za spajanje {n}
+	Markdown indents list items only	Markdown uvlači samo stavke liste
+	Diagram	Dijagram
+	Edit\nDiagram	Uredi\ndijagram
+	Mermaid source	Mermaid izvor
+	Mermaid syntax	Mermaid sintaksa
+	Sequence	Sekvenca
+	Flowchart	Dijagram toka
+	Gantt	Gant
+	Class	Klase
+	Mind map	Mapa uma
+	Markdown Source	Markdown izvor
+	Apply Markdown Source	Primeni Markdown izvor
+	Heading Anchor	Sidro naslova
+	Include File	Uključi datoteku
+	Include	Uključi
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Markdown datoteka za uključivanje, u odnosu na ovu (VitePress ovde prikazuje njen tekst)
+	Open Included File	Otvori uključenu datoteku
+	Anchor	Sidro
+	Discard	Odbaci
+	Save this document first: an included file is found beside it.	Prvo sačuvajte ovaj dokument: uključena datoteka je pored njega.
+	View › Markdown Source	Prikaz › Markdown izvor
+	Shapes and Connectors	Oblici i spojnice
+	All Diagrams…	Svi dijagrami…
+	Planning	Planiranje
+	Structure	Struktura
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)
 # Split Cells and Convert Text to Table (#2592)
 	Merge cells before split	Spoji ćelije pre deljenja
 	Table size	Veličina tabele

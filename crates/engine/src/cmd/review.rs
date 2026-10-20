@@ -27,10 +27,28 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("review.previousComment", "Previous", "Review › Comments", |s, _| nav_comment(s, -1)).pure(),
         CommandSpec::new("review.comments", "Show Comments", "Review › Comments", list_comments).pure(),
         CommandSpec::new("review.trackChanges", "Track Changes", "Review › Tracking", |s, v| {
-            s.doc.settings.track_changes = p::bool(v, "value").unwrap_or(!s.doc.settings.track_changes);
-            Ok(json!({"value": s.doc.settings.track_changes}))
+            let on = p::bool(v, "value").unwrap_or(!s.doc.settings.track_changes);
+            let was = s.doc.settings.track_changes;
+            // Plume's Markdown profile: changes are tracked against the last version (Git keeps
+            // the record); Word's own tracking, which Markdown can't keep, stays off.
+            if on && !was && s.prefs.markdown_strict && s.is_markdown() && !super::versions::versioned(s) {
+                return Err(CmdError::Disabled(
+                    "review.trackChanges: save a version first; Plume tracks the changes since the last version".into(),
+                ));
+            }
+            s.doc.settings.track_changes = on;
+            let mut out = json!({"value": on});
+            // Plume: on a versioned document, turning tracking on shows the changes since the
+            // last version (the forge or Git keeps the record; Markdown can't).
+            if on && !was && super::versions::versioned(s) {
+                match super::versions::changes_since_version(s) {
+                    Ok(n) => out["sinceVersion"] = json!(n),
+                    Err(e) => out["sinceVersionError"] = json!(e.to_string()),
+                }
+            }
+            Ok(out)
         })
-        .params(r#"{"value"?: bool (omit to toggle)}"#)
+        .params(r#"{"value"?: bool (omit to toggle)} → {value, sinceVersion?: changes since the last version (versioned documents), sinceVersionError?}"#)
         .key("Mod+Shift+E"),
         CommandSpec::new("review.acceptAll", "Accept All Changes", "Review › Changes", |s, _| resolve_all(s, true)),
         CommandSpec::new("review.rejectAll", "Reject All Changes", "Review › Changes", |s, _| resolve_all(s, false)),
@@ -478,6 +496,11 @@ pub fn move_changes(s: &Session) -> Vec<(Pos, String, bool)> {
         }
     }
     out
+}
+
+/// Accept every tracked change (Plume: a saved version holds the text as it reads).
+pub(crate) fn accept_all(s: &mut Session) -> Result<(), CmdError> {
+    resolve_all(s, true).map(|_| ())
 }
 
 fn resolve_all(s: &mut Session, accept: bool) -> CmdResult {

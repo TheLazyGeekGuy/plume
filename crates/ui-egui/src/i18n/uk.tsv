@@ -1,6 +1,6 @@
 # Ukrainian (uk) interface catalog. Columns, separated by a TAB:
 #   context <TAB> English source <TAB> translation
-#   context    empty (WordCraft uses no contexts yet)
+#   context    empty (Plume uses no contexts yet)
 #   source     the English text exactly as in the code (tl!(...), ribbon labels, command labels)
 #   escapes    \n  \t  \\ inside a column. `{name}` placeholders must appear in both columns,
 #              and a trailing "…" in one needs one in the other.
@@ -8,15 +8,17 @@
 #
 # Clean room: translated from the meaning of the English labels in this repository.
 # No Microsoft Word or other product localisation was consulted or copied.
-# Product, format and technology names (WordCraft, PDF, Markdown, MCP …) stay in Latin letters.
-# Author: @dmatviichuk with Codex; licensed MIT OR Apache-2.0, like WordCraft.
+# Product, format and technology names (Plume, PDF, Markdown, MCP …) stay in Latin letters.
+# Author: @dmatviichuk with Codex; licensed MIT OR Apache-2.0, like Plume.
 
 	(no style)	(без стилю)
 	(no suggestions)	(немає пропозицій)
 	1.5 Line Spacing	Міжрядковий інтервал 1,5
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	Безкоштовний текстовий процесор із відкритим кодом, написаний з нуля мовою Rust.\nЧастина Crafting Apps від команди ArtCraft.
+	A free, open-source word processor written in Rust, with Markdown as its native format.	Безкоштовний текстовий процесор з відкритим кодом, написаний на Rust, з Markdown як основним форматом.
+	Plume — based on WordCraft by the ArtCraft team.	Plume — створено на основі WordCraft від команди ArtCraft.
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	About	Про програму
-	About WordCraft	Про WordCraft
+	About Plume	Про Plume
 	Accept	Прийняти
 	Accept All Changes	Прийняти всі зміни
 	Accept This Change	Прийняти цю зміну
@@ -276,7 +278,6 @@
 	Comment	Коментар
 	Comments	Коментарі
 	Comments Pane	Панель коментарів
-	Community\nDiscord	Спільнота\nDiscord
 	Compact	Компактний
 	Compare	Порівняти
 	Compress Pictures	Стиснути зображення
@@ -289,7 +290,7 @@
 	Copy	Копіювати
 	Copy Formatting	Копіювати форматування
 	Corrections	Виправлення
-	Couldn't make WordCraft the default: {error}	Не вдалося зробити WordCraft типовою програмою: {error}
+	Couldn't make Plume the default: {error}	Не вдалося зробити Plume типовою програмою: {error}
 	Count words in text boxes and notes	Рахувати слова в текстових полях і виносках
 	Cover Page	Титульна сторінка
 	Create	Створити
@@ -327,15 +328,15 @@
 	Drag a rectangle to draw a table, or a line across cells to split them. Esc stops.	Перетягніть прямокутник, щоб намалювати таблицю, або лінію через клітинки, щоб їх розділити. Esc завершує.
 	Draw Table	Намалювати таблицю
 	Edit Comment	Редагувати коментар
-	In Default apps, choose WordCraft for the document types you want it to open.	У програмах за замовчуванням виберіть WordCraft для типів документів, які він має відкривати.
+	In Default apps, choose Plume for the document types you want it to open.	У програмах за замовчуванням виберіть Plume для типів документів, які він має відкривати.
 	Left Margin	Ліве поле
 	Indents and Spacing	Відступи й інтервали
 	Line breaking	Розрив рядків
-	Make WordCraft the default for Word documents…	Зробити WordCraft типовою програмою для документів Word…
+	Make Plume the default for Word documents…	Зробити Plume типовою програмою для документів Word…
 	More templates →	Більше шаблонів →
 	No templates match your search.	Немає шаблонів, що відповідають пошуку.
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	Відтепер файли .docx, .doc, .rtf, .odt і шаблони Word відкриватимуться у WordCraft.
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	Відкриває Параметри › Програми за замовчуванням, де ви вибираєте WordCraft для .docx та інших типів документів.
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	Відтепер файли .docx, .doc, .rtf, .odt і шаблони Word відкриватимуться у Plume.
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	Відкриває Параметри › Програми за замовчуванням, де ви вибираєте Plume для .docx та інших типів документів.
 	Reopen	Відкрити знову
 	Right Margin	Праве поле
 	Distribute letters	Розподілити літери
@@ -345,8 +346,8 @@
 	Right (vertical)	Праворуч (вертикально)
 	Ruby text:	Текст рубі:
 	Search for templates	Пошук шаблонів
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	Щоб документи Word типово відкривалися у WordCraft: виберіть документ у Finder, оберіть Файл › Отримати інфо, виберіть WordCraft у розділі «Відкривати за допомогою» і натисніть «Змінити все».
-	WordCraft is now the default app for Word documents.	WordCraft тепер типова програма для документів Word.
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	Щоб документи Word типово відкривалися у Plume: виберіть документ у Finder, оберіть Файл › Отримати інфо, виберіть Plume у розділі «Відкривати за допомогою» і натисніть «Змінити все».
+	Plume is now the default app for Word documents.	Plume тепер типова програма для документів Word.
 	development build	Збірка для розробки
 	Diagonal	Діагональ
 	Diamond	Ромб
@@ -354,8 +355,6 @@
 	Different First Page	Інша перша сторінка
 	Different Odd & Even Pages	Різні парні й непарні сторінки
 	Direct formatting	Пряме форматування
-	Discord	Discord
-	Discord community	Спільнота Discord
 	Display	Відображення
 	Display for Review	Відображення для рецензування
 	Distribute Columns	Розподілити стовпці
@@ -517,8 +516,6 @@
 	Inspect Styles at Selection	Переглянути стилі у виділенні
 	Interface language:	Мова інтерфейсу:
 	Italic	Курсив
-	Join the ArtCraft community on Discord	Приєднатися до спільноти ArtCraft у Discord
-	Join us on Discord: discord.gg/artcraft	Приєднуйтеся до нас у Discord: discord.gg/artcraft
 	Justify	За шириною
 	Keep Lines Together	Не розривати рядки абзацу
 	Keep lines together	Не розривати рядки абзацу
@@ -530,7 +527,7 @@
 	Landscape	Альбомна
 	Language	Мова
 	{language} (no dictionary)	{language} (немає словника)
-	No spelling dictionary for {language} is installed, so it isn't checked. WordCraft looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Орфографічний словник для мови «{language}» не встановлено, тому текст не перевіряється. WordCraft шукає словник Hunspell {name} у теці WORDCRAFT_DICTIONARIES та в звичайних системних розташуваннях.
+	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Орфографічний словник для мови «{language}» не встановлено, тому текст не перевіряється. Plume шукає словник Hunspell {name} у теці WORDCRAFT_DICTIONARIES та в звичайних системних розташуваннях.
 	Lasso	Ласо
 	Last Column	Останній стовпець
 	Last commit	Останній коміт
@@ -577,7 +574,7 @@
 	Merge Formatting	Об'єднати форматування
 	Merged PRs	Об'єднані PR
 	Mirrored	Дзеркальні
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Авторські права (c) 2026 команди ArtCraft і учасників WordCraft.
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 учасники проєкту Plume, команда ArtCraft і учасники проєкту WordCraft.
 	Moderate	Помірні
 	Modify Style	Змінити стиль
 	Modify…	Змінити…
@@ -840,7 +837,6 @@
 	Animation	Анімація
 	Animate the caret (it glides and fades)	Анімувати каретку (плавно рухається та згасає)
 	On: the caret glides to its new place when you type or use the arrow keys, and its blink fades. Off: it jumps and blinks on and off.	Увімкнено: каретка плавно переходить на нове місце, коли ви вводите текст або користуєтеся стрілками, а її блимання згасає поступово. Вимкнено: вона перестрибує й блимає різко.
-	Show the community button in the title bar	Показувати кнопку спільноти в заголовку вікна
 	Show/Hide ¶	Показати/приховати ¶
 	Show\nComments	Показати\nкоментарі
 	Shrink Font 1 Point	Зменшити шрифт на 1 пункт
@@ -856,7 +852,7 @@
 	Small caps	Малі великі літери
 	SmartArt	SmartArt
 	Sort	Сортувати
-	Source code: github.com/storytold/wordcraft	Вихідний код: github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	Вихідний код: github.com/TheLazyGeekGuy/plume
 	Space	Пробіл
 	Space before/after:	Інтервал перед/після:
 	Spacing	Інтервал
@@ -999,7 +995,7 @@
 	Word Left	На слово ліворуч
 	Word Right	На слово праворуч
 	WordArt	WordArt
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	Слова
 	Words only	Лише слова
 	Wrap Text	Обтікання текстом
@@ -1062,7 +1058,7 @@
 	Stopped	Зупинено
 	Speed	Швидкість
 	Normal speed	Звичайна швидкість
-	AutoSave documents you have saved in WordCraft	Автоматично зберігати документи, збережені у WordCraft
+	AutoSave documents you have saved in Plume	Автоматично зберігати документи, збережені у Plume
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	Не вдалося виконати автозбереження: {error}. Збережіть документ, щоб знову ввімкнути автозбереження.
 	Couldn't download {name}: {error}	Не вдалося завантажити {name}: {error}
 	Do you want to save changes to {name}?	Зберегти зміни в {name}?
@@ -1232,7 +1228,6 @@
 	Insert a new equation (Alt+=)	Вставити нове рівняння (Alt+=)
 	Leave the equation (Esc)	Вийти з рівняння (Esc)
 	Preview	Попередній перегляд
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Draw Ink	Малювати чорнилом
 	Erase Ink	Стерти чорнило
 	Hide Ink	Сховати чорнило
@@ -1370,7 +1365,7 @@
 	The document will be saved with a password. Save it to protect it.	Документ буде збережено з паролем. Збережіть його, щоб захистити.
 	The password is removed. Save the document to keep the change.	Пароль видалено. Збережіть документ, щоб зберегти зміну.
 	The passwords don't match.	Паролі не збігаються.
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	Зберігайте пароль у надійному місці: без нього ніхто, зокрема WordCraft, не зможе відкрити документ. Залиште обидва поля порожніми, щоб видалити пароль.
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Зберігайте пароль у надійному місці: без нього ніхто, зокрема Plume, не зможе відкрити документ. Залиште обидва поля порожніми, щоб видалити пароль.
 
 # Interface text routed through translation (#313)
 	Align Top Left	Вирівняти вгорі ліворуч
@@ -1770,7 +1765,7 @@
 	Word document	Документ Word
 	All files	Усі файли
 	Recipient lists	Списки одержувачів
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Системне діалогове вікно файлів недоступне, тож WordCraft показує власне. Щоб отримати системне вікно, установіть портал вибору файлів (наприклад, xdg-desktop-portal-gtk) або zenity.
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Системне діалогове вікно файлів недоступне, тож Plume показує власне. Щоб отримати системне вікно, установіть портал вибору файлів (наприклад, xdg-desktop-portal-gtk) або zenity.
 	Up one level	На рівень вище
 	Home folder	Домашня тека
 	{name} wasn't found.	{name} не знайдено.
@@ -1778,8 +1773,8 @@
 	This folder can't be read: {error}	Не вдається прочитати цю теку: {error}
 	Showing the first {count} items.	Показано лише перші елементи: {count}.
 	File name:	Ім'я файлу:
-	Browse in WordCraft…	Огляд у WordCraft…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	Відкрити файл власним оглядачем WordCraft, коли системне діалогове вікно файлів не з'являється.
+	Browse in Plume…	Огляд у Plume…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	Відкрити файл власним оглядачем Plume, коли системне діалогове вікно файлів не з'являється.
 	Hide White Space	Приховати порожній простір
 	All pages	Усі сторінки
 	Current page	Поточна сторінка
@@ -2163,8 +2158,8 @@
 	Number only, without the label's words	Лише номер, без слів мітки
 	Add whether it is above or below	Додавати, вище він чи нижче
 	Start-up	Запуск
-	Show the Start screen when WordCraft starts	Показувати початковий екран під час запуску WordCraft
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Увімкнено: WordCraft відкривається на сторінці Файл › Основне з порожнім документом, шаблонами та нещодавніми документами. Вимкнено: відкривається порожній документ.
+	Show the Start screen when Plume starts	Показувати початковий екран під час запуску Plume
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Увімкнено: Plume відкривається на сторінці Файл › Основне з порожнім документом, шаблонами та нещодавніми документами. Вимкнено: відкривається порожній документ.
 	Copy to	Копіювати до
 
 # Document naming and account controls.
@@ -2195,7 +2190,7 @@
 	{name}   {height} × {width} mm	{name}   {height} × {width} мм
 	{width} × {height} mm	{width} × {height} мм
 	{kind}, {columns} × {rows}, {size} ({paper})	{kind}, {columns} × {rows}, {size} ({paper})
-	Researcher needs an online service; WordCraft keeps your documents offline.	Досліднику потрібна онлайн-служба, а WordCraft працює з документами без підключення до інтернету.
+	Researcher needs an online service; Plume keeps your documents offline.	Досліднику потрібна онлайн-служба, а Plume працює з документами без підключення до інтернету.
 	These settings will be used for new documents.	Ці параметри використовуватимуться для нових документів.
 	can't split at the first row	не можна розділити таблицю на першому рядку
 	select two or more cells to merge	виділіть дві або більше клітинок, щоб об'єднати їх
@@ -2239,6 +2234,78 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Файли Hunspell .aff і .dic із цієї папки (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) використовуються раніше за системні.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: словник не знайдено
+	Version Status	Стан версій
+	Start Keeping Versions	Почати зберігати версії
+	Save Version	Зберегти версію
+	Show Changes	Показати зміни
+	Compare with Version	Порівняти з версією
+	Restore Version	Відновити версію
+	Synchronize	Синхронізувати
+	Versions	Версії
+	Describe your changes	Опишіть свої зміни
+	No versions yet	Версій ще немає
+	Restore	Відновити
+	Save\nVersion	Зберегти\nверсію
+	Version\nHistory	Історія\nверсій
+	Save the document as Markdown first (File › Save As).	Спочатку збережіть документ як Markdown (Файл › Зберегти як).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Папка цього документа ще не зберігає версії: почніть із команди «Зберегти версію».
+	Version {id} saved	Версію {id} збережено
+	Save the document as Markdown first	Спочатку збережіть документ як Markdown
+	Imported as Markdown	Імпортовано як Markdown
+	Saved as Markdown	Збережено як Markdown
+	Sign In to a Forge	Увійти до forge
+	Sign Out of Forges	Вийти з forge
+	Open from a Forge	Відкрити з forge
+	Open from a Forge…	Відкрити з forge…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Відкрийте документ Markdown із GitHub, GitLab або Forgejo; «Зберегти версію» записує версії туди.
+	Server	Сервер
+	Repository	Репозиторій
+	Branch	Гілка
+	Access token	Токен доступу
+	kept in the keychain	зберігається у в'язці ключів
+	Remember the token in the keychain	Запам'ятати токен у в'язці ключів
+	Enter an access token for this forge.	Введіть токен доступу до цього forge.
+	Keep to Markdown	Лише Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown не може зберегти це форматування (суворий режим Markdown)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Увімкнено: команди, які Markdown не може зберегти (колір тексту, підкреслення, текстові поля, колонки…), вимкнено. Вимкнено: вони працюють, а під час збереження повідомляється, що Markdown не зберіг.
+	Request Review	Попросити рецензію
+	Get Review Comments	Отримати коментарі рецензії
+	Send Replies	Надіслати відповіді
+	Review Status	Стан рецензії
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Щоб попросити рецензію, відкрийте документ із GitHub, GitLab або Forgejo
+	What should your colleagues review?	Що мають переглянути колеги?
+	Details (optional)	Подробиці (необов'язково)
+	Review requested: {url}	Рецензію запитано: {url}
+	Documents Pane	Область «Документи»
+	Save the document as Markdown to see the documents beside it.	Збережіть документ як Markdown, щоб побачити документи поруч із ним.
+	No Markdown documents here yet.	Тут ще немає документів Markdown.
+	save the document first	спочатку збережіть документ
+	Address of the Markdown file (copy it from your browser)	Адреса файлу Markdown (скопіюйте її з браузера)
+	Paste the address of the Markdown file's page (it ends in .md).	Вставте адресу сторінки файлу Markdown (вона закінчується на .md).
+	Accounts	Облікові записи
+	New connection	Нове підключення
+	Connect	Підключити
+	Projects	Проєкти
+	Filter	Фільтр
+	No projects on this account.	У цьому обліковому записі немає проєктів.
+	Waiting for the forge…	Очікування форджа…
+	Save to a Forge…	Зберегти у фордж…
+	Save to a Forge	Зберегти у фордж
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Зберігає документ як Markdown у проєкті GitHub, GitLab або Forgejo; далі «Зберегти версію» записує версії туди.
+	Replace the document that has this name	Замінити документ із цією назвою
+	Saved to the forge:	Збережено у фордж:
+	Permissions the token needs:	Дозволи, потрібні токену:
+	Or sign in with the browser	Або увійдіть через браузер
+	OAuth app client ID	ID клієнта OAuth-застосунку
+	Sign in with the browser	Увійти через браузер
+	Type this code on the forge's page:	Введіть цей код на сторінці форджа:
+	Open the page	Відкрити сторінку
+	Copy the code	Скопіювати код
+	No Markdown documents in this project.	У цьому проєкті немає документів Markdown.
+	Or paste the document's address	Або вставте адресу документа
+	Forge Repositories	Репозиторії forge
+	Forge Documents	Документи forge
 
 # Backstage › Recover (#586)
 	Recover	Відновити
@@ -2261,6 +2328,138 @@
 # Reading Mode column widths (#1040)
 	Narrow	Вузька
 	Medium	Середня
+	(not saved)	(не збережено)
+	Edit template…	Змінити шаблон…
+	Export PDF…	Експорт у PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Зверстати документ за шаблоном: титульна сторінка, колонтитули, обкладинки й фірмовий бланк. Блок YAML на початку документа задає параметри шаблону.
+	Layout (LaTeX)	Макет (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Створення PDF… (першого разу рушій TeX може завантажити потрібні файли)
+	New template created: it is the one exports use now.	Новий шаблон створено: тепер експорт використовує його.
+	New template from this one:	Новий шаблон на основі цього:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Рушій TeX не знайдено. Установіть Tectonic (brew install tectonic) або MacTeX і повторіть експорт.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Параметри, наприклад titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Блок YAML документа їх перевизначає.
+	PDF with a template	PDF за шаблоном
+	Restore the original	Відновити початковий
+	Save and preview	Зберегти й переглянути
+	Settings (YAML)	Параметри (YAML)
+	Template saved.	Шаблон збережено.
+	Template:	Шаблон:
+	Template: {name}	Шаблон: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Шаблон LaTeX мовою шаблонів pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	копія
+	Export LaTeX with a Template	Експорт LaTeX за шаблоном
+	Export PDF with a Template	Експорт PDF за шаблоном
+	New PDF Template	Новий шаблон PDF
+	PDF Engine	Рушій PDF
+	PDF Templates	Шаблони PDF
+	Read PDF Template	Прочитати шаблон PDF
+	Restore PDF Template	Відновити шаблон PDF
+	Save PDF Template	Зберегти шаблон PDF
+	Tables for AI	Таблиці для ШІ
+	AI Request for a Table	Запит ШІ для таблиці
+	Restructure Tables	Перебудувати таблиці
+	A language model can't be reached from here.	Звідси не можна зв'язатися з мовною моделлю.
+	A language model can't be reached from the browser.	З браузера не можна зв'язатися з мовною моделлю.
+	AI	ШІ
+	Artificial intelligence	Штучний інтелект
+	Block	Блок
+	Block {index}: {rows} × {cols}, {words} words	Блок {index}: {rows} × {cols}, слів: {words}
+	Changed	Змінено
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Спершу виберіть мовну модель: Файл › Параметри › Збереження › Штучний інтелект.
+	Choose a model	Виберіть модель
+	High	Високий
+	Low	Низький
+	Model's default	Типово для моделі
+	Model:	Модель:
+	Model: {model} at {url}	Модель: {model} на {url}
+	No table to restructure.	Немає таблиць для перебудови.
+	No table was changed.	Жодну таблицю не змінено.
+	Other server	Інший сервер
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume просить її перебудувати таблиці, яких Markdown не може вмістити (форми й сторінки, зверстані таблицями), і зберігає новий варіант, лише якщо в ньому лишилося кожне слово. Ollama і LM Studio працюють на цьому комп'ютері: ніщо не виходить назовні.
+	Reasoning:	Міркування:
+	Restructure	Перебудувати
+	Restructure\nTables	Перебудувати\nтаблиці
+	Server:	Сервер:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Рекомендовано в Ollama: gpt-oss:20b для 16 ГБ пам'яті й більше, qwen3:4b для 8 ГБ (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Таблиця {i} з {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	На сервері ще немає моделей: спершу завантажте одну (ollama pull gpt-oss:20b).
+	No table in this document needs a model: Markdown holds its tables as they are.	Жодна таблиця в цьому документі не потребує моделі: Markdown зберігає таблиці як є.
+	Unchanged	Без змін
+	Use a language model	Використовувати мовну модель
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Перебудовано таблиць: {applied} з {n}. Скасувати (Ctrl+Z) поверне їх усі.
+	{n} models on the server.	Моделей на сервері: {n}.
+	{ready} of {n} tables can be sent to the model.	Можна надіслати моделі таблиць: {ready} з {n}.
+	Saved to {forge}	Збережено в {forge}
+	Changes Since Last Version	Зміни з останньої версії
+	No changes since the last version.	Змін з останньої версії немає.
+	Showing the changes since the last version ({n} paragraphs).	Показано зміни з останньої версії (абзаців: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Відстеження відтепер: останню версію не вдалося прочитати ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Задати поле front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Поля, які читають GitHub, VitePress і шаблони PDF, зберігаються на початку файлу Markdown.
+	(several values: edit the source)	(кілька значень: змініть джерело)
+	Remove this field	Вилучити це поле
+	New field	Нове поле
+	Letters, digits, - and _ only	Лише літери, цифри, - і _
+	Callout	Виноска
+	Code Block	Блок коду
+	Code Language	Мова коду
+	Leave Block	Вийти з блоку
+	Markdown Block	Блок Markdown
+	Mermaid diagram	Діаграма Mermaid
+	Plain text	Звичайний текст
+	Note	Примітка
+	Tip	Порада
+	Important	Важливо
+	Warning	Попередження
+	Caution	Обережно
+	Danger	Небезпека
+	Details	Подробиці
+	Insert › Markdown	Вставлення › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Збережено у вашій гілці {branch}; гілку {target} заблоковано.
+	Merge request {n} into {target} is open: this version goes in it.	Запит на злиття {n} у {target} відкрито: ця версія увійде до нього.
+	Request the merge into {target}	Запросити злиття в {target}
+	Version {id} saved; merge request {n} opened	Версію {id} збережено; відкрито запит на злиття {n}
+	Markdown indents list items only	Markdown робить відступ лише для елементів списку
+	Diagram	Діаграма
+	Edit\nDiagram	Змінити\nдіаграму
+	Mermaid source	Джерело Mermaid
+	Mermaid syntax	Синтаксис Mermaid
+	Sequence	Послідовність
+	Flowchart	Блок-схема
+	Gantt	Гант
+	Class	Класи
+	Mind map	Ментальна карта
+	Markdown Source	Джерело Markdown
+	Apply Markdown Source	Застосувати джерело Markdown
+	Heading Anchor	Якір заголовка
+	Include File	Включити файл
+	Include	Включити
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Файл Markdown для включення відносно цього (VitePress показує тут його текст)
+	Open Included File	Відкрити включений файл
+	Anchor	Якір
+	Discard	Скасувати
+	Save this document first: an included file is found beside it.	Спершу збережіть цей документ: включений файл лежить поруч.
+	View › Markdown Source	Вигляд › Джерело Markdown
+	Shapes and Connectors	Фігури та сполучні лінії
+	All Diagrams…	Усі діаграми…
+	Planning	Планування
+	Structure	Структура
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)
 # Split Cells and Convert Text to Table (#2592)
 	Merge cells before split	Об'єднати клітинки перед розділенням
 	Table size	Розмір таблиці

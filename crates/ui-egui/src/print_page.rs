@@ -332,6 +332,9 @@ fn preview(app: &mut WordApp, ui: &mut Ui, lay: &DocLayout, total: usize) {
 pub(crate) const EXPORT_WORD_2003: &str = "wordml2003";
 
 /// The "save a copy" formats (File › Export, and below the settings on the Print page).
+/// Export formats Plume's Markdown profile leaves out: the Office ones.
+pub(crate) const OFFICE_EXPORTS: &[&str] = &["docx", "xml", EXPORT_WORD_2003, "odt", "rtf"];
+
 pub fn export_formats(app: &mut WordApp, ui: &mut Ui) {
     for (label, ext) in [
         ("PDF document (*.pdf)", "pdf"),
@@ -342,10 +345,16 @@ pub fn export_formats(app: &mut WordApp, ui: &mut Ui) {
         ("Rich Text Format (*.rtf)", "rtf"),
         ("Web page (*.html)", "html"),
         ("Markdown (*.md)", "md"),
+        ("TextBundle (*.textbundle)", "textbundle"),
+        ("TextPack (*.textpack)", "textpack"),
         ("LaTeX (*.tex)", "tex"),
         ("Plain text (*.txt)", "txt"),
         ("Page image (*.png)", "png"),
     ] {
+        // Plume's Markdown profile: Word, OpenDocument and RTF are read, never written.
+        if crate::widgets::profile_on(app) && OFFICE_EXPORTS.contains(&ext) {
+            continue;
+        }
         if ui.add(egui::Button::new(egui::RichText::new(tl!(label)).font(medium(13.5))).min_size(vec2(320.0, 34.0))).clicked() {
             app.export_dialog(ext);
         }

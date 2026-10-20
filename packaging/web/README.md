@@ -1,4 +1,4 @@
-# Hosting WordCraft for the web
+# Hosting Plume for the web
 
 `wordcraft-web-<version>.zip` (from the GitHub release, or `packaging/web/package.sh`) holds a
 static site in `wordcraft-web-<version>/`:
@@ -11,6 +11,15 @@ static site in `wordcraft-web-<version>/`:
 | `_headers`, `.htaccess` | Sample header rules for Netlify/Cloudflare Pages and Apache |
 
 There is no server-side code. Upload the folder's contents anywhere that serves static files.
+
+## GitHub Pages
+
+Plume publishes itself on GitHub Pages from `main`: `.github/workflows/pages.yml` builds with
+Trunk and deploys on every push to `main` (and on demand, Actions › Web (GitHub Pages) › Run
+workflow). One-time setting: Settings › Pages › Build and deployment › Source: **GitHub
+Actions**. The site is `https://<owner>.github.io/<repo>/`. Pages serves `.wasm` as
+`application/wasm`, compresses with gzip and uses HTTPS; it doesn't let you set
+`Cache-Control`, which only costs a re-download after a release.
 
 ## Any path works
 
@@ -31,7 +40,7 @@ hash, so they can be cached forever. Only `index.html` needs revalidation.
   `.js` files, and `no-cache` on `index.html`.
 - **HTTPS:** WebGPU (and the clipboard) only work in a secure context, which means `https://`
   or `http://localhost`. Over plain HTTP elsewhere, the app falls back to WebGL2.
-- **No special isolation headers:** WordCraft doesn't use `SharedArrayBuffer`, so it doesn't
+- **No special isolation headers:** Plume doesn't use `SharedArrayBuffer`, so it doesn't
   need `Cross-Origin-Opener-Policy` or `Cross-Origin-Embedder-Policy`. If your site already sends
   COEP `require-corp`, also send `Cross-Origin-Resource-Policy: same-origin` (or `cross-origin`
   when the files live on a CDN) on the app's files.
@@ -55,7 +64,7 @@ Local test: `python3 -m http.server 8765` inside the folder, then open http://lo
 ```html
 <iframe
   src="https://example.com/wordcraft/"
-  title="WordCraft image editor"
+  title="Plume word processor"
   style="width: 100%; height: 720px; border: 0;"
   allow="fullscreen; clipboard-read; clipboard-write"
   allowfullscreen>
@@ -75,7 +84,7 @@ Local test: `python3 -m http.server 8765` inside the folder, then open http://lo
 
 ## Renderer selection and fallback flags
 
-WordCraft renders with wgpu. It uses **WebGPU** when the browser has it and falls back to
+Plume renders with wgpu. It uses **WebGPU** when the browser has it and falls back to
 **WebGL2** on its own. URL query flags override this, and they work on the iframe `src` too:
 
 | Flag | Effect |

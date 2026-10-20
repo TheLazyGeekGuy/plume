@@ -24,6 +24,7 @@ pub mod insert;
 pub mod inspector;
 pub mod lists;
 pub mod mailings;
+pub mod md_blocks;
 pub mod moves;
 pub mod objects;
 pub mod options;
@@ -46,8 +47,10 @@ pub mod table_style;
 pub mod templates;
 pub mod text;
 pub mod tools;
+pub mod versions;
 pub mod view;
 pub mod wordart;
+pub mod workflow;
 
 use serde_json::{Value, json};
 use wordcraft_doc::props::CharProps;
@@ -100,6 +103,10 @@ pub fn registry() -> Registry {
     v.extend(protect::specs());
     v.extend(speech::specs());
     v.extend(controls::specs());
+    v.extend(versions::specs());
+    v.extend(md_blocks::specs());
+    v.extend(crate::pdf_template::specs());
+    v.extend(crate::ai::specs());
     Registry::new(v)
 }
 

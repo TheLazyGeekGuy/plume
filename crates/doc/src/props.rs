@@ -963,6 +963,118 @@ pub struct ParaProps {
     /// `w:snapToGrid`: lines snap to the section's document grid. Unset = on.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub snap_to_grid: Option<bool>,
+    /// Plume: the Markdown block the paragraph belongs to ([`MdBlock`]). Set on the paragraph
+    /// itself, never inherited from a style.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub md: Option<Box<MdBlock>>,
+}
+
+/// Plume: what a paragraph's Markdown block is beyond the paragraph's kind. Every paragraph of
+/// one block carries it with the block's `id`, so two blocks side by side stay apart, and Enter,
+/// which copies a paragraph's properties, continues the block.
+#[derive(Clone, Debug, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct MdBlock {
+    /// A fenced code block.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code: Option<MdCode>,
+    /// A container: a VitePress `::: tip` block or a GitHub `> [!NOTE]` alert.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub container: Option<MdContainer>,
+    /// Source written back as it was read (HTML, directives, what Plume doesn't interpret): the
+    /// block's id.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub raw: Option<u32>,
+    /// The paragraph is its container's title line (`::: tip Title`; an alert's label).
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub title: bool,
+    /// A diagram written as text (` ```mermaid `): its source. The paragraph shows it drawn
+    /// (a picture); Markdown gets the source back, with `code`'s info string.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub diagram: Option<String>,
+    /// A heading's explicit anchor (`## Title {#anchor}`): links and the contents use it rather
+    /// than the slug of its text.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub anchor: Option<String>,
+    /// Source kept as written that includes another file (VitePress `<!--@include: path-->`):
+    /// the path.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub include: Option<String>,
+}
+
+impl MdBlock {
+    /// Whether a paragraph of `next` continues the block of a paragraph of `self` (they are one
+    /// band on the page): the same container, or, outside containers, the same code block or
+    /// source.
+    pub fn joins(&self, next: &MdBlock) -> bool {
+        match (&self.container, &next.container) {
+            (Some(a), Some(b)) => a.id == b.id,
+            (None, None) => {
+                (self.code.as_ref().zip(next.code.as_ref()).is_some_and(|(a, b)| a.id == b.id)) || (self.raw.is_some() && self.raw == next.raw)
+            }
+            _ => false,
+        }
+    }
+
+    /// How the block looks on the page: a container is a tinted band with a coloured rule on
+    /// its left (the colour tells its kind), a code block a grey band, source kept as written a
+    /// grey band with a dotted rule. Plume's own colours.
+    pub fn look(&self) -> (Option<Rgb>, Option<Border>, f32) {
+        let mut shading = None;
+        let mut rule = None;
+        let mut indent = 0.0;
+        if let Some(c) = &self.container {
+            let (line, tint) = container_colors(&c.kind);
+            shading = Some(tint);
+            rule = Some(Border { style: BorderStyle::Single, width: 3.0, color: Some(line), space: 6.0 });
+            indent = 12.0;
+        }
+        // A diagram shows as its picture, on the page itself.
+        if (self.code.is_some() && self.diagram.is_none()) || self.raw.is_some() {
+            shading = Some(Rgb(0xF3, 0xF4, 0xF6));
+            indent += 6.0;
+        }
+        if self.include.is_some() {
+            shading = Some(Rgb(0xEE, 0xF4, 0xFD));
+            rule = Some(Border { style: BorderStyle::Dotted, width: 2.0, color: Some(Rgb(0x2F, 0x6F, 0xDB)), space: 4.0 });
+        }
+        if self.raw.is_some() && rule.is_none() {
+            rule = Some(Border { style: BorderStyle::Dotted, width: 1.5, color: Some(Rgb(0x9A, 0xA0, 0xA6)), space: 4.0 });
+        }
+        (shading, rule, indent)
+    }
+}
+
+/// A container kind's rule and tint (`tip`, `NOTE`, `warning`…; other kinds are grey).
+pub fn container_colors(kind: &str) -> (Rgb, Rgb) {
+    match kind.to_ascii_lowercase().as_str() {
+        "note" | "info" => (Rgb(0x2F, 0x6F, 0xDB), Rgb(0xEE, 0xF4, 0xFD)),
+        "tip" => (Rgb(0x1F, 0x88, 0x3D), Rgb(0xED, 0xF7, 0xEF)),
+        "important" => (Rgb(0x82, 0x50, 0xDF), Rgb(0xF4, 0xEF, 0xFD)),
+        "warning" => (Rgb(0xB5, 0x81, 0x05), Rgb(0xFD, 0xF6, 0xE3)),
+        "caution" | "danger" => (Rgb(0xCF, 0x22, 0x2E), Rgb(0xFD, 0xEE, 0xEE)),
+        _ => (Rgb(0x8C, 0x95, 0x9F), Rgb(0xF4, 0xF5, 0xF7)),
+    }
+}
+
+/// A fenced code block: its id and its info string as written (`js`, `js{2}`, `mermaid`,
+/// `sh [npm]`; empty for none).
+#[derive(Clone, Debug, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct MdCode {
+    pub id: u32,
+    pub info: String,
+}
+
+/// A container: its id, its kind as written (`tip`, `details`, `code-group`; `NOTE`, `WARNING`
+/// for an alert), its title (VitePress only) and whether it is a GitHub alert.
+#[derive(Clone, Debug, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct MdContainer {
+    pub id: u32,
+    pub kind: String,
+    pub title: String,
+    pub alert: bool,
 }
 
 impl ParaProps {

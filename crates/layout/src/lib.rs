@@ -1527,6 +1527,26 @@ fn fit_box(items: Vec<Placed>, height: f32) -> Vec<Placed> {
     out
 }
 
+/// Plume: the least space between two Markdown blocks side by side, points.
+const MD_BLOCK_GAP: f32 = 6.0;
+
+/// Plume: the space `gap` above a paragraph that continues its Markdown block, painted with the
+/// block's band (its shading and left rule), so the block reads as one.
+fn md_band_gap(items: &mut Vec<Placed>, pl: &ParaLayout, x: f32, y: f32, width: f32, gap: f32) {
+    let start = pl.rp.indent_left.min(pl.rp.indent_left + pl.rp.indent_first);
+    let (li, ri) = if pl.rp.bidi { (pl.rp.indent_right, start) } else { (start, pl.rp.indent_right) };
+    let (left, right) = (x + li, x + width - ri);
+    let top = y - gap;
+    if let Some(c) = pl.rp.shading {
+        let pad = pl.rp.borders.as_ref().map(|b| b.left.map(|l| l.space).unwrap_or(4.0)).unwrap_or(0.0);
+        items.push(Placed::Fill { rect: Rect::new(left - pad, top, right - left + pad * 2.0, gap), color: c });
+    }
+    if let Some(b) = pl.rp.borders.as_ref().and_then(|b| b.left).filter(Border::is_visible) {
+        let lx = left - b.space;
+        items.push(Placed::Rule { x0: lx, y0: top, x1: lx, y1: y, border: b });
+    }
+}
+
 /// Paragraph lines plus their shading and borders.
 fn push_para(items: &mut Vec<Placed>, story: StoryRef, path: &[u32], pl: &Arc<ParaLayout>, l0: usize, l1: usize, x: f32, y: f32, width: f32) {
     let (Some(first), Some(last)) = (pl.lines.get(l0), l1.checked_sub(1).and_then(|k| pl.lines.get(k))) else {
@@ -3444,6 +3464,7 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
     // Same-style contextual spacing removes this paragraph's before-space, or subtracts the
     // previous paragraph's after-space from the merged gap (ISO/IEC 29500-1 §17.3.1.9).
     let mut before = pl.rp.space_before;
+    let mut md_gap: Option<(f32, u32, usize)> = None;
     let prev_para = pb.prev.clone();
     // At the top of a page, measured in Word for Windows: no space before after a paragraph that
     // ended with a page break, nor (from Word 2013's layout, compatibility mode 15) for a page
@@ -3489,6 +3510,19 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
         // second's space before, not their sum.
         if before > 0.0 && after > 0.0 && !ctx.doc.settings.sum_paragraph_spacing {
             before = (before - after).max(0.0);
+        }
+        // Plume: paragraphs of one Markdown block (a container, a code block) make one band,
+        // the space between them painted with it; two blocks side by side keep a gap.
+        if let Some(md) = p.props.md.as_deref() {
+            let prev_md = block.checked_sub(1).and_then(|b| ctx.doc.body.get(b)).and_then(|b| match &**b {
+                Block::Para(q) => q.props.md.as_deref(),
+                _ => None,
+            });
+            match prev_md {
+                Some(q) if q.joins(md) => md_gap = Some((after.max(0.0) + before.max(0.0), pb.number, pb.col)),
+                Some(_) => before = before.max(MD_BLOCK_GAP - after.max(0.0)),
+                None => {}
+            }
         }
     }
     // Automatic spacing: none at the top of the document.
@@ -3721,6 +3755,12 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
             pb.bottom = pb.body_floor().max(placed_bottom).min(pb.orig_bottom);
         }
         let mut items = Vec::new();
+        if l0 == 0
+            && let Some((gap, number, col)) = md_gap.filter(|(g, n, c)| *g > 0.0 && *n == pb.number && *c == pb.col)
+        {
+            let _ = (number, col);
+            md_band_gap(&mut items, &pl, x, y, width, gap);
+        }
         push_para(&mut items, StoryRef::Body, &[block as u32], &pl, l0, l1, x, y, width);
         // Pictures, shapes and text boxes in these lines (web view: floats placed by this piece).
         let at = ObjFrame {

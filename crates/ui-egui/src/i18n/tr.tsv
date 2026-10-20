@@ -8,16 +8,18 @@
 #
 # Clean room: written from the meaning of the English labels in ordinary Turkish computing
 # vocabulary. No Microsoft Word or other proprietary product's translated UI or string table
-# was consulted or copied. Product/format names (WordCraft, PDF, Markdown, MCP ...) stay intact.
+# was consulted or copied. Product/format names (Plume, PDF, Markdown, MCP ...) stay intact.
 # Commands use imperatives; labels use natural Turkish. After a count the noun stays singular
 # (1 sözcük, 2 sözcük). This catalog format has no plural contexts or separate one/other forms.
 
 	(no suggestions)	(öneri yok)
 	1.5 Line Spacing	1,5 Satır Aralığı
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	Rust ile sıfırdan yazılmış ücretsiz, açık kaynak bir kelime işlemci.\nArtCraft ekibinin Crafting Apps ailesinin bir parçası.
+	A free, open-source word processor written in Rust, with Markdown as its native format.	Rust ile yazılmış, yerel biçimi Markdown olan ücretsiz ve açık kaynaklı bir kelime işlemci.
+	Plume — based on WordCraft by the ArtCraft team.	Plume — ArtCraft ekibinin WordCraft'ına dayanır.
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	AaBbCcDd	AaBbCcÇç
 	About	Hakkında
-	About WordCraft	WordCraft Hakkında
+	About Plume	Plume Hakkında
 	Accept	Kabul Et
 	Accept All Changes	Tüm Değişiklikleri Kabul Et
 	Accept This Change	Bu Değişikliği Kabul Et
@@ -145,7 +147,6 @@
 	Comment	Yorum
 	Comments	Yorumlar
 	Comments Pane	Yorumlar Bölmesi
-	Community\nDiscord	Topluluk\nDiscord'u
 	Compact	Kompakt
 	Compare	Karşılaştır
 	Compress Pictures	Resimleri Sıkıştır
@@ -199,8 +200,6 @@
 	Dictate	Dikte Et
 	Different First Page	İlk Sayfa Farklı
 	Different Odd & Even Pages	Tek ve Çift Sayfalar Farklı
-	Discord	Discord
-	Discord community	Discord topluluğu
 	Display	Görüntü
 	Display for Review	İnceleme Görünümü
 	Distribute Columns	Sütunları Eşit Dağıt
@@ -372,8 +371,6 @@
 	Inspect Document	Belgeyi İncele
 	Interface language:	Arayüz dili:
 	Italic	İtalik
-	Join the ArtCraft community on Discord	Discord'da ArtCraft topluluğuna katılın
-	Join us on Discord: discord.gg/artcraft	Discord'da bize katılın: discord.gg/artcraft
 	Justify	İki Yana Yasla
 	Keep Lines Together	Satırları Birlikte Tut
 	Keep lines together	Satırları birlikte tut
@@ -386,7 +383,7 @@
 	Landscape	Yatay
 	Language	Dil
 	{language} (no dictionary)	{language} (sözlük yok)
-	No spelling dictionary for {language} is installed, so it isn't checked. WordCraft looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	{language} için yüklü bir yazım sözlüğü yok, bu yüzden denetlenmiyor. WordCraft, {name} Hunspell sözlüğünü WORDCRAFT_DICTIONARIES klasöründe ve olağan sistem konumlarında arar.
+	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	{language} için yüklü bir yazım sözlüğü yok, bu yüzden denetlenmiyor. Plume, {name} Hunspell sözlüğünü WORDCRAFT_DICTIONARIES klasöründe ve olağan sistem konumlarında arar.
 	Lasso	Kement
 	Last Column	Son Sütun
 	Last commit	Son commit
@@ -435,7 +432,7 @@
 	Merge Formatting	Biçimlendirmeyi Birleştir
 	Merged PRs	Birleştirilen PR'lar
 	Mirrored	Aynalı
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Telif hakkı (c) 2026 ArtCraft ekibi ve WordCraft'a katkıda bulunanlar.
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 Plume katkıda bulunanları, ArtCraft ekibi ve WordCraft katkıda bulunanları.
 	Moderate	Orta
 	Modify Style	Stili Değiştir
 	Modify…	Değiştir…
@@ -683,7 +680,6 @@
 	Animate the caret (it glides and fades)	İmleci canlandır (kayarak ilerler ve solarak yanıp söner)
 	Animation	Animasyon
 	On: the caret glides to its new place when you type or use the arrow keys, and its blink fades. Off: it jumps and blinks on and off.	Açık: yazarken veya ok tuşlarını kullanırken imleç yeni yerine kayarak gider ve yanıp sönerken solar. Kapalı: imleç yeni yerine atlar, keskin biçimde yanıp söner.
-	Show the community button in the title bar	Başlık çubuğunda topluluk düğmesini göster
 	Show/Hide ¶	Göster/Gizle ¶
 	Show\nComments	Yorumları\nGöster
 	Shrink Font 1 Point	Yazı Tipini 1 Punto Küçült
@@ -698,7 +694,7 @@
 	Small caps	Küçük büyük harf
 	SmartArt	SmartArt
 	Sort	Sırala
-	Source code: github.com/storytold/wordcraft	Kaynak kod: github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	Kaynak kod: github.com/TheLazyGeekGuy/plume
 	Space before/after:	Önce/sonra boşluk:
 	Spacing	Aralık
 	Spacing (pt):	Aralık (pt):
@@ -843,7 +839,7 @@ preview	Title	Örnek
 	Word Left	Önceki Sözcük
 	Word Right	Sonraki Sözcük
 	WordArt	WordArt
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	Sözcükler
 	Words only	Yalnızca sözcükler
 	Wrap Text	Metni Kaydır
@@ -861,7 +857,7 @@ preview	Title	Örnek
 	Only web (http, https) and email (mailto) links can be followed	Yalnızca web (http, https) ve e-posta (mailto) bağlantıları açılabilir
 
 	Apply Styles	Stilleri Uygula
-	AutoSave documents you have saved in WordCraft	WordCraft'ta kaydettiğiniz belgeleri otomatik kaydet
+	AutoSave documents you have saved in Plume	Plume'da kaydettiğiniz belgeleri otomatik kaydet
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	Otomatik Kaydet başarısız oldu: {error}. Otomatik Kaydet'i yeniden açmak için belgeyi kaydedin.
 	Bottom Margin	Alt Kenar Boşluğu
 	Edit Comment	Yorumu Düzenle
@@ -1106,7 +1102,6 @@ preview	Title	Örnek
 	Insert a new equation (Alt+=)	Yeni denklem ekle (Alt+=)
 	Leave the equation (Esc)	Denklemden çık (Esc)
 	Preview	Önizleme
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Browse…	Gözat…
 
 # Equation gallery, themes, watermarks, paper sizes, table styles and other strings the
@@ -1541,7 +1536,7 @@ preview	Title	Örnek
 	The document will be saved with a password. Save it to protect it.	Belge parolayla kaydedilecek. Korumak için belgeyi kaydedin.
 	The password is removed. Save the document to keep the change.	Parola kaldırıldı. Değişikliği korumak için belgeyi kaydedin.
 	The passwords don't match.	Parolalar eşleşmiyor.
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	Parolayı güvenli bir yerde saklayın: parola olmadan WordCraft dahil hiç kimse belgeyi açamaz. Parolayı kaldırmak için iki kutuyu da boş bırakın.
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Parolayı güvenli bir yerde saklayın: parola olmadan Plume dahil hiç kimse belgeyi açamaz. Parolayı kaldırmak için iki kutuyu da boş bırakın.
 	{cols}×{rows} Table	{cols}×{rows} Tablo
 	Name	Ad
 	PRs	PR'lar
@@ -2031,13 +2026,13 @@ preview	Title	Örnek
 	Hindi	Hintçe
 	Context	Bağlam
 	System	Sistem
-	Couldn't make WordCraft the default: {error}	WordCraft varsayılan yapılamadı: {error}
-	In Default apps, choose WordCraft for the document types you want it to open.	Varsayılan uygulamalar bölümünde, WordCraft'ın açmasını istediğiniz belge türlerini seçin.
-	Make WordCraft the default for Word documents…	WordCraft'ı Word belgeleri için varsayılan yap…
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	Bundan sonra .docx, .doc, .rtf ve .odt dosyalarını ve Word şablonlarını WordCraft ile açar.
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	Ayarlar › Varsayılan uygulamalar bölümünü açar; burada .docx ve diğer belge türleri için WordCraft'ı seçersiniz.
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	Word belgelerini varsayılan olarak WordCraft ile açmak için: Finder'da bir belge seçin, Dosya › Bilgi Al'ı seçin, Birlikte aç altında WordCraft'ı seçin ve Tümünü Değiştir'e tıklayın.
-	WordCraft is now the default app for Word documents.	WordCraft artık Word belgeleri için varsayılan uygulama.
+	Couldn't make Plume the default: {error}	Plume varsayılan yapılamadı: {error}
+	In Default apps, choose Plume for the document types you want it to open.	Varsayılan uygulamalar bölümünde, Plume'ın açmasını istediğiniz belge türlerini seçin.
+	Make Plume the default for Word documents…	Plume'ı Word belgeleri için varsayılan yap…
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	Bundan sonra .docx, .doc, .rtf ve .odt dosyalarını ve Word şablonlarını Plume ile açar.
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	Ayarlar › Varsayılan uygulamalar bölümünü açar; burada .docx ve diğer belge türleri için Plume'ı seçersiniz.
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	Word belgelerini varsayılan olarak Plume ile açmak için: Finder'da bir belge seçin, Dosya › Bilgi Al'ı seçin, Birlikte aç altında Plume'ı seçin ve Tümünü Değiştir'e tıklayın.
+	Plume is now the default app for Word documents.	Plume artık Word belgeleri için varsayılan uygulama.
 	Templates	Şablonlar
 	Templates and Add-ins	Şablonlar ve Eklentiler
 	Attach Template	Şablonu Ekle
@@ -2190,7 +2185,7 @@ preview	Title	Örnek
 	Word document	Word belgesi
 	All files	Tüm dosyalar
 	Recipient lists	Alıcı listeleri
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Sistemin dosya iletişim kutusu kullanılamadığı için WordCraft kendi iletişim kutusunu gösteriyor. Sistem iletişim kutusunu kullanmak için bir dosya seçici portalı (örneğin xdg-desktop-portal-gtk) ya da zenity yükleyin.
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Sistemin dosya iletişim kutusu kullanılamadığı için Plume kendi iletişim kutusunu gösteriyor. Sistem iletişim kutusunu kullanmak için bir dosya seçici portalı (örneğin xdg-desktop-portal-gtk) ya da zenity yükleyin.
 	Up one level	Bir düzey yukarı
 	Home folder	Ana klasör
 	{name} wasn't found.	{name} bulunamadı.
@@ -2199,8 +2194,8 @@ preview	Title	Örnek
 	Showing the first {count} items.	İlk {count} öğe gösteriliyor.
 	No items to show.	Gösterilecek öğe yok.
 	File name:	Dosya adı:
-	Browse in WordCraft…	WordCraft'ta Gözat…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	Sistemin dosya iletişim kutusu açılmadığında dosyayı WordCraft'ın kendi dosya tarayıcısıyla açın.
+	Browse in Plume…	Plume'da Gözat…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	Sistemin dosya iletişim kutusu açılmadığında dosyayı Plume'ın kendi dosya tarayıcısıyla açın.
 	Hide White Space	Boşluğu gizle
 	All pages	Tüm sayfalar
 	Current page	Geçerli sayfa
@@ -2534,8 +2529,8 @@ preview	Title	Örnek
 	Number only, without the label's words	Yalnızca numara, etiketin sözcükleri olmadan
 	Add whether it is above or below	Yukarıda mı aşağıda mı olduğunu ekle
 	Start-up	Başlangıç
-	Show the Start screen when WordCraft starts	WordCraft açılırken Başlangıç ekranını göster
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Açık: WordCraft, Dosya › Giriş sayfasında boş belge, şablonlar ve son belgelerinizle açılır. Kapalı: boş bir belge açar.
+	Show the Start screen when Plume starts	Plume açılırken Başlangıç ekranını göster
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Açık: Plume, Dosya › Giriş sayfasında boş belge, şablonlar ve son belgelerinizle açılır. Kapalı: boş bir belge açar.
 	Typing	Yazma
 	Level 4	Düzey 4
 	Level 5	Düzey 5
@@ -2573,7 +2568,7 @@ preview	Title	Örnek
 	{name}   {height} × {width} mm	{name}   {height} × {width} mm
 	{width} × {height} mm	{width} × {height} mm
 	{kind}, {columns} × {rows}, {size} ({paper})	{kind}, {columns} × {rows}, {size} ({paper})
-	Researcher needs an online service; WordCraft keeps your documents offline.	Araştırmacı çevrimiçi bir hizmet gerektirir; WordCraft belgelerinizi çevrimdışı tutar.
+	Researcher needs an online service; Plume keeps your documents offline.	Araştırmacı çevrimiçi bir hizmet gerektirir; Plume belgelerinizi çevrimdışı tutar.
 	These settings will be used for new documents.	Bu ayarlar yeni belgeler için kullanılacak.
 	can't split at the first row	tablo ilk satırdan bölünemez
 	select two or more cells to merge	birleştirmek için iki veya daha fazla hücre seçin
@@ -2624,6 +2619,78 @@ preview	Title	Örnek
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Bu klasördeki Hunspell .aff ve .dic dosyaları (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) sistemdekilerden önce kullanılır.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: sözlük bulunamadı
+	Version Status	Sürüm Durumu
+	Start Keeping Versions	Sürümleri Saklamaya Başla
+	Save Version	Sürümü Kaydet
+	Show Changes	Değişiklikleri Göster
+	Compare with Version	Sürümle Karşılaştır
+	Restore Version	Sürümü Geri Yükle
+	Synchronize	Eşitle
+	Versions	Sürümler
+	Describe your changes	Değişikliklerinizi açıklayın
+	No versions yet	Henüz sürüm yok
+	Restore	Geri Yükle
+	Save\nVersion	Sürümü\nKaydet
+	Version\nHistory	Sürüm\nGeçmişi
+	Save the document as Markdown first (File › Save As).	Önce belgeyi Markdown olarak kaydedin (Dosya › Farklı Kaydet).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Bu belgenin klasörü henüz sürüm saklamıyor: başlamak için Sürümü Kaydet'i kullanın.
+	Version {id} saved	{id} sürümü kaydedildi
+	Save the document as Markdown first	Önce belgeyi Markdown olarak kaydedin
+	Imported as Markdown	Markdown olarak içe aktarıldı
+	Saved as Markdown	Markdown olarak kaydedildi
+	Sign In to a Forge	Bir forge'a oturum aç
+	Sign Out of Forges	Forge'lardan oturumu kapat
+	Open from a Forge	Bir forge'dan aç
+	Open from a Forge…	Bir forge'dan aç…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	GitHub, GitLab veya Forgejo'dan bir Markdown belgesi açın; Sürümü Kaydet sürümleri oraya kaydeder.
+	Server	Sunucu
+	Repository	Depo
+	Branch	Dal
+	Access token	Erişim belirteci
+	kept in the keychain	anahtar zincirinde saklanır
+	Remember the token in the keychain	Belirteci anahtar zincirinde hatırla
+	Enter an access token for this forge.	Bu forge için bir erişim belirteci girin.
+	Keep to Markdown	Markdown ile sınırla
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown bu biçimlendirmeyi koruyamaz (katı Markdown modu)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Açık: Markdown'ın koruyamadığı komutlar (metin rengi, altı çizili, metin kutuları, sütunlar…) kapatılır. Kapalı: çalışırlar ve kaydetme, Markdown'ın neyi korumadığını söyler.
+	Request Review	İnceleme İste
+	Get Review Comments	İnceleme Yorumlarını Al
+	Send Replies	Yanıtları gönder
+	Review Status	İnceleme Durumu
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	İnceleme istemek için belgeyi GitHub, GitLab veya Forgejo'dan açın
+	What should your colleagues review?	Meslektaşlarınız neyi incelemeli?
+	Details (optional)	Ayrıntılar (isteğe bağlı)
+	Review requested: {url}	İnceleme istendi: {url}
+	Documents Pane	Belgeler Bölmesi
+	Save the document as Markdown to see the documents beside it.	Yanındaki belgeleri görmek için belgeyi Markdown olarak kaydedin.
+	No Markdown documents here yet.	Burada henüz Markdown belgesi yok.
+	save the document first	önce belgeyi kaydedin
+	Address of the Markdown file (copy it from your browser)	Markdown dosyasının adresi (tarayıcınızdan kopyalayın)
+	Paste the address of the Markdown file's page (it ends in .md).	Markdown dosyasının sayfa adresini yapıştırın (.md ile biter).
+	Accounts	Hesaplar
+	New connection	Yeni bağlantı
+	Connect	Bağlan
+	Projects	Projeler
+	Filter	Filtre
+	No projects on this account.	Bu hesapta proje yok.
+	Waiting for the forge…	Forge bekleniyor…
+	Save to a Forge…	Forge’a kaydet…
+	Save to a Forge	Forge’a kaydet
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Belgeyi bir GitHub, GitLab veya Forgejo projesine Markdown olarak kaydeder; Sürümü Kaydet ardından sürümleri oraya kaydeder.
+	Replace the document that has this name	Bu adı taşıyan belgeyi değiştir
+	Saved to the forge:	Forge’a kaydedildi:
+	Permissions the token needs:	Belirtecin ihtiyaç duyduğu izinler:
+	Or sign in with the browser	Veya tarayıcıyla oturum açın
+	OAuth app client ID	OAuth uygulaması istemci kimliği
+	Sign in with the browser	Tarayıcıyla oturum aç
+	Type this code on the forge's page:	Bu kodu forge sayfasına yazın:
+	Open the page	Sayfayı aç
+	Copy the code	Kodu kopyala
+	No Markdown documents in this project.	Bu projede Markdown belgesi yok.
+	Or paste the document's address	Veya belgenin adresini yapıştırın
+	Forge Repositories	Forge depoları
+	Forge Documents	Forge belgeleri
 
 # Backstage › Recover (#586)
 	Recover	Kurtar
@@ -2646,6 +2713,138 @@ preview	Title	Örnek
 # Reading Mode column widths (#1040)
 	Narrow	Dar
 	Medium	Orta
+	(not saved)	(kaydedilmedi)
+	Edit template…	Şablonu düzenle…
+	Export PDF…	PDF olarak dışa aktar…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Belgeyi bir şablonla dizin: kapak sayfası, üst ve alt bilgiler, kapaklar ve antetli kâğıt. Belgenin YAML ön bilgisi şablonun seçeneklerini belirler.
+	Layout (LaTeX)	Düzen (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	PDF oluşturuluyor… (ilk seferde TeX motoru gerekenleri indirebilir)
+	New template created: it is the one exports use now.	Yeni şablon oluşturuldu: dışa aktarmalar artık bunu kullanıyor.
+	New template from this one:	Bundan yeni şablon:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	TeX motoru bulunamadı. Tectonic (brew install tectonic) veya MacTeX kurun, sonra yeniden dışa aktarın.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover gibi seçenekler. Belgenin YAML ön bilgisi bunları geçersiz kılar.
+	PDF with a template	Şablonla PDF
+	Restore the original	Orijinali geri yükle
+	Save and preview	Kaydet ve önizle
+	Settings (YAML)	Ayarlar (YAML)
+	Template saved.	Şablon kaydedildi.
+	Template:	Şablon:
+	Template: {name}	Şablon: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	pandoc şablon dilinde LaTeX şablonu ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	kopya
+	Export LaTeX with a Template	Şablonla LaTeX dışa aktar
+	Export PDF with a Template	Şablonla PDF dışa aktar
+	New PDF Template	Yeni PDF şablonu
+	PDF Engine	PDF motoru
+	PDF Templates	PDF şablonları
+	Read PDF Template	PDF şablonunu oku
+	Restore PDF Template	PDF şablonunu geri yükle
+	Save PDF Template	PDF şablonunu kaydet
+	Tables for AI	Yapay zekâ için tablolar
+	AI Request for a Table	Bir tablo için yapay zekâ isteği
+	Restructure Tables	Tabloları yeniden yapılandır
+	A language model can't be reached from here.	Buradan bir dil modeline ulaşılamıyor.
+	A language model can't be reached from the browser.	Tarayıcıdan bir dil modeline ulaşılamıyor.
+	AI	YZ
+	Artificial intelligence	Yapay zekâ
+	Block	Blok
+	Block {index}: {rows} × {cols}, {words} words	Blok {index}: {rows} × {cols}, {words} sözcük
+	Changed	Değişti
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Önce bir dil modeli seçin: Dosya › Seçenekler › Kaydet › Yapay zekâ.
+	Choose a model	Model seçin
+	High	Yüksek
+	Low	Düşük
+	Model's default	Modelin varsayılanı
+	Model:	Model:
+	Model: {model} at {url}	Model: {model}, {url}
+	No table to restructure.	Yeniden yapılandırılacak tablo yok.
+	No table was changed.	Hiçbir tablo değişmedi.
+	Other server	Başka sunucu
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume, Markdown'ın tutamadığı tabloları (formlar ve tablolarla dizilmiş sayfalar) yeniden yapılandırmasını ister ve yeniden yazımı yalnızca her sözcük yerindeyse tutar. Ollama ve LM Studio bu bilgisayarda çalışır: hiçbir şey dışarı çıkmaz.
+	Reasoning:	Akıl yürütme:
+	Restructure	Yeniden yapılandır
+	Restructure\nTables	Tabloları\nyeniden yapılandır
+	Server:	Sunucu:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Ollama'da önerilen: 16 GB veya daha fazla bellekle gpt-oss:20b, 8 GB ile qwen3:4b (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tablo {i} / {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Sunucuda henüz model yok: önce bir tane indirin (ollama pull gpt-oss:20b).
+	No table in this document needs a model: Markdown holds its tables as they are.	Bu belgedeki hiçbir tablo model gerektirmiyor: Markdown tablolarını olduğu gibi tutar.
+	Unchanged	Değişmedi
+	Use a language model	Bir dil modeli kullan
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	{n} tablodan {applied} tanesi yeniden yapılandırıldı. Geri Al (Ctrl+Z) hepsini geri getirir.
+	{n} models on the server.	Sunucuda {n} model var.
+	{ready} of {n} tables can be sent to the model.	{n} tablodan {ready} tanesi modele gönderilebilir.
+	Saved to {forge}	{forge} üzerine kaydedildi
+	Changes Since Last Version	Son sürümden bu yana değişiklikler
+	No changes since the last version.	Son sürümden bu yana değişiklik yok.
+	Showing the changes since the last version ({n} paragraphs).	Son sürümden bu yana değişiklikler gösteriliyor ({n} paragraf).
+	Tracking from now on: the last version can't be read ({error}).	Şu andan itibaren izleniyor: son sürüm okunamıyor ({error}).
+	Front Matter	Ön bilgi
+	Set Front Matter Field	Ön bilgi alanı ayarla
+	Front matter	Ön bilgi
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	GitHub, VitePress ve PDF şablonlarının okuduğu, Markdown dosyasının başına kaydedilen alanlar.
+	(several values: edit the source)	(birden çok değer: kaynağı düzenleyin)
+	Remove this field	Bu alanı kaldır
+	New field	Yeni alan
+	Letters, digits, - and _ only	Yalnızca harf, rakam, - ve _
+	Callout	Bilgi kutusu
+	Code Block	Kod bloğu
+	Code Language	Kod dili
+	Leave Block	Bloktan çık
+	Markdown Block	Markdown bloğu
+	Mermaid diagram	Mermaid diyagramı
+	Plain text	Düz metin
+	Note	Not
+	Tip	İpucu
+	Important	Önemli
+	Warning	Uyarı
+	Caution	Dikkat
+	Danger	Tehlike
+	Details	Ayrıntılar
+	Insert › Markdown	Ekle › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Kendi dalınıza ({branch}) kaydedildi; {target} kilitli.
+	Merge request {n} into {target} is open: this version goes in it.	{target} dalına {n} numaralı birleştirme isteği açık: bu sürüm de ona girer.
+	Request the merge into {target}	{target} dalına birleştirme iste
+	Version {id} saved; merge request {n} opened	{id} sürümü kaydedildi; {n} numaralı birleştirme isteği açıldı
+	Markdown indents list items only	Markdown yalnızca liste öğelerini girintiler
+	Diagram	Diyagram
+	Edit\nDiagram	Diyagramı\ndüzenle
+	Mermaid source	Mermaid kaynağı
+	Mermaid syntax	Mermaid söz dizimi
+	Sequence	Sıra
+	Flowchart	Akış şeması
+	Gantt	Gantt
+	Class	Sınıflar
+	Mind map	Zihin haritası
+	Markdown Source	Markdown kaynağı
+	Apply Markdown Source	Markdown kaynağını uygula
+	Heading Anchor	Başlık bağlantı noktası
+	Include File	Dosya ekle
+	Include	Ekle
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Eklenecek Markdown dosyası, bu dosyaya göre (VitePress metnini burada gösterir)
+	Open Included File	Eklenen dosyayı aç
+	Anchor	Bağlantı noktası
+	Discard	Vazgeç
+	Save this document first: an included file is found beside it.	Önce bu belgeyi kaydedin: eklenen dosya onun yanındadır.
+	View › Markdown Source	Görünüm › Markdown kaynağı
+	Shapes and Connectors	Şekiller ve bağlayıcılar
+	All Diagrams…	Tüm diyagramlar…
+	Planning	Planlama
+	Structure	Yapı
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)
 # Split Cells and Convert Text to Table (#2592)
 	Merge cells before split	Bölmeden önce hücreleri birleştir
 	Table size	Tablo boyutu

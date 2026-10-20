@@ -16,6 +16,7 @@ mod clipboard;
 mod control_server;
 mod default_apps;
 mod file_dialogs;
+mod forge_net;
 #[cfg(any(target_os = "windows", target_os = "macos", test))]
 mod graphics;
 mod logging;
@@ -250,6 +251,7 @@ fn services(file_dialog: file_dialogs::Hook, ctx: &egui::Context) -> Services {
         set_clipboard_html: Some(Box::new(clipboard::set_html)),
         clipboard_rtf: Some(Box::new(clipboard::rtf)),
         clipboard_formats: Some(Box::new(clipboard::formats)),
+        secrets: forge_net::secrets(),
         ..Default::default()
     }
 }
@@ -257,14 +259,14 @@ fn services(file_dialog: file_dialogs::Hook, ctx: &egui::Context) -> Services {
 /// Window, Dock and taskbar icon.
 fn app_icon() -> Option<egui::IconData> {
     #[cfg(target_os = "macos")]
-    let png: &[u8] = include_bytes!("../../../assets/app-icon/wordcraft-macos-512.png");
+    let png: &[u8] = include_bytes!("../../../assets/app-icon/plume-macos-512.png");
     #[cfg(not(target_os = "macos"))]
-    let png: &[u8] = include_bytes!("../../../assets/app-icon/hicolor/256x256/apps/ai.storyteller.wordcraft.png");
+    let png: &[u8] = include_bytes!("../../../assets/app-icon/hicolor/256x256/apps/io.github.thelazygeekguy.plume.png");
     eframe::icon_data::from_png_bytes(png).map_err(|e| log::warn!("app icon: {e}")).ok()
 }
 
 const USAGE: &str = "\
-wordcraft — the WordCraft desktop app
+wordcraft — the Plume desktop app
 
 USAGE:
   wordcraft [--sample] [--control PORT] [FILE…]
@@ -362,7 +364,7 @@ fn main() -> eframe::Result {
     if let Some(logger) = logger {
         match log_dir().filter(|_| prefs_enabled()) {
             Some(dir) => match logger.attach_dir(&dir) {
-                Ok(path) => log::info!("WordCraft {} ({}), log file {}", env!("CARGO_PKG_VERSION"), build_sha(), path.display()),
+                Ok(path) => log::info!("{} {} ({}), log file {}", wordcraft_brand::APP_NAME, env!("CARGO_PKG_VERSION"), build_sha(), path.display()),
                 // Standard error only by now (`attach_dir` gave up on the file); unlike `eprintln!`, never panics.
                 Err(e) => log::warn!("no log file: {e}"),
             },
@@ -371,8 +373,8 @@ fn main() -> eframe::Result {
     }
     let mut options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_title("WordCraft")
-            .with_app_id("ai.storyteller.wordcraft")
+            .with_title(wordcraft_brand::APP_NAME)
+            .with_app_id(wordcraft_brand::APP_ID)
             .with_inner_size([1440.0, 920.0])
             .with_min_inner_size([760.0, 480.0])
             .with_drag_and_drop(true)
@@ -414,7 +416,7 @@ fn main() -> eframe::Result {
     #[cfg(target_os = "macos")]
     let apple_events = &apple_events;
     eframe::run_native(
-        "WordCraft",
+        wordcraft_brand::APP_NAME,
         options,
         Box::new(move |cc| {
             // The system region picks the new document's paper, the units and the decimal
@@ -424,6 +426,10 @@ fn main() -> eframe::Result {
             let (file_dialog, dialogs) = file_dialogs::hook(&cc.egui_ctx);
             let mut session = Session::new(doc);
             session.system_region = region;
+            // Plume: Markdown is the document's own format; documents can come from forges.
+            session.native_markdown = true;
+            session.forge_transport = Some(std::sync::Arc::new(forge_net::Https::new()));
+            session.ai_transport = Some(std::sync::Arc::new(forge_net::Https::with_timeout(std::time::Duration::from_secs(900))));
             let mut app = WordApp::new(session, services(file_dialog, &cc.egui_ctx));
             load_prefs(&mut app);
             load_user_dictionary(&mut app);

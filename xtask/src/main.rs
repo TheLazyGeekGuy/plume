@@ -4,10 +4,12 @@
 //! invoked through `std::process::Command`.
 
 mod assets;
+mod icns;
 mod ico;
 mod layers;
 mod parity;
 mod stats;
+mod tables_corpus;
 mod version;
 mod visual_diff;
 
@@ -22,8 +24,9 @@ commands:
   layers          enforce the crate dependency layering (plan/architecture.md §3)
   wasm            cargo check --target wasm32-unknown-unknown for the wasm-safe crates
   ci              fmt --check, clippy -D warnings, test, assets, layers, wasm (stops at first failure)
-  corpus [--download]
-                  show where test corpora live; --download fetches PngSuite into corpus/pngsuite
+  corpus [--download] [--tables]
+                  show where test corpora live; --download fetches PngSuite into corpus/pngsuite,
+                  --tables fetches Word documents with nested tables into corpus/tables
   stats [--exact] count tests and lines per crate (--exact: ask the test harness via `-- --list`)
   parity          recompute the Word feature-parity summary in docs/parity-checklist.md
   visual-diff <ref.pdf> <test.pdf> <outdir> [--private] [--dpi N]
@@ -31,6 +34,8 @@ commands:
                   needs poppler (pdftoppm, pdftotext)
   ico <out.ico> <in.png>...
                   pack square PNGs (<= 256 px) into a Windows .ico (see packaging/icons.sh)
+  icns <out.icns> <dir.iconset>
+                  pack an Apple iconset folder into a macOS .icns without iconutil
 ";
 
 fn main() -> ExitCode {
@@ -41,10 +46,12 @@ fn main() -> ExitCode {
         Some("layers") => cmd_layers(),
         Some("wasm") => cmd_wasm(),
         Some("ci") => cmd_ci(),
+        Some("corpus") if rest.contains(&"--tables") => tables_corpus::download(&root().join("corpus")),
         Some("corpus") => cmd_corpus(rest.contains(&"--download")),
         Some("stats") => stats::run(&root(), rest.contains(&"--exact")),
         Some("parity") => parity::run(&root()),
         Some("ico") => ico::run(&rest),
+        Some("icns") => icns::run(&rest),
         Some("visual-diff") => visual_diff::run(&rest),
         Some("version") => version::run(&root(), &rest),
         Some("-h" | "--help" | "help") | None => {
@@ -73,7 +80,7 @@ pub fn cargo() -> Command {
     c
 }
 
-fn run(mut cmd: Command, what: &str) -> Result<(), String> {
+pub(crate) fn run(mut cmd: Command, what: &str) -> Result<(), String> {
     eprintln!("$ {what}");
     let status = cmd.status().map_err(|e| format!("{what}: failed to spawn: {e}"))?;
     if status.success() { Ok(()) } else { Err(format!("{what}: exited with {status}")) }
@@ -219,6 +226,9 @@ Tests that use a corpus skip cleanly when it is absent.
   corpus/tiff/       libtiff pics (optional)
   corpus/exr/        OpenEXR sample images (optional)
   corpus/raw/        raw.pixls.us samples, CC0 (optional)
+  corpus/tables/     Word documents with nested and layout tables (Apache POI, LibreOffice test
+                     suites; Apache-2.0, MPL-2.0), for the Word → Markdown conversion.
+                     Fetch: cargo xtask corpus --tables
 ",
         corpus.display()
     );

@@ -144,6 +144,8 @@ impl Exempt {
             names.extend(c.categories.iter().cloned());
             names.extend(c.series.iter().map(|s| s.name.clone()));
         }
+        // Document templates' names (File › Export): the user's own, or a template's.
+        names.extend(app.pdf_templates.names().map(str::to_string));
         for m in crate::credits::MODELS {
             names.extend([m.company, m.model, m.version].map(str::to_string));
         }
@@ -172,7 +174,8 @@ impl Exempt {
             || plain.starts_with('@') // contributor handles
             || plain.starts_with("Style") || plain.starts_with("Table Style ") // a new style's default name
             || plain.contains('┬') || plain.contains('\u{2061}') // equation input (UnicodeMath), drawn as math
-            || matches!(plain, "WordCraft" | "WordCraft User" | "Discord" | "https://" | "auto" | "I. II. III." | "i. ii. iii.")
+            || matches!(plain, "Plume" | "Plume User" | "Discord" | "https://" | "auto" | "I. II. III." | "i. ii. iii.")
+            || matches!(plain, "Ollama" | "LM Studio") // model servers' names (Options › Artificial intelligence)
             || plain == "CONFIDENTIAL" // the watermark dialog's text: document content, kept as typed
             || plain == "Figure 1" // the caption dialog's sample: the label goes into the document as is
     }

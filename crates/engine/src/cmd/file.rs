@@ -123,6 +123,11 @@ pub fn specs() -> Vec<CommandSpec> {
         .pure(),
         CommandSpec::new("file.properties", "Properties", "File › Info", properties)
             .params(r#"{"title"?, "subject"?, "author"?, "keywords"?, "comments"?, "category"?, "custom"?: {name: string | null (removes)}}"#),
+        CommandSpec::new("file.frontMatter", "Front Matter", "File › Info", |s, _| Ok(front_matter_fields(s)))
+            .params(r#"{} → {"fields": [{"key", "value"}]}: the front matter's top-level fields, in order"#)
+            .pure(),
+        CommandSpec::new("file.setFrontMatter", "Set Front Matter Field", "File › Info", set_front_matter)
+            .params(r#"{"key": string (1–64 letters, digits, - or _), "value": string | null (removes)} → {"fields": [{"key", "value"}]}"#),
         CommandSpec::new("file.info", "Info", "File", info).pure(),
         CommandSpec::new("file.setAuthor", "User Name", "File › Options › General", set_author)
             .params(r#"{"name": string (author of new tracked changes and comments)}"#)
@@ -210,6 +215,10 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
         s.ui_requests.push(json!({"open": "openFile"}));
         return sel_result(s);
     };
+    // A TextBundle's text or metadata file picked (file dialogs pick files, and a TextBundle is
+    // a folder): the bundle opens.
+    let bundle = textbundle_of(path);
+    let path = bundle.as_deref().unwrap_or(path);
     let password = p::str(v, "password");
     let (mut doc, encrypted) = if let Some(data) = p::str(v, "data") {
         let bytes = super::insert::base64_decode(data).ok_or_else(|| CmdError::Params("bad base64".into()))?;
@@ -228,7 +237,7 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
     // Plain text and Markdown carry no language: they are in the editing language.
     let ext = std::path::Path::new(path).extension().and_then(|e| e.to_str()).unwrap_or("").to_ascii_lowercase();
     if let Some(lang) = &s.editing_lang
-        && matches!(ext.as_str(), "txt" | "text" | "md" | "markdown")
+        && (matches!(ext.as_str(), "txt" | "text") || crate::io::is_markdown_ext(&ext))
     {
         doc.styles.default_chr.lang = Some(lang.clone());
     }
@@ -237,11 +246,48 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
         super::view::restore_zoom(s, z);
     }
     s.path = Some(path.into());
+    s.imported_from = None;
+    s.import_report.clear();
     // Like Word, a document opened with a password is saved with it again.
     if encrypted {
         s.password = password.map(crate::io::Password::new);
     }
-    Ok(json!({"path": path, "paragraphs": s.doc.paragraph_count(), "words": s.doc.word_count(), "encrypted": encrypted}))
+    if s.native_markdown && !crate::io::is_markdown_ext(&ext) {
+        import_as_markdown(s, std::path::Path::new(path));
+    }
+    let saves_to = s.path.as_ref().map(|p| p.to_string_lossy().to_string());
+    Ok(json!({
+        "path": path,
+        "paragraphs": s.doc.paragraph_count(),
+        "words": s.doc.word_count(),
+        "encrypted": encrypted,
+        "savesTo": saves_to,
+        "adapted": s.import_report,
+    }))
+}
+
+/// The TextBundle folder `path` is the text (`text.md`) or `info.json` of, if it is.
+fn textbundle_of(path: &str) -> Option<String> {
+    let p = std::path::Path::new(path);
+    let name = p.file_name()?.to_str()?;
+    let dir = p.parent()?;
+    let is_bundle = dir.extension().is_some_and(|e| e.eq_ignore_ascii_case("textbundle"));
+    (is_bundle && (crate::io::textbundle::is_text_name(name) || name.eq_ignore_ascii_case("info.json"))).then(|| dir.to_string_lossy().to_string())
+}
+
+/// A document opened from another format (Word, RTF, ODT…) with Markdown as the document's own
+/// format: it will be saved as `<name>.md` beside the original, which is never written; when that
+/// file already exists, Save asks where instead. The import report says what Markdown can't hold.
+fn import_as_markdown(s: &mut Session, from: &std::path::Path) {
+    let md = from.with_extension("md");
+    s.imported_from = Some(from.to_path_buf());
+    s.path = (!md.exists()).then_some(md);
+    s.password = None;
+    s.dirty = true;
+    // Its Word properties (dates, category, custom properties) go into the front matter.
+    wordcraft_formats::front_matter::adopt_converted(&mut s.doc);
+    let report = wordcraft_formats::markdown::export_native(&s.doc, &Default::default()).report;
+    s.import_report = report.lines();
 }
 
 /// File › Info › Protect Document › Encrypt with Password: the password Word documents are saved
@@ -269,6 +315,11 @@ fn encrypt(s: &mut Session, v: &Value) -> CmdResult {
 fn save(s: &mut Session, v: &Value) -> CmdResult {
     let path = match p::str(v, "path").map(std::path::PathBuf::from).or_else(|| s.path.clone()) {
         Some(p) => p,
+        // A document opened from a forge is saved as a version there.
+        None if s.forge.is_some() => {
+            s.ui_requests.push(json!({"open": "saveVersion"}));
+            return Ok(json!({"saved": false, "forge": true}));
+        }
         None => {
             s.ui_requests.push(json!({"open": "saveAs"}));
             return Ok(json!({"saved": false}));
@@ -301,13 +352,30 @@ fn save(s: &mut Session, v: &Value) -> CmdResult {
     let password = s.password.as_ref().map(crate::io::Password::as_str);
     // A header/footer just made and left empty isn't saved (#960).
     let copy = super::insert::saved_copy(s);
-    crate::io::save_path_with(&path, copy.as_ref().unwrap_or(&s.doc), password, &opts).map_err(CmdError::Failed)?;
+    let markdown = crate::io::is_markdown_ext(&ext);
+    let mut adapted: Vec<String> = Vec::new();
+    if markdown {
+        adapted = save_markdown(&path, copy.as_ref().unwrap_or(&s.doc))?;
+    } else {
+        crate::io::save_path_with(&path, copy.as_ref().unwrap_or(&s.doc), password, &opts).map_err(CmdError::Failed)?;
+    }
     let encrypted = password.is_some() && crate::io::can_encrypt(&path.to_string_lossy());
-    if ["docx", "docm", "dotx", "dotm", "odt", "rtf", "json", "xml"].contains(&ext.as_str()) {
+    if ["docx", "docm", "dotx", "dotm", "odt", "rtf", "json", "xml"].contains(&ext.as_str()) || (markdown && s.native_markdown) {
         s.path = Some(path.clone());
         s.dirty = false;
     }
-    Ok(json!({"saved": true, "path": path.to_string_lossy(), "encrypted": encrypted}))
+    Ok(json!({"saved": true, "path": path.to_string_lossy(), "encrypted": encrypted, "adapted": adapted}))
+}
+
+/// Write the Markdown-native file and its assets; what Markdown couldn't hold, one line per kind.
+#[cfg(not(target_arch = "wasm32"))]
+fn save_markdown(path: &std::path::Path, doc: &wordcraft_doc::Document) -> Result<Vec<String>, CmdError> {
+    crate::io::save_markdown(path, doc).map(|r| r.lines()).map_err(CmdError::Failed)
+}
+
+#[cfg(target_arch = "wasm32")]
+fn save_markdown(path: &std::path::Path, _doc: &wordcraft_doc::Document) -> Result<Vec<String>, CmdError> {
+    Err(CmdError::Failed(format!("{}: files are saved through the browser on the web", path.display())))
 }
 
 /// Does `path` hold a Word 2003 XML Document already (so a plain save keeps that format)?
@@ -388,11 +456,65 @@ fn properties(s: &mut Session, v: &Value) -> CmdResult {
             }
         }
     }
+    // Plume: a Markdown document keeps its category and custom properties in its front matter.
+    if s.is_markdown() {
+        use wordcraft_formats::front_matter as fm;
+        let mut body = fm::stored(&s.doc);
+        if let Some(x) = p::str(v, "category") {
+            body = fm::set(&body, "category", x);
+        }
+        if let Some(m) = v.get("custom").and_then(Value::as_object) {
+            for (name, val) in m {
+                if let Some(k) = fm::key_of(name) {
+                    body = fm::set(&body, &k, val.as_str().unwrap_or(""));
+                }
+            }
+        }
+        fm::store(&mut s.doc, &body);
+    }
     let mut out = serde_json::to_value(&s.doc.core).unwrap_or(Value::Null);
     if let Some(o) = out.as_object_mut() {
         o.insert("custom".into(), serde_json::to_value(&s.doc.custom_props).unwrap_or(Value::Null));
     }
     Ok(out)
+}
+
+/// Plume: the front matter's top-level fields, in order.
+fn front_matter_fields(s: &Session) -> Value {
+    let fields: Vec<Value> = wordcraft_formats::front_matter::fields(&wordcraft_formats::front_matter::stored(&s.doc))
+        .into_iter()
+        .map(|(k, v)| json!({"key": k, "value": v}))
+        .collect();
+    json!({"fields": fields})
+}
+
+/// Plume: set one front matter field (`value` "" or null removes it). The document's properties
+/// (title, author, subject, keywords or tags, description) are set with it.
+fn set_front_matter(s: &mut Session, v: &Value) -> CmdResult {
+    use wordcraft_formats::front_matter as fm;
+    {
+        let key = p::str(v, "key").unwrap_or("").trim();
+        if !fm::valid_key(key) {
+            return Err(CmdError::Params("`key`: 1–64 letters, digits, `-` or `_`".into()));
+        }
+        let value = match v.get("value") {
+            Some(Value::String(x)) if x.len() <= MAX_CUSTOM_VALUE => x.replace(['\n', '\r'], " "),
+            Some(Value::Null) => String::new(),
+            _ => return Err(CmdError::Params(format!("`value`: a string (≤ {MAX_CUSTOM_VALUE} bytes), or null to remove the field"))),
+        };
+        let c = &mut s.doc.core;
+        match key.to_ascii_lowercase().as_str() {
+            "title" => c.title.clone_from(&value),
+            "author" => c.creator.clone_from(&value),
+            "subject" => c.subject.clone_from(&value),
+            "keywords" | "tags" => c.keywords.clone_from(&value),
+            "description" => c.description.clone_from(&value),
+            _ => {}
+        }
+        let body = fm::set(&fm::stored(&s.doc), key, &value);
+        fm::store(&mut s.doc, &body);
+    }
+    Ok(front_matter_fields(s))
 }
 
 /// Longest custom property name (Word's limit).

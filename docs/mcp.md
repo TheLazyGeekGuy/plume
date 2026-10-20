@@ -38,7 +38,7 @@ status 1, and nothing is saved. Every output is checked (known extension, folder
 
 ## Tracked changes by an agent
 
-Tracked changes and comments are recorded under the session's user name ("WordCraft User" by
+Tracked changes and comments are recorded under the session's user name ("Plume User" by
 default). Name the agent so reviewers can tell its edits from people's: start the headless server
 with `wordcraft-cli mcp --author "Claude (copyedit)"`, or run
 `file.setAuthor {"name": "Claude (copyedit)"}`. Turn tracking on explicitly with

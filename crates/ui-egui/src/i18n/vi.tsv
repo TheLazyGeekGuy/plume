@@ -11,7 +11,7 @@
 # Vietnamese computing vocabulary. No Microsoft Word (or other product) localisation, string table
 # or translated UI was consulted or copied, and no other catalog in this repository was used;
 # add entries the same way.
-# Product, format and technology names (WordCraft, PDF, Markdown, MCP …) stay in Latin letters.
+# Product, format and technology names (Plume, PDF, Markdown, MCP …) stay in Latin letters.
 # Commands and buttons use short imperatives (Lưu, Chèn, Dán); labels use natural Vietnamese.
 # A noun after a number stays unchanged (1 từ, 2 từ), so no plural forms are needed.
 # Counts use count-neutral wording (`Từ: 21`).
@@ -19,9 +19,11 @@
 	(no style)	(không có kiểu)
 	(no suggestions)	(không có gợi ý)
 	1.5 Line Spacing	Giãn dòng 1,5
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	Trình xử lý văn bản miễn phí, mã nguồn mở được viết từ đầu bằng Rust.\nMột phần trong bộ ứng dụng Crafting Apps của đội ngũ ArtCraft.
+	A free, open-source word processor written in Rust, with Markdown as its native format.	Trình xử lý văn bản miễn phí, mã nguồn mở, viết bằng Rust, dùng Markdown làm định dạng gốc.
+	Plume — based on WordCraft by the ArtCraft team.	Plume — dựa trên WordCraft của nhóm ArtCraft.
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	About	Giới thiệu
-	About WordCraft	Giới thiệu về WordCraft
+	About Plume	Giới thiệu về Plume
 	Accept	Chấp nhận
 	Accept All Changes	Chấp nhận tất cả thay đổi
 	Accept This Change	Chấp nhận thay đổi này
@@ -222,7 +224,6 @@
 	Comment	Nhận xét
 	Comments	Nhận xét
 	Comments Pane	Ngăn nhận xét
-	Community\nDiscord	Cộng đồng\nDiscord
 	Compact	Thu gọn
 	Compare	So sánh
 	Compress Pictures	Nén ảnh
@@ -275,8 +276,6 @@
 	Different First Page	Trang đầu khác biệt
 	Different Odd & Even Pages	Trang chẵn & lẻ khác nhau
 	Direct formatting	Định dạng trực tiếp
-	Discord	Discord
-	Discord community	Cộng đồng Discord
 	Display	Hiển thị
 	Display for Review	Hiển thị để xem lại
 	Distribute Columns	Chia đều cột
@@ -441,8 +440,6 @@
 	Inspect Styles at Selection	Kiểm tra kiểu tại vùng chọn
 	Interface language:	Ngôn ngữ giao diện:
 	Italic	In nghiêng
-	Join the ArtCraft community on Discord	Tham gia cộng đồng ArtCraft trên Discord
-	Join us on Discord: discord.gg/artcraft	Tham gia cùng chúng tôi trên Discord: discord.gg/artcraft
 	Justify	Căn đều
 	Keep Lines Together	Giữ các dòng cùng nhau
 	Keep Text Only	Chỉ giữ văn bản
@@ -482,7 +479,7 @@
 	Link to Previous	Liên kết với phần trước
 	Links	Liên kết
 	Location: {path}	Vị trí: {path}
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Bản quyền (c) 2026 ArtCraft Team và các cộng tác viên WordCraft.
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 những người đóng góp cho Plume, nhóm ArtCraft và những người đóng góp cho WordCraft.
 	Macros	Macro
 	Mailings	Gửi thư
 	Manage Sources	Quản lý nguồn
@@ -767,7 +764,6 @@
 	Show only comments and formatting in balloons	Chỉ hiện nhận xét và định dạng trong ô bên lề
 	Show revisions in balloons	Hiện các sửa đổi trong ô bên lề
 	Show rulers	Hiện thước
-	Show the community button in the title bar	Hiện nút cộng đồng trong thanh tiêu đề
 	Show/Hide ¶	Hiện/Ẩn ¶
 	Show\nComments	Hiện\nnhận xét
 	Shrink Font 1 Point	Giảm cỡ phông chữ 1 pt
@@ -783,7 +779,7 @@
 	Small caps	Chữ hoa nhỏ
 	SmartArt	SmartArt
 	Sort	Sắp xếp
-	Source code: github.com/storytold/wordcraft	Mã nguồn: github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	Mã nguồn: github.com/TheLazyGeekGuy/plume
 	Space	Dấu cách
 	Space before/after:	Khoảng cách trước/sau:
 	Spacing	Khoảng cách
@@ -920,7 +916,7 @@
 	Word Right	Đưa con trỏ sang phải một từ
 	Word document (*.docx)	Tài liệu Word (*.docx)
 	WordArt	WordArt
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	Từ
 	Words only	Chỉ gạch chân từ
 	Wrap Text	Văn bản quanh đối tượng
@@ -987,7 +983,7 @@
 	Stopped	Đã dừng
 	Speed	Tốc độ
 	Normal speed	Tốc độ bình thường
-	AutoSave documents you have saved in WordCraft	Tự động lưu các tài liệu bạn đã lưu trong WordCraft
+	AutoSave documents you have saved in Plume	Tự động lưu các tài liệu bạn đã lưu trong Plume
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	Không thể tự động lưu: {error}. Hãy lưu tài liệu để bật lại tính năng này.
 	Couldn't download {name}: {error}	Không tải được {name}: {error}
 	Do you want to save changes to {name}?	Bạn có muốn lưu các thay đổi vào {name}?
@@ -1156,7 +1152,6 @@
 	Insert a new equation (Alt+=)	Chèn phương trình mới (Alt+=)
 	Leave the equation (Esc)	Rời khỏi phương trình (Esc)
 	Preview	Xem thử
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Draw Ink	Vẽ mực
 	Erase Ink	Xóa mực
 	Hide Ink	Ẩn mực
@@ -1292,7 +1287,7 @@
 	The document will be saved with a password. Save it to protect it.	Tài liệu sẽ được lưu kèm mật khẩu. Hãy lưu lại để bảo vệ tài liệu.
 	The password is removed. Save the document to keep the change.	Đã gỡ mật khẩu. Hãy lưu tài liệu để giữ lại thay đổi này.
 	The passwords don't match.	Hai mật khẩu không khớp.
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	Hãy giữ mật khẩu ở nơi an toàn: nếu mất thì không ai, kể cả WordCraft, có thể mở được tài liệu. Để trống cả hai ô nếu muốn gỡ mật khẩu.
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Hãy giữ mật khẩu ở nơi an toàn: nếu mất thì không ai, kể cả Plume, có thể mở được tài liệu. Để trống cả hai ô nếu muốn gỡ mật khẩu.
 	Align Top Left	Căn trên trái
 	Align Top Center	Căn trên giữa
 	Align Top Right	Căn trên phải
@@ -2393,7 +2388,7 @@
 	Word document	Tài liệu Word
 	All files	Tất cả tệp
 	Recipient lists	Danh sách người nhận
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Hộp thoại tệp của hệ thống không khả dụng, nên WordCraft hiển thị hộp thoại riêng. Để dùng hộp thoại của hệ thống, hãy cài đặt cổng chọn tệp (như xdg-desktop-portal-gtk) hoặc zenity.
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Hộp thoại tệp của hệ thống không khả dụng, nên Plume hiển thị hộp thoại riêng. Để dùng hộp thoại của hệ thống, hãy cài đặt cổng chọn tệp (như xdg-desktop-portal-gtk) hoặc zenity.
 	Up one level	Lên một cấp
 	Home folder	Thư mục chính
 	{name} wasn't found.	Không tìm thấy {name}.
@@ -2402,8 +2397,8 @@
 	Showing the first {count} items.	Đang hiển thị {count} mục đầu tiên.
 	No items to show.	Không có mục nào để hiển thị.
 	File name:	Tên tệp:
-	Browse in WordCraft…	Duyệt trong WordCraft…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	Mở tệp bằng trình duyệt tệp của WordCraft khi hộp thoại tệp của hệ thống không xuất hiện.
+	Browse in Plume…	Duyệt trong Plume…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	Mở tệp bằng trình duyệt tệp của Plume khi hộp thoại tệp của hệ thống không xuất hiện.
 	Resize Table by Dragging	Đổi cỡ bảng bằng cách kéo
 	Visual effects	Hiệu ứng hình ảnh
 	Animation effects:	Hiệu ứng động:
@@ -2429,23 +2424,23 @@
 	TOC {n}	Mục lục {n}
 	Good afternoon	Chào buổi chiều
 	Context	Theo ngữ cảnh
-	Couldn't make WordCraft the default: {error}	Không thể đặt WordCraft làm ứng dụng mặc định: {error}
+	Couldn't make Plume the default: {error}	Không thể đặt Plume làm ứng dụng mặc định: {error}
 	Do Not Check Spelling or Grammar	Không kiểm tra chính tả hoặc ngữ pháp
 	Hindi	Tiếng Hindi
-	In Default apps, choose WordCraft for the document types you want it to open.	Trong Ứng dụng mặc định, chọn WordCraft cho các loại tài liệu bạn muốn mở bằng ứng dụng này.
-	Make WordCraft the default for Word documents…	Đặt WordCraft làm ứng dụng mặc định cho tài liệu Word…
+	In Default apps, choose Plume for the document types you want it to open.	Trong Ứng dụng mặc định, chọn Plume cho các loại tài liệu bạn muốn mở bằng ứng dụng này.
+	Make Plume the default for Word documents…	Đặt Plume làm ứng dụng mặc định cho tài liệu Word…
 	Numerals	Chữ số
 	Numerals:	Chữ số:
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	Từ nay, mở tệp .docx, .doc, .rtf, .odt và mẫu Word bằng WordCraft.
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	Mở Cài đặt › Ứng dụng mặc định để chọn WordCraft cho .docx và các loại tài liệu khác.
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	Từ nay, mở tệp .docx, .doc, .rtf, .odt và mẫu Word bằng Plume.
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	Mở Cài đặt › Ứng dụng mặc định để chọn Plume cho .docx và các loại tài liệu khác.
 	Reading	Đọc
 	Reading Column Width	Độ rộng cột khi đọc
 	Reading Line Spacing	Giãn dòng khi đọc
 	Reading Text Size	Cỡ chữ khi đọc
 	Show KeyTips (Alt or F10)	Hiện gợi ý phím (Alt hoặc F10)
 	System	Hệ thống
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	Để mở tài liệu Word bằng WordCraft theo mặc định: chọn một tài liệu trong Finder, chọn Tệp › Lấy thông tin, chọn WordCraft ở mục Mở bằng, rồi nhấp Thay đổi tất cả.
-	WordCraft is now the default app for Word documents.	WordCraft hiện là ứng dụng mặc định cho tài liệu Word.
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	Để mở tài liệu Word bằng Plume theo mặc định: chọn một tài liệu trong Finder, chọn Tệp › Lấy thông tin, chọn Plume ở mục Mở bằng, rồi nhấp Thay đổi tất cả.
+	Plume is now the default app for Word documents.	Plume hiện là ứng dụng mặc định cho tài liệu Word.
 	Correct TWo INitial CApitals	Sửa lỗi viết hoa hai chữ cái đầu
 	Correct accidental usage of cAPS LOCK key	Sửa lỗi vô tình dùng phím Caps Lock
 	Picture	Ảnh
@@ -2457,8 +2452,8 @@
 	Undo History	Lịch sử hoàn tác
 	Undo {n} Actions	Hoàn tác {n} thao tác
 	Start-up	Khởi động
-	Show the Start screen when WordCraft starts	Hiện màn hình Bắt đầu khi khởi chạy WordCraft
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Bật: WordCraft mở ở Tệp › Trang chủ, với tài liệu trống, các mẫu và tài liệu gần đây của bạn. Tắt: WordCraft mở một tài liệu trống.
+	Show the Start screen when Plume starts	Hiện màn hình Bắt đầu khi khởi chạy Plume
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Bật: Plume mở ở Tệp › Trang chủ, với tài liệu trống, các mẫu và tài liệu gần đây của bạn. Tắt: Plume mở một tài liệu trống.
 	Typing	Nhập liệu
 	Level 4	Cấp 4
 	Level 5	Cấp 5
@@ -2513,7 +2508,7 @@
 	Go to what:	Đi tới:
 	Language Preferences…	Tùy chọn ngôn ngữ…
 	Reading Mode	Chế độ đọc
-	Researcher needs an online service; WordCraft keeps your documents offline.	Trình nghiên cứu cần một dịch vụ trực tuyến; WordCraft giữ tài liệu của bạn ngoại tuyến.
+	Researcher needs an online service; Plume keeps your documents offline.	Trình nghiên cứu cần một dịch vụ trực tuyến; Plume giữ tài liệu của bạn ngoại tuyến.
 	Set Proofing Language…	Đặt ngôn ngữ soát lỗi…
 	Suggested	Đề xuất
 	Text size	Cỡ chữ
@@ -2621,6 +2616,78 @@
 	Sort by	Sắp xếp theo
 	Then by	Sau đó theo
 	{count} of {total} recipients will be merged.	Sẽ phối {count} trên {total} người nhận.
+	Version Status	Trạng thái phiên bản
+	Start Keeping Versions	Bắt đầu lưu phiên bản
+	Save Version	Lưu phiên bản
+	Show Changes	Hiện thay đổi
+	Compare with Version	So sánh với phiên bản
+	Restore Version	Khôi phục phiên bản
+	Synchronize	Đồng bộ
+	Versions	Phiên bản
+	Describe your changes	Mô tả thay đổi của bạn
+	No versions yet	Chưa có phiên bản nào
+	Restore	Khôi phục
+	Save\nVersion	Lưu\nphiên bản
+	Version\nHistory	Lịch sử\nphiên bản
+	Save the document as Markdown first (File › Save As).	Hãy lưu tài liệu dưới dạng Markdown trước (Tệp › Lưu thành).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Thư mục của tài liệu này chưa lưu phiên bản: dùng Lưu phiên bản để bắt đầu.
+	Version {id} saved	Đã lưu phiên bản {id}
+	Save the document as Markdown first	Hãy lưu tài liệu dưới dạng Markdown trước
+	Imported as Markdown	Đã nhập dưới dạng Markdown
+	Saved as Markdown	Đã lưu dưới dạng Markdown
+	Sign In to a Forge	Đăng nhập forge
+	Sign Out of Forges	Đăng xuất khỏi forge
+	Open from a Forge	Mở từ forge
+	Open from a Forge…	Mở từ forge…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Mở tài liệu Markdown từ GitHub, GitLab hoặc Forgejo; Lưu phiên bản sẽ ghi phiên bản ở đó.
+	Server	Máy chủ
+	Repository	Kho mã
+	Branch	Nhánh
+	Access token	Mã truy cập
+	kept in the keychain	lưu trong chuỗi khóa
+	Remember the token in the keychain	Ghi nhớ mã trong chuỗi khóa
+	Enter an access token for this forge.	Nhập mã truy cập cho forge này.
+	Keep to Markdown	Chỉ dùng Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown không giữ được định dạng này (chế độ Markdown nghiêm ngặt)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Bật: các lệnh Markdown không giữ được (màu chữ, gạch chân, hộp văn bản, cột…) bị tắt. Tắt: chúng vẫn hoạt động và khi lưu sẽ cho biết Markdown đã không giữ những gì.
+	Request Review	Yêu cầu xem xét
+	Get Review Comments	Lấy nhận xét xem xét
+	Send Replies	Gửi trả lời
+	Review Status	Trạng thái xem xét
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Mở tài liệu từ GitHub, GitLab hoặc Forgejo để yêu cầu xem xét
+	What should your colleagues review?	Đồng nghiệp cần xem xét gì?
+	Details (optional)	Chi tiết (tùy chọn)
+	Review requested: {url}	Đã yêu cầu xem xét: {url}
+	Documents Pane	Ngăn Tài liệu
+	Save the document as Markdown to see the documents beside it.	Lưu tài liệu dưới dạng Markdown để xem các tài liệu bên cạnh.
+	No Markdown documents here yet.	Chưa có tài liệu Markdown nào ở đây.
+	save the document first	hãy lưu tài liệu trước
+	Address of the Markdown file (copy it from your browser)	Địa chỉ tệp Markdown (sao chép từ trình duyệt)
+	Paste the address of the Markdown file's page (it ends in .md).	Dán địa chỉ trang của tệp Markdown (kết thúc bằng .md).
+	Accounts	Tài khoản
+	New connection	Kết nối mới
+	Connect	Kết nối
+	Projects	Dự án
+	Filter	Lọc
+	No projects on this account.	Tài khoản này không có dự án nào.
+	Waiting for the forge…	Đang chờ forge…
+	Save to a Forge…	Lưu vào forge…
+	Save to a Forge	Lưu vào forge
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Lưu tài liệu này dưới dạng Markdown vào một dự án GitHub, GitLab hoặc Forgejo; sau đó Lưu phiên bản sẽ ghi các phiên bản ở đó.
+	Replace the document that has this name	Thay thế tài liệu có tên này
+	Saved to the forge:	Đã lưu vào forge:
+	Permissions the token needs:	Quyền mà mã thông báo cần:
+	Or sign in with the browser	Hoặc đăng nhập bằng trình duyệt
+	OAuth app client ID	ID máy khách của ứng dụng OAuth
+	Sign in with the browser	Đăng nhập bằng trình duyệt
+	Type this code on the forge's page:	Nhập mã này trên trang của forge:
+	Open the page	Mở trang
+	Copy the code	Sao chép mã
+	No Markdown documents in this project.	Dự án này không có tài liệu Markdown.
+	Or paste the document's address	Hoặc dán địa chỉ tài liệu
+	Forge Repositories	Kho mã trên forge
+	Forge Documents	Tài liệu trên forge
 	Find in list:	Tìm trong danh sách:
 	Any field	Trường bất kỳ
 	Matches: {count}	Kết quả khớp: {count}
@@ -2651,7 +2718,7 @@
 	Place in This Document	Vị trí trong tài liệu này
 
 # Missing dictionary on the status bar (#1441)
-	No spelling dictionary for {language} is installed, so it isn't checked. WordCraft looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Chưa cài từ điển chính tả cho {language}, nên ngôn ngữ này không được kiểm tra. WordCraft tìm từ điển Hunspell {name} trong thư mục WORDCRAFT_DICTIONARIES và ở các vị trí thông thường của hệ thống.
+	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Chưa cài từ điển chính tả cho {language}, nên ngôn ngữ này không được kiểm tra. Plume tìm từ điển Hunspell {name} trong thư mục WORDCRAFT_DICTIONARIES và ở các vị trí thông thường của hệ thống.
 	{language} (no dictionary)	{language} (không có từ điển)
 # Table style parts in the Modify Table Style dialog (#714)
 	Odd Banded Rows	Hàng xen kẽ lẻ
@@ -2689,6 +2756,421 @@ template	Letter	Thư
 # Reading Mode column widths (#1040)
 	Narrow	Hẹp
 	Medium	Trung bình
+	(not saved)	(chưa lưu)
+	Edit template…	Sửa mẫu…
+	Export PDF…	Xuất PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Dàn trang tài liệu theo mẫu: trang tiêu đề, đầu trang và chân trang, bìa và giấy tiêu đề. Phần YAML đầu tài liệu đặt các tùy chọn của mẫu.
+	Layout (LaTeX)	Bố cục (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Đang tạo PDF… (lần đầu, công cụ TeX có thể tải xuống những gì cần thiết)
+	New template created: it is the one exports use now.	Đã tạo mẫu mới: các lần xuất giờ dùng mẫu này.
+	New template from this one:	Mẫu mới từ mẫu này:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Không tìm thấy công cụ TeX. Hãy cài Tectonic (brew install tectonic) hoặc MacTeX rồi xuất lại.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Các tùy chọn như titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Phần YAML đầu tài liệu sẽ ghi đè chúng.
+	PDF with a template	PDF theo mẫu
+	Restore the original	Khôi phục bản gốc
+	Save and preview	Lưu và xem trước
+	Settings (YAML)	Cài đặt (YAML)
+	Template saved.	Đã lưu mẫu.
+	Template:	Mẫu:
+	Template: {name}	Mẫu: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Mẫu LaTeX, viết bằng ngôn ngữ mẫu của pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	bản sao
+	Export LaTeX with a Template	Xuất LaTeX theo mẫu
+	Export PDF with a Template	Xuất PDF theo mẫu
+	New PDF Template	Mẫu PDF mới
+	PDF Engine	Công cụ PDF
+	PDF Templates	Mẫu PDF
+	Read PDF Template	Đọc mẫu PDF
+	Restore PDF Template	Khôi phục mẫu PDF
+	Save PDF Template	Lưu mẫu PDF
+	Tables for AI	Bảng cho AI
+	AI Request for a Table	Yêu cầu AI cho một bảng
+	Restructure Tables	Tái cấu trúc bảng
+	A language model can't be reached from here.	Không thể kết nối tới mô hình ngôn ngữ từ đây.
+	A language model can't be reached from the browser.	Không thể kết nối tới mô hình ngôn ngữ từ trình duyệt.
+	AI	AI
+	Artificial intelligence	Trí tuệ nhân tạo
+	Block	Khối
+	Block {index}: {rows} × {cols}, {words} words	Khối {index}: {rows} × {cols}, {words} từ
+	Changed	Đã đổi
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Hãy chọn mô hình ngôn ngữ trước: Tệp › Tùy chọn › Lưu › Trí tuệ nhân tạo.
+	Choose a model	Chọn mô hình
+	High	Cao
+	Low	Thấp
+	Model's default	Mặc định của mô hình
+	Model:	Mô hình:
+	Model: {model} at {url}	Mô hình: {model} tại {url}
+	No table to restructure.	Không có bảng nào để tái cấu trúc.
+	No table was changed.	Không bảng nào bị thay đổi.
+	Other server	Máy chủ khác
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume yêu cầu mô hình tái cấu trúc những bảng Markdown không chứa được (biểu mẫu và trang dàn bằng bảng), và chỉ giữ bản viết lại khi mọi từ vẫn còn. Ollama và LM Studio chạy trên máy tính này: không gì rời khỏi máy.
+	Reasoning:	Suy luận:
+	Restructure	Tái cấu trúc
+	Restructure\nTables	Tái cấu trúc\nbảng
+	Server:	Máy chủ:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Gợi ý trong Ollama: gpt-oss:20b với 16 GB bộ nhớ trở lên, qwen3:4b với 8 GB (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Bảng {i}/{n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Máy chủ chưa có mô hình nào: hãy tải một mô hình trước (ollama pull gpt-oss:20b).
+	No table in this document needs a model: Markdown holds its tables as they are.	Không bảng nào trong tài liệu này cần mô hình: Markdown giữ nguyên các bảng.
+	Unchanged	Không đổi
+	Use a language model	Dùng mô hình ngôn ngữ
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Đã tái cấu trúc {applied}/{n} bảng. Hoàn tác (Ctrl+Z) khôi phục tất cả.
+	{n} models on the server.	{n} mô hình trên máy chủ.
+	{ready} of {n} tables can be sent to the model.	Có thể gửi {ready}/{n} bảng tới mô hình.
+	Saved to {forge}	Đã lưu vào {forge}
+	Changes Since Last Version	Thay đổi kể từ phiên bản trước
+	No changes since the last version.	Không có thay đổi nào kể từ phiên bản trước.
+	Showing the changes since the last version ({n} paragraphs).	Đang hiện thay đổi kể từ phiên bản trước ({n} đoạn).
+	Tracking from now on: the last version can't be read ({error}).	Theo dõi từ bây giờ: không đọc được phiên bản trước ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Đặt trường front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Các trường GitHub, VitePress và mẫu PDF đọc, lưu ở đầu tệp Markdown.
+	(several values: edit the source)	(nhiều giá trị: sửa mã nguồn)
+	Remove this field	Xóa trường này
+	New field	Trường mới
+	Letters, digits, - and _ only	Chỉ chữ cái, chữ số, - và _
+	Callout	Khung chú thích
+	Code Block	Khối mã
+	Code Language	Ngôn ngữ mã
+	Leave Block	Rời khối
+	Markdown Block	Khối Markdown
+	Mermaid diagram	Sơ đồ Mermaid
+	Plain text	Văn bản thuần
+	Note	Ghi chú
+	Tip	Mẹo
+	Important	Quan trọng
+	Warning	Cảnh báo
+	Caution	Thận trọng
+	Danger	Nguy hiểm
+	Details	Chi tiết
+	Insert › Markdown	Chèn › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Đã lưu trên nhánh của bạn {branch}; {target} đang bị khóa.
+	Merge request {n} into {target} is open: this version goes in it.	Yêu cầu hợp nhất {n} vào {target} đang mở: phiên bản này sẽ vào đó.
+	Request the merge into {target}	Yêu cầu hợp nhất vào {target}
+	Version {id} saved; merge request {n} opened	Đã lưu phiên bản {id}; đã mở yêu cầu hợp nhất {n}
+	Markdown indents list items only	Markdown chỉ thụt lề các mục danh sách
+	Diagram	Sơ đồ
+	Edit\nDiagram	Sửa\nsơ đồ
+	Mermaid source	Mã nguồn Mermaid
+	Mermaid syntax	Cú pháp Mermaid
+	Sequence	Tuần tự
+	Flowchart	Lưu đồ
+	Gantt	Gantt
+	Class	Lớp
+	Mind map	Sơ đồ tư duy
+	Markdown Source	Mã nguồn Markdown
+	Apply Markdown Source	Áp dụng mã nguồn Markdown
+	Heading Anchor	Neo của tiêu đề
+	Include File	Bao gồm tệp
+	Include	Bao gồm
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Tệp Markdown cần bao gồm, tương đối với tệp này (VitePress hiển thị nội dung tại đây)
+	Open Included File	Mở tệp được bao gồm
+	Anchor	Neo
+	Discard	Bỏ
+	Save this document first: an included file is found beside it.	Hãy lưu tài liệu này trước: tệp được bao gồm nằm cạnh nó.
+	View › Markdown Source	Xem › Mã nguồn Markdown
+	Shapes and Connectors	Hình và đường kết nối
+	Add Message	Thêm thông điệp
+	Add Participant	Thêm người tham gia
+	Add at least one participant.	Hãy thêm ít nhất một người tham gia.
+	Arrowhead	Đầu mũi tên
+	Chart type	Loại biểu đồ
+	Click in the canvas to place the shape.	Bấm vào vùng vẽ để đặt hình.
+	Connector	Đường kết nối
+	Drag a shape to move it; drag from a blue handle to another shape to connect them.	Kéo một hình để di chuyển; kéo từ tay nắm màu xanh sang hình khác để nối chúng.
+	Drag from one shape to another to connect them.	Kéo từ hình này sang hình khác để nối chúng.
+	Draw at least one shape.	Hãy vẽ ít nhất một hình.
+	Enter at least one value above zero.	Hãy nhập ít nhất một giá trị lớn hơn không.
+	From	Từ
+	Label	Nhãn
+	Message	Thông điệp
+	Messages	Thông điệp
+	Participant	Người tham gia
+	Participants	Những người tham gia
+	Pick a shape above, then click here to place it.	Chọn một hình ở trên, rồi bấm vào đây để đặt nó.
+	Place the shapes step by step along the arrows	Sắp xếp các hình từng bước theo mũi tên
+	Plume lays the diagram out; the canvas sets the order and direction.	Plume tự bố trí sơ đồ; vùng vẽ quyết định thứ tự và hướng.
+	Remove Series	Xóa chuỗi
+	Reverse Direction	Đảo hướng
+	Select a shape or a connector to change it.	Chọn một hình hoặc đường kết nối để thay đổi.
+	Series	Chuỗi
+	Shape	Hình
+	This kind of diagram has no visual editor yet; its text is kept as written.	Loại sơ đồ này chưa có trình chỉnh sửa trực quan; văn bản được giữ nguyên.
+	To	Đến
+	Action	Thao tác
+	Activate	Kích hoạt
+	Actor	Tác nhân
+	Add Column	Thêm cột
+	Aggregation	Kết tập
+	Aggregation (at the start)	Kết tập (ở đầu)
+	All Diagrams…	Tất cả sơ đồ…
+	Alternative	Lựa chọn
+	Amount	Số lượng
+	Analysis	Phân tích
+	Arrow at the End	Mũi tên ở cuối
+	Arrow at the Start	Mũi tên ở đầu
+	Assigned to	Giao cho
+	Association	Liên kết
+	Association (to the start)	Liên kết (về đầu)
+	Asynchronous	Bất đồng bộ
+	Asynchronous Reply	Trả lời bất đồng bộ
+	Axis	Trục
+	Axis Format	Định dạng trục
+	Back to the Visual Editor	Quay lại trình chỉnh sửa trực quan
+	Bang	Nổ
+	Bar and Line Chart	Biểu đồ cột và đường
+	Bars	Cột
+	Block Diagram	Sơ đồ khối
+	Both Ways	Hai chiều
+	Both Ways, Dashed	Hai chiều, nét đứt
+	Bottom Left Quadrant	Góc phần tư dưới trái
+	Bottom Right Quadrant	Góc phần tư dưới phải
+	Bottom to Top	Từ dưới lên trên
+	Boundary	Ranh giới
+	Break	Ngắt
+	C4 Architecture	Kiến trúc C4
+	Call	Gọi
+	Card (empty: an empty column)	Thẻ (để trống: cột trống)
+	Card Id	Mã thẻ
+	Cards	Thẻ
+	Category Axis Title	Tiêu đề trục danh mục
+	Change Kind…	Đổi loại…
+	Cherry-pick	Cherry-pick
+	Choice	Lựa chọn
+	Choose a kind of diagram:	Chọn loại sơ đồ:
+	Circles	Hình tròn
+	Class Diagram	Sơ đồ lớp
+	Cloud	Đám mây
+	Cloud Architecture	Kiến trúc đám mây
+	Column Id	Mã cột
+	Columns Wide	Rộng (số cột)
+	Commit	Commit
+	Commit Id	Mã commit
+	Component	Thành phần
+	Component Database	Cơ sở dữ liệu thành phần
+	Component Queue	Hàng đợi thành phần
+	Composition	Hợp thành
+	Composition (at the start)	Hợp thành (ở đầu)
+	Connection	Kết nối
+	Container	Vùng chứa
+	Container Boundary	Ranh giới vùng chứa
+	Container Database	Cơ sở dữ liệu vùng chứa
+	Container Queue	Hàng đợi vùng chứa
+	Control	Điều khiển
+	Critical	Quan trọng
+	Curve	Đường cong
+	Dashed Line	Đường nét đứt
+	Dashed Link	Liên kết nét đứt
+	Data (Left)	Dữ liệu (trái)
+	Database	Cơ sở dữ liệu
+	Date Format	Định dạng ngày
+	Deactivate	Hủy kích hoạt
+	Decision	Quyết định
+	Demonstration	Trình diễn
+	Dependency	Phụ thuộc
+	Dependency (to the start)	Phụ thuộc (về đầu)
+	Deployment	Triển khai
+	Deployment Node	Nút triển khai
+	Derives	Dẫn xuất
+	Description	Mô tả
+	Design Constraint	Ràng buộc thiết kế
+	Destroy	Hủy
+	Diagram Level	Cấp độ sơ đồ
+	Direction	Hướng
+	Disk	Ổ đĩa
+	Display Name	Tên hiển thị
+	Done	Xong
+	Dotted Arrow	Mũi tên chấm
+	Dotted Line	Đường chấm
+	Double Circle	Vòng tròn kép
+	Dynamic	Động
+	Edit as Text	Sửa dạng văn bản
+	Element	Phần tử
+	Else	Ngược lại
+	End	Kết thúc
+	End (date, or duration: 5d, 1w)	Kết thúc (ngày, hoặc thời lượng: 5d, 1w)
+	End Cardinality	Bản số ở cuối
+	End Multiplicity	Bội số ở cuối
+	End Side	Cạnh cuối
+	Enterprise Boundary	Ranh giới doanh nghiệp
+	Entity	Thực thể
+	Entity Relationship	Thực thể – quan hệ
+	Event	Sự kiện
+	Events	Sự kiện
+	Exactly one	Đúng một
+	Excluded Days	Ngày loại trừ
+	External	Bên ngoài
+	First Bit	Bit đầu
+	Flag	Cờ
+	Flows	Luồng
+	Fork	Rẽ nhánh
+	From the Start's Group	Từ nhóm của điểm đầu
+	Functional Requirement	Yêu cầu chức năng
+	Gantt Chart	Biểu đồ Gantt
+	Git History	Lịch sử Git
+	Grid	Lưới
+	Half Arrow (Bottom)	Nửa mũi tên (dưới)
+	Half Arrow (Top)	Nửa mũi tên (trên)
+	Half Arrow at the Start (Bottom)	Nửa mũi tên ở đầu (dưới)
+	Half Arrow at the Start (Top)	Nửa mũi tên ở đầu (trên)
+	Half Arrow at the Start, Dashed (Bottom)	Nửa mũi tên ở đầu, nét đứt (dưới)
+	Half Arrow at the Start, Dashed (Top)	Nửa mũi tên ở đầu, nét đứt (trên)
+	Half Arrow, Dashed (Bottom)	Nửa mũi tên, nét đứt (dưới)
+	Half Arrow, Dashed (Top)	Nửa mũi tên, nét đứt (trên)
+	Hexagon	Lục giác
+	Hide the Legend	Ẩn chú giải
+	Highlighted	Được tô sáng
+	History	Lịch sử
+	Horizontal Bars	Cột ngang
+	Icon	Biểu tượng
+	Id	Mã
+	Idea	Ý tưởng
+	Ideas	Ý tưởng
+	Identifying Relationship	Quan hệ định danh
+	In Group	Trong nhóm
+	In Progress	Đang thực hiện
+	Inheritance	Kế thừa
+	Inheritance (from the end)	Kế thừa (từ cuối)
+	Insert Row Below	Chèn hàng bên dưới
+	Inspection	Kiểm tra
+	Interface Requirement	Yêu cầu giao diện
+	Internet	Internet
+	Item	Mục
+	Items	Mục
+	Join	Hợp nhánh
+	Junction	Điểm nối
+	Kanban Board	Bảng Kanban
+	Last Bit	Bit cuối
+	Left of	Bên trái
+	Left to Right	Từ trái sang phải
+	Level	Cấp
+	Loop	Vòng lặp
+	Lost (Cross)	Mất (dấu chéo)
+	Lost Reply (Cross)	Trả lời bị mất (dấu chéo)
+	Manual Operation	Thao tác thủ công
+	Members (+public, -private, #protected; methods end with ())	Thành viên (+công khai, -riêng, #bảo vệ; phương thức kết thúc bằng ())
+	Milestone	Mốc
+	Mind Map	Sơ đồ tư duy
+	Move Left	Chuyển sang trái
+	Move Right	Chuyển sang phải
+	New Branch	Nhánh mới
+	Non-identifying Relationship	Quan hệ không định danh
+	Number the Messages	Đánh số thông điệp
+	One or more	Một hoặc nhiều
+	Option	Tùy chọn
+	Optional	Tùy chọn
+	Order or Parent	Thứ tự hoặc cha
+	Over	Phía trên
+	Packet Layout	Bố cục gói tin
+	Parallel	Song song
+	Parts of this diagram (notes, groups or styles) can't be shown here: applying changes made here drops them. Edit it as text to keep them.	Một số phần của sơ đồ này (ghi chú, nhóm hoặc kiểu) không hiển thị được ở đây: áp dụng thay đổi tại đây sẽ bỏ chúng. Hãy sửa dạng văn bản để giữ lại.
+	People (comma separated)	Người (cách nhau bằng dấu phẩy)
+	Performance Requirement	Yêu cầu hiệu năng
+	Period	Giai đoạn
+	Person	Người
+	Physical Requirement	Yêu cầu vật lý
+	Pie Chart	Biểu đồ tròn
+	Plain	Thường
+	Planned	Đã lên kế hoạch
+	Planning	Lập kế hoạch
+	Point	Điểm
+	Polygons	Đa giác
+	Predefined Process	Quy trình định sẵn
+	Preparation	Chuẩn bị
+	Priority	Ưu tiên
+	Quadrant Chart	Biểu đồ góc phần tư
+	Radar Chart	Biểu đồ radar
+	Realization	Hiện thực hóa
+	Realization (from the end)	Hiện thực hóa (từ cuối)
+	Refines	Tinh chỉnh
+	Requirement	Yêu cầu
+	Requirement Diagram	Sơ đồ yêu cầu
+	Reverted	Đã hoàn tác
+	Right of	Bên phải
+	Rings	Vòng
+	Risk	Rủi ro
+	Rounded	Bo tròn
+	Sankey Flows	Luồng Sankey
+	Satisfies	Thỏa mãn
+	Score (1 to 5)	Điểm (1 đến 5)
+	Section	Phần
+	Sequence Diagram	Sơ đồ tuần tự
+	Service	Dịch vụ
+	Show the Values	Hiện giá trị
+	Show the whole drawing	Hiện toàn bộ hình vẽ
+	Slice	Lát
+	Slices	Các lát
+	Software System	Hệ thống phần mềm
+	Start	Bắt đầu
+	Start (date, or after id)	Bắt đầu (ngày, hoặc after mã)
+	Start Cardinality	Bản số ở đầu
+	Start Multiplicity	Bội số ở đầu
+	Start Side	Cạnh đầu
+	State Diagram	Sơ đồ trạng thái
+	Status	Trạng thái
+	Step	Bước
+	Steps	Các bước
+	Stereotype	Khuôn mẫu
+	Structure	Cấu trúc
+	Switch to Branch	Chuyển sang nhánh
+	System Boundary	Ranh giới hệ thống
+	System Context	Bối cảnh hệ thống
+	System Database	Cơ sở dữ liệu hệ thống
+	System Queue	Hàng đợi hệ thống
+	Task	Nhiệm vụ
+	Tasks	Các nhiệm vụ
+	Terminator	Điểm đầu/cuối
+	Test	Kiểm thử
+	The diagram's Mermaid text	Văn bản Mermaid của sơ đồ
+	Thick Arrow	Mũi tên dày
+	Thick Line	Đường dày
+	This diagram uses what the visual editor can't show yet; its text is kept as written.	Sơ đồ này dùng những gì trình chỉnh sửa trực quan chưa hiển thị được; văn bản được giữ nguyên.
+	Tick Interval	Khoảng chia vạch
+	Ticket	Phiếu
+	Timeline	Dòng thời gian
+	To the End's Group	Tới nhóm của điểm cuối
+	Today Marker	Mốc hôm nay
+	Top Left Quadrant	Góc phần tư trên trái
+	Top Right Quadrant	Góc phần tư trên phải
+	Top to Bottom	Từ trên xuống dưới
+	Traces	Truy vết
+	Transition	Chuyển tiếp
+	Trapezoid (Inverted)	Hình thang (ngược)
+	Treemap	Bản đồ cây
+	User Journey	Hành trình người dùng
+	Value (leaves)	Giá trị (lá)
+	Value Axis Maximum	Tối đa trục giá trị
+	Value Axis Minimum	Tối thiểu trục giá trị
+	Value Axis Title	Tiêu đề trục giá trị
+	Verification	Xác minh
+	Verifies	Xác minh
+	Very High	Rất cao
+	Very Low	Rất thấp
+	X (0 to 1)	X (0 đến 1)
+	X Axis, Left	Trục X, trái
+	X Axis, Right	Trục X, phải
+	Y (0 to 1)	Y (0 đến 1)
+	Y Axis, Bottom	Trục Y, dưới
+	Y Axis, Top	Trục Y, trên
+	ZenUML Sequence	Tuần tự ZenUML
+	Zero or more	Không hoặc nhiều
+	Zero or one	Không hoặc một
+	Pick a kind of diagram.	Hãy chọn một loại sơ đồ.
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)
 # Split Cells and Convert Text to Table (#2592)
 	Merge cells before split	Gộp ô trước khi tách
 	Table size	Kích thước bảng

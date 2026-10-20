@@ -556,6 +556,27 @@ pub fn paint(p: &Painter, r: Rect, name: &str, c: Color32, accent: Color32) {
             pen.fcircle(10.0, 10.0, 3.5, a);
         }
         "equation" => pen.text(10.0, 10.0, 17.0, "π", a, false),
+        // Plume: a fenced code block (angle brackets on a grey band) and a callout (a band with
+        // a coloured rule on its left).
+        "codeBlock" => {
+            pen.frect(2.5, 4.0, 17.5, 16.0, c.linear_multiply(0.15));
+            pen.line(&[(7.0, 7.0), (4.5, 10.0), (7.0, 13.0)]);
+            pen.line(&[(13.0, 7.0), (15.5, 10.0), (13.0, 13.0)]);
+            pen.line(&[(11.0, 6.5), (9.0, 13.5)]);
+        }
+        // Plume: a diagram (three boxes, two arrows).
+        "diagram" => {
+            pen.rect(2.5, 3.0, 8.0, 7.5, c);
+            pen.rect(12.0, 3.0, 17.5, 7.5, c);
+            pen.frect(7.0, 13.0, 13.0, 17.5, a);
+            pen.line(&[(5.25, 7.5), (5.25, 15.25), (7.0, 15.25)]);
+            pen.line(&[(14.75, 7.5), (14.75, 15.25), (13.0, 15.25)]);
+        }
+        "callout" => {
+            pen.frect(3.0, 4.0, 17.5, 16.0, a.linear_multiply(0.18));
+            pen.frect(3.0, 4.0, 4.8, 16.0, a);
+            pen.lines(7.0, 15.5, &[8.0, 11.0, 14.0]);
+        }
         "symbol" => pen.text(10.0, 10.0, 17.0, "Ω", c, false),
         // Draw
         "pen" => {
@@ -869,6 +890,40 @@ pub fn paint(p: &Painter, r: Rect, name: &str, c: Color32, accent: Color32) {
             pen.text(10.0, 9.5, 8.0, "Aa", a, true);
         }
         "wordCount" => pen.text(10.0, 10.0, 9.0, "123", a, true),
+        // Review › Versions (Plume): a page with a saved-version dot; a clock; two arrows.
+        "saveVersion" => {
+            pen.page(3.0, 2.0, 13.0, 16.0);
+            pen.fcircle(15.0, 15.0, 3.5, a);
+            pen.line_c(&[(13.5, 15.0), (14.7, 16.2), (16.7, 13.8)], Color32::WHITE);
+        }
+        "versionHistory" => {
+            pen.circle(10.0, 10.0, 7.0, c);
+            pen.line_c(&[(10.0, 5.5), (10.0, 10.0), (13.5, 12.0)], a);
+        }
+        "requestReview" => {
+            pen.page(3.0, 2.0, 12.0, 15.0);
+            pen.circle(14.0, 12.0, 3.5, a);
+            pen.line_c(&[(16.5, 14.5), (18.5, 16.5)], a);
+        }
+        "reviewComments" => {
+            pen.rect(3.0, 4.0, 17.0, 13.0, c);
+            pen.line_c(&[(6.0, 13.0), (6.0, 17.0), (10.0, 13.0)], c);
+            pen.line_c(&[(6.0, 7.5), (14.0, 7.5)], a);
+            pen.line_c(&[(6.0, 10.0), (12.0, 10.0)], a);
+        }
+        // A speech bubble with an arrow going out.
+        "sendReplies" => {
+            pen.rect(2.5, 3.0, 12.5, 10.0, c);
+            pen.line_c(&[(5.0, 10.0), (5.0, 13.5), (8.5, 10.0)], c);
+            pen.line_c(&[(10.0, 15.0), (17.5, 15.0)], a);
+            pen.line_c(&[(14.5, 12.0), (17.5, 15.0), (14.5, 18.0)], a);
+        }
+        "sync" => {
+            pen.line_c(&[(4.0, 9.0), (6.0, 5.5), (10.0, 4.0), (14.0, 5.5), (16.0, 8.0)], a);
+            pen.line_c(&[(16.0, 4.5), (16.0, 8.0), (12.5, 8.0)], a);
+            pen.line_c(&[(16.0, 11.0), (14.0, 14.5), (10.0, 16.0), (6.0, 14.5), (4.0, 12.0)], c);
+            pen.line_c(&[(4.0, 15.5), (4.0, 12.0), (7.5, 12.0)], c);
+        }
         "readAloud" => {
             pen.text(6.0, 10.0, 10.0, "A", c, false);
             pen.line_c(&[(12.0, 7.0), (13.5, 10.0), (12.0, 13.0)], a);

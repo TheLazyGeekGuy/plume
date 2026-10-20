@@ -34,7 +34,10 @@ impl Class {
 /// prefix.
 pub const TABLE: &[(&str, Class)] = &[
     ("geom", Class::Layer(0)),
-    ("control-key", Class::Standalone),
+    ("brand", Class::Standalone),
+    // Layer 0 (not standalone) so it can read the settings-folder names from `brand`.
+    ("control-key", Class::Layer(0)),
+    ("vcs", Class::Standalone),
     ("doc", Class::Layer(1)),
     ("fonts", Class::Layer(1)),
     ("metafile", Class::Layer(1)),
@@ -43,6 +46,8 @@ pub const TABLE: &[(&str, Class)] = &[
     ("docx", Class::Layer(2)),
     ("docbin", Class::Layer(2)),
     ("formats", Class::Layer(2)),
+    // Plume: Mermaid diagrams drawn as pictures (fonts below it, the engine above).
+    ("diagram", Class::Layer(2)),
     ("render", Class::Layer(3)),
     ("pdf", Class::Layer(3)),
     ("engine", Class::Layer(4)),
@@ -60,8 +65,9 @@ pub const TABLE: &[(&str, Class)] = &[
 /// Explicit orderings *within* a layer (earlier may be used by later).
 /// The L0 foundation is a small chain: `raster` builds on `color` and
 /// `geom`, which the §3 diagram draws on one line. The GPU backend (`gpu`)
-/// reuses the CPU reference (`compose`) for LUTs and parity tests.
-pub const INTRA_LAYER_ORDER: &[&[&str]] = &[&["doc", "fonts"]];
+/// reuses the CPU reference (`compose`) for LUTs and parity tests. `control-key` reads the
+/// product's settings-folder names from `brand`.
+pub const INTRA_LAYER_ORDER: &[&[&str]] = &[&["doc", "fonts"], &["brand", "control-key"]];
 
 fn intra_layer_allowed(from: &str, to: &str) -> bool {
     let (from, to) = (short_name(from), short_name(to));

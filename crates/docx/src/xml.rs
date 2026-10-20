@@ -32,6 +32,8 @@ pub const NAMESPACES: &[(&str, &str)] = &[
     ("wps", "http://schemas.microsoft.com/office/word/2010/wordprocessingShape"),
     ("wpg", "http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"),
     ("wpc", "http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"),
+    // Word 2007's drawing canvas (`lc:lockedCanvas`).
+    ("lc", "http://schemas.openxmlformats.org/drawingml/2006/lockedCanvas"),
     ("dgm", "http://schemas.openxmlformats.org/drawingml/2006/diagram"),
     ("dsp", "http://schemas.microsoft.com/office/drawing/2008/diagram"),
     ("m", "http://schemas.openxmlformats.org/officeDocument/2006/math"),

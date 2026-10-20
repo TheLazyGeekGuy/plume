@@ -279,8 +279,13 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
     // Format) may be stored while the selection moved away, and a tab may have been hidden.
     let user_tabs = app.session.ribbon.tabs().into_owned();
     let mut tabs: Vec<(String, bool)> = vec![("File".to_string(), false)];
-    tabs.extend(user_tabs.iter().filter(|e| !e.hidden).map(|e| (e.name.clone(), e.custom)));
+    tabs.extend(
+        user_tabs.iter().filter(|e| !e.hidden && (e.custom || !crate::widgets::tab_hidden(app, &e.name))).map(|e| (e.name.clone(), e.custom)),
+    );
     for ct in contextual_tabs(&app.session) {
+        if crate::widgets::tab_hidden(app, ct) {
+            continue;
+        }
         if ct == "Outlining" {
             tabs.insert(1.min(tabs.len()), (ct.to_string(), false));
         } else if !tabs.iter().any(|(n, _)| n == ct) {
@@ -646,6 +651,43 @@ pub(crate) fn size_menu(ui: &mut Ui, app: &mut WordApp) {
     mi(ui, app, crate::dialogs::PAPER_LABELS.more, "ui.dialog", json!({"name": "pageSetup"}));
 }
 
+/// Plume: whether the caret is in a heading (the Anchor field shows).
+fn heading_at_caret(app: &WordApp) -> bool {
+    let s = &app.session;
+    s.doc.para(s.sel.focus.story, &s.sel.focus.path).is_some_and(|p| s.doc.styles.resolve_para(&p.props).outline_level.is_some())
+}
+
+/// Plume: open the file an include directive names (`./part.md`, line ranges and regions left
+/// out), from the folder of this document.
+fn open_included(app: &mut WordApp, include: &str) {
+    let rel = include.split(['{', '#']).next().unwrap_or(include).trim();
+    let Some(dir) = app.session.path.as_deref().and_then(std::path::Path::parent).map(std::path::Path::to_path_buf) else {
+        app.status(tl!("Save this document first: an included file is found beside it."));
+        return;
+    };
+    let path = dir.join(rel.trim_start_matches("./"));
+    if let Err(e) = app.run("file.open", json!({"path": path.to_string_lossy()})) {
+        app.status(e);
+    }
+}
+
+/// Plume: the languages a code block offers first (its info string; any other can be typed).
+const CODE_LANGUAGES: [(&str, &str); 13] = [
+    ("Plain text", ""),
+    ("Bash", "bash"),
+    ("JavaScript", "js"),
+    ("TypeScript", "ts"),
+    ("Python", "python"),
+    ("Rust", "rust"),
+    ("Java", "java"),
+    ("C#", "csharp"),
+    ("SQL", "sql"),
+    ("JSON", "json"),
+    ("YAML", "yaml"),
+    ("HTML", "html"),
+    ("CSS", "css"),
+];
+
 pub(crate) fn mi(ui: &mut Ui, app: &mut WordApp, label: &str, id: &str, params: Value) {
     mi_text(ui, app, tl!(label), id, params);
 }
@@ -663,6 +705,9 @@ fn mi_icon(ui: &mut Ui, app: &mut WordApp, icon: &str, label: &str, id: &str, pa
 
 /// A menu item whose text is already in the interface language.
 fn mi_text(ui: &mut Ui, app: &mut WordApp, text: &str, id: &str, params: Value) {
+    if crate::widgets::hidden(app, id) {
+        return;
+    }
     let sc = crate::widgets::shortcut_text(app, id);
     let enabled = crate::widgets::enabled(app, id);
     let resp = ui.add_enabled(enabled, egui::Button::new(text).shortcut_text(sc).min_size(vec2(200.0, 0.0)));
@@ -1240,6 +1285,101 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
             });
         });
     });
+    // Plume: Markdown's own blocks.
+    group(ui, "Markdown", None, app, |ui, app| {
+        menu_button(ui, app, "codeBlock", Some("Code Block"), "Code Block", true, "markdown.codeBlock", |ui, app| {
+            for (l, lang) in CODE_LANGUAGES {
+                mi(ui, app, l, "markdown.codeBlock", json!({"language": lang}));
+            }
+        });
+        menu_button(ui, app, "callout", Some("Callout"), "Callout", true, "markdown.callout", |ui, app| {
+            for (l, kind) in [
+                ("Note", "note"),
+                ("Tip", "tip"),
+                ("Important", "important"),
+                ("Warning", "warning"),
+                ("Caution", "caution"),
+                ("Info", "info"),
+                ("Danger", "danger"),
+                ("Details", "details"),
+            ] {
+                mi(ui, app, l, "markdown.callout", json!({"kind": kind}));
+            }
+        });
+        menu_button(ui, app, "diagram", Some("Diagram"), "Diagram", true, "markdown.diagram", |ui, app| {
+            use crate::diagram_editor::DiagramEditor;
+            use wordcraft_engine::diagram::codec::Kind;
+            // Every kind of diagram, by group, as Insert › Shapes and SmartArt list theirs.
+            for cat in Kind::CATEGORIES {
+                ui.menu_button(tl!(cat), |ui| {
+                    for kind in Kind::ALL.into_iter().filter(|k| k.category() == cat) {
+                        if ui.button(tl!(kind.label())).clicked() {
+                            app.dialog = Some(crate::dialogs::Dialog::Diagram(Box::new(DiagramEditor::new(kind))));
+                            ui.close();
+                        }
+                    }
+                });
+            }
+            ui.separator();
+            if ui.button(tl!("All Diagrams…")).clicked() {
+                app.dialog = Some(crate::dialogs::Dialog::Diagram(Box::new(DiagramEditor::gallery())));
+                ui.close();
+            }
+        });
+        // In a code block: its language; in any block: back to plain text.
+        let block = app.session.run("markdown.block", &json!({})).unwrap_or_default();
+        if block.get("diagram").is_some() {
+            big(ui, app, "diagram", "Edit\nDiagram", "ui.dialog", json!({"name": "diagram"}), false);
+        }
+        stack(ui, |ui| {
+            small(ui, app, "file", Some("Include File"), "Include File", "ui.dialog", json!({"name": "includeFile"}), false);
+            // On an include: open the file it names, beside this one.
+            if let Some(inc) = block.get("include").and_then(Value::as_str).map(str::to_string)
+                && ui.button(tl!("Open Included File")).clicked()
+            {
+                open_included(app, &inc);
+            }
+            // In a heading: its anchor (`{#anchor}`), which links and the contents use.
+            if heading_at_caret(app) {
+                let id = egui::Id::new("heading-anchor");
+                let current = block.get("anchor").and_then(Value::as_str).unwrap_or("").to_string();
+                let mut text =
+                    ui.ctx().data(|d| d.get_temp::<(String, String)>(id)).filter(|(base, _)| *base == current).map_or(current.clone(), |(_, t)| t);
+                ui.horizontal(|ui| {
+                    ui.label(tl!("Anchor"));
+                    let r = ui.add(egui::TextEdit::singleline(&mut text).hint_text("#anchor").desired_width(110.0));
+                    if r.lost_focus() && text.trim() != current {
+                        let v = if text.trim().is_empty() { Value::Null } else { json!(text.trim()) };
+                        if let Err(e) = app.run("markdown.headingAnchor", json!({"anchor": v})) {
+                            app.status(e);
+                        }
+                    }
+                });
+                ui.ctx().data_mut(|d| d.insert_temp(id, (current, text)));
+            }
+        });
+        // (A diagram is edited as a diagram, not as code.)
+        if let Some(lang) =
+            block.get("code").filter(|_| block.get("diagram").is_none()).and_then(|c| c.get("language")).and_then(Value::as_str).map(str::to_string)
+        {
+            stack(ui, |ui| {
+                let shown = if lang.is_empty() { tl!("Plain text").to_string() } else { lang.clone() };
+                if let Some(v) = crate::widgets::combo(
+                    ui,
+                    "code-language",
+                    110.0,
+                    &shown,
+                    &CODE_LANGUAGES.iter().map(|(_, l)| (*l).to_string()).collect::<Vec<_>>(),
+                    None,
+                ) {
+                    let _ = app.run("markdown.codeLanguage", json!({"language": v}));
+                }
+                small(ui, app, "close", Some("Leave Block"), "Leave Block", "markdown.leaveBlock", json!({}), false);
+            });
+        } else if block.get("callout").is_some() {
+            small(ui, app, "close", Some("Leave Block"), "Leave Block", "markdown.leaveBlock", json!({}), false);
+        }
+    });
     group(ui, "Illustrations", None, app, |ui, app| {
         big(ui, app, "picture", "Pictures", "insert.picture", json!({}), false);
         menu_button(ui, app, "shapes", Some("Shapes"), "Shapes", true, "insert.shape", |ui, app| {
@@ -1280,7 +1420,9 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
     group(ui, "Links", None, app, |ui, app| {
         stack(ui, |ui| {
             small(ui, app, "link", Some("Link"), "Link", "ui.dialog", json!({"name": "link"}), false);
-            small(ui, app, "bookmark", Some("Bookmark"), "Bookmark", "ui.dialog", json!({"name": "bookmark"}), false);
+            if !crate::widgets::hidden(app, "insert.bookmark") {
+                small(ui, app, "bookmark", Some("Bookmark"), "Bookmark", "ui.dialog", json!({"name": "bookmark"}), false);
+            }
             small(ui, app, "crossRef", Some("Cross-reference"), "Cross-reference", "insert.crossReference", json!({}), false);
         });
     });
@@ -1329,7 +1471,7 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
                 }
                 mi(ui, app, "Field…", "ui.dialog", json!({"name": "field"}));
             });
-            menu_button(ui, app, "wordArt", Some("WordArt"), "WordArt", false, "", |ui, app| {
+            menu_button(ui, app, "wordArt", Some("WordArt"), "WordArt", false, "insert.wordArt", |ui, app| {
                 crate::wordart_menus::style_gallery(ui, app, "insert.wordArt")
             });
             menu_button(ui, app, "dropCap", Some("Drop Cap"), "Drop Cap", false, "insert.dropCap", drop_cap_items);
@@ -2042,6 +2184,26 @@ fn review(app: &mut WordApp, ui: &mut Ui) {
     group(ui, "Compare", None, app, |ui, app| {
         big(ui, app, "compare", "Compare", "review.compare", json!({}), false);
     });
+    // Plume: versions kept by Git, in a word processor's words.
+    group(ui, "Versions", None, app, |ui, app| {
+        big(ui, app, "saveVersion", "Save\nVersion", "ui.dialog", json!({"name": "saveVersion"}), false);
+        big(ui, app, "versionHistory", "Version\nHistory", "ui.dialog", json!({"name": "versions"}), false);
+        stack(ui, |ui| {
+            small(ui, app, "sync", Some("Synchronize"), "Synchronize", "vcs.sync", json!({}), false);
+        });
+        // The review round: ask, read the comments, answer them.
+        stack(ui, |ui| {
+            small(ui, app, "requestReview", Some("Request Review"), "Request Review", "ui.dialog", json!({"name": "requestReview"}), false);
+            small(ui, app, "reviewComments", Some("Get Review Comments"), "Get Review Comments", "vcs.reviewComments", json!({}), false);
+            small(ui, app, "sendReplies", Some("Send Replies"), "Send Replies", "vcs.sendReplies", json!({}), false);
+        });
+    });
+    // Plume: shown once a language model is chosen (File › Options).
+    if app.session.prefs.ai.enabled {
+        group(ui, "AI", None, app, |ui, app| {
+            big(ui, app, "table", "Restructure\nTables", "ui.dialog", json!({"name": "aiTables"}), false);
+        });
+    }
     group(ui, "Protect", None, app, |ui, app| {
         big(ui, app, "blockAuthors", "Block\nAuthors", "review.blockAuthors", json!({}), false);
         big(ui, app, "restrict", "Restrict\nEditing", "review.restrict", json!({}), false);
@@ -2129,6 +2291,16 @@ fn view(app: &mut WordApp, ui: &mut Ui) {
             let mut w = v.hide_white_space;
             if ui.checkbox(&mut w, tl!("Hide White Space")).changed() {
                 let _ = app.run("view.hideWhiteSpace", json!({"value": w}));
+            }
+            // Plume: the Markdown documents beside this one.
+            let mut d = v.documents_pane;
+            if ui.checkbox(&mut d, tl!("Documents Pane")).changed() {
+                let _ = app.run("view.documentsPane", json!({"value": d}));
+            }
+            // Plume: the document as its Markdown file is written, editable.
+            let mut m = v.markdown_source;
+            if ui.checkbox(&mut m, tl!("Markdown Source")).changed() {
+                let _ = app.run("view.markdownSource", json!({"value": m}));
             }
         });
     });
@@ -2232,7 +2404,6 @@ fn outlining(app: &mut WordApp, ui: &mut Ui) {
 fn help(app: &mut WordApp, ui: &mut Ui) {
     group(ui, "Help", None, app, |ui, app| {
         big(ui, app, "help", "Help", "ui.dialog", json!({"name": "about"}), false);
-        big(ui, app, "discord", "Community\nDiscord", "ui.discord", json!({}), false);
     });
     group(ui, "Agents", None, app, |ui, app| {
         big(ui, app, "macros", "Commands", "ui.dialog", json!({"name": "commands"}), false);

@@ -403,7 +403,7 @@ impl Writer {
                     let a = esc(a);
                     out.push_str(&format!("{{\\*\\bkmkstart {a}}}{{\\*\\bkmkend {a}}}"));
                 }
-                Inline::Figure(_) | Inline::Equation { .. } => {}
+                Inline::Figure(_) | Inline::Equation { .. } | Inline::Note { .. } | Inline::Comment { .. } | Inline::Drawing(_) => {}
             }
         }
     }
@@ -746,7 +746,9 @@ fn export_with(m: &Meta, w: &Writer, body: &str, sec: &wordcraft_doc::SectionPro
     for c in &w.t.colors {
         out.push_str(&format!("\\red{}\\green{}\\blue{};", c.0, c.1, c.2));
     }
-    out.push_str("}\n{\\*\\generator WordCraft;}\n{\\stylesheet{\\s0\\snext0 Normal;}");
+    out.push_str("}\n{\\*\\generator ");
+    out.push_str(wordcraft_brand::APP_NAME);
+    out.push_str(";}\n{\\stylesheet{\\s0\\snext0 Normal;}");
     for n in 1..=6u32 {
         let sz = HEAD_SIZES.get(n as usize - 1).copied().unwrap_or(12.0);
         out.push_str(&format!("{{\\s{n}\\sbasedon0\\snext0\\outlinelevel{}\\keepn\\b\\fs{} heading {n};}}", n - 1, (sz * 2.0) as i32));
@@ -2644,7 +2646,7 @@ fn parse_full(bytes: &[u8]) -> Result<Parsed, String> {
         blocks.push(FBlock::Para(Para::default()));
     }
     let default_font = r.fonts.get(&r.deff).filter(|n| !model::is_mono(n)).cloned();
-    Ok(Parsed { flow: Flow { blocks, meta: r.meta }, page: r.page, last_section, default_font, headers_footers })
+    Ok(Parsed { flow: Flow { blocks, meta: r.meta, comments: Vec::new() }, page: r.page, last_section, default_font, headers_footers })
 }
 
 /// The column grid of a table from its rows' cell right edges: every distinct edge starts a grid
@@ -3364,7 +3366,7 @@ mod tests {
         item.push_text("Item", &Fmt::default());
         let mut next = Para { list: li, ..Default::default() };
         next.push_text("Next", &Fmt::default());
-        let flow = Flow { blocks: vec![FBlock::Para(item), FBlock::Para(next)], meta: Meta::default() };
+        let flow = Flow { blocks: vec![FBlock::Para(item), FBlock::Para(next)], meta: Meta::default(), comments: Vec::new() };
         let check = |doc: &Document, what: &str| {
             let paras = doc_paras(doc);
             let p = paras.first().unwrap();
@@ -3390,7 +3392,7 @@ mod tests {
         let old = Para { list: Some(ListInfo { ordered: true, level: 0, start: 1 }), ..Default::default() };
         let mut item = Para { fmt_change: Some(Box::new(FmtChange { mark, old })), ..Default::default() };
         item.push_text("Item", &Fmt::default());
-        let flow = Flow { blocks: vec![FBlock::Para(item)], meta: Meta::default() };
+        let flow = Flow { blocks: vec![FBlock::Para(item)], meta: Meta::default(), comments: Vec::new() };
         let doc = model::to_doc(&flow);
         let paras = doc_paras(&doc);
         let p = paras.first().unwrap();
@@ -3410,7 +3412,7 @@ mod tests {
             ..Default::default()
         };
         item.push_text("Item", &Fmt::default());
-        let flow = Flow { blocks: vec![FBlock::Para(item)], meta: Meta::default() };
+        let flow = Flow { blocks: vec![FBlock::Para(item)], meta: Meta::default(), comments: Vec::new() };
         let doc = model::to_doc(&flow);
         let paras = doc_paras(&doc);
         let p = paras.first().unwrap();
@@ -3539,7 +3541,7 @@ mod tests {
             "let x",
             &Fmt { size: Some(14.0), fmt_change: Some(Box::new(FmtChange { mark: mark(), old: Fmt::default() })), ..Default::default() },
         );
-        let flow = Flow { blocks: vec![FBlock::Para(head), FBlock::Para(code)], meta: Meta::default() };
+        let flow = Flow { blocks: vec![FBlock::Para(head), FBlock::Para(code)], meta: Meta::default(), comments: Vec::new() };
         let rtf = export(&model::to_doc(&flow));
         let back = parse(rtf.as_bytes()).unwrap();
         let runs: Vec<&Fmt> = back
@@ -3756,7 +3758,7 @@ mod tests {
         // stands in for the style's.
         let mut code = Para { kind: Kind::Code, ..Default::default() };
         code.push_text("let x", &Fmt::default());
-        let flow = Flow { blocks: vec![FBlock::Para(code)], meta: Meta::default() };
+        let flow = Flow { blocks: vec![FBlock::Para(code)], meta: Meta::default(), comments: Vec::new() };
         let rtf = export(&model::to_doc(&flow));
         let runs = text_runs(rtf.as_bytes());
         let f = run_fmt(&runs, "let x");

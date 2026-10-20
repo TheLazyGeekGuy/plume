@@ -2551,7 +2551,7 @@ fn set_author_refuses_blank_names_and_clamps_long_ones() {
     let mut s = s();
     for bad in [json!(null), json!({}), json!({"name": 5}), json!({"name": ""}), json!({"name": " \t\n "}), json!({"name": "\u{0}\u{7}"})] {
         assert!(s.run("file.setAuthor", &bad).is_err(), "{bad} should be refused");
-        assert_eq!(s.author, "WordCraft User", "a refused name leaves the author alone");
+        assert_eq!(s.author, "Plume User", "a refused name leaves the author alone");
     }
     run(&mut s, "file.setAuthor", json!({"name": "Ada\u{0}\u{1b} Lovelace"}));
     assert_eq!(s.author, "Ada Lovelace", "control characters can't reach the saved XML");
@@ -8193,6 +8193,717 @@ fn odt_deleted_mark_inside_an_insertion_survives_reject_all() {
     }
 }
 
+/// The Markdown-native milestone: a Word document opened, saved as Markdown (pictures in
+/// `assets/`), closed, reopened from the Markdown, edited, saved again and exported to PDF, with
+/// no HTML in the file and no drift between saves.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn docx_to_native_markdown_round_trip() {
+    let mut doc = crate::sample::sample_document();
+    let key = doc.add_media(tiny_png(), "png");
+    let image = wordcraft_doc::InlineObject::Image {
+        media: key,
+        w: 20.0,
+        h: 20.0,
+        alt: "Red square".into(),
+        float: Default::default(),
+        crop: [0.0; 4],
+        ole: None,
+    };
+    doc.insert_object(&Pos::body(0, 0), image, &Default::default()).unwrap();
+    let docx = crate::io::save_bytes("in.docx", &doc).unwrap();
+    let from_word = crate::io::open_bytes("in.docx", &docx).unwrap();
+
+    let dir = scratch_dir("native-md");
+    let md = dir.join("doc.md");
+    let report = crate::io::save_markdown(&md, &from_word).unwrap();
+    assert_eq!(report.images, 1);
+    let first = std::fs::read_to_string(&md).unwrap();
+    assert!(wordcraft_formats::markdown::html_lines(&first).is_empty(), "{first}");
+    let asset = first.split("](assets/").nth(1).and_then(|r| r.split(')').next()).map(|f| dir.join("assets").join(f)).unwrap();
+    assert_eq!(std::fs::read(&asset).unwrap(), tiny_png());
+
+    // Reopen: the picture comes back from the asset file; saving again changes nothing.
+    let reopened = crate::io::open_path(&md).unwrap();
+    assert_eq!(reopened.media.len(), 1);
+    crate::io::save_path(&md, &reopened).unwrap();
+    assert_eq!(std::fs::read_to_string(&md).unwrap(), first);
+
+    // Edit through the command layer, save, reopen: the edit is there and nothing else moved.
+    let mut s = Session::new(reopened);
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": "Ajout après réouverture"})).unwrap();
+    crate::io::save_path(&md, &s.doc).unwrap();
+    let edited = std::fs::read_to_string(&md).unwrap();
+    assert!(edited.contains("Ajout après réouverture") && edited.starts_with(first.trim_end()), "{edited}");
+    let again = crate::io::open_path(&md).unwrap();
+    let pdf = crate::io::save_bytes("out.pdf", &again).unwrap();
+    assert!(pdf.starts_with(b"%PDF"));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// A metafile picture (EMF) is saved to Markdown as a PNG drawn from it, and loads back.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn native_markdown_draws_metafiles_as_png() {
+    // A 25 mm square EMF with a red rectangle over its right half.
+    let rec = |typ: u32, payload: &[u8]| -> Vec<u8> {
+        let mut v = typ.to_le_bytes().to_vec();
+        v.extend(((8 + payload.len()) as u32).to_le_bytes());
+        v.extend(payload);
+        v
+    };
+    let le32 = |vals: &[i32]| -> Vec<u8> { vals.iter().flat_map(|v| v.to_le_bytes()).collect() };
+    let mut h = vec![0u8; 88];
+    h[0..4].copy_from_slice(&1u32.to_le_bytes());
+    h[4..8].copy_from_slice(&88u32.to_le_bytes());
+    h[8..24].copy_from_slice(&le32(&[0, 0, 100, 100]));
+    h[24..40].copy_from_slice(&le32(&[0, 0, 2500, 2500]));
+    h[40..44].copy_from_slice(&0x464D_4520u32.to_le_bytes());
+    h[72..88].copy_from_slice(&le32(&[1000, 1000, 250, 250]));
+    let emf = [h, rec(39, &le32(&[1, 0, 0x0000_00FF, 0])), rec(37, &le32(&[1])), rec(43, &le32(&[50, 0, 100, 100])), rec(14, &[0; 12])].concat();
+
+    let mut doc = wordcraft_doc::Document::new();
+    let key = doc.add_media(emf, "emf");
+    let pic = wordcraft_doc::InlineObject::Image {
+        media: key,
+        w: 70.0,
+        h: 70.0,
+        alt: "Chart".into(),
+        float: Default::default(),
+        crop: [0.0; 4],
+        ole: None,
+    };
+    doc.insert_object(&Pos::body(0, 0), pic, &Default::default()).unwrap();
+    let dir = scratch_dir("native-md-emf");
+    let md = dir.join("emf.md");
+    let report = crate::io::save_markdown(&md, &doc).unwrap();
+    assert!(!report.counts.contains_key(&wordcraft_formats::markdown::Adaptation::ImageFormat), "{report:?}");
+    let text = std::fs::read_to_string(&md).unwrap();
+    assert!(text.contains("![Chart](assets/img-") && text.contains(".png)"), "{text}");
+    let back = crate::io::open_path(&md).unwrap();
+    let png = back.media.values().next().unwrap();
+    let img = image::load_from_memory(png).unwrap().to_rgba8();
+    // Left half clear, right half red.
+    let (w, h) = img.dimensions();
+    assert_eq!(img.get_pixel(w / 4, h / 2)[3], 0);
+    let right = img.get_pixel(3 * w / 4, h / 2);
+    assert!(right[0] > 200 && right[1] < 60 && right[3] > 200, "{right:?}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Markdown as the document's own format: opening a Word document imports it into `<name>.md`
+/// beside it (the Word file is never written), Save writes the Markdown and leaves the document
+/// saved, and a Markdown file already there is never overwritten without asking.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn native_markdown_imports_word_documents() {
+    let dir = scratch_dir("native-md-import");
+    let docx = dir.join("report.docx");
+    let mut doc = crate::sample::sample_document();
+    doc.body.push(wordcraft_doc::para_block(wordcraft_doc::Paragraph::with_text(
+        "Underlined",
+        wordcraft_doc::CharProps { underline: Some(wordcraft_doc::props::Underline::Single), ..Default::default() },
+    )));
+    std::fs::write(&docx, crate::io::save_bytes("report.docx", &doc).unwrap()).unwrap();
+    let original = std::fs::read(&docx).unwrap();
+
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    let r = s.run("file.open", &json!({"path": docx.to_string_lossy()})).unwrap();
+    let md = dir.join("report.md");
+    assert_eq!(r["savesTo"], json!(md.to_string_lossy()));
+    assert!(r["adapted"].as_array().is_some_and(|a| a.iter().any(|l| l.as_str().is_some_and(|l| l.contains("underlined")))), "{r}");
+    assert!(s.dirty && s.imported_from.as_deref() == Some(docx.as_path()));
+    let r = s.run("file.save", &json!({})).unwrap();
+    assert_eq!(r["saved"], json!(true));
+    assert!(!s.dirty);
+    assert_eq!(std::fs::read(&docx).unwrap(), original, "the Word file is untouched");
+    let text = std::fs::read_to_string(&md).unwrap();
+    assert!(wordcraft_formats::markdown::html_lines(&text).is_empty() && text.contains("Underlined"), "{text}");
+
+    // Opening the Word file again: report.md exists now, so Save asks where.
+    s.run("file.open", &json!({"path": docx.to_string_lossy()})).unwrap();
+    assert!(s.path.is_none());
+    let r = s.run("file.save", &json!({})).unwrap();
+    assert_eq!(r["saved"], json!(false));
+    assert_eq!(std::fs::read_to_string(&md).unwrap(), text);
+
+    // Opening the Markdown keeps it as the document's file.
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    assert_eq!(s.path.as_deref(), Some(md.as_path()));
+    assert!(s.imported_from.is_none());
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// In the browser a Markdown save downloads the Markdown alone, or a zip with its pictures.
+#[test]
+fn markdown_download_zips_pictures() {
+    let (name, bytes) = crate::io::markdown_download("notes.md", &crate::sample::sample_document()).unwrap();
+    assert_eq!(name, "notes.md");
+    assert!(wordcraft_formats::markdown::html_lines(&String::from_utf8(bytes).unwrap()).is_empty());
+    let mut doc = crate::sample::sample_document();
+    let key = doc.add_media(tiny_png(), "png");
+    let pic =
+        wordcraft_doc::InlineObject::Image { media: key, w: 20.0, h: 20.0, alt: "dot".into(), float: Default::default(), crop: [0.0; 4], ole: None };
+    doc.insert_object(&Pos::body(0, 0), pic, &Default::default()).unwrap();
+    let (name, bytes) = crate::io::markdown_download("notes.md", &doc).unwrap();
+    assert_eq!(name, "notes.zip");
+    let mut z = zip::ZipArchive::new(std::io::Cursor::new(bytes)).unwrap();
+    let names: Vec<String> = (0..z.len()).map(|i| z.by_index(i).unwrap().name().to_string()).collect();
+    assert_eq!(names.len(), 2);
+    assert_eq!(names[0], "notes.md");
+    assert!(names[1].starts_with("assets/img-") && names[1].ends_with(".png"), "{names:?}");
+}
+
+/// Versions kept by Git: start keeping versions, save two, list them, show a version's changes as
+/// tracked changes by its author, compare with an older one, restore it.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn versions_in_git() {
+    let dir = scratch_dir("versions-git");
+    let md = dir.join("guide.md");
+    let mut s = Session::new(wordcraft_doc::Document::from_text("First paragraph.\n\nSecond paragraph."));
+    s.native_markdown = true;
+    assert!(s.run("vcs.history", &json!({})).is_err(), "unsaved: no versions");
+    s.run("file.save", &json!({"path": md.to_string_lossy()})).unwrap();
+    assert_eq!(s.run("vcs.status", &json!({})).unwrap()["versioned"], json!(false));
+    s.run("vcs.init", &json!({})).unwrap();
+    assert_eq!(s.run("vcs.status", &json!({})).unwrap()["versioned"], json!(true));
+
+    let v1 = s.run("vcs.saveVersion", &json!({"message": "First draft", "author": "Ada", "email": "ada@x.org"})).unwrap();
+    let v1 = v1["version"]["id"].as_str().unwrap().to_string();
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " Added later."})).unwrap();
+    let v2 = s.run("vcs.saveVersion", &json!({"message": "Second draft", "author": "Bob", "email": "bob@x.org"})).unwrap();
+    let v2 = v2["version"]["id"].as_str().unwrap().to_string();
+    assert!(!s.dirty);
+    assert_eq!(s.versions.len(), 2, "also kept in File › Info › Version History");
+    let h = s.run("vcs.history", &json!({})).unwrap();
+    let messages: Vec<&str> = h["versions"].as_array().unwrap().iter().filter_map(|v| v["message"].as_str()).collect();
+    assert_eq!(messages, ["Second draft", "First draft"]);
+    assert!(s.run("vcs.saveVersion", &json!({"message": "nothing"})).is_err(), "no change, no version");
+
+    // Bob's changes, as tracked changes by Bob, in an untitled document.
+    let r = s.run("vcs.showChanges", &json!({"id": v2})).unwrap();
+    assert!(r["changes"].as_u64().unwrap() >= 1);
+    assert!(s.path.is_none());
+    assert!(s.doc.revisions.iter().any(|r| r.author == "Bob"));
+    assert!(s.doc.plain_text(StoryRef::Body).contains("Added later."));
+    s.run("edit.undo", &json!({})).unwrap();
+
+    // Back to the first draft (undoable), then save it as a new version.
+    s.path = Some(md.clone());
+    s.run("vcs.restore", &json!({"id": v1})).unwrap();
+    assert!(!s.doc.plain_text(StoryRef::Body).contains("Added later."));
+    assert!(s.dirty);
+    let v3 = s.run("vcs.saveVersion", &json!({"message": "Back to the first draft", "author": "Ada"})).unwrap();
+    assert!(v3["version"]["id"].as_str().is_some());
+    assert!(s.run("vcs.restore", &json!({"id": "HEAD"})).is_err(), "only version ids");
+    assert!(s.run("vcs.sync", &json!({})).unwrap_err().to_string().contains("server"));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// A tiny in-memory GitHub (contents, commits, git data API, branches, pull requests) for the
+/// forge commands.
+mod fake_github {
+    use std::collections::BTreeMap;
+    use std::sync::Mutex;
+
+    use serde_json::{Value, json};
+    use wordcraft_vcs::forge::{Method, Request, Response, Transport, base64_decode, base64_encode};
+
+    type Files = BTreeMap<String, Vec<u8>>;
+
+    #[derive(Default)]
+    struct State {
+        /// Branch → head commit.
+        branches: BTreeMap<String, String>,
+        /// id → (author, message, files after it, parent).
+        commits: BTreeMap<String, (String, String, Files, String)>,
+        blobs: BTreeMap<String, Vec<u8>>,
+        trees: BTreeMap<String, Vec<(String, String)>>,
+        n: u64,
+        /// Opened pull requests: (head branch, base branch).
+        pulls: Vec<(String, String)>,
+        /// Merged pull requests (index into `pulls`) and their head when merged.
+        merged: BTreeMap<usize, String>,
+    }
+
+    pub struct Server {
+        state: Mutex<State>,
+        /// Commits made through the API are by this author.
+        pub author: Mutex<String>,
+        /// What reviewers said on pull request 1: conversation, line comments, reviews.
+        pub issue_comments: Mutex<Value>,
+        pub line_comments: Mutex<Value>,
+        pub reviews: Mutex<Value>,
+    }
+
+    fn sha(n: u64) -> String {
+        format!("{n:040x}")
+    }
+
+    fn blob_id(b: &[u8]) -> String {
+        let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+        for x in b {
+            h ^= u64::from(*x);
+            h = h.wrapping_mul(0x0000_0100_0000_01b3);
+        }
+        format!("{h:040x}")
+    }
+
+    fn decode(p: &str) -> String {
+        String::from_utf8(wordcraft_formats::model::percent_decode(p)).unwrap()
+    }
+
+    impl State {
+        fn files(&self, rev: &str) -> Option<Files> {
+            let id = self.branches.get(rev).cloned().unwrap_or_else(|| rev.to_string());
+            self.commits.get(&id).map(|c| c.2.clone())
+        }
+    }
+
+    impl Server {
+        pub fn new(files: &[(&str, &[u8])]) -> Server {
+            let s = Server {
+                state: Mutex::new(State::default()),
+                author: Mutex::new("Ada".into()),
+                issue_comments: Mutex::new(json!([])),
+                line_comments: Mutex::new(json!([])),
+                reviews: Mutex::new(json!([])),
+            };
+            {
+                let mut st = s.state.lock().unwrap();
+                st.n = 1;
+                let snapshot: Files = files.iter().map(|(p, b)| (p.to_string(), b.to_vec())).collect();
+                st.commits.insert(sha(1), ("Ada".into(), "Initial version".into(), snapshot, String::new()));
+                st.branches.insert("main".into(), sha(1));
+            }
+            s
+        }
+
+        /// Someone else saves a version directly on the server (on main).
+        pub fn commit(&self, author: &str, path: &str, bytes: &[u8], message: &str) {
+            let mut st = self.state.lock().unwrap();
+            st.n += 1;
+            let id = sha(st.n);
+            let parent = st.branches["main"].clone();
+            let mut files = st.commits[&parent].2.clone();
+            files.insert(path.into(), bytes.to_vec());
+            st.commits.insert(id.clone(), (author.into(), message.into(), files, parent));
+            st.branches.insert("main".into(), id);
+        }
+
+        pub fn file(&self, path: &str) -> Option<Vec<u8>> {
+            self.file_on("main", path)
+        }
+
+        pub fn file_on(&self, branch: &str, path: &str) -> Option<Vec<u8>> {
+            self.state.lock().unwrap().files(branch).and_then(|f| f.get(path).cloned())
+        }
+
+        pub fn pulls(&self) -> Vec<(String, String)> {
+            self.state.lock().unwrap().pulls.clone()
+        }
+
+        /// A maintainer merges pull request `n` (1-based): main takes the branch's files.
+        pub fn merge_pull(&self, n: usize) {
+            let mut st = self.state.lock().unwrap();
+            let (head_branch, base) = st.pulls[n - 1].clone();
+            let head = st.branches[&head_branch].clone();
+            let files = st.commits[&head].2.clone();
+            st.n += 1;
+            let id = sha(st.n);
+            let parent = st.branches[&base].clone();
+            st.commits.insert(id.clone(), ("Maintainer".into(), format!("Merge {head_branch}"), files, parent));
+            st.branches.insert(base, id);
+            st.merged.insert(n - 1, head);
+        }
+
+        pub fn head(&self, branch: &str) -> Option<String> {
+            self.state.lock().unwrap().branches.get(branch).cloned()
+        }
+    }
+
+    fn ok(v: Value) -> Result<Response, String> {
+        Ok(Response { status: 200, body: v.to_string().into_bytes() })
+    }
+
+    fn not_found() -> Result<Response, String> {
+        Ok(Response { status: 404, body: b"{}".to_vec() })
+    }
+
+    impl Transport for Server {
+        fn send(&self, req: &Request) -> Result<Response, String> {
+            let mut st = self.state.lock().unwrap();
+            if req.url == "https://api.github.com/user" {
+                return ok(json!({"login": "Ada.L"}));
+            }
+            let base = "https://api.github.com/repos/acme/docs";
+            let rest = req.url.strip_prefix(base).ok_or("wrong repo")?;
+            let (route, query) = rest.split_once('?').unwrap_or((rest, ""));
+            let q = |k: &str| query.split('&').find_map(|kv| kv.strip_prefix(&format!("{k}="))).map(decode);
+            let body: Value = req.body.as_deref().map(|b| serde_json::from_str(b).unwrap()).unwrap_or(Value::Null);
+            match (&req.method, route) {
+                (Method::Get, r) if r.starts_with("/contents/") => {
+                    let path = decode(&r["/contents/".len()..]);
+                    let rev = q("ref").unwrap_or("main".into());
+                    match st.files(&rev).and_then(|f| f.get(&path).cloned()) {
+                        Some(b) => ok(json!({"content": base64_encode(&b), "sha": blob_id(&b)})),
+                        None => not_found(),
+                    }
+                }
+                (Method::Get, "/commits") => {
+                    let path = q("path").unwrap();
+                    let mut id = st.branches.get(&q("sha").unwrap_or("main".into())).cloned().unwrap_or_default();
+                    let mut out = Vec::new();
+                    while let Some((author, message, files, parent)) = st.commits.get(&id) {
+                        let before = st.commits.get(parent).and_then(|c| c.2.get(&path));
+                        if files.get(&path) != before {
+                            out.push(json!({"sha": id, "commit": {"author": {"name": author, "email": "x@y", "date": "2026-10-14T10:00:00Z"}, "message": message}}));
+                        }
+                        id = parent.clone();
+                    }
+                    ok(Value::Array(out))
+                }
+                (Method::Get, r) if r.starts_with("/git/ref/heads/") => match st.branches.get(&decode(&r["/git/ref/heads/".len()..])) {
+                    Some(h) => ok(json!({"object": {"sha": h}})),
+                    None => not_found(),
+                },
+                (Method::Get, r) if r.starts_with("/git/commits/") => ok(json!({"tree": {"sha": &r["/git/commits/".len()..]}})),
+                (Method::Post, "/git/refs") => {
+                    let name = body["ref"].as_str().unwrap().trim_start_matches("refs/heads/").to_string();
+                    st.branches.insert(name, body["sha"].as_str().unwrap().to_string());
+                    ok(json!({}))
+                }
+                (Method::Post, "/git/blobs") => {
+                    let b = base64_decode(body["content"].as_str().unwrap(), 1 << 20).unwrap();
+                    let id = blob_id(&b);
+                    st.blobs.insert(id.clone(), b);
+                    ok(json!({"sha": id}))
+                }
+                (Method::Post, "/git/trees") => {
+                    st.n += 1;
+                    let id = sha(st.n);
+                    let entries = body["tree"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|e| (e["path"].as_str().unwrap().to_string(), e["sha"].as_str().unwrap().to_string()))
+                        .collect();
+                    st.trees.insert(id.clone(), entries);
+                    ok(json!({"sha": id}))
+                }
+                (Method::Post, "/git/commits") => {
+                    st.n += 1;
+                    let id = sha(st.n);
+                    let parent = body["parents"][0].as_str().unwrap().to_string();
+                    let mut files = st.commits[&parent].2.clone();
+                    for (p, b) in st.trees[body["tree"].as_str().unwrap()].clone() {
+                        files.insert(p, st.blobs[&b].clone());
+                    }
+                    let author = self.author.lock().unwrap().clone();
+                    st.commits.insert(id.clone(), (author, body["message"].as_str().unwrap().into(), files, parent));
+                    ok(json!({"sha": id}))
+                }
+                (Method::Patch, r) if r.starts_with("/git/refs/heads/") => {
+                    let branch = decode(&r["/git/refs/heads/".len()..]);
+                    let id = body["sha"].as_str().unwrap().to_string();
+                    if body["force"] != json!(true) && Some(&st.commits[&id].3) != st.branches.get(&branch) {
+                        return Ok(Response { status: 422, body: b"{\"message\":\"Update is not a fast forward\"}".to_vec() });
+                    }
+                    st.branches.insert(branch, id);
+                    ok(json!({}))
+                }
+                (Method::Post, "/pulls") => {
+                    st.pulls.push((body["head"].as_str().unwrap().into(), body["base"].as_str().unwrap().into()));
+                    ok(json!({"number": st.pulls.len(), "html_url": format!("https://github.com/acme/docs/pull/{}", st.pulls.len())}))
+                }
+                // Replies: on the conversation, or in a line comment's thread. They come back
+                // with the comments, like on GitHub.
+                (Method::Post, "/issues/1/comments") => {
+                    st.n += 1;
+                    let c = json!({"id": 1000 + st.n, "user": {"login": "ada"}, "created_at": "2026-10-15T09:00:00Z", "body": body["body"]});
+                    self.issue_comments.lock().unwrap().as_array_mut().unwrap().push(c.clone());
+                    ok(c)
+                }
+                (Method::Post, r) if r.starts_with("/pulls/1/comments/") && r.ends_with("/replies") => {
+                    st.n += 1;
+                    let root: u64 = r["/pulls/1/comments/".len()..r.len() - "/replies".len()].parse().unwrap();
+                    let c = json!({"id": 1000 + st.n, "in_reply_to_id": root, "user": {"login": "ada"}, "created_at": "2026-10-15T09:00:00Z", "body": body["body"], "path": "guide.md", "line": 5});
+                    self.line_comments.lock().unwrap().as_array_mut().unwrap().push(c.clone());
+                    ok(c)
+                }
+                (Method::Get, "/pulls") => {
+                    let list: Vec<Value> = st
+                        .pulls
+                        .iter()
+                        .enumerate()
+                        .rev()
+                        .map(|(i, (h, b))| {
+                            let merged = st.merged.get(&i);
+                            let head = merged.cloned().or_else(|| st.branches.get(h).cloned()).unwrap_or_default();
+                            json!({"number": i + 1, "html_url": format!("https://github.com/acme/docs/pull/{}", i + 1),
+                                "state": if merged.is_some() { "closed" } else { "open" },
+                                "merged_at": merged.map(|_| json!("2026-10-19T10:00:00Z")).unwrap_or(Value::Null),
+                                "head": {"ref": h, "sha": head}, "base": {"ref": b}})
+                        })
+                        .collect();
+                    ok(Value::Array(list))
+                }
+                (Method::Get, "/issues/1/comments") => ok(self.issue_comments.lock().unwrap().clone()),
+                (Method::Get, "/pulls/1/comments") => ok(self.line_comments.lock().unwrap().clone()),
+                (Method::Get, "/pulls/1/reviews") => ok(self.reviews.lock().unwrap().clone()),
+                (Method::Get, "/pulls/1") => ok(json!({"merged": false, "state": "open"})),
+                _ => not_found(),
+            }
+        }
+    }
+}
+
+/// A Markdown document on GitHub: open it (pictures included), save versions there, see a
+/// colleague's version as tracked changes, and never save over their newer version.
+#[test]
+fn forge_document_versions() {
+    let png = tiny_png();
+    let server = std::sync::Arc::new(fake_github::Server::new(&[
+        ("guide/intro.md", b"# Intro\n\nHello ![logo](assets/logo.png)\n"),
+        ("guide/assets/logo.png", &png),
+    ]));
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.forge_transport = Some(server.clone());
+    let open = json!({"forge": "github", "repo": "acme/docs", "path": "guide/intro.md"});
+    assert!(s.run("forge.open", &open).unwrap_err().to_string().contains("sign in"));
+    s.run("forge.signIn", &json!({"forge": "github", "token": "ghp_test"})).unwrap();
+    s.run("forge.open", &open).unwrap();
+    assert_eq!(s.doc.media.len(), 1, "the picture came from the repository");
+    assert!(!s.dirty && s.path.is_none());
+    assert_eq!(s.run("vcs.status", &json!({})).unwrap()["repo"], json!("acme/docs"));
+
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " World"})).unwrap();
+    let v = s.run("vcs.saveVersion", &json!({"message": "Say hello to the world"})).unwrap();
+    assert_eq!(v["version"]["message"], json!("Say hello to the world"));
+    assert!(!s.dirty);
+    let saved = String::from_utf8(server.file("guide/intro.md").unwrap()).unwrap();
+    assert!(saved.contains("Hello ![logo](assets/img-") && saved.contains("World"), "{saved}");
+    let h = s.run("vcs.history", &json!({})).unwrap();
+    assert_eq!(h["versions"].as_array().unwrap().len(), 2);
+
+    // Bob saves a version on the server; ours is now stale: Save Version refuses, Synchronize
+    // with unsaved changes says how to see theirs, and without changes reloads.
+    server.commit("Bob", "guide/intro.md", b"# Intro\n\nHello World, from Bob.\n", "Bob's edit");
+    s.run("text.insert", &json!({"text": "!"})).unwrap();
+    assert!(s.run("vcs.saveVersion", &json!({"message": "mine"})).unwrap_err().to_string().contains("newer version"));
+    assert!(s.run("vcs.sync", &json!({})).is_err());
+    s.dirty = false;
+    let r = s.run("vcs.sync", &json!({})).unwrap();
+    assert_eq!(r["updated"], json!(true));
+    assert!(s.doc.plain_text(StoryRef::Body).contains("from Bob"));
+
+    // Bob's version as tracked changes by Bob.
+    let bobs = s.run("vcs.history", &json!({})).unwrap()["versions"][0]["id"].as_str().unwrap().to_string();
+    s.run("vcs.showChanges", &json!({"id": bobs})).unwrap();
+    assert!(s.doc.revisions.iter().any(|r| r.author == "Bob"));
+    assert!(s.forge.is_none(), "the comparison is a new document");
+}
+
+/// Plume: a chart and a SmartArt diagram are saved to Markdown as diagrams in text (Mermaid),
+/// and come back drawn, the source kept.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn native_markdown_draws_charts_and_diagrams() {
+    let mut s = Session::new(crate::sample::sample_document());
+    // Each in a paragraph of its own, as Word places them.
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.newParagraph", &json!({})).unwrap();
+    s.run("insert.chart", &json!({"type": "column", "title": "Sales"})).unwrap();
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.newParagraph", &json!({})).unwrap();
+    s.run("insert.smartArt", &json!({"layout": "process"})).unwrap();
+    let dir = scratch_dir("native-md-charts");
+    let md = dir.join("charts.md");
+    crate::io::save_markdown(&md, &s.doc).unwrap();
+    let text = std::fs::read_to_string(&md).unwrap();
+    assert!(text.contains("```mermaid\nxychart-beta\n    title \"Sales\"\n"), "{text}");
+    assert!(text.contains("```mermaid\nflowchart LR\n"), "{text}");
+    assert!(!text.contains("](assets/"), "no pictures: {text}");
+    // Read back: drawn diagrams, the same source written again.
+    let back = crate::io::open_path(&md).unwrap();
+    let diagrams = back
+        .body
+        .iter()
+        .filter(
+            |b| matches!(&***b, wordcraft_doc::Block::Para(p) if p.props.md.as_ref().is_some_and(|m| m.diagram.is_some()) && !p.objects.is_empty()),
+        )
+        .count();
+    assert_eq!(diagrams, 2);
+    assert_eq!(wordcraft_formats::markdown::export_native(&back, &Default::default()).text, text);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Strict Markdown mode turns off what Markdown can't keep, only in Markdown documents.
+#[test]
+fn strict_markdown_mode() {
+    let mut s = Session::new(wordcraft_doc::Document::from_text("Some text"));
+    s.native_markdown = true;
+    s.run("select.all", &json!({})).unwrap();
+    // On by default: Office-only formatting is opt-in.
+    assert!(s.prefs.markdown_strict);
+    assert!(matches!(s.run("format.underline", &json!({})), Err(crate::CmdError::Disabled(_))));
+    s.run("markdown.strict", &json!({"value": false})).unwrap();
+    s.run("format.underline", &json!({})).unwrap();
+    s.run("markdown.strict", &json!({"value": true})).unwrap();
+    assert!(matches!(s.run("format.color", &json!({"color": "FF0000"})), Err(crate::CmdError::Disabled(_))));
+    assert!(s.markdown_blocks("insert.textBox").is_some());
+    assert!(s.run("format.bold", &json!({})).is_ok(), "Markdown keeps bold");
+    // A Word document isn't held to it.
+    s.path = Some("letter.docx".into());
+    assert!(s.markdown_blocks("format.color").is_none());
+    s.native_markdown = false;
+    s.path = None;
+    assert!(s.markdown_blocks("format.color").is_none());
+}
+
+/// A folder's publication profile lays its Markdown documents out: page, margins, fonts.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn publication_profile() {
+    use crate::publication::Profile;
+    let p = Profile::parse(
+        "theme = \"vitepress\" # comment\n[page]\nformat = \"Letter\"\norientation = \"landscape\"\n[margins]\ntop = 10\nleft = 25.4\n[typography]\nbody_font = \"Liberation Serif\"\nbody_size = 11\nheading_font = \"Source Sans 3\"\n[other]\nformat = \"A3\"\nbroken line\n",
+    );
+    assert_eq!(p.theme, Some(wordcraft_formats::markdown::Theme::VitePress));
+    assert_eq!(p.page, Some((612.0, 792.0)));
+    assert_eq!(p.landscape, Some(true));
+    assert!((p.margins[2].unwrap() - 72.0).abs() < 0.01);
+    assert_eq!(p.body_size, Some(11.0));
+
+    let dir = scratch_dir("publication");
+    std::fs::create_dir_all(dir.join("publication")).unwrap();
+    std::fs::create_dir_all(dir.join("chapters")).unwrap();
+    std::fs::write(dir.join("publication/default.toml"), "[page]\nformat = \"A5\"\n[margins]\nleft = 30\n[typography]\nbody_size = 10\n").unwrap();
+    std::fs::write(dir.join("chapters/one.md"), "# One\n\nText.\n").unwrap();
+    let doc = crate::io::open_path(&dir.join("chapters/one.md")).unwrap();
+    assert!((doc.last_section.page_w - 148.0 * 72.0 / 25.4).abs() < 0.1);
+    assert!((doc.last_section.margin_left - 30.0 * 72.0 / 25.4).abs() < 0.1);
+    assert_eq!(doc.styles.default_chr.size, Some(10.0));
+    // The profile never reaches the Markdown.
+    crate::io::save_path(&dir.join("chapters/one.md"), &doc).unwrap();
+    assert_eq!(std::fs::read_to_string(dir.join("chapters/one.md")).unwrap(), "# One\n\nText.\n");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Asking colleagues for a review: a branch and a pull request; their comments come back as
+/// comments on the paragraphs they're about; their approvals show.
+#[test]
+fn forge_review_round_trip() {
+    let server = std::sync::Arc::new(fake_github::Server::new(&[("guide.md", b"# Guide\n\nFirst paragraph.\n\nSecond paragraph about budgets.\n")]));
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.forge_transport = Some(server.clone());
+    s.run("forge.signIn", &json!({"forge": "github", "token": "t"})).unwrap();
+    s.run("forge.open", &json!({"forge": "github", "repo": "acme/docs", "path": "guide.md"})).unwrap();
+    assert!(s.run("vcs.reviewComments", &json!({})).is_err(), "no review yet");
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " Updated."})).unwrap();
+    let r = s.run("vcs.requestReview", &json!({"title": "Please check the budget"})).unwrap();
+    assert_eq!(r["review"]["number"], json!(1));
+    let branch = r["review"]["branch"].as_str().unwrap().to_string();
+    assert!(branch.starts_with("review/guide-"), "{branch}");
+    assert_eq!(server.pulls(), vec![(branch.clone(), "main".to_string())]);
+    assert!(String::from_utf8(server.file_on(&branch, "guide.md").unwrap()).unwrap().contains("Updated."));
+    assert_eq!(
+        String::from_utf8(server.file("guide.md").unwrap()).unwrap(),
+        "# Guide\n\nFirst paragraph.\n\nSecond paragraph about budgets.\n",
+        "main untouched"
+    );
+    assert!(!s.dirty);
+
+    *server.line_comments.lock().unwrap() =
+        json!([{"id": 11, "user": {"login": "bob"}, "created_at": "2026-10-14T11:00:00Z", "body": "Which budget?", "path": "guide.md", "line": 5}]);
+    *server.issue_comments.lock().unwrap() =
+        json!([{"id": 12, "user": {"login": "carol"}, "created_at": "2026-10-14T12:00:00Z", "body": "Looks good overall."}]);
+    *server.reviews.lock().unwrap() =
+        json!([{"user": {"login": "carol"}, "state": "APPROVED"}, {"user": {"login": "bob"}, "state": "CHANGES_REQUESTED"}]);
+    let r = s.run("vcs.reviewComments", &json!({})).unwrap();
+    assert_eq!(r["imported"], json!(2));
+    let notes = wordcraft_formats::comments::notes(&s.doc);
+    let bobs = notes.iter().find(|n| n.author == "bob").unwrap();
+    assert!(bobs.quote.contains("budgets"), "on the paragraph line 5 is: {:?}", bobs.quote);
+    assert_eq!(bobs.text, "Which budget?");
+    // Read twice, brought in once.
+    assert_eq!(s.run("vcs.reviewComments", &json!({})).unwrap()["imported"], json!(0));
+
+    // Replies typed under their comments go back to the review: in Bob's line-comment thread,
+    // and on the conversation for Carol's, quoting her. Sent once; they don't come back as
+    // comments of their own.
+    let id_of = |s: &Session, who: &str| *s.doc.comments.iter().find(|(_, c)| c.author == who && c.parent.is_none()).unwrap().0;
+    let (bob, carol) = (id_of(&s, "bob"), id_of(&s, "carol"));
+    assert_eq!(s.run("vcs.sendReplies", &json!({})).unwrap()["sent"], json!(0), "nothing to send yet");
+    s.run("review.reply", &json!({"id": bob, "text": "The 2027 budget."})).unwrap();
+    s.run("review.reply", &json!({"id": carol, "text": "Thanks!"})).unwrap();
+    assert_eq!(s.run("vcs.sendReplies", &json!({})).unwrap()["sent"], json!(2));
+    let lines = server.line_comments.lock().unwrap().clone();
+    assert_eq!(lines[1]["in_reply_to_id"], json!(11));
+    assert_eq!(lines[1]["body"], json!("The 2027 budget."));
+    let convo = server.issue_comments.lock().unwrap().clone();
+    assert_eq!(convo[1]["body"], json!("> carol: Looks good overall.\n\nThanks!"));
+    assert_eq!(s.run("vcs.sendReplies", &json!({})).unwrap()["sent"], json!(0), "sent once");
+    let before = s.doc.comments.len();
+    assert_eq!(s.run("vcs.reviewComments", &json!({})).unwrap()["imported"], json!(0), "our replies aren't brought back");
+    assert_eq!(s.doc.comments.len(), before);
+    // Bob answers in his thread: a reply under his comment, not a new comment.
+    line_reply(&server, 11, "bob", "Right, thanks.");
+    assert_eq!(s.run("vcs.reviewComments", &json!({})).unwrap()["imported"], json!(1));
+    let (_, answer) = s.doc.comments.iter().next_back().unwrap();
+    assert_eq!((answer.author.as_str(), answer.parent), ("bob", Some(bob)));
+    assert_eq!(s.run("vcs.sendReplies", &json!({})).unwrap()["sent"], json!(0), "his reply isn't sent back");
+
+    let st = s.run("vcs.reviewStatus", &json!({})).unwrap();
+    assert_eq!(st["approvedBy"], json!(["carol"]));
+    assert_eq!(st["changesRequestedBy"], json!(["bob"]));
+}
+
+/// The Documents pane lists the Markdown documents of the document's repository, by folder.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn documents_beside_this_one() {
+    let dir = scratch_dir("documents-pane");
+    for f in ["README.md", "guide/install.md", "guide/use.markdown", "guide/assets/x.md", ".hidden/y.md", "notes.txt"] {
+        let p = dir.join(f);
+        std::fs::create_dir_all(p.parent().unwrap()).unwrap();
+        std::fs::write(&p, "# x\n").unwrap();
+    }
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.path = Some(dir.join("guide/install.md"));
+    let r = s.run("file.documents", &json!({})).unwrap();
+    // Not in a repository: the document's folder.
+    assert_eq!(r["documents"], json!(["install.md", "use.markdown"]));
+    wordcraft_vcs::git::Repo::init(&dir).unwrap();
+    let r = s.run("file.documents", &json!({})).unwrap();
+    assert_eq!(r["documents"], json!(["README.md", "guide/install.md", "guide/use.markdown"]));
+    assert_eq!(r["current"], json!("guide/install.md"));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// A file's web address names the forge, server, repository, branch and path.
+#[test]
+fn forge_web_addresses() {
+    use crate::cmd::versions::parse_web_address as parse;
+    let t = |u: &str, h: Option<&str>| parse(u, h).map(|(f, h, r, b, p)| [f, h, r, b, p].join(" ")).unwrap_or_else(|e| format!("ERR {e}"));
+    assert_eq!(
+        t("https://forge.prozium.net/TheLazyGeekGuy/notes/src/branch/main/CHANGELOG.md", Some("forgejo")),
+        "forgejo forge.prozium.net TheLazyGeekGuy/notes main CHANGELOG.md"
+    );
+    assert_eq!(t("https://github.com/acme/docs/blob/dev/guide/intro%20page.md?plain=1", None), "github github.com acme/docs dev guide/intro page.md");
+    assert_eq!(
+        t("https://gitlab.example.org/team/sub/handbook/-/blob/main/a/b.md#L3", None),
+        "gitlab gitlab.example.org team/sub/handbook main a/b.md"
+    );
+    assert!(t("https://forge.prozium.net/TheLazyGeekGuy", None).starts_with("ERR"));
+    assert!(t("not a url", None).starts_with("ERR"));
+}
 /// #1320: `layout.verticalAlign` sets the section's vertical alignment, Justified included
 /// ("justify", or "both"/"justified"); a value it doesn't know is Top, as before. Section JSON
 /// for `layout.pageSetup` keeps its names.
@@ -8227,6 +8938,533 @@ fn vertical_align_command_sets_justified() {
         assert_eq!(va(&s), want, "{name}");
         assert_eq!(serde_json::to_value(crate::cmd::page::sect(&s)).unwrap()["valign"], json!(name));
     }
+}
+
+/// The forge lists the app loads on a worker thread: prepared on the session (signed in or not),
+/// run on another thread, the same answer as the command.
+#[test]
+fn forge_listing_runs_off_the_session() {
+    use crate::cmd::versions::ForgeListing;
+    let server = std::sync::Arc::new(fake_github::Server::new(&[("guide.md", b"# Guide\n")]));
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.forge_transport = Some(server.clone());
+    let files = json!({"forge": "github", "repo": "acme/docs", "branch": "main"});
+    assert!(ForgeListing::prepare(&s, "forge.files", &files).is_err(), "not signed in");
+    s.run("forge.signIn", &json!({"forge": "github", "token": "t"})).unwrap();
+    assert!(ForgeListing::prepare(&s, "doc.save", &files).is_err());
+    let job = ForgeListing::prepare(&s, "forge.files", &files).unwrap();
+    let off = std::thread::spawn(move || job.run().map_err(|e| e.to_string())).join().unwrap();
+    let here = s.run("forge.files", &files).map_err(|e| e.to_string());
+    assert_eq!(off, here);
+}
+
+/// A colleague's reply in line comment `root`'s thread on the fake server.
+fn line_reply(server: &fake_github::Server, root: u64, who: &str, text: &str) {
+    let mut lines = server.line_comments.lock().unwrap();
+    let id = 5000 + lines.as_array().unwrap().len();
+    lines.as_array_mut().unwrap().push(
+        json!({"id": id, "in_reply_to_id": root, "user": {"login": who}, "created_at": "2026-10-15T10:00:00Z", "body": text, "path": "guide.md", "line": 5}),
+    );
+}
+
+/// Signing in on the forge's page (device flow): the code to type is shown, the app waits until
+/// it's approved; Cancel stops the wait.
+#[test]
+fn forge_device_sign_in() {
+    use crate::cmd::versions::DeviceSignIn;
+    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+    use wordcraft_vcs::forge::{Request, Response, Transport};
+    struct Github(AtomicUsize);
+    impl Transport for Github {
+        fn send(&self, req: &Request) -> Result<Response, String> {
+            let body = match req.url.as_str() {
+                "https://github.com/login/device/code" => {
+                    json!({"device_code": "dc", "user_code": "WDJB-MJHT", "verification_uri": "https://github.com/login/device", "interval": 1})
+                }
+                "https://github.com/login/oauth/access_token" => {
+                    assert!(req.body.as_deref().unwrap().contains(r#""client_id":"Iv1.plume""#));
+                    if self.0.fetch_add(1, Ordering::SeqCst) == 0 {
+                        json!({"error": "authorization_pending"})
+                    } else {
+                        json!({"access_token": "gho_x"})
+                    }
+                }
+                u => panic!("{u}"),
+            };
+            Ok(Response { status: 200, body: body.to_string().into_bytes() })
+        }
+    }
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.forge_transport = Some(std::sync::Arc::new(Github(AtomicUsize::new(0))));
+    assert!(DeviceSignIn::prepare(&s, &json!({"forge": "github", "clientId": "a/b"})).is_err());
+    let params = json!({"forge": "github", "clientId": "Iv1.plume"});
+    let mut shown = String::new();
+    let token = DeviceSignIn::prepare(&s, &params).unwrap().run(|c| shown = c.user_code.clone(), &AtomicBool::new(false)).unwrap();
+    assert_eq!((token.as_str(), shown.as_str()), ("gho_x", "WDJB-MJHT"));
+    let cancelled = DeviceSignIn::prepare(&s, &params).unwrap().run(|_| {}, &AtomicBool::new(true));
+    assert!(cancelled.unwrap_err().to_string().contains("cancelled"));
+    assert!(DeviceSignIn::prepare(&s, &json!({"forge": "forgejo", "clientId": "x"})).unwrap().run(|_| {}, &AtomicBool::new(false)).is_err());
+}
+
+/// A new document saved straight into a forge repository becomes a forge document: Save Version
+/// records versions there. An existing file is replaced only when asked.
+#[test]
+fn forge_save_as_new_document() {
+    let server = std::sync::Arc::new(fake_github::Server::new(&[("README.md", b"# Docs\n")]));
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.forge_transport = Some(server.clone());
+    s.run("forge.signIn", &json!({"forge": "github", "token": "t"})).unwrap();
+    s.run("text.insert", &json!({"text": "Meeting notes"})).unwrap();
+    let to = json!({"forge": "github", "repo": "acme/docs", "path": "notes/meeting"});
+    let r = s.run("forge.saveAs", &to).unwrap();
+    assert_eq!(r["path"], json!("notes/meeting.md"));
+    assert_eq!(r["version"]["message"], json!("Add meeting.md"));
+    assert_eq!(String::from_utf8(server.file("notes/meeting.md").unwrap()).unwrap(), "Meeting notes\n");
+    assert!(!s.dirty && s.path.is_none());
+    assert_eq!(s.file_name.as_deref(), Some("meeting"));
+    assert_eq!(s.run("vcs.status", &json!({})).unwrap()["file"], json!("notes/meeting.md"));
+    // Saved again under the same name: refused unless replacing.
+    let again = s.run("forge.saveAs", &json!({"forge": "github", "repo": "acme/docs", "path": "README.md"}));
+    assert!(again.unwrap_err().to_string().contains("already has README.md"));
+    assert_eq!(server.file("README.md").unwrap(), b"# Docs\n");
+    // From now on, versions go there.
+    s.run("text.insert", &json!({"text": " (draft)"})).unwrap();
+    s.run("vcs.saveVersion", &json!({"message": "Draft"})).unwrap();
+    assert!(String::from_utf8(server.file("notes/meeting.md").unwrap()).unwrap().contains("(draft)"));
+    assert!(s.run("forge.saveAs", &json!({"forge": "github", "repo": "acme/docs", "path": "../x"})).is_err());
+}
+
+/// Plume: versions and tracked changes are one thing. Turning Track Changes on in a versioned
+/// document shows what changed since the last version, even edits typed while it was off; a new
+/// version takes them in and starts clean.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn track_changes_show_the_changes_since_the_last_version() {
+    let dir = scratch_dir("track-since-version");
+    let md = dir.join("handbook.md");
+    let mut s = Session::new(wordcraft_doc::Document::from_text("The Open Studio Handbook\nEvery Thursday the shop fills up."));
+    s.native_markdown = true;
+    s.run("file.save", &json!({"path": md.to_string_lossy()})).unwrap();
+    s.run("vcs.init", &json!({})).unwrap();
+    s.run("vcs.saveVersion", &json!({"message": "First", "author": "Ada", "email": "ada@x.org"})).unwrap();
+    // Typed with tracking off.
+    s.run("caret.set", &json!({"pos": {"block": 0, "off": 4}})).unwrap();
+    s.run("text.insert", &json!({"text": "My "})).unwrap();
+    s.run("select.range", &json!({"anchor": {"block": 1, "off": 0}, "focus": {"block": 1, "off": 14}})).unwrap();
+    s.run("text.delete", &json!({})).unwrap();
+    assert!(s.run("review.changes", &json!({})).unwrap().as_array().unwrap().is_empty());
+    let on = s.run("review.trackChanges", &json!({"value": true})).unwrap();
+    assert!(on["sinceVersion"].as_u64().unwrap() >= 1, "{on}");
+    let changes = s.run("review.changes", &json!({})).unwrap();
+    let kinds: Vec<&str> = changes.as_array().unwrap().iter().filter_map(|c| c["kind"].as_str()).collect();
+    assert!(kinds.contains(&"insert") && kinds.contains(&"delete"), "{changes}");
+    let text = s.doc.plain_text(wordcraft_doc::StoryRef::Body);
+    assert!(text.contains("My") && text.contains("Every Thursday"), "deleted text shows struck through: {text}");
+    // Edits from now on are tracked on top; the saved version is the text as it reads.
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " Bread too."})).unwrap();
+    s.run("vcs.saveVersion", &json!({"message": "Second", "author": "Ada", "email": "ada@x.org"})).unwrap();
+    assert!(s.run("review.changes", &json!({})).unwrap().as_array().unwrap().is_empty(), "a new version starts clean");
+    let saved = std::fs::read_to_string(&md).unwrap();
+    assert!(saved.contains("The My Open Studio") && !saved.contains("Every Thursday") && saved.contains("Bread too."), "{saved}");
+    // Nothing changed since: recomputing finds nothing.
+    let again = s.run("vcs.changesSinceVersion", &json!({})).unwrap();
+    assert_eq!(again["changes"], 0, "{}", s.run("review.changes", &json!({})).unwrap());
+    // An unversioned document: plain Track Changes, except in Plume's Markdown profile, where
+    // changes are tracked against a version.
+    let mut plain = Session::new(wordcraft_doc::Document::from_text("x"));
+    assert!(plain.run("review.trackChanges", &json!({"value": true})).unwrap().get("sinceVersion").is_none());
+    let mut plain = Session::new(wordcraft_doc::Document::from_text("x"));
+    plain.native_markdown = true;
+    let refused = plain.run("review.trackChanges", &json!({"value": true}));
+    assert!(matches!(&refused, Err(crate::CmdError::Disabled(m)) if m.contains("save a version")), "{refused:?}");
+    assert!(!plain.doc.settings.track_changes);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Plume: Enter at the end of a fenced code block's line continues that block (its language
+/// with it), and the block beside it stays apart.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn enter_in_a_code_block_continues_it() {
+    let dir = scratch_dir("md-code-enter");
+    let md = dir.join("code.md");
+    std::fs::write(&md, "Intro\n\n```js\nconst a = 1\n```\n\n```py\nx = 1\n```\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    s.run("caret.set", &json!({"pos": {"block": 1, "off": 11}})).unwrap();
+    s.run("text.newParagraph", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": "const b = 2"})).unwrap();
+    s.run("file.save", &json!({})).unwrap();
+    let saved = std::fs::read_to_string(&md).unwrap();
+    assert_eq!(saved, "Intro\n\n```js\nconst a = 1\nconst b = 2\n```\n\n```py\nx = 1\n```\n");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Plume: a Markdown document's properties are its front matter: fields of any name are set and
+/// removed there (the title with the document's), Category and Word's custom properties land in
+/// it, and the rest of the front matter stays as written.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn front_matter_fields_are_the_document_properties() {
+    let dir = scratch_dir("md-front-matter");
+    let md = dir.join("guide.md");
+    std::fs::write(&md, "---\ntitle: Guide\ntags:\n  - a\n# PDF\ntitlepage: true\n---\n\nText.\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    let r = s.run("file.frontMatter", &json!({})).unwrap();
+    assert_eq!(r["fields"][1], json!({"key": "tags", "value": "a"}), "{r}");
+    assert!(!s.dirty, "reading changes nothing");
+    s.run("file.setFrontMatter", &json!({"key": "toto", "value": "valeur perso"})).unwrap();
+    s.run("file.setFrontMatter", &json!({"key": "title", "value": "Guide d'installation"})).unwrap();
+    assert_eq!(s.doc.core.title, "Guide d'installation");
+    s.run("file.properties", &json!({"category": "Docs", "custom": {"Client Name": "ACME"}})).unwrap();
+    s.run("file.setFrontMatter", &json!({"key": "titlepage", "value": null})).unwrap();
+    assert!(s.run("file.setFrontMatter", &json!({"key": "bad key", "value": "x"})).is_err());
+    s.run("file.save", &json!({})).unwrap();
+    let saved = std::fs::read_to_string(&md).unwrap();
+    assert_eq!(
+        saved,
+        "---\ntitle: \"Guide d'installation\"\ntags:\n  - a\n# PDF\ntoto: \"valeur perso\"\ncategory: \"Docs\"\nClient-Name: \"ACME\"\n---\n\nText.\n"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Plume: a Word document opened as Markdown brings its Word properties into the front matter:
+/// dates, category, revision and its custom properties, each under its own key.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn word_properties_go_into_the_front_matter() {
+    let dir = scratch_dir("md-word-props");
+    let docx = dir.join("rapport.docx");
+    let mut doc = wordcraft_doc::Document::from_text("Corps.");
+    doc.core.title = "Rapport".into();
+    doc.core.category = "Finance".into();
+    doc.core.created = "2026-01-02T03:04:05Z".into();
+    doc.set_custom_prop("toto", "valeur perso");
+    std::fs::write(&docx, crate::io::save_bytes("rapport.docx", &doc).unwrap()).unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": docx.to_string_lossy()})).unwrap();
+    s.run("file.save", &json!({})).unwrap();
+    let saved = std::fs::read_to_string(dir.join("rapport.md")).unwrap();
+    assert!(saved.starts_with("---\ntitle: \"Rapport\"\ndate: \"2026-01-02\"\n"), "{saved}");
+    assert!(saved.contains("category: \"Finance\"\n") && saved.contains("toto: \"valeur perso\"\n"), "{saved}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Plume: code blocks and callouts from the ribbon. The selected paragraphs become a code block
+/// with its language, or go in a callout under its title line; the language changes for the
+/// whole block; a paragraph leaves its block. Saved as VitePress and GitHub write them.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn code_blocks_and_callouts_from_the_ribbon() {
+    let dir = scratch_dir("md-insert-blocks");
+    let md = dir.join("blocks.md");
+    std::fs::write(&md, "Intro\n\nlet a = 1;\n\nlet b = 2;\n\nBe careful.\n\nCheck twice.\n\nAfter.\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    s.run("select.range", &json!({"anchor": {"block": 1, "off": 0}, "focus": {"block": 2, "off": 3}})).unwrap();
+    s.run("markdown.codeBlock", &json!({"language": "js"})).unwrap();
+    s.run("caret.set", &json!({"pos": {"block": 1, "off": 0}})).unwrap();
+    assert_eq!(s.run("markdown.block", &json!({})).unwrap()["code"]["language"], "js");
+    s.run("markdown.codeLanguage", &json!({"language": "rust"})).unwrap();
+    s.run("select.range", &json!({"anchor": {"block": 3, "off": 0}, "focus": {"block": 4, "off": 2}})).unwrap();
+    let r = s.run("markdown.callout", &json!({"kind": "warning", "title": "Attention"})).unwrap();
+    assert_eq!(r["alert"], false);
+    // A callout in a callout is refused; a GitHub-only kind is an alert.
+    assert!(s.run("markdown.callout", &json!({"kind": "tip"})).is_err());
+    s.run("caret.set", &json!({"pos": {"block": 6, "off": 0}})).unwrap();
+    assert_eq!(s.run("markdown.callout", &json!({"kind": "note"})).unwrap()["alert"], true);
+    s.run("file.save", &json!({})).unwrap();
+    let saved = std::fs::read_to_string(&md).unwrap();
+    assert_eq!(
+        saved,
+        "Intro\n\n```rust\nlet a = 1;\nlet b = 2;\n```\n\n::: warning Attention\nBe careful.\n\nCheck twice.\n:::\n\n> [!NOTE]\n> After.\n"
+    );
+    // Leaving the block: a plain paragraph again.
+    s.run("caret.set", &json!({"pos": {"block": 1, "off": 0}})).unwrap();
+    s.run("markdown.leaveBlock", &json!({})).unwrap();
+    s.run("file.save", &json!({})).unwrap();
+    assert!(std::fs::read_to_string(&md).unwrap().starts_with("Intro\n\nlet a = 1;\n\n```rust\nlet b = 2;\n```\n"));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Plume: a repository whose main branch is locked by its admins (`.plume/workflow.toml`): the
+/// document opens on the person's work branch (`<login>-<repository>`, made from main), versions
+/// are saved there, Request Review opens the merge request into main, and once it is merged the
+/// work branch starts again from main.
+#[test]
+fn locked_main_work_branch_workflow() {
+    let server = std::sync::Arc::new(fake_github::Server::new(&[
+        ("guide/intro.md", b"# Intro\n\nHello.\n"),
+        (".plume/workflow.toml", b"# main is locked\nrequired = true\ntarget = \"main\"\nbranch = \"{user}-{repo}\"\n"),
+    ]));
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.forge_transport = Some(server.clone());
+    s.run("forge.signIn", &json!({"forge": "github", "token": "ghp_test"})).unwrap();
+    let open = json!({"forge": "github", "repo": "acme/docs", "path": "guide/intro.md"});
+    let r = s.run("forge.open", &open).unwrap();
+    assert_eq!(r["workflow"], json!({"target": "main", "branch": "ada-l-docs", "fresh": true}), "{r}");
+    assert_eq!(server.head("ada-l-docs"), server.head("main"), "made from main");
+    // Versions go on the work branch; main doesn't move.
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " World."})).unwrap();
+    s.run("vcs.saveVersion", &json!({"message": "Greet the world"})).unwrap();
+    assert!(String::from_utf8(server.file_on("ada-l-docs", "guide/intro.md").unwrap()).unwrap().contains("World."));
+    assert!(!String::from_utf8(server.file("guide/intro.md").unwrap()).unwrap().contains("World."));
+    let st = s.run("vcs.status", &json!({})).unwrap();
+    assert_eq!(st["workflow"]["target"], "main");
+    // The merge request into main, from the work branch itself.
+    let rv = s.run("vcs.requestReview", &json!({"title": "Greeting"})).unwrap();
+    assert_eq!(rv["target"], "main");
+    assert_eq!(server.pulls(), [("ada-l-docs".to_string(), "main".to_string())]);
+    // Opened again while in review: the review is known.
+    s.run("forge.open", &open).unwrap();
+    assert!(s.forge.as_ref().unwrap().review.is_some());
+    assert!(s.run("vcs.requestReview", &json!({"title": "Again"})).is_err(), "one review at a time");
+    // Merged: the work branch starts again from main.
+    server.merge_pull(1);
+    let r = s.run("forge.open", &open).unwrap();
+    assert_eq!(r["workflow"]["fresh"], json!(true), "{r}");
+    assert_eq!(server.head("ada-l-docs"), server.head("main"));
+    assert!(s.forge.as_ref().unwrap().review.is_none());
+    assert!(s.doc.plain_text(StoryRef::Body).contains("World."));
+}
+
+/// Plume: in a Markdown document, Increase Indent works in a list only.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn markdown_indents_list_items_only() {
+    let dir = scratch_dir("md-indent");
+    let md = dir.join("indent.md");
+    std::fs::write(&md, "Text.\n\n- one\n- two\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    assert!(s.markdown_blocks("para.indent").is_some());
+    s.run("caret.set", &json!({"pos": {"block": 2, "off": 0}})).unwrap();
+    assert!(s.markdown_blocks("para.indent").is_none());
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Plume: a diagram from its Mermaid source: inserted after the caret's paragraph, drawn,
+/// changed in place, refused when it can't be drawn; saved as its source.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn diagrams_from_mermaid_source() {
+    let dir = scratch_dir("md-diagram");
+    let md = dir.join("d.md");
+    std::fs::write(&md, "Intro.\n\nAfter.\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    s.run("markdown.diagram", &json!({"source": "flowchart LR\n    A --> B"})).unwrap();
+    assert_eq!(s.run("markdown.block", &json!({})).unwrap()["diagram"], "flowchart LR\n    A --> B");
+    s.run("markdown.diagram", &json!({"source": "flowchart LR\n    A --> C"})).unwrap();
+    assert!(s.run("markdown.diagram", &json!({"source": "not mermaid at all"})).is_err());
+    assert!(s.run("markdown.diagram", &json!({"source": 3})).is_err());
+    s.run("file.save", &json!({})).unwrap();
+    assert_eq!(std::fs::read_to_string(&md).unwrap(), "Intro.\n\n```mermaid\nflowchart LR\n    A --> C\n```\n\nAfter.\n");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Plume: a diagram drawn as shapes joined by connectors becomes a Mermaid flowchart, which
+/// reopens as the same shapes (where they were put) for the canvas.
+#[test]
+fn drawn_diagrams_become_flowcharts() {
+    let mut s = Session::new(wordcraft_doc::Document::from_text("Intro."));
+    s.native_markdown = true;
+    let sketch = json!({"nodes": [
+        {"text": "Draft", "shape": "stadium", "x": 60, "y": 40},
+        {"text": "Reviewed?", "shape": "diamond", "x": 60, "y": 160},
+        {"text": "Publish", "x": 60, "y": 280}
+    ], "edges": [{"from": 0, "to": 1, "arrow": true}, {"from": 1, "to": 2, "label": "yes", "arrow": true, "line": "dotted"}]});
+    s.run("markdown.diagram", &json!({"sketch": sketch})).unwrap();
+    let block = s.run("markdown.block", &json!({})).unwrap();
+    let src = block["diagram"].as_str().unwrap();
+    assert!(src.starts_with("flowchart TD\n    n1([\"Draft\"])\n    n2{\"Reviewed?\"}\n"), "{src}");
+    assert!(src.contains("n2 -.->|\"yes\"| n3") && src.contains("%% plume n3 60 280"), "{src}");
+    assert_eq!(block["sketch"]["nodes"][1]["shape"], "diamond");
+    assert_eq!(block["sketch"]["nodes"][2]["y"], 280.0);
+    for bad in [json!({"nodes": []}), json!({"nodes": [{"text": "a"}], "edges": [{"from": 0, "to": 3}]}), json!({"nodes": "x"})] {
+        assert!(s.run("markdown.diagram", &json!({"sketch": bad})).is_err(), "{bad}");
+    }
+}
+
+/// Plume: every kind of Mermaid diagram can be made from its kind, read back as the model its
+/// visual editor shows, edited as that model and written again, without writing Mermaid.
+#[test]
+fn every_kind_of_diagram_through_its_model() {
+    let mut s = Session::new(wordcraft_doc::Document::from_text("Intro."));
+    s.native_markdown = true;
+    for kind in wordcraft_diagram::codec::Kind::ALL {
+        let name = serde_json::to_value(kind).unwrap();
+        s.run("caret.docEnd", &json!({})).unwrap();
+        s.run("markdown.diagram", &json!({"kind": name})).unwrap_or_else(|e| panic!("{name}: {e:?}"));
+        let block = s.run("markdown.block", &json!({})).unwrap();
+        assert_eq!(block["editor"]["kind"], name, "{block}");
+        assert_eq!(block["editor"]["complete"], true, "{name}: {}", block["diagram"]);
+        // The model edited and applied: the diagram changes in place.
+        let mut d = block["editor"]["diagram"].clone();
+        if let Some(fields) = d["model"]["fields"].as_object_mut() {
+            fields.insert("title".into(), json!("Edited"));
+        }
+        s.run("markdown.diagram", &json!({"diagram": d})).unwrap_or_else(|e| panic!("{name}: {e:?}"));
+        s.run("text.newParagraph", &json!({})).unwrap();
+    }
+    assert!(s.run("markdown.diagram", &json!({"kind": "nope"})).is_err());
+    assert!(s.run("markdown.diagram", &json!({"diagram": {"kind": "pie"}})).is_err());
+}
+
+/// Plume: a Word drawing canvas of shapes glued to connectors is saved as a Mermaid flowchart.
+#[test]
+fn word_drawings_with_connectors_become_mermaid() {
+    use wordcraft_doc::connector::{ConnEnd, ShapeExtra};
+    use wordcraft_doc::para::{GroupChild, InlineObject, ShapeKind};
+    let mut doc = wordcraft_doc::Document::from_text("Before.");
+    let story =
+        |doc: &mut wordcraft_doc::Document, t: &str| doc.add_part(wordcraft_doc::PartKind::TextBox, wordcraft_doc::Document::from_text(t).body);
+    let (a, b) = (story(&mut doc, "Ask"), story(&mut doc, "Answer"));
+    let shape = |kind: ShapeKind, story: Option<u32>, extra: ShapeExtra| InlineObject::Shape {
+        kind,
+        w: 100.0,
+        h: 40.0,
+        fill: None,
+        stroke: None,
+        stroke_width: 1.0,
+        float: Default::default(),
+        story,
+        freeform: None,
+        effects: Default::default(),
+        extra,
+    };
+    let children = vec![
+        GroupChild { x: 0.0, y: 0.0, obj: shape(ShapeKind::TextBox, Some(a), ShapeExtra { id: 4, ..Default::default() }) },
+        GroupChild { x: 0.0, y: 120.0, obj: shape(ShapeKind::Diamond, Some(b), ShapeExtra { id: 5, ..Default::default() }) },
+        GroupChild {
+            x: 50.0,
+            y: 40.0,
+            obj: shape(
+                ShapeKind::StraightConnector,
+                None,
+                ShapeExtra { start: Some(ConnEnd { id: 4, site: 2 }), end: Some(ConnEnd { id: 5, site: 0 }), arrow_end: true, ..Default::default() },
+            ),
+        },
+    ];
+    let mut p = wordcraft_doc::Paragraph::new();
+    p.insert_object(
+        0,
+        InlineObject::Group { w: 200.0, h: 200.0, float: Default::default(), ch_w: 200.0, ch_h: 200.0, children, canvas: Some(Default::default()) },
+        &Default::default(),
+    )
+    .unwrap();
+    doc.body.push(wordcraft_doc::para_block(p));
+    let text = crate::io::markdown_text(&doc);
+    assert!(text.contains("```mermaid\nflowchart TD\n    n1[\"Ask\"]\n    n2{\"Answer\"}\n    n1 --> n2\n"), "{text}");
+}
+
+/// Plume: heading anchors (`{#anchor}`), include directives and the Markdown source view.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn anchors_includes_and_the_markdown_source() {
+    let dir = scratch_dir("md-lot8");
+    let md = dir.join("guide.md");
+    std::fs::write(&md, "# Install {#setup}\n\nSee [setup](#setup).\n\n<!--@include: ./part.md-->\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    // The anchor isn't part of the heading's text.
+    assert!(!s.doc.plain_text(StoryRef::Body).contains("{#"));
+    assert_eq!(s.run("markdown.block", &json!({})).unwrap()["anchor"], "setup");
+    s.run("caret.set", &json!({"pos": {"block": 2, "off": 0}})).unwrap();
+    assert_eq!(s.run("markdown.block", &json!({})).unwrap()["include"], "./part.md");
+    assert!(s.run("markdown.headingAnchor", &json!({"anchor": "x"})).is_err(), "not a heading");
+    s.run("caret.set", &json!({"pos": {"block": 0, "off": 0}})).unwrap();
+    s.run("markdown.headingAnchor", &json!({"anchor": "#installation"})).unwrap();
+    s.run("caret.set", &json!({"pos": {"block": 1, "off": 0}})).unwrap();
+    s.run("markdown.include", &json!({"path": "./other.md"})).unwrap();
+    assert!(s.run("markdown.include", &json!({"path": "x-->y"})).is_err());
+    let text = s.run("markdown.source", &json!({})).unwrap()["text"].as_str().unwrap().to_string();
+    assert!(
+        text.starts_with("# Install {#installation}\n\nSee [setup](#setup).\n\n<!--@include: ./other.md-->\n\n<!--@include: ./part.md-->\n"),
+        "{text}"
+    );
+    // Edited as Markdown and applied: the document follows; Enter after the heading leaves the
+    // anchor on it.
+    let edited = text.replace("See [setup]", "Read [setup]");
+    s.run("markdown.setSource", &json!({"text": edited})).unwrap();
+    assert!(s.doc.plain_text(StoryRef::Body).contains("Read setup"));
+    s.run("caret.set", &json!({"pos": {"block": 0, "off": 7}})).unwrap();
+    s.run("text.newParagraph", &json!({})).unwrap();
+    s.run("file.save", &json!({})).unwrap();
+    let saved = std::fs::read_to_string(&md).unwrap();
+    assert!(saved.starts_with("# Install {#installation}\n\nRead [setup](#setup)."), "{saved}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Plume: a TextBundle made by another application opens with its pictures, saves back into
+/// the folder keeping that application's metadata and files, and a TextPack round-trips.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn textbundles_and_textpacks_open_and_save() {
+    let dir = scratch_dir("textbundle");
+    let bundle = dir.join("Note.textbundle");
+    std::fs::create_dir_all(bundle.join("assets")).unwrap();
+    std::fs::write(bundle.join("info.json"), r#"{"version":2,"creatorIdentifier":"net.shinyfrog.bear","net.shinyfrog.bear":{"version":3}}"#).unwrap();
+    std::fs::write(bundle.join("text.markdown"), "# Note\n\nA picture:\n\n![dot](assets/dot.png)\n").unwrap();
+    std::fs::write(bundle.join("assets/dot.png"), tiny_png()).unwrap();
+    std::fs::write(bundle.join("bear-extra.txt"), "theirs").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    // Picked through its text file, as file dialogs pick files: the bundle opens.
+    s.run("file.open", &json!({"path": bundle.join("text.markdown").to_string_lossy()})).unwrap();
+    assert_eq!(s.path.as_deref(), Some(bundle.as_path()));
+    assert!(s.is_markdown(), "a TextBundle is a Markdown document");
+    assert!(!s.doc.media.is_empty(), "its picture is read from the bundle");
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " Edited."})).unwrap();
+    s.run("file.save", &json!({})).unwrap();
+    let text = std::fs::read_to_string(bundle.join("text.markdown")).unwrap();
+    assert!(text.contains("Edited.") && text.contains("](assets/"), "{text}");
+    assert!(!bundle.join("text.md").exists(), "the bundle's own text file is kept");
+    let info: serde_json::Value = serde_json::from_slice(&std::fs::read(bundle.join("info.json")).unwrap()).unwrap();
+    assert_eq!((info["version"].as_i64(), info["type"].as_str()), (Some(2), Some("net.daringfireball.markdown")));
+    assert_eq!(info["creatorIdentifier"], "net.shinyfrog.bear");
+    assert_eq!(info["net.shinyfrog.bear"]["version"], 3);
+    assert_eq!(std::fs::read_to_string(bundle.join("bear-extra.txt")).unwrap(), "theirs");
+
+    // Save As a TextPack, then open it.
+    let pack = dir.join("Note.textpack");
+    s.run("file.saveAs", &json!({"path": pack.to_string_lossy()})).unwrap();
+    assert_eq!(s.path.as_deref(), Some(pack.as_path()));
+    let u = crate::io::textbundle::unpack(&std::fs::read(&pack).unwrap()).unwrap();
+    assert!(String::from_utf8_lossy(&u.text).contains("Edited."));
+    assert!(u.files.iter().any(|(p, _)| p.starts_with("assets/")), "{:?}", u.files.iter().map(|f| &f.0).collect::<Vec<_>>());
+    assert_eq!(u.info["creatorIdentifier"], wordcraft_brand::APP_ID);
+    let mut t = Session::new(wordcraft_doc::Document::new());
+    t.native_markdown = true;
+    t.run("file.open", &json!({"path": pack.to_string_lossy()})).unwrap();
+    assert!(t.doc.plain_text(StoryRef::Body).contains("Edited.") && !t.doc.media.is_empty());
+    // Saved again over itself: a second save changes nothing.
+    t.run("file.save", &json!({})).unwrap();
+    let again = crate::io::textbundle::unpack(&std::fs::read(&pack).unwrap()).unwrap();
+    assert_eq!(again.text, u.text);
+
+    // A new bundle from a Markdown document; bytes and the web.
+    let fresh = dir.join("New.textbundle");
+    s.run("file.saveAs", &json!({"path": fresh.to_string_lossy()})).unwrap();
+    assert!(fresh.join("text.md").is_file() && fresh.join("info.json").is_file());
+    assert!(crate::io::open_bytes("x.textpack", &std::fs::read(&pack).unwrap()).is_ok());
+    assert!(crate::io::open_bytes("x.textbundle", b"").is_err());
+    assert!(crate::io::open_bytes("x.textpack", b"PK\x03\x04junk").is_err());
+    let (name, bytes) = crate::io::markdown_download("New.textbundle", &s.doc).unwrap();
+    assert_eq!(name, "New.textpack");
+    assert!(crate::io::textbundle::unpack(&bytes).is_ok());
+    let _ = std::fs::remove_dir_all(&dir);
 }
 
 /// #1876 review: only Web Layout wraps to the window's `web_width`. Draft and Outline keep a fixed

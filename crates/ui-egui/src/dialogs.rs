@@ -148,6 +148,37 @@ pub enum Dialog {
         message: String,
         focus: bool,
     },
+    /// Review › Versions › Save Version (Plume): describe the changes, record a version.
+    SaveVersion {
+        message: String,
+        error: String,
+        focus: bool,
+        /// Plume's workflow: also request the merge into the locked branch.
+        merge: bool,
+    },
+    /// Insert › Markdown › Include File (Plume): the path of the Markdown file to include.
+    IncludeFile {
+        path: String,
+        error: String,
+        focus: bool,
+    },
+    /// Insert › Markdown › Diagram (Plume): a diagram drawn (shapes and connectors, a sequence,
+    /// a chart), saved as Mermaid.
+    Diagram(#[serde(skip)] Box<crate::diagram_editor::DiagramEditor>),
+    /// Review › Versions › Request Review (Plume): a pull or merge request for colleagues.
+    RequestReview {
+        title: String,
+        message: String,
+        error: String,
+        focus: bool,
+    },
+    /// File › Open › Open from a Forge (Plume): a Markdown document on GitHub, GitLab or Forgejo.
+    OpenFromForge(#[serde(skip)] Box<ForgeBrowser>),
+    /// Review › Versions › Version History (Plume): the document's versions, newest first.
+    Versions {
+        list: Vec<Value>,
+        error: String,
+    },
     Font {
         /// The font (Latin text) and the Asian text font, as the font lists name them, and their
         /// values when the dialog opened: OK changes only the ones changed (#505).
@@ -956,6 +987,13 @@ impl Dialog {
     pub fn name(&self) -> &'static str {
         match self {
             Dialog::RenameDocument { .. } => "renameDocument",
+            Dialog::SaveVersion { .. } => "saveVersion",
+            Dialog::Diagram(_) => "diagram",
+            Dialog::IncludeFile { .. } => "includeFile",
+            Dialog::OpenFromForge(fb) if fb.saving => "saveToForge",
+            Dialog::OpenFromForge(_) => "openFromForge",
+            Dialog::RequestReview { .. } => "requestReview",
+            Dialog::Versions { .. } => "versions",
             Dialog::Font { .. } => "font",
             Dialog::Paragraph { .. } => "paragraph",
             Dialog::Tabs { .. } => "tabs",
@@ -1224,6 +1262,27 @@ impl Dialog {
             }
             "pasteSpecial" => Dialog::paste_special(app, &json!({})),
             "renameDocument" => Dialog::RenameDocument { name: app.title_stem(), message: String::new(), focus: true },
+            "saveVersion" => Dialog::SaveVersion { message: String::new(), error: String::new(), focus: true, merge: false },
+            "includeFile" => Dialog::IncludeFile { path: "./".into(), error: String::new(), focus: true },
+            "diagram" => {
+                let block = app.session.run("markdown.block", &json!({})).unwrap_or_default();
+                Dialog::Diagram(Box::new(match block.get("diagram").and_then(Value::as_str) {
+                    Some(src) => crate::diagram_editor::DiagramEditor::open(src),
+                    None => crate::diagram_editor::DiagramEditor::gallery(),
+                }))
+            }
+            "requestReview" => Dialog::RequestReview { title: String::new(), message: String::new(), error: String::new(), focus: true },
+            "openFromForge" => Dialog::OpenFromForge(Box::new(ForgeBrowser { remember: true, ..Default::default() })),
+            "saveToForge" => Dialog::OpenFromForge(Box::new(ForgeBrowser {
+                remember: true,
+                saving: true,
+                name: format!("{}.md", app.title_stem()),
+                ..Default::default()
+            })),
+            "versions" => {
+                let (list, error) = version_list(app);
+                Dialog::Versions { list, error }
+            }
             "about" => Dialog::About { tab: 0 },
             "contributors" => Dialog::About { tab: 1 },
             "models" => Dialog::About { tab: 2 },
@@ -1416,6 +1475,13 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
     let mut close = false;
     let title = match &d {
         Dialog::RenameDocument { .. } => "Rename Document",
+        Dialog::SaveVersion { .. } => "Save Version",
+        Dialog::Diagram(_) => "Diagram",
+        Dialog::IncludeFile { .. } => "Include File",
+        Dialog::OpenFromForge(fb) if fb.saving => "Save to a Forge",
+        Dialog::OpenFromForge(_) => "Open from a Forge",
+        Dialog::RequestReview { .. } => "Request Review",
+        Dialog::Versions { .. } => "Version History",
         Dialog::Font { .. } => "Font",
         Dialog::Paragraph { .. } => "Paragraph",
         Dialog::Tabs { .. } => "Tabs",
@@ -1439,8 +1505,8 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
         Dialog::Refs(d) => d.title(),
         Dialog::Icons { .. } => "Icons",
         Dialog::PasteSpecial { .. } => "Paste Special",
-        Dialog::About { .. } => "About WordCraft",
-        Dialog::SaveChanges { .. } => "WordCraft",
+        Dialog::About { .. } => "About Plume",
+        Dialog::SaveChanges { .. } => wordcraft_brand::APP_NAME,
         Dialog::DiscardRecovery { .. } => "Discard recovery copy",
         Dialog::RecipientList { .. } => "Recipient List",
         Dialog::SelectTable { .. } => "Select Table",
@@ -1620,6 +1686,21 @@ fn page_paper_group(ui: &mut Ui, paper: &mut (f32, f32), landscape: &mut bool, c
     });
 }
 
+/// A diagram's preview, drawn from `source` (kept while the source stays the same).
+pub(crate) fn diagram_preview(ctx: &egui::Context, source: &str) -> Result<egui::TextureHandle, String> {
+    let id = egui::Id::new(("diagram-preview", source));
+    if let Some(t) = ctx.data(|d| d.get_temp::<Result<egui::TextureHandle, String>>(id)) {
+        return t;
+    }
+    let made = wordcraft_engine::diagram::draw(source).map_err(|e| e.to_string()).and_then(|p| {
+        let img = image::load_from_memory(&p.png).map_err(|e| e.to_string())?.to_rgba8();
+        let ci = egui::ColorImage::from_rgba_unmultiplied([img.width() as usize, img.height() as usize], img.as_raw());
+        Ok(ctx.load_texture("diagram-preview", ci, egui::TextureOptions::LINEAR))
+    });
+    ctx.data_mut(|d| d.insert_temp(id, made.clone()));
+    made
+}
+
 /// Cancel key for dialogs: Escape everywhere, plus ⌘. (Command+Period) on macOS.
 pub(crate) fn cancel_key_pressed(ui: &Ui) -> bool {
     ui.input(|i| i.key_pressed(egui::Key::Escape) || (cfg!(target_os = "macos") && i.modifiers.command && i.key_pressed(egui::Key::Period)))
@@ -1763,6 +1844,190 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
             false
         }
 
+        Dialog::SaveVersion { message, error, focus, merge } => {
+            ui.label(tl!("Describe your changes"));
+            let r = ui.add(egui::TextEdit::multiline(message).desired_width(360.0).desired_rows(3).char_limit(2000));
+            if *focus {
+                r.request_focus();
+                *focus = false;
+            }
+            // Plume: a locked main branch. The version goes on this person's work branch, and
+            // can go on for review into main.
+            let flow = app.session.forge.as_ref().and_then(|f| f.workflow.clone().map(|w| (w, f.review.clone())));
+            if let Some((w, review)) = &flow {
+                ui.label(
+                    egui::RichText::new(crate::i18n::fmt(
+                        tl!("Saved on your branch {branch}; {target} is locked."),
+                        &[("branch", &w.branch), ("target", &w.target)],
+                    ))
+                    .small(),
+                );
+                match review {
+                    Some(rv) => {
+                        ui.label(
+                            egui::RichText::new(crate::i18n::fmt(
+                                tl!("Merge request {n} into {target} is open: this version goes in it."),
+                                &[("n", &rv.number.to_string()), ("target", &w.target)],
+                            ))
+                            .small(),
+                        );
+                    }
+                    None => {
+                        ui.checkbox(merge, crate::i18n::fmt(tl!("Request the merge into {target}"), &[("target", &w.target)]));
+                    }
+                }
+            }
+            if !error.is_empty() {
+                ui.colored_label(ui.visuals().error_fg_color, error.as_str());
+                // Not in a versioned folder yet: one click starts keeping versions there.
+                let unversioned =
+                    app.session.run("vcs.status", &json!({})).ok().and_then(|v| v.get("versioned").and_then(Value::as_bool)) == Some(false);
+                if unversioned && app.session.path.is_some() && ui.button(tl!("Start Keeping Versions")).clicked() {
+                    match app.run("vcs.init", json!({})) {
+                        Ok(_) => error.clear(),
+                        Err(e) => *error = e,
+                    }
+                }
+            }
+            let (ok, cancel) = buttons(ui, tl!("Save Version"));
+            if cancel {
+                return true;
+            }
+            if ok {
+                // An unsaved or non-Markdown document is saved as Markdown first; a forge
+                // document is Markdown already, its versions are the forge's commits.
+                if needs_markdown_file(app) {
+                    *error = tl!("Save the document as Markdown first (File › Save As).").to_string();
+                    return false;
+                }
+                match app.run("vcs.saveVersion", json!({"message": message})) {
+                    Ok(v) => {
+                        let short = v.pointer("/version/short").and_then(Value::as_str).unwrap_or("").to_string();
+                        app.status(crate::i18n::fmt(tl!("Version {id} saved"), &[("id", &short)]));
+                        if *merge && flow.as_ref().is_some_and(|(_, r)| r.is_none()) {
+                            let title = message.lines().next().unwrap_or("").trim().to_string();
+                            match app.run("vcs.requestReview", json!({"title": title})) {
+                                Ok(r) => {
+                                    let n = r.pointer("/review/number").and_then(Value::as_u64).unwrap_or(0).to_string();
+                                    app.status(crate::i18n::fmt(tl!("Version {id} saved; merge request {n} opened"), &[("id", &short), ("n", &n)]));
+                                }
+                                Err(e) => {
+                                    *error = e;
+                                    *merge = false;
+                                    return false;
+                                }
+                            }
+                        }
+                        return true;
+                    }
+                    Err(e) => *error = e,
+                }
+            }
+            false
+        }
+        Dialog::OpenFromForge(fb) => forge_browser(app, ui, fb),
+        Dialog::IncludeFile { path, error, focus } => {
+            ui.label(tl!("The Markdown file to include, relative to this one (VitePress shows its text here)"));
+            let r = ui.add(egui::TextEdit::singleline(path).desired_width(360.0).char_limit(300));
+            if *focus {
+                r.request_focus();
+                *focus = false;
+            }
+            if !error.is_empty() {
+                ui.colored_label(ui.visuals().error_fg_color, error.as_str());
+            }
+            let (ok, cancel) = buttons(ui, tl!("Include"));
+            if cancel {
+                return true;
+            }
+            if ok {
+                match app.run("markdown.include", json!({"path": path})) {
+                    Ok(_) => return true,
+                    Err(e) => *error = e,
+                }
+            }
+            false
+        }
+        Dialog::Diagram(e) => crate::diagram_editor::show(app, ui, e),
+        Dialog::RequestReview { title, message, error, focus } => {
+            ui.label(tl!("What should your colleagues review?"));
+            let r = ui.add(egui::TextEdit::singleline(title).desired_width(360.0).char_limit(200));
+            if *focus {
+                r.request_focus();
+                *focus = false;
+            }
+            ui.label(tl!("Details (optional)"));
+            ui.add(egui::TextEdit::multiline(message).desired_width(360.0).desired_rows(3).char_limit(5000));
+            if !error.is_empty() {
+                ui.colored_label(ui.visuals().error_fg_color, error.as_str());
+            }
+            let (ok, cancel) = buttons(ui, tl!("Request Review"));
+            if cancel {
+                return true;
+            }
+            if ok {
+                match app.run("vcs.requestReview", json!({"title": title, "message": message})) {
+                    Ok(v) => {
+                        let url = v.pointer("/review/url").and_then(Value::as_str).unwrap_or("").to_string();
+                        app.status(crate::i18n::fmt(tl!("Review requested: {url}"), &[("url", &url)]));
+                        return true;
+                    }
+                    Err(e) => *error = e,
+                }
+            }
+            false
+        }
+        Dialog::Versions { list, error } => {
+            if !error.is_empty() {
+                ui.colored_label(ui.visuals().error_fg_color, error.as_str());
+            } else if list.is_empty() {
+                ui.label(tl!("No versions yet"));
+            }
+            let mut action: Option<(&str, String)> = None;
+            egui::ScrollArea::vertical().max_height(360.0).show(ui, |ui| {
+                egui::Grid::new("versions").num_columns(4).spacing(vec2(12.0, 6.0)).striped(true).show(ui, |ui| {
+                    for v in list.iter() {
+                        let s = |k: &str| v.get(k).and_then(Value::as_str).unwrap_or("").to_string();
+                        let date = s("date");
+                        ui.label(date.get(..16).unwrap_or(&date).replace('T', " "));
+                        ui.label(s("author"));
+                        ui.label(s("message"));
+                        ui.horizontal(|ui| {
+                            let id = s("id");
+                            if ui.small_button(tl!("Show Changes")).clicked() {
+                                action = Some(("vcs.showChanges", id.clone()));
+                            }
+                            if ui.small_button(tl!("Compare")).clicked() {
+                                action = Some(("vcs.compare", id.clone()));
+                            }
+                            if ui.small_button(tl!("Restore")).clicked() {
+                                action = Some(("vcs.restore", id));
+                            }
+                        });
+                        ui.end_row();
+                    }
+                });
+            });
+            ui.horizontal(|ui| {
+                if ui.button(tl!("Synchronize")).clicked() {
+                    action = Some(("vcs.sync", String::new()));
+                }
+            });
+            if let Some((cmd, id)) = action {
+                let params = if id.is_empty() { json!({}) } else { json!({"id": id}) };
+                match app.run(cmd, params) {
+                    Ok(_) if cmd == "vcs.sync" => {
+                        let (l, e) = version_list(app);
+                        *list = l;
+                        *error = e;
+                    }
+                    Ok(_) => return true,
+                    Err(e) => *error = e,
+                }
+            }
+            let (_, cancel) = buttons(ui, tl!("Close"));
+            cancel
+        }
         Dialog::Font {
             font,
             font_ea,
@@ -2683,21 +2948,21 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
                 1 => crate::credits::contributors_ui(ui),
                 2 => crate::credits::models_ui(ui),
                 _ => {
-                    ui.label(egui::RichText::new(tl!("WordCraft")).font(semibold(22.0)));
+                    ui.label(egui::RichText::new(wordcraft_brand::APP_NAME).font(semibold(22.0)));
                     let build = option_env!("WORDCRAFT_BUILD_SHA").map(|s| s.get(..8).unwrap_or(s)).unwrap_or(tl!("development build"));
                     ui.label(crate::i18n::fmt(tl!("Version {version} ({build})"), &[("version", env!("CARGO_PKG_VERSION")), ("build", build)]));
-                    ui.label(tl!(
-                        "A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team."
-                    ));
+                    ui.label(tl!("A free, open-source word processor written in Rust, with Markdown as its native format."));
+                    ui.label(tl!("Plume — based on WordCraft by the ArtCraft team."));
                     ui.add_space(6.0);
-                    ui.hyperlink_to(tl!("getartcraft.com/apps/wordcraft"), "https://getartcraft.com/apps/wordcraft");
-                    ui.hyperlink_to(tl!("Join us on Discord: discord.gg/artcraft"), "https://discord.gg/artcraft");
-                    ui.hyperlink_to(tl!("Source code: github.com/storytold/wordcraft"), "https://github.com/storytold/wordcraft");
+                    ui.hyperlink_to(tl!("Source code: github.com/TheLazyGeekGuy/plume"), wordcraft_brand::REPO_URL);
+                    ui.hyperlink_to(tl!("WordCraft: github.com/storytold/wordcraft"), wordcraft_brand::UPSTREAM_URL);
                     ui.add_space(6.0);
                     ui.label(
-                        egui::RichText::new(tl!("MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors."))
-                            .small()
-                            .weak(),
+                        egui::RichText::new(tl!(
+                            "MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors."
+                        ))
+                        .small()
+                        .weak(),
                     );
                 }
             }
@@ -2852,7 +3117,7 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
             });
             ui.label(
                 egui::RichText::new(tl!(
-                    "Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password."
+                    "Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password."
                 ))
                 .small()
                 .weak(),
@@ -3998,6 +4263,565 @@ fn enclose_preview(ui: &mut Ui, style: &str, text: &str, shape: &str) {
     p.text(c + vec2(0.0, dy), egui::Align2::CENTER_CENTER, text, egui::FontId::proportional(px), ink);
 }
 
+/// A forge signed in to: its kind (`github`, `gitlab`, `forgejo`) and server. The token is in
+/// the keychain (or, without one, in the session).
+#[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct ForgeAccount {
+    pub kind: String,
+    pub host: String,
+}
+
+impl ForgeAccount {
+    fn api(&self) -> String {
+        match self.kind.as_str() {
+            "gitlab" => format!("https://{}/api/v4", self.host),
+            "forgejo" => format!("https://{}/api/v1", self.host),
+            _ => "https://api.github.com".to_string(),
+        }
+    }
+    fn label(&self) -> String {
+        let name = match self.kind.as_str() {
+            "gitlab" => "GitLab",
+            "forgejo" => "Forgejo",
+            _ => "GitHub",
+        };
+        if self.kind == "github" { name.to_string() } else { format!("{name} — {}", self.host) }
+    }
+}
+
+/// File › Open › Open from a Forge: sign in once, pick a project, pick its document.
+#[derive(Clone, Debug, Default)]
+pub struct ForgeBrowser {
+    /// New connection: 0 GitHub, 1 GitLab, 2 Forgejo; its server and token.
+    forge: usize,
+    host: String,
+    token: String,
+    remember: bool,
+    /// The account the lists come from.
+    account: Option<ForgeAccount>,
+    /// Its projects: (name, default branch, description).
+    repos: Vec<(String, String, String)>,
+    filter: String,
+    /// The project picked, and its Markdown documents.
+    repo: Option<(String, String)>,
+    files: Vec<String>,
+    /// Or a pasted web address.
+    address: String,
+    error: String,
+    /// A list loading on a worker thread, and what it is for.
+    loading: Option<(ForgeWait, ForgeSlot)>,
+    /// File › Save As › Save to a Forge: the dialog saves the document instead of opening one,
+    /// under `name` (a path in the project) in the project picked.
+    saving: bool,
+    name: String,
+    replace: bool,
+    /// Signing in on the forge's page: the OAuth client id typed, and the sign-in under way.
+    /// (`kind:host`, client id): offered again when that forge is picked.
+    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
+    client_id: Option<(String, String)>,
+    device: Option<ForgeDevice>,
+}
+
+/// A sign-in on the forge's page (OAuth device flow) waiting on a worker thread.
+#[derive(Clone, Debug)]
+struct ForgeDevice {
+    acc: ForgeAccount,
+    /// The code to type, and the page to type it on, once the forge gave them.
+    code: std::sync::Arc<std::sync::Mutex<Option<(String, String)>>>,
+    /// `{"token": …}` once approved.
+    result: ForgeSlot,
+    cancel: std::sync::Arc<std::sync::atomic::AtomicBool>,
+}
+
+/// Start signing in to `acc` on its web page with the OAuth application `client_id`.
+#[cfg(not(target_arch = "wasm32"))]
+fn forge_device_start(app: &WordApp, ctx: &egui::Context, acc: &ForgeAccount, client_id: &str) -> Result<ForgeDevice, String> {
+    let job =
+        wordcraft_engine::cmd::versions::DeviceSignIn::prepare(&app.session, &json!({"forge": acc.kind, "host": acc.host, "clientId": client_id}))
+            .map_err(|e| e.to_string())?;
+    let dev = ForgeDevice { acc: acc.clone(), code: Default::default(), result: Default::default(), cancel: Default::default() };
+    let (code, out, cancel, ctx) = (dev.code.clone(), dev.result.clone(), dev.cancel.clone(), ctx.clone());
+    std::thread::Builder::new()
+        .name("plume-forge-sign-in".into())
+        .spawn(move || {
+            let shown = ctx.clone();
+            let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                job.run(
+                    |c| {
+                        if let Ok(mut slot) = code.lock() {
+                            *slot = Some((c.user_code.clone(), c.verification_uri.clone()));
+                        }
+                        shown.request_repaint();
+                    },
+                    &cancel,
+                )
+                .map(|token| json!({"token": token}))
+                .map_err(|e| e.to_string())
+            }))
+            .unwrap_or_else(|_| Err("the forge's answer couldn't be read".into()));
+            if let Ok(mut slot) = out.lock() {
+                *slot = Some(r);
+            }
+            ctx.request_repaint();
+        })
+        .map_err(|e| format!("could not reach the forge: {e}"))?;
+    Ok(dev)
+}
+
+/// The OAuth client id to offer for a forge: the one used last, else `PLUME_GITHUB_CLIENT_ID` /
+/// `PLUME_GITLAB_CLIENT_ID`.
+#[cfg_attr(target_arch = "wasm32", allow(dead_code))]
+fn forge_client_id(app: &WordApp, kind: &str, host: &str) -> String {
+    if let Some(id) = app.ui.forge_client_ids.get(&format!("{kind}:{host}")) {
+        return id.clone();
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    if let Ok(id) = std::env::var(format!("PLUME_{}_CLIENT_ID", kind.to_ascii_uppercase())) {
+        return id.trim().to_string();
+    }
+    String::new()
+}
+
+/// Where a worker thread leaves a forge listing's result.
+type ForgeSlot = std::sync::Arc<std::sync::Mutex<Option<Result<Value, String>>>>;
+
+/// What the Open from a Forge dialog is waiting for.
+#[derive(Clone, Debug)]
+enum ForgeWait {
+    /// Signing in to an account: its projects (then, for a pasted address, its document).
+    Connect { acc: ForgeAccount, typed: String, remember: bool, open: Option<Value> },
+    /// A project's documents.
+    Files { name: String, branch: String },
+}
+
+/// Start `command` (`forge.repos` or `forge.files`) on a worker thread; the window repaints when
+/// it's done. (The web build has no threads: it runs here.)
+fn forge_spawn(app: &WordApp, ctx: &egui::Context, command: &str, params: &Value) -> Result<ForgeSlot, String> {
+    let job = wordcraft_engine::cmd::versions::ForgeListing::prepare(&app.session, command, params).map_err(|e| e.to_string())?;
+    let slot = ForgeSlot::default();
+    let out = slot.clone();
+    let work = move || {
+        // A panic in the worker is reported, not left as a dialog waiting forever.
+        let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| job.run().map_err(|e| e.to_string())))
+            .unwrap_or_else(|_| Err("the forge's answer couldn't be read".into()));
+        if let Ok(mut s) = out.lock() {
+            *s = Some(r);
+        }
+    };
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let ctx = ctx.clone();
+        std::thread::Builder::new()
+            .name("plume-forge".into())
+            .spawn(move || {
+                work();
+                ctx.request_repaint();
+            })
+            .map_err(|e| format!("could not reach the forge: {e}"))?;
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        let _ = ctx;
+        work();
+    }
+    Ok(slot)
+}
+
+/// Sign in to `acc` (with `typed`, else the keychain's token, else the session's) and start
+/// listing its projects.
+fn forge_connect(app: &mut WordApp, ctx: &egui::Context, acc: &ForgeAccount, typed: &str) -> Result<ForgeSlot, String> {
+    let stored = if typed.is_empty() { app.services.secrets.as_ref().and_then(|s| (s.get)(&acc.api())) } else { None };
+    let token = if typed.is_empty() { stored.unwrap_or_default() } else { typed.to_string() };
+    if !token.is_empty() {
+        app.session.run("forge.signIn", &json!({"forge": acc.kind, "host": acc.host, "token": token})).map_err(|e| e.to_string())?;
+    }
+    forge_spawn(app, ctx, "forge.repos", &json!({"forge": acc.kind, "host": acc.host}))
+}
+
+/// The account answered: remember it (and its token, if asked), and read its projects.
+fn forge_connected(app: &mut WordApp, acc: &ForgeAccount, typed: &str, remember: bool, v: &Value) -> Vec<(String, String, String)> {
+    if remember
+        && !typed.is_empty()
+        && let Some(s) = &app.services.secrets
+        && let Err(e) = (s.set)(&acc.api(), typed)
+    {
+        log::warn!("keychain: {e}");
+    }
+    app.ui.forge_accounts.retain(|a| a != acc);
+    app.ui.forge_accounts.insert(0, acc.clone());
+    app.ui.forge_accounts.truncate(10);
+    let repos = v.get("repos").and_then(Value::as_array).cloned().unwrap_or_default();
+    repos
+        .iter()
+        .map(|r| {
+            let f = |k: &str| r.get(k).and_then(Value::as_str).unwrap_or("").to_string();
+            (f("name"), f("branch"), f("description"))
+        })
+        .collect()
+}
+
+/// One row of the forge dialog's lists, across the whole width: a name, and under it what helps
+/// pick it (the owner and description of a project, the folder of a document). Hover and the
+/// row picked show as a background.
+fn forge_row(ui: &mut Ui, title: &str, detail: &str, selected: bool) -> egui::Response {
+    let height = if detail.is_empty() { 28.0 } else { 42.0 };
+    let (rect, resp) = ui.allocate_exact_size(vec2(ui.available_width(), height), egui::Sense::click());
+    if ui.is_rect_visible(rect) {
+        let v = ui.visuals();
+        let fill = if selected {
+            v.selection.bg_fill
+        } else if resp.hovered() {
+            v.widgets.hovered.weak_bg_fill
+        } else {
+            egui::Color32::TRANSPARENT
+        };
+        let p = ui.painter_at(rect);
+        p.rect_filled(rect, 5.0, fill);
+        let text = if selected { v.selection.stroke.color } else { v.strong_text_color() };
+        let left = rect.left() + 10.0;
+        p.text(egui::pos2(left, rect.top() + 6.0), egui::Align2::LEFT_TOP, title, egui::FontId::proportional(14.0), text);
+        if !detail.is_empty() {
+            let detail: String = detail.lines().next().unwrap_or("").chars().take(110).collect();
+            p.text(egui::pos2(left, rect.top() + 24.0), egui::Align2::LEFT_TOP, detail, egui::FontId::proportional(11.5), v.weak_text_color());
+        }
+    }
+    resp.on_hover_cursor(egui::CursorIcon::PointingHand)
+}
+
+fn forge_browser(app: &mut WordApp, ui: &mut Ui, fb: &mut ForgeBrowser) -> bool {
+    const FORGES: [(&str, &str, &str); 3] =
+        [("GitHub", "github", "github.com"), ("GitLab", "gitlab", "gitlab.com"), ("Forgejo", "forgejo", "codeberg.org")];
+    let mut connect: Option<(ForgeAccount, String)> = None;
+    let mut open: Option<Value> = None;
+    let mut save: Option<Value> = None;
+    ui.set_min_width(520.0);
+    // A list that finished loading.
+    let done = fb.loading.as_ref().and_then(|(_, slot)| slot.lock().ok().and_then(|mut s| s.take()));
+    if let Some(result) = done
+        && let Some((wait, _)) = fb.loading.take()
+    {
+        match (wait, result) {
+            (_, Err(e)) => fb.error = e,
+            (ForgeWait::Connect { acc, typed, remember, open: then }, Ok(v)) => {
+                fb.repos = forge_connected(app, &acc, &typed, remember, &v);
+                fb.account = Some(acc);
+                fb.repo = None;
+                fb.files.clear();
+                fb.error.clear();
+                open = then;
+            }
+            (ForgeWait::Files { name, branch }, Ok(v)) => {
+                fb.files = v
+                    .get("files")
+                    .and_then(Value::as_array)
+                    .map(|a| a.iter().filter_map(|f| f.as_str().map(str::to_string)).collect())
+                    .unwrap_or_default();
+                fb.repo = Some((name, branch));
+                fb.error.clear();
+            }
+        }
+    }
+    let busy = fb.loading.is_some();
+    // 1. Accounts: the ones used before, or a new connection.
+    let accounts = app.ui.forge_accounts.clone();
+    if !accounts.is_empty() {
+        ui.label(egui::RichText::new(tl!("Accounts")).strong());
+        ui.horizontal_wrapped(|ui| {
+            for acc in &accounts {
+                if ui.selectable_label(fb.account.as_ref() == Some(acc), acc.label()).clicked() {
+                    connect = Some((acc.clone(), String::new()));
+                }
+            }
+        });
+    }
+    egui::CollapsingHeader::new(tl!("New connection")).default_open(accounts.is_empty()).show(ui, |ui| {
+        ui.horizontal(|ui| {
+            for (k, (name, _, _)) in FORGES.iter().enumerate() {
+                ui.radio_value(&mut fb.forge, k, *name);
+            }
+        });
+        let (_, kind, default_host) = FORGES.get(fb.forge).copied().unwrap_or(FORGES[0]);
+        egui::Grid::new("forge_conn").num_columns(2).spacing(vec2(12.0, 6.0)).show(ui, |ui| {
+            if kind != "github" {
+                ui.label(tl!("Server"));
+                ui.add(egui::TextEdit::singleline(&mut fb.host).hint_text(default_host).desired_width(320.0));
+                ui.end_row();
+            }
+            ui.label(tl!("Access token"));
+            ui.add(egui::TextEdit::singleline(&mut fb.token).password(true).desired_width(320.0));
+            ui.end_row();
+            // What to tick when making the token on the forge.
+            let scopes = match kind {
+                "gitlab" => "api",
+                "forgejo" => "read:user, write:repository, write:issue",
+                _ => "repo (classic) — Contents, Pull requests: read & write (fine-grained)",
+            };
+            ui.label("");
+            ui.label(egui::RichText::new(format!("{} {scopes}", tl!("Permissions the token needs:"))).small().weak());
+            ui.end_row();
+        });
+        if app.services.secrets.is_some() {
+            ui.checkbox(&mut fb.remember, tl!("Remember the token in the keychain"));
+        }
+        // A pasted address works as a server name too.
+        let host = fb.host.trim().trim_start_matches("https://").trim_start_matches("http://").split('/').next().unwrap_or("").to_ascii_lowercase();
+        let host = if kind == "github" {
+            "github.com".to_string()
+        } else if host.is_empty() {
+            default_host.to_string()
+        } else {
+            host
+        };
+        let acc = ForgeAccount { kind: kind.into(), host };
+        if ui.add_enabled(!busy && fb.device.is_none(), egui::Button::new(tl!("Connect"))).clicked() {
+            connect = Some((acc.clone(), fb.token.trim().to_string()));
+        }
+        // Or sign in on the forge's page, with a short code (GitHub, GitLab: OAuth device flow).
+        #[cfg(not(target_arch = "wasm32"))]
+        if kind != "forgejo" {
+            ui.add_space(4.0);
+            ui.label(egui::RichText::new(tl!("Or sign in with the browser")).strong());
+            let key = format!("{kind}:{}", acc.host);
+            if fb.client_id.as_ref().is_none_or(|(k, _)| *k != key) {
+                fb.client_id = Some((key.clone(), forge_client_id(app, kind, &acc.host)));
+            }
+            let Some((_, client_id)) = fb.client_id.as_mut() else { return };
+            ui.horizontal(|ui| {
+                ui.label(tl!("OAuth app client ID"));
+                ui.add(egui::TextEdit::singleline(client_id).desired_width(240.0));
+            });
+            let id = client_id.trim().to_string();
+            if fb.device.is_none() && ui.add_enabled(!busy && !id.is_empty(), egui::Button::new(tl!("Sign in with the browser"))).clicked() {
+                match forge_device_start(app, ui.ctx(), &acc, &id) {
+                    Ok(dev) => {
+                        app.ui.forge_client_ids.insert(key, id);
+                        fb.device = Some(dev);
+                        fb.error.clear();
+                    }
+                    Err(e) => fb.error = e,
+                }
+            }
+        }
+    });
+    // A sign-in on the forge's page: show its code until it's approved.
+    if let Some(dev) = fb.device.clone() {
+        let code = dev.code.lock().ok().and_then(|c| c.clone());
+        let done = dev.result.lock().ok().and_then(|mut r| r.take());
+        egui::Frame::group(ui.style()).show(ui, |ui| {
+            if let Some((user_code, page)) = &code {
+                ui.label(tl!("Type this code on the forge's page:"));
+                ui.label(egui::RichText::new(user_code.as_str()).monospace().size(22.0).strong());
+                ui.horizontal(|ui| {
+                    if ui.button(tl!("Open the page")).clicked() {
+                        ui.ctx().open_url(egui::OpenUrl::new_tab(page.as_str()));
+                    }
+                    if ui.button(tl!("Copy the code")).clicked() {
+                        ui.ctx().copy_text(user_code.clone());
+                    }
+                });
+            }
+            ui.horizontal(|ui| {
+                ui.spinner();
+                ui.label(tl!("Waiting for the forge…"));
+                if ui.button(tl!("Cancel")).clicked() {
+                    dev.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
+                    fb.device = None;
+                }
+            });
+        });
+        match done {
+            Some(Ok(v)) => {
+                fb.device = None;
+                let token = v.get("token").and_then(Value::as_str).unwrap_or("").to_string();
+                connect = Some((dev.acc.clone(), token));
+            }
+            Some(Err(e)) => {
+                fb.device = None;
+                fb.error = e;
+            }
+            None => {}
+        }
+    }
+    if let Some((acc, typed)) = connect.filter(|_| !busy) {
+        match forge_connect(app, ui.ctx(), &acc, &typed) {
+            Ok(slot) => {
+                fb.loading = Some((ForgeWait::Connect { acc, typed, remember: fb.remember, open: None }, slot));
+                fb.token.clear();
+                fb.error.clear();
+            }
+            Err(e) => fb.error = e,
+        }
+    }
+    // 2. Projects, then 3. their documents.
+    if let Some(acc) = fb.account.clone() {
+        ui.separator();
+        match fb.repo.clone() {
+            None => {
+                ui.horizontal(|ui| {
+                    ui.label(egui::RichText::new(tl!("Projects")).strong());
+                    ui.add(egui::TextEdit::singleline(&mut fb.filter).hint_text(tl!("Filter")).desired_width(240.0));
+                });
+                let needle = fb.filter.to_lowercase();
+                let mut pick = None;
+                egui::ScrollArea::vertical().max_height(260.0).id_salt("forge_repos").show(ui, |ui| {
+                    ui.spacing_mut().item_spacing.y = 2.0;
+                    for (name, branch, desc) in
+                        fb.repos.iter().filter(|r| needle.is_empty() || r.0.to_lowercase().contains(&needle) || r.2.to_lowercase().contains(&needle))
+                    {
+                        // "owner/project": the project's name, then its owner and description.
+                        let (owner, project) = name.rsplit_once('/').unwrap_or(("", name));
+                        let detail = [owner, desc.as_str()].iter().filter(|x| !x.trim().is_empty()).copied().collect::<Vec<_>>().join(" · ");
+                        if forge_row(ui, project, &detail, false).on_hover_text(name.as_str()).clicked() {
+                            pick = Some((name.clone(), branch.clone()));
+                        }
+                    }
+                    if fb.repos.is_empty() {
+                        ui.label(tl!("No projects on this account."));
+                    }
+                });
+                if let Some((name, branch)) = pick.filter(|_| !busy) {
+                    match forge_spawn(app, ui.ctx(), "forge.files", &json!({"forge": acc.kind, "host": acc.host, "repo": name, "branch": branch})) {
+                        Ok(slot) => {
+                            fb.loading = Some((ForgeWait::Files { name, branch }, slot));
+                            fb.error.clear();
+                        }
+                        Err(e) => fb.error = e,
+                    }
+                }
+            }
+            Some((name, branch)) => {
+                ui.horizontal(|ui| {
+                    if ui.button("←").on_hover_text(tl!("Projects")).clicked() {
+                        fb.repo = None;
+                    }
+                    ui.label(egui::RichText::new(format!("{name} › {branch}")).strong());
+                });
+                let saving = fb.saving;
+                let mut picked = None;
+                egui::ScrollArea::vertical().max_height(if saving { 160.0 } else { 260.0 }).id_salt("forge_files").show(ui, |ui| {
+                    ui.spacing_mut().item_spacing.y = 2.0;
+                    for f in &fb.files {
+                        // The document's name, then its folder.
+                        let (folder, file) = f.rsplit_once('/').unwrap_or(("", f));
+                        if forge_row(ui, file, folder, saving && fb.name == *f).on_hover_text(f.as_str()).clicked() {
+                            if saving {
+                                // Saving: a document of the project gives its folder and name.
+                                picked = Some(f.clone());
+                            } else {
+                                open = Some(json!({"forge": acc.kind, "host": acc.host, "repo": name, "branch": branch, "path": f}));
+                            }
+                        }
+                    }
+                    if fb.files.is_empty() {
+                        ui.label(tl!("No Markdown documents in this project."));
+                    }
+                });
+                if let Some(f) = picked {
+                    fb.name = f;
+                }
+                if saving {
+                    ui.add_space(6.0);
+                    ui.horizontal(|ui| {
+                        ui.label(tl!("File name:"));
+                        ui.add(egui::TextEdit::singleline(&mut fb.name).hint_text("docs/guide.md").desired_width(340.0));
+                    });
+                    let exists = fb.files.iter().any(|f| *f == fb.name || *f == format!("{}.md", fb.name));
+                    if exists {
+                        ui.checkbox(&mut fb.replace, tl!("Replace the document that has this name"));
+                    }
+                    let ok = !busy && !fb.name.trim().is_empty() && (!exists || fb.replace);
+                    if ui.add_enabled(ok, egui::Button::new(tl!("Save"))).clicked() {
+                        save = Some(json!({
+                            "forge": acc.kind, "host": acc.host, "repo": name, "branch": branch,
+                            "path": fb.name.trim(), "replace": exists && fb.replace,
+                        }));
+                    }
+                }
+            }
+        }
+    }
+    // Or a pasted address (to open one).
+    if !fb.saving {
+        egui::CollapsingHeader::new(tl!("Or paste the document's address")).show(ui, |ui| {
+            ui.horizontal(|ui| {
+                ui.add(egui::TextEdit::singleline(&mut fb.address).hint_text("https://…/docs/guide.md").desired_width(400.0));
+                if ui.add_enabled(!busy, egui::Button::new(tl!("Open"))).clicked() {
+                    match wordcraft_engine::cmd::versions::parse_web_address(&fb.address, None) {
+                        Ok((kind, host, repo, branch, path)) => {
+                            let acc = ForgeAccount { kind: kind.clone(), host: host.clone() };
+                            let typed = fb.token.trim().to_string();
+                            match forge_connect(app, ui.ctx(), &acc, &typed) {
+                                Ok(slot) => {
+                                    let then = json!({"forge": kind, "host": host, "repo": repo, "branch": branch, "path": path});
+                                    fb.loading = Some((ForgeWait::Connect { acc, typed, remember: fb.remember, open: Some(then) }, slot));
+                                    fb.error.clear();
+                                }
+                                Err(e) => fb.error = e,
+                            }
+                        }
+                        Err(_) => fb.error = tl!("Paste the address of the Markdown file's page (it ends in .md).").to_string(),
+                    }
+                }
+            });
+        });
+    }
+    if busy {
+        ui.horizontal(|ui| {
+            ui.spinner();
+            ui.label(tl!("Waiting for the forge…"));
+        });
+    }
+    if !fb.error.is_empty() {
+        ui.colored_label(ui.visuals().error_fg_color, fb.error.as_str());
+    }
+    if let Some(target) = open {
+        match app.run("forge.open", target) {
+            // Straight to the document, as when opening a file (the File tab closes too).
+            Ok(_) => {
+                app.ui.backstage = false;
+                app.canvas.want_focus = true;
+                return true;
+            }
+            Err(e) => fb.error = e,
+        }
+    }
+    if let Some(target) = save {
+        match app.run("forge.saveAs", target) {
+            Ok(v) => {
+                let path = v.get("path").and_then(Value::as_str).unwrap_or("").to_string();
+                app.ui.backstage = false;
+                app.canvas.want_focus = true;
+                app.status(format!("{} {path}", tl!("Saved to the forge:")));
+                return true;
+            }
+            Err(e) => fb.error = e,
+        }
+    }
+    ui.add_space(6.0);
+    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| ui.button(tl!("Cancel")).clicked()).inner
+}
+
+/// Versions need a Markdown file, unless the document lives in a forge (Plume): there they are
+/// the forge's commits.
+fn needs_markdown_file(app: &WordApp) -> bool {
+    app.session.forge.is_none() && app.session.path.as_ref().is_none_or(|p| !crate::is_markdown_name(&p.to_string_lossy()))
+}
+
+/// The document's versions for the Version History dialog, or why there are none.
+fn version_list(app: &mut WordApp) -> (Vec<Value>, String) {
+    if needs_markdown_file(app) {
+        return (Vec::new(), tl!("Save the document as Markdown first (File › Save As).").to_string());
+    }
+    let versioned = app.session.run("vcs.status", &json!({})).ok().and_then(|v| v.get("versioned").and_then(Value::as_bool));
+    if versioned != Some(true) {
+        return (Vec::new(), tl!("This document's folder doesn't keep versions yet: use Save Version to start.").to_string());
+    }
+    match app.session.run("vcs.history", &json!({"limit": 200})) {
+        Ok(v) => (v.get("versions").and_then(Value::as_array).cloned().unwrap_or_default(), String::new()),
+        Err(e) => (Vec::new(), e.to_string()),
+    }
+}
+
 /// Page Setup's "Vertical alignment:" box (Word's Layout tab).
 fn page_valign_combo(ui: &mut egui::Ui, valign: &mut wordcraft_doc::section::PageVAlign) {
     use wordcraft_doc::section::PageVAlign;
@@ -4031,6 +4855,33 @@ mod tests {
     use wordcraft_doc::Pos;
     use wordcraft_doc::props::Align;
     use wordcraft_engine::Session;
+
+    /// A document opened from (or saved to) a forge has no local file, yet it is Markdown with
+    /// versions: Save Version and Version History must not ask to save it as Markdown first.
+    #[test]
+    fn forge_documents_keep_versions_without_a_local_file() {
+        use wordcraft_engine::vcs::forge::{DocRef, Forge};
+        let mut app = crate::WordApp::new(wordcraft_engine::Session::new(wordcraft_doc::Document::from_text("Hello")), crate::Services::default());
+        let markdown_first = tl!("Save the document as Markdown first (File › Save As).").to_string();
+        assert!(super::needs_markdown_file(&app), "a new document is saved first");
+        assert_eq!(super::version_list(&mut app).1, markdown_first);
+        app.session.forge = Some(wordcraft_engine::cmd::versions::Remote {
+            doc: DocRef {
+                forge: Forge::forgejo("forge.example.org"),
+                repo: "me/PlumeAppRepo".into(),
+                branch: "main".into(),
+                path: "The Open Studio Handbook.md".into(),
+            },
+            sha: "94f18e363a".into(),
+            review: None,
+            imported: Default::default(),
+            threads: Default::default(),
+            sent: Default::default(),
+            workflow: None,
+        });
+        assert!(!super::needs_markdown_file(&app));
+        assert_ne!(super::version_list(&mut app).1, markdown_first, "the forge's history is asked for instead");
+    }
 
     /// Go To's page box (#712): a number, +n / -n from the current page (a typographic minus
     /// too), empty for the next page; anything else is refused.

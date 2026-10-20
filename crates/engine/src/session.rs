@@ -135,6 +135,13 @@ pub struct ViewState {
     #[serde(default)]
     pub style_inspector: bool,
     pub comments_pane: bool,
+    /// Plume: the Documents pane, the Markdown documents beside this one (`view.documentsPane`).
+    #[serde(default)]
+    pub documents_pane: bool,
+    /// Plume: the Markdown source pane, the document as its file is written, editable
+    /// (`view.markdownSource`).
+    #[serde(default)]
+    pub markdown_source: bool,
     /// The Clipboard pane (Home › Clipboard): items collected by Copy and Cut.
     #[serde(default)]
     pub clipboard_pane: bool,
@@ -242,6 +249,8 @@ impl Default for ViewState {
             styles_pane: false,
             style_inspector: false,
             comments_pane: false,
+            documents_pane: false,
+            markdown_source: false,
             clipboard_pane: false,
             smart_art_pane: false,
             accessibility_pane: false,
@@ -444,6 +453,23 @@ pub struct Session {
     /// Quick Parts / AutoText entries.
     pub building_blocks: std::collections::BTreeMap<String, Fragment>,
     pub autosave: bool,
+    /// Markdown is the document's own format (Plume): opening another format imports it into a
+    /// new `.md` beside it (never saving over the original), and saving to `.md` keeps the
+    /// document saved. Off, Markdown is a copy like any non-Word format.
+    pub native_markdown: bool,
+    /// The file an imported document came from (`native_markdown`), and what its Markdown can't
+    /// hold (one line per kind of adaptation; empty = nothing).
+    pub imported_from: Option<std::path::PathBuf>,
+    pub import_report: Vec<String>,
+    /// The forge document this session edits (opened from GitHub, GitLab or Forgejo), if any.
+    pub forge: Option<crate::cmd::versions::Remote>,
+    /// How forge requests are sent: the app's HTTP client. `None`: no network here.
+    pub forge_transport: Option<std::sync::Arc<dyn wordcraft_vcs::forge::Transport + Send + Sync>>,
+    /// How requests to a language model are sent (Plume): the app's HTTP client, with a long
+    /// timeout (a local model may think for minutes). `None`: no network here.
+    pub ai_transport: Option<std::sync::Arc<dyn wordcraft_vcs::forge::Transport + Send + Sync>>,
+    /// Access tokens by forge API address. No command ever returns them.
+    pub forge_tokens: std::collections::BTreeMap<String, crate::io::Password>,
     /// Citation style: APA, MLA, Chicago, IEEE.
     pub bib_style: String,
     /// Mail merge data source and preview.
@@ -515,6 +541,11 @@ pub struct MathEdit {
 pub struct Prefs {
     /// Word Count includes text boxes, footnotes and endnotes (Word's default).
     pub count_notes: bool,
+    /// Plume: in a Markdown document, the commands whose result Markdown can't keep (text
+    /// colour, underline, text boxes, columns…) are disabled instead of being reported when the
+    /// document is saved (`markdown.strict`). On by default: Plume edits Markdown, and the
+    /// Office-only features are opt-in (File › Options › Markdown).
+    pub markdown_strict: bool,
     /// Track Changes Options: what markup shows and how revisions are drawn (per user, as in
     /// Word).
     pub markup: wordcraft_layout::display::MarkupOptions,
@@ -553,12 +584,15 @@ pub struct Prefs {
     /// in Word). A damaged saved value reads as the defaults.
     #[serde(deserialize_with = "crate::cmd::tools::lenient_autocorrect")]
     pub autocorrect: crate::cmd::tools::AutoCorrectPrefs,
+    /// Plume: the language model that helps (off until the user turns it on).
+    pub ai: crate::ai::Settings,
 }
 
 impl Default for Prefs {
     fn default() -> Self {
         Prefs {
             count_notes: true,
+            markdown_strict: true,
             markup: Default::default(),
             print_markup: false,
             typing_replaces_selection: true,
@@ -574,6 +608,7 @@ impl Default for Prefs {
             ignore_internet: true,
             detect_language: true,
             autocorrect: Default::default(),
+            ai: Default::default(),
         }
     }
 }
@@ -626,6 +661,7 @@ impl Session {
     }
 
     pub fn new(doc: Document) -> Self {
+        crate::diagrams::register();
         let start = doc.start_of(StoryRef::Body);
         let bib_style = doc_bib_style(&doc);
         Session {
@@ -646,7 +682,7 @@ impl Session {
             goal_x: None,
             page_hint: 0,
             registry: Arc::new(crate::cmd::registry()),
-            author: "WordCraft User".into(),
+            author: "Plume User".into(),
             initials: String::new(),
             painter: None,
             status: String::new(),
@@ -670,6 +706,13 @@ impl Session {
             versions: Vec::new(),
             building_blocks: Default::default(),
             autosave: true,
+            native_markdown: false,
+            imported_from: None,
+            import_report: Vec::new(),
+            forge: None,
+            forge_transport: None,
+            ai_transport: None,
+            forge_tokens: Default::default(),
             bib_style,
             merge: Default::default(),
             ui_requests: Vec::new(),
@@ -1109,6 +1152,7 @@ impl Session {
         self.doc = doc;
         self.doc.ensure_nonempty();
         self.password = None;
+        self.forge = None;
         self.file_name = None;
         self.sel = Selection::caret(self.doc.start_of(StoryRef::Body));
         self.pending = None;
@@ -1189,6 +1233,13 @@ impl Session {
             versions: _,
             building_blocks: _,
             autosave: _,
+            native_markdown: _,
+            imported_from: _,
+            import_report: _,
+            forge: _,
+            forge_transport: _,
+            ai_transport: _,
+            forge_tokens: _,
             bib_style: _,
             merge: _,
             ui_requests: _,
@@ -1279,11 +1330,43 @@ impl Session {
     /// Run a command by id with JSON params (the single entry point for the UI, CLI, MCP and
     /// control channel). Mutating commands are undoable; a failed command leaves the document as
     /// it was; a panic inside a command becomes an error.
+    /// Is this a Markdown document (Plume): saved as `.md`, opened from a forge, or new while
+    /// Markdown is the document's own format?
+    pub fn is_markdown(&self) -> bool {
+        if !self.native_markdown {
+            return false;
+        }
+        match &self.path {
+            Some(p) => p.extension().is_some_and(|e| crate::io::is_markdown_ext(&e.to_string_lossy())),
+            None => true,
+        }
+    }
+
+    /// Why command `id` is off in strict Markdown mode ([`Prefs::markdown_strict`]): its result
+    /// is something Markdown can't keep. `None` = allowed.
+    pub fn markdown_blocks(&self, id: &str) -> Option<&'static str> {
+        if !self.prefs.markdown_strict || !self.is_markdown() {
+            return None;
+        }
+        if crate::plume::is_office(id) || crate::cmd::versions::NOT_IN_MARKDOWN.contains(&id) {
+            return Some("Markdown can't keep this formatting (strict Markdown mode)");
+        }
+        // Markdown indents list items only (a list level); other paragraphs have no indent.
+        if matches!(id, "para.indent" | "para.outdent") {
+            let listed = self
+                .doc
+                .para(self.sel.focus.story, &self.sel.focus.path)
+                .is_some_and(|p| self.doc.styles.resolve_para(&p.props).numbering.is_some_and(|n| n.num != 0));
+            return (!listed).then_some("Markdown indents list items only");
+        }
+        None
+    }
+
     pub fn run(&mut self, id: &str, params: &Value) -> Result<Value, CmdError> {
         let join = std::mem::take(&mut self.join_next);
         let reg = self.registry.clone();
         let Some(spec) = reg.get(id) else { return Err(CmdError::Unknown(id.to_string())) };
-        if let Some(why) = (spec.enabled)(self) {
+        if let Some(why) = (spec.enabled)(self).or_else(|| self.markdown_blocks(id)) {
             return Err(CmdError::Disabled(format!("{id}: {why}")));
         }
         // Restrict Editing: refused outright, or allowed as long as it only edits the exceptions.

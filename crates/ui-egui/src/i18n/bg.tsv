@@ -11,7 +11,7 @@
 # Bulgarian computing vocabulary. No Microsoft Word (or other product) localisation, string table
 # or translated UI was consulted or copied, and no other catalog in this repository was used;
 # add entries the same way.
-# Product, format and technology names (WordCraft, PDF, Markdown, MCP …) stay in Latin letters.
+# Product, format and technology names (Plume, PDF, Markdown, MCP …) stay in Latin letters.
 # Commands and buttons use verbal nouns (Запазване, Вмъкване на таблица); instructions use the
 # polite imperative (Въведете, Изберете). Counts use count-neutral wording (`Думи: 21`), so no
 # plural forms are needed.
@@ -19,9 +19,11 @@
 	(no style)	(без стил)
 	(no suggestions)	(няма предложения)
 	1.5 Line Spacing	Междуредие 1,5
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	Безплатен текстообработващ редактор с отворен код, написан от нулата на Rust.\nЧаст от Crafting Apps на екипа на ArtCraft.
+	A free, open-source word processor written in Rust, with Markdown as its native format.	Безплатен текстообработващ редактор с отворен код, написан на Rust, с Markdown като основен формат.
+	Plume — based on WordCraft by the ArtCraft team.	Plume — базиран на WordCraft от екипа на ArtCraft.
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	About	Относно
-	About WordCraft	За WordCraft
+	About Plume	За Plume
 	Accept	Приемане
 	Accept All Changes	Приемане на всички промени
 	Accept This Change	Приемане на тази промяна
@@ -228,7 +230,6 @@
 	Comment	Коментар
 	Comments	Коментари
 	Comments Pane	Панел с коментари
-	Community\nDiscord	Общност\nв Discord
 	Compact	Компактно
 	Compare	Сравняване
 	Compress Pictures	Компресиране на изображенията
@@ -281,8 +282,6 @@
 	Different First Page	Различна първа страница
 	Different Odd & Even Pages	Различни четни и нечетни страници
 	Direct formatting	Директно форматиране
-	Discord	Discord
-	Discord community	Общност в Discord
 	Display	Показване
 	Display for Review	Показване за преглед
 	Distribute Columns	Разпределяне на колоните
@@ -447,8 +446,6 @@
 	Inspect Styles at Selection	Проверка на стиловете при селекцията
 	Interface language:	Език на интерфейса:
 	Italic	Курсив
-	Join the ArtCraft community on Discord	Присъединете се към общността на ArtCraft в Discord
-	Join us on Discord: discord.gg/artcraft	Присъединете се към нас в Discord: discord.gg/artcraft
 	Justify	Двустранно подравняване
 	Keep Lines Together	Редовете заедно
 	Keep Text Only	Запазване само на текста
@@ -460,7 +457,7 @@
 	Landscape	Пейзаж
 	Language	Език
 	{language} (no dictionary)	{language} (няма речник)
-	No spelling dictionary for {language} is installed, so it isn't checked. WordCraft looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Не е инсталиран правописен речник за {language}, затова текстът не се проверява. WordCraft търси речника Hunspell {name} в папката WORDCRAFT_DICTIONARIES и на обичайните места в системата.
+	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Не е инсталиран правописен речник за {language}, затова текстът не се проверява. Plume търси речника Hunspell {name} в папката WORDCRAFT_DICTIONARIES и на обичайните места в системата.
 	Lasso	Ласо
 	Last Column	Последна колона
 	Last commit	Последно подаване
@@ -490,7 +487,7 @@
 	Link to Previous	Връзка към предишния
 	Links	Връзки
 	Location: {path}	Местоположение: {path}
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Авторско право (c) 2026 ArtCraft Team и сътрудниците на WordCraft.
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 сътрудниците на Plume, екипът на ArtCraft и сътрудниците на WordCraft.
 	Macros	Макроси
 	Mailings	Кореспонденция
 	Manage Sources	Управление на източниците
@@ -775,7 +772,6 @@
 	Show only comments and formatting in balloons	Показване само на коментарите и форматирането в балончета
 	Show revisions in balloons	Показване на редакциите в балончета
 	Show rulers	Показване на линийките
-	Show the community button in the title bar	Показване на бутона за общността в заглавната лента
 	Show/Hide ¶	Показване/скриване на ¶
 	Show\nComments	Показване на\nкоментарите
 	Shrink Font 1 Point	Намаляване на шрифта с 1 пункт
@@ -791,7 +787,7 @@
 	Small caps	Малки главни букви
 	SmartArt	SmartArt
 	Sort	Сортиране
-	Source code: github.com/storytold/wordcraft	Изходен код: github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	Изходен код: github.com/TheLazyGeekGuy/plume
 	Space	Интервал
 	Space before/after:	Разстояние преди/след:
 	Spacing	Разстояние
@@ -928,7 +924,7 @@
 	Word Right	Дума надясно
 	Word document (*.docx)	Документ на Word (*.docx)
 	WordArt	WordArt
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	Думи
 	Words only	Само думи
 	Wrap Text	Обтичане на текста
@@ -995,7 +991,7 @@
 	Stopped	Спряно
 	Speed	Скорост
 	Normal speed	Нормална скорост
-	AutoSave documents you have saved in WordCraft	Автоматично запазване на документите, които сте запазили в WordCraft
+	AutoSave documents you have saved in Plume	Автоматично запазване на документите, които сте запазили в Plume
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	Автоматичното запазване е неуспешно: {error}. Запазете документа, за да включите отново автоматичното запазване.
 	Couldn't download {name}: {error}	Неуспешно изтегляне на {name}: {error}
 	Do you want to save changes to {name}?	Искате ли да запазите промените в {name}?
@@ -1164,7 +1160,6 @@
 	Insert a new equation (Alt+=)	Вмъкване на ново уравнение (Alt+=)
 	Leave the equation (Esc)	Излизане от уравнението (Esc)
 	Preview	Визуализация
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	Draw Ink	Рисуване с мастило
 	Erase Ink	Изтриване на мастило
 	Hide Ink	Скриване на мастилото
@@ -1300,7 +1295,7 @@
 	The document will be saved with a password. Save it to protect it.	Документът ще бъде запазен с парола. Запазете го, за да го защитите.
 	The password is removed. Save the document to keep the change.	Паролата е премахната. Запазете документа, за да запазите промяната.
 	The passwords don't match.	Паролите не съвпадат.
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	Съхранявайте паролата на сигурно място: без нея никой, включително WordCraft, не може да отвори документа. Оставете двете полета празни, за да премахнете паролата.
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Съхранявайте паролата на сигурно място: без нея никой, включително Plume, не може да отвори документа. Оставете двете полета празни, за да премахнете паролата.
 	Align Top Left	Подравняване горе вляво
 	Align Top Center	Подравняване горе в центъра
 	Align Top Right	Подравняване горе вдясно
@@ -2405,7 +2400,7 @@
 	Word document	Документ на Word
 	All files	Всички файлове
 	Recipient lists	Списъци с получатели
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Системният диалогов прозорец за файлове не е наличен, затова WordCraft показва своя. За да получите системния, инсталирайте портал за избор на файлове (например xdg-desktop-portal-gtk) или zenity.
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Системният диалогов прозорец за файлове не е наличен, затова Plume показва своя. За да получите системния, инсталирайте портал за избор на файлове (например xdg-desktop-portal-gtk) или zenity.
 	Up one level	Едно ниво нагоре
 	Home folder	Домашна папка
 	{name} wasn't found.	{name} не е намерен.
@@ -2414,8 +2409,8 @@
 	Showing the first {count} items.	Показани са първите {count} елемента.
 	No items to show.	Няма елементи за показване.
 	File name:	Име на файла:
-	Browse in WordCraft…	Разглеждане в WordCraft…
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	Отваряне на файл чрез собствения браузър на WordCraft, когато системният диалогов прозорец за файлове не се появява.
+	Browse in Plume…	Разглеждане в Plume…
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	Отваряне на файл чрез собствения браузър на Plume, когато системният диалогов прозорец за файлове не се появява.
 	Resize Table by Dragging	Преоразмеряване на таблица чрез плъзгане
 	Visual effects	Визуални ефекти
 	Animation effects:	Ефекти на анимация:
@@ -2441,23 +2436,23 @@
 	TOC {n}	Съдържание {n}
 	Good afternoon	Добър ден
 	Context	Според контекста
-	Couldn't make WordCraft the default: {error}	WordCraft не можа да стане приложение по подразбиране: {error}
+	Couldn't make Plume the default: {error}	Plume не можа да стане приложение по подразбиране: {error}
 	Do Not Check Spelling or Grammar	Без проверка на правописа и граматиката
 	Hindi	Хинди
-	In Default apps, choose WordCraft for the document types you want it to open.	В „Приложения по подразбиране“ изберете WordCraft за типовете документи, които искате да отваря.
-	Make WordCraft the default for Word documents…	WordCraft по подразбиране за документи на Word…
+	In Default apps, choose Plume for the document types you want it to open.	В „Приложения по подразбиране“ изберете Plume за типовете документи, които искате да отваря.
+	Make Plume the default for Word documents…	Plume по подразбиране за документи на Word…
 	Numerals	Цифри
 	Numerals:	Цифри:
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	Отсега нататък файловете .docx, .doc, .rtf и .odt и шаблоните на Word ще се отварят с WordCraft.
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	Отваря „Настройки › Приложения по подразбиране“, където избирате WordCraft за .docx и другите типове документи.
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	Отсега нататък файловете .docx, .doc, .rtf и .odt и шаблоните на Word ще се отварят с Plume.
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	Отваря „Настройки › Приложения по подразбиране“, където избирате Plume за .docx и другите типове документи.
 	Reading	Четене
 	Reading Column Width	Ширина на колоната при четене
 	Reading Line Spacing	Междуредие при четене
 	Reading Text Size	Размер на текста при четене
 	Show KeyTips (Alt or F10)	Показване на клавишните подсказки (Alt или F10)
 	System	Според системата
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	За да се отварят документите на Word с WordCraft по подразбиране: изберете документ във Finder, изберете File › Get Info, изберете WordCraft под Open with и щракнете Change All.
-	WordCraft is now the default app for Word documents.	WordCraft вече е приложението по подразбиране за документи на Word.
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	За да се отварят документите на Word с Plume по подразбиране: изберете документ във Finder, изберете File › Get Info, изберете Plume под Open with и щракнете Change All.
+	Plume is now the default app for Word documents.	Plume вече е приложението по подразбиране за документи на Word.
 	Correct TWo INitial CApitals	Коригиране на ДВе НАчални ГЛавни букви
 	Correct accidental usage of cAPS LOCK key	Коригиране на случайно използване на клавиша cAPS LOCK
 	Picture	Картина
@@ -2517,8 +2512,8 @@
 	Undo History	История на отмяната
 	Undo {n} Actions	Отмяна на {n} действия
 	Start-up	Стартиране
-	Show the Start screen when WordCraft starts	Показване на началния екран при стартиране на WordCraft
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Вкл.: WordCraft се отваря на Файл › Начало с празен документ, шаблоните и последните документи. Изкл.: отваря се празен документ.
+	Show the Start screen when Plume starts	Показване на началния екран при стартиране на Plume
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Вкл.: Plume се отваря на Файл › Начало с празен документ, шаблоните и последните документи. Изкл.: отваря се празен документ.
 	Typing	Въвеждане
 	Level 4	Ниво 4
 	Level 5	Ниво 5
@@ -2565,7 +2560,7 @@
 	{name}   {height} × {width} mm	{name}   {height} × {width} мм
 	{width} × {height} mm	{width} × {height} мм
 	{kind}, {columns} × {rows}, {size} ({paper})	{kind}, {columns} × {rows}, {size} ({paper})
-	Researcher needs an online service; WordCraft keeps your documents offline.	Изследователят изисква онлайн услуга, а WordCraft пази документите ви офлайн.
+	Researcher needs an online service; Plume keeps your documents offline.	Изследователят изисква онлайн услуга, а Plume пази документите ви офлайн.
 	These settings will be used for new documents.	Тези настройки ще се използват за новите документи.
 	can't split at the first row	таблицата не може да се раздели на първия ред
 	select two or more cells to merge	изберете две или повече клетки за обединяване
@@ -2616,6 +2611,78 @@
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Файловете .aff и .dic на Hunspell от тази папка (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) се използват преди системните.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: не е намерен речник
+	Version Status	Състояние на версиите
+	Start Keeping Versions	Започване на запазване на версии
+	Save Version	Запиши версия
+	Show Changes	Покажи промените
+	Compare with Version	Сравни с версия
+	Restore Version	Възстанови версия
+	Synchronize	Синхронизирай
+	Versions	Версии
+	Describe your changes	Опишете промените си
+	No versions yet	Все още няма версии
+	Restore	Възстанови
+	Save\nVersion	Запиши\nверсия
+	Version\nHistory	История на\nверсиите
+	Save the document as Markdown first (File › Save As).	Първо запишете документа като Markdown (Файл › Запиши като).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Папката на този документ още не пази версии: използвайте „Запиши версия“, за да започнете.
+	Version {id} saved	Версия {id} е записана
+	Save the document as Markdown first	Първо запишете документа като Markdown
+	Imported as Markdown	Импортиран като Markdown
+	Saved as Markdown	Записан като Markdown
+	Sign In to a Forge	Вход във форж
+	Sign Out of Forges	Изход от форжовете
+	Open from a Forge	Отвори от форж
+	Open from a Forge…	Отвори от форж…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Отворете Markdown документ от GitHub, GitLab или Forgejo; „Запиши версия“ записва версии там.
+	Server	Сървър
+	Repository	Хранилище
+	Branch	Клон
+	Access token	Токен за достъп
+	kept in the keychain	пази се в ключодържателя
+	Remember the token in the keychain	Запомни токена в ключодържателя
+	Enter an access token for this forge.	Въведете токен за достъп до този форж.
+	Keep to Markdown	Само Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown не може да запази това форматиране (строг режим Markdown)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Включено: командите, които Markdown не може да запази (цвят на текста, подчертаване, текстови полета, колони…), са изключени. Изключено: работят, а при запис се казва какво Markdown не е запазил.
+	Request Review	Поискай преглед
+	Get Review Comments	Вземи коментарите от прегледа
+	Send Replies	Изпращане на отговорите
+	Review Status	Състояние на прегледа
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Отворете документа от GitHub, GitLab или Forgejo, за да поискате преглед
+	What should your colleagues review?	Какво трябва да прегледат колегите ви?
+	Details (optional)	Подробности (по избор)
+	Review requested: {url}	Прегледът е поискан: {url}
+	Documents Pane	Екран „Документи“
+	Save the document as Markdown to see the documents beside it.	Запишете документа като Markdown, за да видите документите до него.
+	No Markdown documents here yet.	Тук все още няма Markdown документи.
+	save the document first	първо запишете документа
+	Address of the Markdown file (copy it from your browser)	Адрес на Markdown файла (копирайте го от браузъра)
+	Paste the address of the Markdown file's page (it ends in .md).	Поставете адреса на страницата на Markdown файла (завършва на .md).
+	Accounts	Акаунти
+	New connection	Нова връзка
+	Connect	Свързване
+	Projects	Проекти
+	Filter	Филтър
+	No projects on this account.	Няма проекти в този акаунт.
+	Waiting for the forge…	Изчакване на форджа…
+	Save to a Forge…	Записване във форджа…
+	Save to a Forge	Записване във форджа
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Записва документа като Markdown в проект в GitHub, GitLab или Forgejo; след това „Записване на версия“ записва версиите там.
+	Replace the document that has this name	Замяна на документа с това име
+	Saved to the forge:	Записано във форджа:
+	Permissions the token needs:	Права, нужни на токена:
+	Or sign in with the browser	Или влезте чрез браузъра
+	OAuth app client ID	Client ID на OAuth приложението
+	Sign in with the browser	Вход чрез браузъра
+	Type this code on the forge's page:	Въведете този код на страницата на форджа:
+	Open the page	Отваряне на страницата
+	Copy the code	Копиране на кода
+	No Markdown documents in this project.	В този проект няма Markdown документи.
+	Or paste the document's address	Или поставете адреса на документа
+	Forge Repositories	Хранилища във форжа
+	Forge Documents	Документи във форжа
 
 # Backstage › Recover (#586)
 	Recover	Възстановяване
@@ -2638,6 +2705,138 @@
 # Reading Mode column widths (#1040)
 	Narrow	Тясна
 	Medium	Средна
+	(not saved)	(не е записано)
+	Edit template…	Редактиране на шаблона…
+	Export PDF…	Експортиране в PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Оформяне на документа по шаблон: заглавна страница, горни и долни колонтитули, корици и бланка. Блокът YAML в началото на документа задава настройките на шаблона.
+	Layout (LaTeX)	Оформление (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Създаване на PDF… (първия път машината TeX може да изтегли нужното)
+	New template created: it is the one exports use now.	Създаден е нов шаблон: експортирането вече използва него.
+	New template from this one:	Нов шаблон от този:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Не е намерена машина TeX. Инсталирайте Tectonic (brew install tectonic) или MacTeX и експортирайте отново.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Настройки като titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Блокът YAML на документа ги заменя.
+	PDF with a template	PDF с шаблон
+	Restore the original	Възстановяване на оригинала
+	Save and preview	Записване и преглед
+	Settings (YAML)	Настройки (YAML)
+	Template saved.	Шаблонът е записан.
+	Template:	Шаблон:
+	Template: {name}	Шаблон: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Шаблонът LaTeX, на езика за шаблони на pandoc ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	копие
+	Export LaTeX with a Template	Експортиране на LaTeX с шаблон
+	Export PDF with a Template	Експортиране на PDF с шаблон
+	New PDF Template	Нов шаблон за PDF
+	PDF Engine	Машина за PDF
+	PDF Templates	Шаблони за PDF
+	Read PDF Template	Четене на шаблон за PDF
+	Restore PDF Template	Възстановяване на шаблон за PDF
+	Save PDF Template	Записване на шаблон за PDF
+	Tables for AI	Таблици за ИИ
+	AI Request for a Table	Заявка към ИИ за таблица
+	Restructure Tables	Преструктуриране на таблици
+	A language model can't be reached from here.	Оттук не може да се достигне езиков модел.
+	A language model can't be reached from the browser.	От браузъра не може да се достигне езиков модел.
+	AI	ИИ
+	Artificial intelligence	Изкуствен интелект
+	Block	Блок
+	Block {index}: {rows} × {cols}, {words} words	Блок {index}: {rows} × {cols}, думи: {words}
+	Changed	Променена
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Първо изберете езиков модел: Файл › Опции › Записване › Изкуствен интелект.
+	Choose a model	Изберете модел
+	High	Високо
+	Low	Ниско
+	Model's default	По подразбиране за модела
+	Model:	Модел:
+	Model: {model} at {url}	Модел: {model} на {url}
+	No table to restructure.	Няма таблици за преструктуриране.
+	No table was changed.	Нито една таблица не е променена.
+	Other server	Друг сървър
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume го моли да преструктурира таблиците, които Markdown не може да съдържа (формуляри и страници, оформени в таблици), и запазва новия вариант само ако всяка дума е още там. Ollama и LM Studio работят на този компютър: нищо не излиза от него.
+	Reasoning:	Разсъждение:
+	Restructure	Преструктуриране
+	Restructure\nTables	Преструктуриране\nна таблици
+	Server:	Сървър:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Препоръчано в Ollama: gpt-oss:20b при 16 ГБ памет или повече, qwen3:4b при 8 ГБ (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Таблица {i} от {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Сървърът още няма модели: първо изтеглете един (ollama pull gpt-oss:20b).
+	No table in this document needs a model: Markdown holds its tables as they are.	Нито една таблица в този документ не се нуждае от модел: Markdown запазва таблиците такива, каквито са.
+	Unchanged	Без промяна
+	Use a language model	Използване на езиков модел
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Преструктурирани таблици: {applied} от {n}. Отмяна (Ctrl+Z) ги връща всички.
+	{n} models on the server.	Модели на сървъра: {n}.
+	{ready} of {n} tables can be sent to the model.	Таблици, които могат да се изпратят към модела: {ready} от {n}.
+	Saved to {forge}	Записано в {forge}
+	Changes Since Last Version	Промени от последната версия
+	No changes since the last version.	Няма промени от последната версия.
+	Showing the changes since the last version ({n} paragraphs).	Показани са промените от последната версия (абзаци: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Проследяване оттук нататък: последната версия не може да се прочете ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Задаване на поле от front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Полета, които GitHub, VitePress и PDF шаблоните четат, записани в началото на Markdown файла.
+	(several values: edit the source)	(няколко стойности: редактирайте източника)
+	Remove this field	Премахване на това поле
+	New field	Ново поле
+	Letters, digits, - and _ only	Само букви, цифри, - и _
+	Callout	Каре
+	Code Block	Блок с код
+	Code Language	Език на кода
+	Leave Block	Изход от блока
+	Markdown Block	Markdown блок
+	Mermaid diagram	Mermaid диаграма
+	Plain text	Обикновен текст
+	Note	Бележка
+	Tip	Съвет
+	Important	Важно
+	Warning	Предупреждение
+	Caution	Внимание
+	Danger	Опасност
+	Details	Подробности
+	Insert › Markdown	Вмъкване › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Записано във вашия клон {branch}; {target} е заключен.
+	Merge request {n} into {target} is open: this version goes in it.	Заявката за сливане {n} към {target} е отворена: тази версия влиза в нея.
+	Request the merge into {target}	Заявка за сливане в {target}
+	Version {id} saved; merge request {n} opened	Версия {id} е записана; отворена е заявка за сливане {n}
+	Markdown indents list items only	Markdown отстъпва само елементи от списък
+	Diagram	Диаграма
+	Edit\nDiagram	Редактиране\nна диаграмата
+	Mermaid source	Източник на Mermaid
+	Mermaid syntax	Синтаксис на Mermaid
+	Sequence	Последователност
+	Flowchart	Блок-схема
+	Gantt	Гант
+	Class	Класове
+	Mind map	Мисловна карта
+	Markdown Source	Markdown източник
+	Apply Markdown Source	Прилагане на Markdown източника
+	Heading Anchor	Котва на заглавието
+	Include File	Включване на файл
+	Include	Включване
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Markdown файлът за включване, спрямо този (VitePress показва текста му тук)
+	Open Included File	Отваряне на включения файл
+	Anchor	Котва
+	Discard	Отхвърляне
+	Save this document first: an included file is found beside it.	Първо запишете този документ: включеният файл е до него.
+	View › Markdown Source	Изглед › Markdown източник
+	Shapes and Connectors	Фигури и съединители
+	All Diagrams…	Всички диаграми…
+	Planning	Планиране
+	Structure	Структура
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)
 # Split Cells and Convert Text to Table (#2592)
 	Merge cells before split	Обединяване на клетките преди разделяне
 	Table size	Размер на таблицата

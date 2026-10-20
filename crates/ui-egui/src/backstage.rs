@@ -129,20 +129,15 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
                 }
             }
             ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
-                for (label, id) in [("About", "about"), ("Discord community", "discord")] {
-                    let (r, resp) = ui.allocate_exact_size(vec2(200.0, 32.0), Sense::click());
-                    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(label)));
-                    if resp.hovered() {
-                        ui.painter().rect_filled(r, 0.0, egui::Color32::from_white_alpha(26));
-                    }
-                    ui.painter().text(pos2(r.min.x + 22.0, r.center().y), Align2::LEFT_CENTER, tl!(label), regular(13.0), egui::Color32::WHITE);
-                    if resp.clicked() {
-                        if id == "discord" {
-                            let _ = app.run("ui.discord", json!({}));
-                        } else {
-                            app.dialog = crate::dialogs::Dialog::open("about", app);
-                        }
-                    }
+                let label = "About";
+                let (r, resp) = ui.allocate_exact_size(vec2(200.0, 32.0), Sense::click());
+                resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(label)));
+                if resp.hovered() {
+                    ui.painter().rect_filled(r, 0.0, egui::Color32::from_white_alpha(26));
+                }
+                ui.painter().text(pos2(r.min.x + 22.0, r.center().y), Align2::LEFT_CENTER, tl!(label), regular(13.0), egui::Color32::WHITE);
+                if resp.clicked() {
+                    app.dialog = crate::dialogs::Dialog::open("about", app);
                 }
             });
         });
@@ -367,19 +362,49 @@ fn open_list(app: &mut WordApp, ui: &mut Ui) {
         ui.label(egui::RichText::new(tl!("Documents you open will show up here.")).color(t.text_dim));
     }
     for p in app.ui.recent.iter().take(app.ui.recent_shown()).cloned().collect::<Vec<_>>() {
-        let name = std::path::Path::new(&p).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or(p.clone());
+        let file = std::path::Path::new(&p).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or(p.clone());
+        // Plume: a Markdown document by its title, its file under it.
+        let title = app.recent_titles.entry(p.clone()).or_insert_with(|| recent_title(&p)).clone();
+        let (name, p_shown) = match title {
+            Some(t) => (t, format!("{file} · {p}")),
+            None => (file, p.clone()),
+        };
         let (r, resp) = ui.allocate_exact_size(vec2(ui.available_width().min(700.0), 40.0), Sense::click());
         if resp.hovered() {
             ui.painter().rect_filled(r, 4.0, t.hover);
         }
         icons::paint(ui.painter(), Rect::from_center_size(pos2(r.min.x + 18.0, r.center().y), vec2(22.0, 22.0)), "printLayout", t.icon, t.accent);
         ui.painter().text(pos2(r.min.x + 40.0, r.min.y + 13.0), Align2::LEFT_CENTER, &name, medium(13.0), t.text);
-        ui.painter().text(pos2(r.min.x + 40.0, r.min.y + 29.0), Align2::LEFT_CENTER, &p, regular(11.0), t.text_dim);
+        ui.painter().text(pos2(r.min.x + 40.0, r.min.y + 29.0), Align2::LEFT_CENTER, &p_shown, regular(11.0), t.text_dim);
+        resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, &name));
         if resp.clicked() {
             let failed = open_recent(app, &p).err();
             ui.ctx().data_mut(|d| d.insert_temp(open_error_id(), failed.unwrap_or_default()));
         }
     }
+}
+
+/// Plume: the title in a Markdown file's front matter, read from its first 16 KB.
+pub(crate) fn recent_title(path: &str) -> Option<String> {
+    let lower = path.to_ascii_lowercase();
+    if !(lower.ends_with(".md") || lower.ends_with(".markdown")) {
+        return None;
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use std::io::Read;
+        let mut head = Vec::new();
+        std::fs::File::open(path).ok()?.take(16 * 1024).read_to_end(&mut head).ok()?;
+        let text = String::from_utf8_lossy(&head);
+        let rest = text.strip_prefix('\u{FEFF}').unwrap_or(&text).strip_prefix("---")?;
+        let rest = rest.strip_prefix("\r\n").or_else(|| rest.strip_prefix('\n'))?;
+        let end = rest.find("\n---").or_else(|| rest.find("\n..."))?;
+        let title = wordcraft_engine::front_matter::get(rest.get(..end)?, "title")?;
+        let title: String = title.trim().chars().take(120).collect();
+        (!title.is_empty()).then_some(title)
+    }
+    #[cfg(target_arch = "wasm32")]
+    None
 }
 
 fn open_error_id() -> egui::Id {
@@ -409,11 +434,19 @@ fn open_page(app: &mut WordApp, ui: &mut Ui) {
     // doesn't show up, WordCraft's own browser is always one click away.
     #[cfg(all(unix, not(target_os = "macos"), not(target_arch = "wasm32")))]
     if ui
-        .button(egui::RichText::new(tl!("Browse in WordCraft…")).font(medium(14.0)))
-        .on_hover_text(tl!("Open a file with WordCraft's own browser when the system file dialog doesn't appear."))
+        .button(egui::RichText::new(tl!("Browse in Plume…")).font(medium(14.0)))
+        .on_hover_text(tl!("Open a file with Plume's own browser when the system file dialog doesn't appear."))
         .clicked()
     {
         let _ = app.run("ui.fileBrowser", json!({}));
+    }
+    // Plume: a Markdown document straight from GitHub, GitLab or Forgejo.
+    if ui
+        .button(egui::RichText::new(tl!("Open from a Forge…")).font(medium(14.0)))
+        .on_hover_text(tl!("Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there."))
+        .clicked()
+    {
+        let _ = app.run("ui.dialog", json!({"name": "openFromForge"}));
     }
     ui.add_space(18.0);
     open_list(app, ui);
@@ -425,6 +458,14 @@ fn save_as_page(app: &mut WordApp, ui: &mut Ui) {
     heading(ui, "Save As");
     if ui.button(egui::RichText::new(tl!("Browse…")).font(medium(14.0))).clicked() {
         app.save_as_dialog();
+    }
+    // Plume: as a Markdown document in a GitHub, GitLab or Forgejo project.
+    if ui
+        .button(egui::RichText::new(tl!("Save to a Forge…")).font(medium(14.0)))
+        .on_hover_text(tl!("Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there."))
+        .clicked()
+    {
+        let _ = app.run("ui.dialog", json!({"name": "saveToForge"}));
     }
 }
 
@@ -439,10 +480,23 @@ fn info_page(app: &mut WordApp, ui: &mut Ui) {
         // lose focus dropped the keystrokes, and leaving File with Escape never loses it at all.
         // The keystrokes of one visit to a field are a single undo step.
         let mut props = app.session.doc.core.clone();
+        // Plume: a Markdown document keeps its category in its front matter.
+        let markdown = app.session.is_markdown();
+        let body = wordcraft_engine::front_matter::stored(&app.session.doc);
+        if markdown {
+            props.category = wordcraft_engine::front_matter::get(&body, "category").unwrap_or_default();
+        }
         let mut edited = None;
         let mut focused = None;
         egui::Grid::new("props").num_columns(2).spacing(vec2(12.0, 6.0)).show(ui, |ui| {
-            for (l, v) in [("Title", &mut props.title), ("Subject", &mut props.subject), ("Author", &mut props.creator), ("Keywords", &mut props.keywords), ("Category", &mut props.category)] {
+            for (l, v) in [
+                ("Title", &mut props.title),
+                ("Subject", &mut props.subject),
+                ("Author", &mut props.creator),
+                ("Keywords", &mut props.keywords),
+                ("Comments", &mut props.description),
+                ("Category", &mut props.category),
+            ] {
                 let label = ui.label(tl!(l));
                 let r = ui.add(egui::TextEdit::singleline(v).id_salt(("info-prop", l))).labelled_by(label.id);
                 if r.changed() {
@@ -458,8 +512,16 @@ fn info_page(app: &mut WordApp, ui: &mut Ui) {
             if app.info_editing == Some((field, app.session.rev())) {
                 app.session.join_next_undo();
             }
-            let ok = app.run("file.properties", json!({"title": props.title, "subject": props.subject, "author": props.creator, "keywords": props.keywords, "category": props.category})).is_ok();
+            let ok = app
+                .run(
+                    "file.properties",
+                    json!({"title": props.title, "subject": props.subject, "author": props.creator, "keywords": props.keywords, "comments": props.description, "category": props.category}),
+                )
+                .is_ok();
             app.info_editing = ok.then(|| (field, app.session.rev()));
+        }
+        if markdown {
+            front_matter_fields(app, ui, &body, &mut focused);
         }
         if focused != app.info_editing.map(|(f, _)| f) {
             app.info_editing = None;
@@ -487,9 +549,66 @@ fn info_page(app: &mut WordApp, ui: &mut Ui) {
         for (l, k) in [("Pages", "pages"), ("Words", "words"), ("Paragraphs", "paragraphs"), ("Sections", "sections"), ("Comments", "comments")] {
             ui.label(format!("{}: {}", tl!(l), info.get(k).map(|v| v.to_string()).unwrap_or_default()));
         }
-        let path = info.get("path").and_then(|v| v.as_str()).unwrap_or(tl!("Not saved yet"));
-        ui.label(crate::i18n::fmt(tl!("Location: {path}"), &[("path", path)]));
+        // Plume: a forge document's place: forge, project, file and branch.
+        let in_forge = app.session.forge.as_ref().map(|r| format!("{} · {}/{} ({})", r.doc.forge.kind.name(), r.doc.repo, r.doc.path, r.doc.branch));
+        let path = info.get("path").and_then(|v| v.as_str()).map(str::to_string).or(in_forge).unwrap_or_else(|| tl!("Not saved yet").to_string());
+        ui.label(crate::i18n::fmt(tl!("Location: {path}"), &[("path", &path)]));
     });
+}
+
+/// Plume: the front matter's other fields (the ones the grid above doesn't show), each editable
+/// and removable, and a row to add one. Fields holding a structure (a nested map) are shown, not
+/// edited: their source is the place for that.
+fn front_matter_fields(app: &mut WordApp, ui: &mut Ui, body: &str, focused: &mut Option<&'static str>) {
+    use wordcraft_engine::front_matter as fm;
+    const ABOVE: [&str; 7] = ["title", "subject", "author", "keywords", "tags", "description", "category"];
+    let t = Tokens::get(ui.ctx());
+    ui.add_space(18.0);
+    ui.label(egui::RichText::new(tl!("Front matter")).font(semibold(15.0)));
+    ui.label(egui::RichText::new(tl!("Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.")).color(t.text_dim));
+    ui.add_space(6.0);
+    let mut change: Option<(String, Option<String>)> = None;
+    egui::Grid::new("front-matter").num_columns(3).spacing(vec2(12.0, 6.0)).show(ui, |ui| {
+        for (k, v) in fm::fields(body).into_iter().filter(|(k, _)| !ABOVE.contains(&k.to_ascii_lowercase().as_str())) {
+            let label = ui.label(&k);
+            if v.is_empty() && fm::is_map(body, &k) {
+                ui.label(egui::RichText::new(tl!("(several values: edit the source)")).color(t.text_dim));
+            } else {
+                let mut value = v.clone();
+                let r = ui.add_sized([280.0, 22.0], egui::TextEdit::singleline(&mut value).id_salt(("front-matter", &k))).labelled_by(label.id);
+                if r.changed() {
+                    change = Some((k.clone(), Some(value)));
+                }
+                if r.has_focus() {
+                    *focused = Some("front matter");
+                }
+            }
+            if ui.small_button("×").on_hover_text(tl!("Remove this field")).clicked() {
+                change = Some((k.clone(), None));
+            }
+            ui.end_row();
+        }
+        // A new field: its name and value, added together.
+        let id = egui::Id::new("front-matter-new");
+        let (mut key, mut value) = ui.ctx().data(|d| d.get_temp::<(String, String)>(id)).unwrap_or_default();
+        ui.add_sized([120.0, 22.0], egui::TextEdit::singleline(&mut key).hint_text(tl!("New field")));
+        ui.add_sized([280.0, 22.0], egui::TextEdit::singleline(&mut value).hint_text(tl!("Value")));
+        let ok = fm::valid_key(key.trim());
+        if ui.add_enabled(ok, egui::Button::new(tl!("Add"))).on_disabled_hover_text(tl!("Letters, digits, - and _ only")).clicked() {
+            change = Some((key.trim().to_string(), Some(value.clone())));
+            key.clear();
+            value.clear();
+        }
+        ui.ctx().data_mut(|d| d.insert_temp(id, (key, value)));
+        ui.end_row();
+    });
+    if let Some((key, value)) = change {
+        if value.is_some() && app.info_editing == Some(("front matter", app.session.rev())) {
+            app.session.join_next_undo();
+        }
+        let ok = app.run("file.setFrontMatter", json!({"key": key, "value": value})).is_ok();
+        app.info_editing = ok.then(|| ("front matter", app.session.rev()));
+    }
 }
 
 fn export_page(app: &mut WordApp, ui: &mut Ui) {
@@ -511,6 +630,12 @@ fn export_page(app: &mut WordApp, ui: &mut Ui) {
         return;
     }
     heading(ui, "Export");
+    if app.pdf_templates.editor.is_some() {
+        crate::pdf_templates::section(app, ui);
+        return;
+    }
+    crate::pdf_templates::section(app, ui);
+    ui.add_space(16.0);
     ui.label(tl!("Save a copy in another format. Printing goes through a PDF you can print from any viewer."));
     ui.add_space(12.0);
     crate::print_page::export_formats(app, ui);

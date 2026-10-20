@@ -6,14 +6,19 @@
 //! CLI, the JSON control channel and the MCP server all call [`Session::run`].
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
+pub mod ai;
 pub mod catalog;
 pub mod cmd;
+pub mod diagrams;
 pub mod file_access;
 pub mod io;
 mod io_ext;
 pub mod keymap;
 pub mod math_gallery;
+pub mod pdf_template;
+pub mod plume;
 pub mod print;
+pub mod publication;
 pub mod recovery;
 pub mod ribbon;
 pub mod sample;
@@ -30,11 +35,14 @@ pub use ribbon::RibbonLayout;
 pub use session::{
     CellRange, ColumnBlock, EditSnapshot, FindState, MathEdit, Prefs, Selection, Session, UNDO_LIST_MAX, ViewState, blank_document, set_system_locale,
 };
+pub use wordcraft_diagram as diagram;
 pub use wordcraft_doc as doc;
+pub use wordcraft_formats::front_matter;
 pub use wordcraft_geom::Region;
 pub use wordcraft_layout as layout;
 pub use wordcraft_proof as proof;
 pub use wordcraft_render as render;
+pub use wordcraft_vcs as vcs;
 
 #[derive(Debug, thiserror::Error, Clone, PartialEq)]
 pub enum CmdError {
@@ -171,6 +179,8 @@ mod tests;
 mod tests_bidi;
 #[cfg(test)]
 mod tests_fonts;
+#[cfg(test)]
+mod tests_md_fidelity;
 #[cfg(test)]
 mod tests_revision_checks;
 #[cfg(test)]

@@ -34,6 +34,13 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
             .frame(egui::Frame::NONE.fill(t.panel).inner_margin(10).stroke(Stroke::new(1.0, t.border)))
             .show(ui, |ui| nav(app, ui));
     }
+    if app.session.view.documents_pane {
+        egui::Panel::left("documents_pane")
+            .default_size(240.0)
+            .resizable(true)
+            .frame(egui::Frame::NONE.fill(t.panel).inner_margin(10).stroke(Stroke::new(1.0, t.border)))
+            .show(ui, |ui| documents(app, ui));
+    }
     if app.session.view.clipboard_pane {
         egui::Panel::left("clipboard_pane")
             .default_size(250.0)
@@ -82,6 +89,13 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
                 crate::dialogs_review::restrict_pane(app, ui);
             });
     }
+    if app.session.view.markdown_source && app.session.is_markdown() {
+        egui::Panel::right("markdown_source")
+            .default_size(420.0)
+            .resizable(true)
+            .frame(egui::Frame::NONE.fill(t.panel).inner_margin(10).stroke(Stroke::new(1.0, t.border)))
+            .show(ui, |ui| markdown_source(app, ui));
+    }
     if app.session.view.comments_pane {
         egui::Panel::right("comments_pane")
             .default_size(290.0)
@@ -89,6 +103,48 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
             .frame(egui::Frame::NONE.fill(t.panel).inner_margin(10).stroke(Stroke::new(1.0, t.border)))
             .show(ui, |ui| comments(app, ui));
     }
+}
+
+/// Plume: the document as its Markdown file is written. Edited here, Apply makes the document
+/// what the text says (undoable); untouched, it follows the document as it changes.
+fn markdown_source(app: &mut WordApp, ui: &mut Ui) {
+    if header(ui, "Markdown Source") {
+        let _ = app.run("view.markdownSource", json!({"value": false}));
+        return;
+    }
+    let rev = app.session.rev();
+    let stale = app.md_source.as_ref().is_none_or(|(r, _, edited)| *r != rev && !edited);
+    if stale {
+        let text = app
+            .session
+            .run("markdown.source", &json!({}))
+            .ok()
+            .and_then(|v| v.get("text").and_then(|t| t.as_str()).map(str::to_string))
+            .unwrap_or_default();
+        app.md_source = Some((rev, text, false));
+    }
+    let edited_now = app.md_source.as_ref().is_some_and(|(_, _, e)| *e);
+    ui.horizontal(|ui| {
+        ui.add_enabled_ui(edited_now, |ui| {
+            if ui.button(tl!("Apply")).clicked() {
+                let t = app.md_source.as_ref().map(|(_, t, _)| t.clone()).unwrap_or_default();
+                match app.run("markdown.setSource", json!({"text": t})) {
+                    Ok(_) => app.md_source = None,
+                    Err(e) => app.status(e),
+                }
+            }
+            if ui.button(tl!("Discard")).clicked() {
+                app.md_source = None;
+            }
+        });
+    });
+    let Some((_, text, edited)) = app.md_source.as_mut() else { return };
+    egui::ScrollArea::vertical().auto_shrink(false).show(ui, |ui| {
+        let r = ui.add(egui::TextEdit::multiline(text).code_editor().desired_width(f32::INFINITY).desired_rows(40));
+        if r.changed() {
+            *edited = true;
+        }
+    });
 }
 
 pub(crate) fn header(ui: &mut Ui, title: &str) -> bool {
@@ -235,6 +291,57 @@ fn nav_heading(ui: &mut Ui, level: u8, text: &str, selected: bool) -> egui::Resp
 }
 
 /// Items collected by Copy and Cut, newest first; clicking one pastes it at the caret.
+/// Plume's Documents pane: the Markdown documents in this document's repository or folder, by
+/// folder; a click opens one.
+fn documents(app: &mut WordApp, ui: &mut Ui) {
+    if header(ui, "Documents") {
+        let _ = app.run("view.documentsPane", json!({"value": false}));
+        return;
+    }
+    let list = match app.session.run("file.documents", &json!({})) {
+        Ok(v) => v,
+        Err(_) => {
+            ui.label(tl!("Save the document as Markdown to see the documents beside it."));
+            return;
+        }
+    };
+    let root = list.get("root").and_then(Value::as_str).unwrap_or("").to_string();
+    let current = list.get("current").and_then(Value::as_str).map(str::to_string);
+    let docs: Vec<String> = list
+        .get("documents")
+        .and_then(Value::as_array)
+        .map(|a| a.iter().filter_map(|d| d.as_str().map(str::to_string)).collect())
+        .unwrap_or_default();
+    if docs.is_empty() {
+        ui.label(tl!("No Markdown documents here yet."));
+        return;
+    }
+    let mut open: Option<String> = None;
+    egui::ScrollArea::vertical().show(ui, |ui| {
+        let mut folder = String::new();
+        for d in &docs {
+            let (dir, name) = d.rsplit_once('/').unwrap_or(("", d.as_str()));
+            if dir != folder {
+                folder = dir.to_string();
+                ui.add_space(4.0);
+                ui.label(egui::RichText::new(format!("{folder}/")).font(semibold(12.0)));
+            }
+            let title = name.trim_end_matches(".markdown").trim_end_matches(".md");
+            let indent = if dir.is_empty() { 0.0 } else { 10.0 };
+            ui.horizontal(|ui| {
+                ui.add_space(indent);
+                if ui.selectable_label(current.as_deref() == Some(d.as_str()), egui::RichText::new(title).font(regular(13.0))).clicked() {
+                    open = Some(d.clone());
+                }
+            });
+        }
+    });
+    if let Some(d) = open.filter(|d| current.as_deref() != Some(d.as_str())) {
+        let path = std::path::Path::new(&root).join(d);
+        let _ = app.run("file.open", json!({"path": path.to_string_lossy()}));
+    }
+}
+
 fn clipboard(app: &mut WordApp, ui: &mut Ui) {
     if header(ui, "Clipboard") {
         let _ = app.run("edit.clipboardPane", json!({"value": false}));

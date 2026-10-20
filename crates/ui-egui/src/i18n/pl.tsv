@@ -1,6 +1,6 @@
 # Polish (pl) interface catalog. Columns, separated by a TAB:
 #   context <TAB> English source <TAB> translation
-#   context    empty (WordCraft uses no contexts yet)
+#   context    empty (Plume uses no contexts yet)
 #   source     the English text exactly as in the code (tl!(...), ribbon labels, command labels)
 #   escapes    \n  \t  \\  inside a column. `{name}` placeholders must appear in both columns, and a
 #              trailing "…" in one needs one in the other.
@@ -9,17 +9,19 @@
 # Clean room: translated from the meaning of the English labels in this repository into ordinary
 # Polish computing vocabulary. No Microsoft Word (or other product) localisation, string table or
 # translated UI was consulted or copied; add entries the same way.
-# Product, format and technology names (WordCraft, PDF, Markdown, MCP …) stay as they are.
+# Product, format and technology names (Plume, PDF, Markdown, MCP …) stay as they are.
 # Conventions: commands are imperatives (Zapisz, Wstaw), tabs and groups are nouns; counts use
 # a label and a colon ("Słowa: 21") so every number reads grammatically; quotes are „…”.
-# Author: Konrad Witkowski with Claude (AI agent); licensed MIT OR Apache-2.0, like WordCraft.
+# Author: Konrad Witkowski with Claude (AI agent); licensed MIT OR Apache-2.0, like Plume.
 # Not yet reviewed by a second native speaker.
 
 	(no suggestions)	(brak propozycji)
 	1.5 Line Spacing	Interlinia 1,5
-	A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team.	Darmowy edytor tekstu o otwartym kodzie, napisany od podstaw w języku Rust.\nCzęść rodziny Crafting Apps zespołu ArtCraft.
+	A free, open-source word processor written in Rust, with Markdown as its native format.	Darmowy edytor tekstu o otwartym kodzie źródłowym, napisany w Rust, z Markdown jako formatem natywnym.
+	Plume — based on WordCraft by the ArtCraft team.	Plume — na podstawie WordCraft od zespołu ArtCraft.
+	WordCraft: github.com/storytold/wordcraft	WordCraft: github.com/storytold/wordcraft
 	About	Informacje
-	About WordCraft	O programie WordCraft
+	About Plume	O programie Plume
 	Accept	Zaakceptuj
 	Accept All Changes	Zaakceptuj wszystkie zmiany
 	Accept This Change	Zaakceptuj tę zmianę
@@ -149,7 +151,6 @@
 	Comment	Komentarz
 	Comments	Komentarze
 	Comments Pane	Okienko komentarzy
-	Community\nDiscord	Społeczność\nDiscord
 	Compact	Zwarte
 	Compare	Porównaj
 	Compress Pictures	Kompresuj obrazy
@@ -201,8 +202,6 @@
 	Different First Page	Inna pierwsza strona
 	Different Odd & Even Pages	Inne strony parzyste i nieparzyste
 	Direct formatting	Formatowanie bezpośrednie
-	Discord	Discord
-	Discord community	Społeczność na Discordzie
 	Display	Wyświetlanie
 	Display for Review	Wyświetlanie do recenzji
 	Distribute Columns	Rozłóż kolumny
@@ -364,8 +363,6 @@
 	Inspect Styles at Selection	Przejrzyj style zaznaczenia
 	Interface language:	Język interfejsu:
 	Italic	Kursywa
-	Join the ArtCraft community on Discord	Dołącz do społeczności ArtCraft na Discordzie
-	Join us on Discord: discord.gg/artcraft	Dołącz do nas na Discordzie: discord.gg/artcraft
 	Justify	Wyjustuj
 	Keep Lines Together	Zachowaj wiersze razem
 	Keep Text Only	Zachowaj tylko tekst
@@ -377,7 +374,7 @@
 	Landscape	Pozioma
 	Language	Język
 	{language} (no dictionary)	{language} (brak słownika)
-	No spelling dictionary for {language} is installed, so it isn't checked. WordCraft looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Nie zainstalowano słownika pisowni dla języka: {language}, więc tekst nie jest sprawdzany. WordCraft szuka słownika Hunspell {name} w folderze WORDCRAFT_DICTIONARIES i w typowych lokalizacjach systemowych.
+	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Nie zainstalowano słownika pisowni dla języka: {language}, więc tekst nie jest sprawdzany. Plume szuka słownika Hunspell {name} w folderze WORDCRAFT_DICTIONARIES i w typowych lokalizacjach systemowych.
 	Lasso	Lasso
 	Last Column	Ostatnia kolumna
 	Last commit	Ostatni commit
@@ -406,7 +403,7 @@
 	Link to Previous	Połącz z poprzednim
 	Links	Linki
 	Location: {path}	Lokalizacja: {path}
-	MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.	MIT lub Apache-2.0. Copyright (c) 2026 ArtCraft Team i współtwórcy WordCraft.
+	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 współtwórcy Plume, zespół ArtCraft i współtwórcy WordCraft.
 	Macros	Makra
 	Mailings	Korespondencja
 	Manage Sources	Zarządzaj źródłami
@@ -677,7 +674,6 @@
 	Show Notes	Pokaż przypisy
 	Show all formatting marks	Pokaż wszystkie znaki formatowania
 	Show rulers	Pokaż linijki
-	Show the community button in the title bar	Pokaż przycisk społeczności na pasku tytułu
 	Show/Hide ¶	Pokaż/ukryj ¶
 	Show\nComments	Pokaż\nkomentarze
 	Shrink Font 1 Point	Pomniejsz czcionkę o 1 punkt
@@ -692,7 +688,7 @@
 	Small caps	Kapitaliki
 	SmartArt	SmartArt
 	Sort	Sortuj
-	Source code: github.com/storytold/wordcraft	Kod źródłowy: github.com/storytold/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	Kod źródłowy: github.com/TheLazyGeekGuy/plume
 	Space before/after:	Odstęp przed/po:
 	Spacing	Odstępy
 	Spacing (pt):	Odstępy (pt):
@@ -822,7 +818,7 @@
 	Word Right	Słowo w prawo
 	Word document (*.docx)	Dokument Word (*.docx)
 	WordArt	WordArt
-	WordCraft	WordCraft
+	Plume	Plume
 	Words	Słowa
 	Words only	Tylko wyrazy
 	Wrap Text	Zawijaj tekst
@@ -890,7 +886,7 @@
 	Stopped	Zatrzymano
 	Speed	Szybkość
 	Normal speed	Normalna szybkość
-	AutoSave documents you have saved in WordCraft	Zapisuj automatycznie dokumenty zapisane już w programie WordCraft
+	AutoSave documents you have saved in Plume	Zapisuj automatycznie dokumenty zapisane już w programie Plume
 	AutoSave failed: {error}. Save the document to turn AutoSave back on.	Autozapis nie powiódł się: {error}. Zapisz dokument, aby ponownie włączyć autozapis.
 	Couldn't download {name}: {error}	Nie udało się pobrać pliku {name}: {error}
 	Do you want to save changes to {name}?	Czy zapisać zmiany w dokumencie {name}?
@@ -1057,7 +1053,6 @@
 	Insert a new equation (Alt+=)	Wstaw nowe równanie (Alt+=)
 	Leave the equation (Esc)	Opuść równanie (Esc)
 	Preview	Podgląd
-	getartcraft.com/apps/wordcraft	getartcraft.com/apps/wordcraft
 	English (United Kingdom)	Angielski (Wielka Brytania)
 	Polish	Polski
 	Do Not Check Spelling or Grammar	Nie sprawdzaj pisowni ani gramatyki
@@ -1112,7 +1107,7 @@
 	Glow Colors	Kolory poświaty
 	Hide from style lists	Ukryj na listach stylów
 	Indents and Spacing	Wcięcia i odstępy
-	Keep the password somewhere safe: without it nobody, WordCraft included, can open the document. Leave both boxes empty to remove the password.	Przechowuj hasło w bezpiecznym miejscu: bez niego nikt, również WordCraft, nie otworzy dokumentu. Pozostaw oba pola puste, aby usunąć hasło.
+	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Przechowuj hasło w bezpiecznym miejscu: bez niego nikt, również Plume, nie otworzy dokumentu. Pozostaw oba pola puste, aby usunąć hasło.
 	Line breaking	Łamanie wierszy
 	Linked style (paragraph and character)	Styl połączony (akapitowy i znakowy)
 	Manage Styles	Zarządzaj stylami
@@ -1742,7 +1737,7 @@
 	Beginning of Word	Początek wyrazu
 	Blue:	Niebieski:
 	Border lines	Linie obramowania
-	Browse in WordCraft…	Przeglądaj w programie WordCraft…
+	Browse in Plume…	Przeglądaj w programie Plume…
 	Building Block Gallery Content Control	Formant zawartości galerii bloków konstrukcyjnych
 	Can't be deleted	Nie można usunąć
 	Capitalize first letter of sentences	Zaczynaj zdania wielką literą
@@ -1918,7 +1913,7 @@
 	Only comments can be added, except in regions marked editable.	Można dodawać tylko komentarze, z wyjątkiem obszarów oznaczonych jako edytowalne.
 	Only form fields can be filled in.	Można wypełniać tylko pola formularza.
 	Only the allowed styles can be applied.	Można stosować tylko dozwolone style.
-	Open a file with WordCraft's own browser when the system file dialog doesn't appear.	Otwórz plik we własnej przeglądarce plików programu WordCraft, gdy systemowe okno wyboru pliku się nie pojawia.
+	Open a file with Plume's own browser when the system file dialog doesn't appear.	Otwórz plik we własnej przeglądarce plików programu Plume, gdy systemowe okno wyboru pliku się nie pojawia.
 	Ordinals (1st) as superscript	Liczebniki porządkowe (1st) jako indeks górny
 	Organizer	Organizator
 	Organizer…	Organizator…
@@ -2055,7 +2050,7 @@
 	The document is read only, except for regions marked editable.	Dokument jest tylko do odczytu, z wyjątkiem obszarów oznaczonych jako edytowalne.
 	The password is optional; without it anyone can stop the protection.	Hasło jest opcjonalne; bez niego każdy może wyłączyć ochronę.
 	The printer, two-sided printing and pages per sheet are chosen in that dialog.	Drukarkę, druk dwustronny i liczbę stron na arkuszu wybiera się w tym oknie.
-	The system file dialog isn't available, so WordCraft shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Systemowe okno wyboru pliku jest niedostępne, więc WordCraft pokazuje własne. Aby korzystać z okna systemowego, zainstaluj portal wyboru plików (np. xdg-desktop-portal-gtk) lub zenity.
+	The system file dialog isn't available, so Plume shows its own. To get the system dialog, install a file chooser portal (such as xdg-desktop-portal-gtk) or zenity.	Systemowe okno wyboru pliku jest niedostępne, więc Plume pokazuje własne. Aby korzystać z okna systemowego, zainstaluj portal wyboru plików (np. xdg-desktop-portal-gtk) lub zenity.
 	These marks show even when Show/Hide ¶ is off.	Te znaki są widoczne nawet przy wyłączonym poleceniu Pokaż wszystko ¶.
 	This document	Ten dokument
 	This folder can't be read: {error}	Nie można odczytać tego folderu: {error}
@@ -2099,15 +2094,15 @@
 	Undo 1 Action	Cofnij 1 akcję
 	Undo {n} Actions	Cofnij akcje: {n}
 	Start-up	Uruchamianie
-	Show the Start screen when WordCraft starts	Pokazuj ekran startowy po uruchomieniu programu WordCraft
-	On: WordCraft opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Włączone: WordCraft otwiera się na karcie Plik › Start z pustym dokumentem, szablonami i ostatnimi dokumentami. Wyłączone: otwiera pusty dokument.
-	Couldn't make WordCraft the default: {error}	Nie udało się ustawić WordCraft jako domyślnego: {error}
-	In Default apps, choose WordCraft for the document types you want it to open.	W Aplikacjach domyślnych wybierz WordCraft dla typów dokumentów, które ma otwierać.
-	Make WordCraft the default for Word documents…	Ustaw WordCraft jako domyślny dla dokumentów Word…
-	Opens .docx, .doc, .rtf and .odt files and Word templates with WordCraft from now on.	Od teraz pliki .docx, .doc, .rtf i .odt oraz szablony Word otwierają się w WordCraft.
-	Opens Settings › Default apps, where you choose WordCraft for .docx and the other document types.	Otwiera Ustawienia › Aplikacje domyślne, gdzie wybierasz WordCraft dla .docx i innych typów dokumentów.
-	To open Word documents with WordCraft by default: select one in Finder, choose File › Get Info, pick WordCraft under Open with, then click Change All.	Aby otwierać dokumenty Word domyślnie w WordCraft: zaznacz jeden w Finderze, wybierz Plik › Pokaż info, wybierz WordCraft w „Otwórz za pomocą”, a następnie kliknij „Zmień wszystkie”.
-	WordCraft is now the default app for Word documents.	WordCraft jest teraz domyślną aplikacją dla dokumentów Word.
+	Show the Start screen when Plume starts	Pokazuj ekran startowy po uruchomieniu programu Plume
+	On: Plume opens on File › Home, with a blank document, the templates and your recent documents. Off: it opens a blank document.	Włączone: Plume otwiera się na karcie Plik › Start z pustym dokumentem, szablonami i ostatnimi dokumentami. Wyłączone: otwiera pusty dokument.
+	Couldn't make Plume the default: {error}	Nie udało się ustawić Plume jako domyślnego: {error}
+	In Default apps, choose Plume for the document types you want it to open.	W Aplikacjach domyślnych wybierz Plume dla typów dokumentów, które ma otwierać.
+	Make Plume the default for Word documents…	Ustaw Plume jako domyślny dla dokumentów Word…
+	Opens .docx, .doc, .rtf and .odt files and Word templates with Plume from now on.	Od teraz pliki .docx, .doc, .rtf i .odt oraz szablony Word otwierają się w Plume.
+	Opens Settings › Default apps, where you choose Plume for .docx and the other document types.	Otwiera Ustawienia › Aplikacje domyślne, gdzie wybierasz Plume dla .docx i innych typów dokumentów.
+	To open Word documents with Plume by default: select one in Finder, choose File › Get Info, pick Plume under Open with, then click Change All.	Aby otwierać dokumenty Word domyślnie w Plume: zaznacz jeden w Finderze, wybierz Plik › Pokaż info, wybierz Plume w „Otwórz za pomocą”, a następnie kliknij „Zmień wszystkie”.
+	Plume is now the default app for Word documents.	Plume jest teraz domyślną aplikacją dla dokumentów Word.
 	Numerals:	Cyfry:
 	Numerals	Cyfry
 	Hindi	Hindi
@@ -2568,7 +2563,7 @@ preview	Title	Tytuł
 	{name}   {height} × {width} mm	{name}   {height} × {width} mm
 	{width} × {height} mm	{width} × {height} mm
 	{kind}, {columns} × {rows}, {size} ({paper})	{kind}, {columns} × {rows}, {size} ({paper})
-	Researcher needs an online service; WordCraft keeps your documents offline.	Badacz wymaga usługi online, a WordCraft przechowuje Twoje dokumenty offline.
+	Researcher needs an online service; Plume keeps your documents offline.	Badacz wymaga usługi online, a Plume przechowuje Twoje dokumenty offline.
 	These settings will be used for new documents.	Te ustawienia będą używane w nowych dokumentach.
 	can't split at the first row	nie można podzielić tabeli na pierwszym wierszu
 	select two or more cells to merge	zaznacz co najmniej dwie komórki do scalenia
@@ -2632,6 +2627,78 @@ preview	Title	Tytuł
 	Hunspell .aff and .dic files here (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) are used before the system's.	Pliki Hunspell .aff i .dic z tego folderu (pl_PL, pt_BR, it_IT, hr_HR, tr_TR) mają pierwszeństwo przed systemowymi.
 	{language}: {file}	{language}: {file}
 	{language}: no dictionary found	{language}: nie znaleziono słownika
+	Version Status	Stan wersji
+	Start Keeping Versions	Zacznij przechowywać wersje
+	Save Version	Zapisz wersję
+	Show Changes	Pokaż zmiany
+	Compare with Version	Porównaj z wersją
+	Restore Version	Przywróć wersję
+	Synchronize	Synchronizuj
+	Versions	Wersje
+	Describe your changes	Opisz swoje zmiany
+	No versions yet	Brak wersji
+	Restore	Przywróć
+	Save\nVersion	Zapisz\nwersję
+	Version\nHistory	Historia\nwersji
+	Save the document as Markdown first (File › Save As).	Najpierw zapisz dokument jako Markdown (Plik › Zapisz jako).
+	This document's folder doesn't keep versions yet: use Save Version to start.	Folder tego dokumentu nie przechowuje jeszcze wersji: użyj polecenia Zapisz wersję, aby zacząć.
+	Version {id} saved	Zapisano wersję {id}
+	Save the document as Markdown first	Najpierw zapisz dokument jako Markdown
+	Imported as Markdown	Zaimportowano jako Markdown
+	Saved as Markdown	Zapisano jako Markdown
+	Sign In to a Forge	Zaloguj się do forge
+	Sign Out of Forges	Wyloguj się z forge
+	Open from a Forge	Otwórz z forge
+	Open from a Forge…	Otwórz z forge…
+	Open a Markdown document from GitHub, GitLab or Forgejo; Save Version records versions there.	Otwórz dokument Markdown z GitHuba, GitLaba lub Forgejo; Zapisz wersję zapisuje tam wersje.
+	Server	Serwer
+	Repository	Repozytorium
+	Branch	Gałąź
+	Access token	Token dostępu
+	kept in the keychain	przechowywany w pęku kluczy
+	Remember the token in the keychain	Zapamiętaj token w pęku kluczy
+	Enter an access token for this forge.	Wprowadź token dostępu do tego forge.
+	Keep to Markdown	Tylko Markdown
+	Markdown	Markdown
+	Markdown can't keep this formatting (strict Markdown mode)	Markdown nie zachowa tego formatowania (ścisły tryb Markdown)
+	On, commands Markdown can't keep (text colour, underline, text boxes, columns…) are turned off. Off, they work and saving says what Markdown didn't keep.	Włączone: polecenia, których Markdown nie zachowa (kolor tekstu, podkreślenie, pola tekstowe, kolumny…), są wyłączone. Wyłączone: działają, a zapis informuje, czego Markdown nie zachował.
+	Request Review	Poproś o recenzję
+	Get Review Comments	Pobierz komentarze recenzji
+	Send Replies	Wyślij odpowiedzi
+	Review Status	Stan recenzji
+	Open the document from GitHub, GitLab or Forgejo to ask for a review	Aby poprosić o recenzję, otwórz dokument z GitHuba, GitLaba lub Forgejo
+	What should your colleagues review?	Co mają sprawdzić współpracownicy?
+	Details (optional)	Szczegóły (opcjonalnie)
+	Review requested: {url}	Poproszono o recenzję: {url}
+	Documents Pane	Okienko Dokumenty
+	Save the document as Markdown to see the documents beside it.	Zapisz dokument jako Markdown, aby zobaczyć dokumenty obok niego.
+	No Markdown documents here yet.	Nie ma tu jeszcze dokumentów Markdown.
+	save the document first	najpierw zapisz dokument
+	Address of the Markdown file (copy it from your browser)	Adres pliku Markdown (skopiuj go z przeglądarki)
+	Paste the address of the Markdown file's page (it ends in .md).	Wklej adres strony pliku Markdown (kończy się na .md).
+	Accounts	Konta
+	New connection	Nowe połączenie
+	Connect	Połącz
+	Projects	Projekty
+	Filter	Filtruj
+	No projects on this account.	Brak projektów na tym koncie.
+	Waiting for the forge…	Czekam na forge…
+	Save to a Forge…	Zapisz w forge…
+	Save to a Forge	Zapisz w forge
+	Save this document as Markdown in a GitHub, GitLab or Forgejo project; Save Version then records versions there.	Zapisuje dokument jako Markdown w projekcie GitHub, GitLab lub Forgejo; Zapisz wersję zapisuje potem tam wersje.
+	Replace the document that has this name	Zastąp dokument o tej nazwie
+	Saved to the forge:	Zapisano w forge:
+	Permissions the token needs:	Uprawnienia wymagane dla tokenu:
+	Or sign in with the browser	Lub zaloguj się w przeglądarce
+	OAuth app client ID	Identyfikator klienta aplikacji OAuth
+	Sign in with the browser	Zaloguj się w przeglądarce
+	Type this code on the forge's page:	Wpisz ten kod na stronie forge:
+	Open the page	Otwórz stronę
+	Copy the code	Skopiuj kod
+	No Markdown documents in this project.	Brak dokumentów Markdown w tym projekcie.
+	Or paste the document's address	Lub wklej adres dokumentu
+	Forge Repositories	Repozytoria forge
+	Forge Documents	Dokumenty forge
 
 # Backstage › Recover (#586)
 	Recover	Odzyskaj
@@ -2654,6 +2721,421 @@ preview	Title	Tytuł
 # Reading Mode column widths (#1040)
 	Narrow	Wąska
 	Medium	Średnia
+	(not saved)	(niezapisany)
+	Edit template…	Edytuj szablon…
+	Export PDF…	Eksportuj PDF…
+	Lay the document out with a document template: a title page, headers and footers, covers and letterheads. The document's front matter sets the template's options.	Złóż dokument według szablonu: strona tytułowa, nagłówki i stopki, okładki i papier firmowy. Nagłówek YAML dokumentu ustawia opcje szablonu.
+	Layout (LaTeX)	Układ (LaTeX)
+	Making the PDF… (the first time, the TeX engine may download what it needs)	Tworzenie PDF… (za pierwszym razem silnik TeX może pobrać potrzebne pliki)
+	New template created: it is the one exports use now.	Utworzono nowy szablon: teraz używają go eksporty.
+	New template from this one:	Nowy szablon na podstawie tego:
+	No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again.	Nie znaleziono silnika TeX. Zainstaluj Tectonic (brew install tectonic) lub MacTeX i wyeksportuj ponownie.
+	Options such as titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. A document's front matter overrides them.	Opcje takie jak titlepage, titlepage-color, header-left, footer-right, page-background, geometry, backcover. Nagłówek YAML dokumentu je zastępuje.
+	PDF with a template	PDF z szablonem
+	Restore the original	Przywróć oryginał
+	Save and preview	Zapisz i podgląd
+	Settings (YAML)	Ustawienia (YAML)
+	Template saved.	Szablon zapisany.
+	Template:	Szablon:
+	Template: {name}	Szablon: {name}
+	The LaTeX template, in pandoc's template language ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).	Szablon LaTeX w języku szablonów pandoca ($title$, $if(toc)$…$endif$, $for(author)$…$endfor$).
+	copy	kopia
+	Export LaTeX with a Template	Eksportuj LaTeX z szablonem
+	Export PDF with a Template	Eksportuj PDF z szablonem
+	New PDF Template	Nowy szablon PDF
+	PDF Engine	Silnik PDF
+	PDF Templates	Szablony PDF
+	Read PDF Template	Odczytaj szablon PDF
+	Restore PDF Template	Przywróć szablon PDF
+	Save PDF Template	Zapisz szablon PDF
+	Tables for AI	Tabele dla AI
+	AI Request for a Table	Zapytanie AI dla tabeli
+	Restructure Tables	Przebuduj tabele
+	A language model can't be reached from here.	Nie można stąd połączyć się z modelem językowym.
+	A language model can't be reached from the browser.	Nie można połączyć się z modelem językowym z przeglądarki.
+	AI	AI
+	Artificial intelligence	Sztuczna inteligencja
+	Block	Blok
+	Block {index}: {rows} × {cols}, {words} words	Blok {index}: {rows} × {cols}, słowa: {words}
+	Changed	Zmieniona
+	Choose a language model first: File › Options › Save › Artificial intelligence.	Najpierw wybierz model językowy: Plik › Opcje › Zapisywanie › Sztuczna inteligencja.
+	Choose a model	Wybierz model
+	High	Wysoki
+	Low	Niski
+	Model's default	Domyślny modelu
+	Model:	Model:
+	Model: {model} at {url}	Model: {model} na {url}
+	No table to restructure.	Brak tabel do przebudowy.
+	No table was changed.	Żadna tabela nie została zmieniona.
+	Other server	Inny serwer
+	Plume asks it to restructure the tables Markdown can't hold (forms and pages laid out in tables), and keeps a rewrite only when every word is still there. Ollama and LM Studio run on this computer: nothing leaves it.	Plume prosi go o przebudowę tabel, których Markdown nie pomieści (formularze i strony złożone w tabelach), i zachowuje przepisaną wersję tylko wtedy, gdy każde słowo nadal w niej jest. Ollama i LM Studio działają na tym komputerze: nic go nie opuszcza.
+	Reasoning:	Rozumowanie:
+	Restructure	Przebuduj
+	Restructure\nTables	Przebuduj\ntabele
+	Server:	Serwer:
+	Suggested in Ollama: gpt-oss:20b with 16 GB of memory or more, qwen3:4b with 8 GB (ollama pull gpt-oss:20b).	Zalecane w Ollama: gpt-oss:20b przy 16 GB pamięci lub więcej, qwen3:4b przy 8 GB (ollama pull gpt-oss:20b).
+	Table {i} of {n}…	Tabela {i} z {n}…
+	The server has no models yet: download one first (ollama pull gpt-oss:20b).	Serwer nie ma jeszcze modeli: najpierw pobierz jeden (ollama pull gpt-oss:20b).
+	No table in this document needs a model: Markdown holds its tables as they are.	Żadna tabela w tym dokumencie nie wymaga modelu: Markdown zachowuje tabele w niezmienionej postaci.
+	Unchanged	Bez zmian
+	Use a language model	Używaj modelu językowego
+	{applied} of {n} tables restructured. Undo (Ctrl+Z) puts them all back.	Przebudowano tabele: {applied} z {n}. Cofnij (Ctrl+Z) przywraca wszystkie.
+	{n} models on the server.	Modele na serwerze: {n}.
+	{ready} of {n} tables can be sent to the model.	Do modelu można wysłać tabele: {ready} z {n}.
+	Saved to {forge}	Zapisano w {forge}
+	Changes Since Last Version	Zmiany od ostatniej wersji
+	No changes since the last version.	Brak zmian od ostatniej wersji.
+	Showing the changes since the last version ({n} paragraphs).	Pokazano zmiany od ostatniej wersji (akapity: {n}).
+	Tracking from now on: the last version can't be read ({error}).	Śledzenie od teraz: nie można odczytać ostatniej wersji ({error}).
+	Front Matter	Front matter
+	Set Front Matter Field	Ustaw pole front matter
+	Front matter	Front matter
+	Fields GitHub, VitePress and PDF templates read, saved at the top of the Markdown file.	Pola odczytywane przez GitHub, VitePress i szablony PDF, zapisane na początku pliku Markdown.
+	(several values: edit the source)	(kilka wartości: edytuj źródło)
+	Remove this field	Usuń to pole
+	New field	Nowe pole
+	Letters, digits, - and _ only	Tylko litery, cyfry, - i _
+	Callout	Ramka
+	Code Block	Blok kodu
+	Code Language	Język kodu
+	Leave Block	Opuść blok
+	Markdown Block	Blok Markdown
+	Mermaid diagram	Diagram Mermaid
+	Plain text	Zwykły tekst
+	Note	Uwaga
+	Tip	Wskazówka
+	Important	Ważne
+	Warning	Ostrzeżenie
+	Caution	Przestroga
+	Danger	Niebezpieczeństwo
+	Details	Szczegóły
+	Insert › Markdown	Wstawianie › Markdown
+	Bash	Bash
+	CSS	CSS
+	HTML	HTML
+	JSON	JSON
+	Java	Java
+	JavaScript	JavaScript
+	Python	Python
+	Rust	Rust
+	SQL	SQL
+	TypeScript	TypeScript
+	YAML	YAML
+	C#	C#
+	Saved on your branch {branch}; {target} is locked.	Zapisano w Twojej gałęzi {branch}; {target} jest zablokowana.
+	Merge request {n} into {target} is open: this version goes in it.	Prośba o scalenie {n} do {target} jest otwarta: ta wersja do niej trafi.
+	Request the merge into {target}	Poproś o scalenie do {target}
+	Version {id} saved; merge request {n} opened	Zapisano wersję {id}; otwarto prośbę o scalenie {n}
+	Markdown indents list items only	Markdown wcina tylko elementy listy
+	Diagram	Diagram
+	Edit\nDiagram	Edytuj\ndiagram
+	Mermaid source	Źródło Mermaid
+	Mermaid syntax	Składnia Mermaid
+	Sequence	Sekwencja
+	Flowchart	Schemat blokowy
+	Gantt	Gantt
+	Class	Klasy
+	Mind map	Mapa myśli
+	Markdown Source	Źródło Markdown
+	Apply Markdown Source	Zastosuj źródło Markdown
+	Heading Anchor	Kotwica nagłówka
+	Include File	Dołącz plik
+	Include	Dołącz
+	The Markdown file to include, relative to this one (VitePress shows its text here)	Plik Markdown do dołączenia, względem tego (VitePress pokazuje tu jego tekst)
+	Open Included File	Otwórz dołączony plik
+	Anchor	Kotwica
+	Discard	Odrzuć
+	Save this document first: an included file is found beside it.	Najpierw zapisz ten dokument: dołączony plik leży obok.
+	View › Markdown Source	Widok › Źródło Markdown
+	Shapes and Connectors	Kształty i łączniki
+	Add Message	Dodaj wiadomość
+	Add Participant	Dodaj uczestnika
+	Add at least one participant.	Dodaj co najmniej jednego uczestnika.
+	Arrowhead	Grot strzałki
+	Chart type	Typ wykresu
+	Click in the canvas to place the shape.	Kliknij w obszarze rysowania, aby umieścić kształt.
+	Connector	Łącznik
+	Drag a shape to move it; drag from a blue handle to another shape to connect them.	Przeciągnij kształt, aby go przenieść; przeciągnij z niebieskiego uchwytu do innego kształtu, aby je połączyć.
+	Drag from one shape to another to connect them.	Przeciągnij z jednego kształtu do drugiego, aby je połączyć.
+	Draw at least one shape.	Narysuj co najmniej jeden kształt.
+	Enter at least one value above zero.	Wprowadź co najmniej jedną wartość większą od zera.
+	From	Od
+	Label	Etykieta
+	Message	Wiadomość
+	Messages	Wiadomości
+	Participant	Uczestnik
+	Participants	Uczestnicy
+	Pick a shape above, then click here to place it.	Wybierz kształt powyżej, a następnie kliknij tutaj, aby go umieścić.
+	Place the shapes step by step along the arrows	Rozmieść kształty krok po kroku wzdłuż strzałek
+	Plume lays the diagram out; the canvas sets the order and direction.	Plume rozmieszcza diagram; obszar rysowania ustala kolejność i kierunek.
+	Remove Series	Usuń serię
+	Reverse Direction	Odwróć kierunek
+	Select a shape or a connector to change it.	Zaznacz kształt lub łącznik, aby go zmienić.
+	Series	Seria
+	Shape	Kształt
+	This kind of diagram has no visual editor yet; its text is kept as written.	Ten rodzaj diagramu nie ma jeszcze edytora wizualnego; jego tekst pozostaje bez zmian.
+	To	Do
+	Action	Akcja
+	Activate	Aktywuj
+	Actor	Aktor
+	Add Column	Dodaj kolumnę
+	Aggregation	Agregacja
+	Aggregation (at the start)	Agregacja (na początku)
+	All Diagrams…	Wszystkie diagramy…
+	Alternative	Alternatywa
+	Amount	Wartość
+	Analysis	Analiza
+	Arrow at the End	Strzałka na końcu
+	Arrow at the Start	Strzałka na początku
+	Assigned to	Przypisane do
+	Association	Asocjacja
+	Association (to the start)	Asocjacja (do początku)
+	Asynchronous	Asynchroniczny
+	Asynchronous Reply	Odpowiedź asynchroniczna
+	Axis	Oś
+	Axis Format	Format osi
+	Back to the Visual Editor	Wróć do edytora wizualnego
+	Bang	Wybuch
+	Bar and Line Chart	Wykres słupkowy i liniowy
+	Bars	Słupki
+	Block Diagram	Diagram blokowy
+	Both Ways	W obie strony
+	Both Ways, Dashed	W obie strony, przerywana
+	Bottom Left Quadrant	Lewa dolna ćwiartka
+	Bottom Right Quadrant	Prawa dolna ćwiartka
+	Bottom to Top	Od dołu do góry
+	Boundary	Granica
+	Break	Przerwanie
+	C4 Architecture	Architektura C4
+	Call	Wywołanie
+	Card (empty: an empty column)	Karta (pusta: pusta kolumna)
+	Card Id	Identyfikator karty
+	Cards	Karty
+	Category Axis Title	Tytuł osi kategorii
+	Change Kind…	Zmień rodzaj…
+	Cherry-pick	Cherry-pick
+	Choice	Wybór
+	Choose a kind of diagram:	Wybierz rodzaj diagramu:
+	Circles	Okręgi
+	Class Diagram	Diagram klas
+	Cloud	Chmura
+	Cloud Architecture	Architektura chmury
+	Column Id	Identyfikator kolumny
+	Columns Wide	Szerokość w kolumnach
+	Commit	Commit
+	Commit Id	Identyfikator commita
+	Component	Komponent
+	Component Database	Baza danych komponentu
+	Component Queue	Kolejka komponentu
+	Composition	Kompozycja
+	Composition (at the start)	Kompozycja (na początku)
+	Connection	Połączenie
+	Container	Kontener
+	Container Boundary	Granica kontenera
+	Container Database	Baza danych kontenera
+	Container Queue	Kolejka kontenera
+	Control	Kontrola
+	Critical	Krytyczne
+	Curve	Krzywa
+	Dashed Line	Linia przerywana
+	Dashed Link	Łącze przerywane
+	Data (Left)	Dane (w lewo)
+	Database	Baza danych
+	Date Format	Format daty
+	Deactivate	Dezaktywuj
+	Decision	Decyzja
+	Demonstration	Demonstracja
+	Dependency	Zależność
+	Dependency (to the start)	Zależność (do początku)
+	Deployment	Wdrożenie
+	Deployment Node	Węzeł wdrożenia
+	Derives	Wyprowadza
+	Description	Opis
+	Design Constraint	Ograniczenie projektowe
+	Destroy	Zniszcz
+	Diagram Level	Poziom diagramu
+	Direction	Kierunek
+	Disk	Dysk
+	Display Name	Nazwa wyświetlana
+	Done	Gotowe
+	Dotted Arrow	Strzałka kropkowana
+	Dotted Line	Linia kropkowana
+	Double Circle	Podwójne koło
+	Dynamic	Dynamiczny
+	Edit as Text	Edytuj jako tekst
+	Element	Element
+	Else	W przeciwnym razie
+	End	Koniec
+	End (date, or duration: 5d, 1w)	Koniec (data lub czas trwania: 5d, 1w)
+	End Cardinality	Liczność na końcu
+	End Multiplicity	Krotność na końcu
+	End Side	Strona końca
+	Enterprise Boundary	Granica przedsiębiorstwa
+	Entity	Encja
+	Entity Relationship	Diagram związków encji
+	Event	Zdarzenie
+	Events	Zdarzenia
+	Exactly one	Dokładnie jeden
+	Excluded Days	Wykluczone dni
+	External	Zewnętrzny
+	First Bit	Pierwszy bit
+	Flag	Flaga
+	Flows	Przepływy
+	Fork	Rozwidlenie
+	From the Start's Group	Z grupy początku
+	Functional Requirement	Wymaganie funkcjonalne
+	Gantt Chart	Wykres Gantta
+	Git History	Historia Git
+	Grid	Siatka
+	Half Arrow (Bottom)	Półstrzałka (dół)
+	Half Arrow (Top)	Półstrzałka (góra)
+	Half Arrow at the Start (Bottom)	Półstrzałka na początku (dół)
+	Half Arrow at the Start (Top)	Półstrzałka na początku (góra)
+	Half Arrow at the Start, Dashed (Bottom)	Półstrzałka na początku, przerywana (dół)
+	Half Arrow at the Start, Dashed (Top)	Półstrzałka na początku, przerywana (góra)
+	Half Arrow, Dashed (Bottom)	Półstrzałka, przerywana (dół)
+	Half Arrow, Dashed (Top)	Półstrzałka, przerywana (góra)
+	Hexagon	Sześciokąt
+	Hide the Legend	Ukryj legendę
+	Highlighted	Wyróżniony
+	History	Historia
+	Horizontal Bars	Słupki poziome
+	Icon	Ikona
+	Id	Identyfikator
+	Idea	Pomysł
+	Ideas	Pomysły
+	Identifying Relationship	Związek identyfikujący
+	In Group	W grupie
+	In Progress	W toku
+	Inheritance	Dziedziczenie
+	Inheritance (from the end)	Dziedziczenie (od końca)
+	Insert Row Below	Wstaw wiersz poniżej
+	Inspection	Inspekcja
+	Interface Requirement	Wymaganie interfejsu
+	Internet	Internet
+	Item	Element
+	Items	Elementy
+	Join	Złączenie
+	Junction	Węzeł
+	Kanban Board	Tablica Kanban
+	Last Bit	Ostatni bit
+	Left of	Na lewo od
+	Left to Right	Od lewej do prawej
+	Level	Poziom
+	Loop	Pętla
+	Lost (Cross)	Utracone (krzyżyk)
+	Lost Reply (Cross)	Utracona odpowiedź (krzyżyk)
+	Manual Operation	Operacja ręczna
+	Members (+public, -private, #protected; methods end with ())	Składowe (+publiczne, -prywatne, #chronione; metody kończą się na ())
+	Milestone	Kamień milowy
+	Mind Map	Mapa myśli
+	Move Left	Przesuń w lewo
+	Move Right	Przesuń w prawo
+	New Branch	Nowa gałąź
+	Non-identifying Relationship	Związek nieidentyfikujący
+	Number the Messages	Numeruj komunikaty
+	One or more	Jeden lub więcej
+	Option	Opcja
+	Optional	Opcjonalne
+	Order or Parent	Kolejność lub rodzic
+	Over	Nad
+	Packet Layout	Układ pakietu
+	Parallel	Równolegle
+	Parts of this diagram (notes, groups or styles) can't be shown here: applying changes made here drops them. Edit it as text to keep them.	Części tego diagramu (notatki, grupy lub style) nie mogą być tu pokazane: zastosowanie zmian wprowadzonych tutaj je usunie. Edytuj go jako tekst, aby je zachować.
+	People (comma separated)	Osoby (oddzielone przecinkami)
+	Performance Requirement	Wymaganie wydajnościowe
+	Period	Okres
+	Person	Osoba
+	Physical Requirement	Wymaganie fizyczne
+	Pie Chart	Wykres kołowy
+	Plain	Zwykły
+	Planned	Zaplanowane
+	Planning	Planowanie
+	Point	Punkt
+	Polygons	Wielokąty
+	Predefined Process	Proces zdefiniowany
+	Preparation	Przygotowanie
+	Priority	Priorytet
+	Quadrant Chart	Wykres ćwiartek
+	Radar Chart	Wykres radarowy
+	Realization	Realizacja
+	Realization (from the end)	Realizacja (od końca)
+	Refines	Uszczegóławia
+	Requirement	Wymaganie
+	Requirement Diagram	Diagram wymagań
+	Reverted	Wycofany
+	Right of	Na prawo od
+	Rings	Pierścienie
+	Risk	Ryzyko
+	Rounded	Zaokrąglony
+	Sankey Flows	Przepływy Sankeya
+	Satisfies	Spełnia
+	Score (1 to 5)	Ocena (1 do 5)
+	Section	Sekcja
+	Sequence Diagram	Diagram sekwencji
+	Service	Usługa
+	Show the Values	Pokaż wartości
+	Show the whole drawing	Pokaż cały rysunek
+	Slice	Wycinek
+	Slices	Wycinki
+	Software System	System oprogramowania
+	Start	Początek
+	Start (date, or after id)	Początek (data lub after identyfikator)
+	Start Cardinality	Liczność na początku
+	Start Multiplicity	Krotność na początku
+	Start Side	Strona początku
+	State Diagram	Diagram stanów
+	Status	Stan
+	Step	Krok
+	Steps	Kroki
+	Stereotype	Stereotyp
+	Structure	Struktura
+	Switch to Branch	Przełącz na gałąź
+	System Boundary	Granica systemu
+	System Context	Kontekst systemu
+	System Database	Baza danych systemu
+	System Queue	Kolejka systemu
+	Task	Zadanie
+	Tasks	Zadania
+	Terminator	Terminator
+	Test	Test
+	The diagram's Mermaid text	Tekst Mermaid diagramu
+	Thick Arrow	Gruba strzałka
+	Thick Line	Gruba linia
+	This diagram uses what the visual editor can't show yet; its text is kept as written.	Ten diagram używa elementów, których edytor wizualny jeszcze nie pokazuje; jego tekst pozostaje bez zmian.
+	Tick Interval	Odstęp podziałki
+	Ticket	Zgłoszenie
+	Timeline	Oś czasu
+	To the End's Group	Do grupy końca
+	Today Marker	Znacznik dzisiejszego dnia
+	Top Left Quadrant	Lewa górna ćwiartka
+	Top Right Quadrant	Prawa górna ćwiartka
+	Top to Bottom	Z góry na dół
+	Traces	Śledzi
+	Transition	Przejście
+	Trapezoid (Inverted)	Trapez (odwrócony)
+	Treemap	Mapa drzewa
+	User Journey	Ścieżka użytkownika
+	Value (leaves)	Wartość (liście)
+	Value Axis Maximum	Maksimum osi wartości
+	Value Axis Minimum	Minimum osi wartości
+	Value Axis Title	Tytuł osi wartości
+	Verification	Weryfikacja
+	Verifies	Weryfikuje
+	Very High	Bardzo wysoki
+	Very Low	Bardzo niski
+	X (0 to 1)	X (0 do 1)
+	X Axis, Left	Oś X, lewa
+	X Axis, Right	Oś X, prawa
+	Y (0 to 1)	Y (0 do 1)
+	Y Axis, Bottom	Oś Y, dół
+	Y Axis, Top	Oś Y, góra
+	ZenUML Sequence	Sekwencja ZenUML
+	Zero or more	Zero lub więcej
+	Zero or one	Zero lub jeden
+	Pick a kind of diagram.	Wybierz rodzaj diagramu.
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)
 # Split Cells and Convert Text to Table (#2592)
 	Merge cells before split	Scal komórki przed podziałem
 	Table size	Rozmiar tabeli

@@ -1050,6 +1050,27 @@ impl Reader<'_> {
         }
         let mut obj = if let Some(c) = gd.child("wpc:wpc") {
             self.read_canvas(sc, c, rels, w, h, float)
+        } else if let Some(lc) = gd.child("lc:lockedCanvas") {
+            // Word 2007's drawing canvas (`lc:lockedCanvas`, ECMA-376 §20.3.2.1): its shapes'
+            // text is DrawingML, kept as a group of text boxes so no word is lost and the shapes
+            // keep their places; a canvas with no text but a picture is that picture.
+            match self.read_locked_canvas(lc, w, h, float.clone()) {
+                Some(o) => o,
+                None if gd.find("a:blip").is_some() => self.read_pic(gd, rels, w, h, alt.clone(), float)?,
+                None => InlineObject::Shape {
+                    kind: ShapeKind::Rectangle,
+                    w,
+                    h,
+                    fill: None,
+                    stroke: None,
+                    stroke_width: 0.0,
+                    float,
+                    story: None,
+                    freeform: None,
+                    effects: Default::default(),
+                    extra: Default::default(),
+                },
+            }
         } else if let Some(g) = gd.child("wpg:wgp") {
             self.read_group(sc, g, rels, w, h, float)?
         } else if gd.find("a:blip").is_some() {
@@ -1483,6 +1504,112 @@ impl Reader<'_> {
         {
             extra.id = id;
             self.shape_ids = true;
+        }
+    }
+
+    /// A locked canvas (`lc:lockedCanvas`) as a group of its shapes' text: each `a:sp` with text
+    /// becomes a text box (no fill or outline) at the shape's own place, so the text reads in the
+    /// drawing's order and a shape's lines stay together; nested `a:grpSp` are flattened into it.
+    /// `None` when it holds no text.
+    fn read_locked_canvas(&mut self, lc: &El, w: f32, h: f32, float: Float) -> Option<InlineObject> {
+        let x = group_xfrm(lc.child("a:grpSpPr"));
+        let (ch_w, ch_h) = match x.ch_ext {
+            Some((cw, ch)) if cw > 0.0 && ch > 0.0 => (cw, ch),
+            _ => (w.max(1.0), h.max(1.0)),
+        };
+        let (cx, cy) = x.ch_off.unwrap_or((0.0, 0.0));
+        let mut children = Vec::new();
+        self.canvas_text_members(lc, (-cx, -cy, 1.0, 1.0), (w, h), 0, &mut children);
+        if children.is_empty() {
+            return None;
+        }
+        Some(InlineObject::Group { w, h, float, ch_w, ch_h, children, canvas: None })
+    }
+
+    /// The text-bearing members of locked canvas (or `a:grpSp`) `g` into `out`, mapped into the
+    /// canvas's space by `t` (x0, y0, sx, sy). A shape that states no size takes the canvas's
+    /// (`whole`), as the canvas's text used to.
+    fn canvas_text_members(
+        &mut self,
+        g: &El,
+        t: (f32, f32, f32, f32),
+        whole: (f32, f32),
+        depth: usize,
+        out: &mut Vec<wordcraft_doc::para::GroupChild>,
+    ) {
+        fn paragraphs(e: &El, out: &mut Vec<String>, depth: usize) {
+            if depth > 64 || out.len() >= 2_000 {
+                return;
+            }
+            if e.name == "a:txBody" {
+                for p in e.children("a:p") {
+                    let mut t = String::new();
+                    for c in p.els() {
+                        match c.name.as_str() {
+                            "a:r" | "a:fld" => t.push_str(&c.child("a:t").map(El::text).unwrap_or_default()),
+                            "a:br" => t.push(' '),
+                            _ => {}
+                        }
+                    }
+                    let t = t.trim().to_string();
+                    if !t.is_empty() {
+                        out.push(t);
+                    }
+                }
+                return;
+            }
+            for c in e.els() {
+                paragraphs(c, out, depth + 1);
+            }
+        }
+        let (x0, y0, sx, sy) = t;
+        let max = crate::units::MAX_LEN_PT;
+        let fit = |v: f32, lo: f32| wordcraft_geom::finite(v).clamp(lo, max);
+        for e in g.els() {
+            if out.len() >= wordcraft_doc::para::MAX_GROUP_CHILDREN {
+                return;
+            }
+            match e.name.as_str() {
+                "a:grpSp" => {
+                    if depth >= 8 {
+                        continue;
+                    }
+                    let x = group_xfrm(e.child("a:grpSpPr"));
+                    let ((ox, oy), (ew, eh)) = (x.off, x.ext);
+                    let (cox, coy) = x.ch_off.unwrap_or((0.0, 0.0));
+                    let (cw, ch) = x.ch_ext.filter(|(cw, ch)| *cw > 0.0 && *ch > 0.0).unwrap_or((ew.max(1.0), eh.max(1.0)));
+                    let (kx, ky) = (ew / cw, eh / ch);
+                    let nt = (x0 + (ox - cox * kx) * sx, y0 + (oy - coy * ky) * sy, sx * kx, sy * ky);
+                    self.canvas_text_members(e, nt, whole, depth + 1, out);
+                }
+                "a:sp" => {
+                    let mut texts = Vec::new();
+                    paragraphs(e, &mut texts, 0);
+                    if texts.is_empty() {
+                        continue;
+                    }
+                    let x = group_xfrm(e.child("a:spPr"));
+                    let ((ox, oy), (ew, eh)) = (x.off, x.ext);
+                    let (ew, eh) = if ew > 0.0 && eh > 0.0 { (ew, eh) } else { whole };
+                    let blocks: Blocks = texts.iter().map(|t| wordcraft_doc::para_block(Paragraph::with_text(t, Default::default()))).collect();
+                    let story = Some(self.doc.add_part(PartKind::TextBox, blocks));
+                    let obj = InlineObject::Shape {
+                        kind: ShapeKind::TextBox,
+                        w: fit(ew * sx, 0.0),
+                        h: fit(eh * sy, 0.0),
+                        fill: None,
+                        stroke: None,
+                        stroke_width: 0.0,
+                        float: Float::default(),
+                        story,
+                        freeform: None,
+                        effects: Default::default(),
+                        extra: Default::default(),
+                    };
+                    out.push(wordcraft_doc::para::GroupChild { x: fit(x0 + ox * sx, -max), y: fit(y0 + oy * sy, -max), obj });
+                }
+                _ => {}
+            }
         }
     }
 
