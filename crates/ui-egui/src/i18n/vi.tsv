@@ -3223,3 +3223,23 @@ template	Letter	Thư
 	Import…	Nhập…
 	Emoji	Biểu tượng cảm xúc
 	Markdown and pictures (*.zip)	Markdown và hình ảnh (*.zip)
+	Find Emoji	Tìm biểu tượng cảm xúc
+	Smileys & Emotion	Mặt cười và cảm xúc
+	People & Body	Con người và cơ thể
+	Animals & Nature	Động vật và thiên nhiên
+	Food & Drink	Đồ ăn và thức uống
+	Travel & Places	Du lịch và địa điểm
+	Activities	Hoạt động
+	Objects	Đồ vật
+	Flags	Cờ
+	Recently Used	Dùng gần đây
+	Search emoji	Tìm biểu tượng cảm xúc
+	Skin tone	Màu da
+	No emoji found	Không tìm thấy biểu tượng cảm xúc
+	No recent emoji yet	Chưa có biểu tượng cảm xúc dùng gần đây
+	File name	Tên tệp
+	Chrome and Edge let you choose the folder, and save there again without asking; other browsers save to Downloads.	Chrome và Edge cho phép chọn thư mục rồi lưu lại vào đó mà không hỏi; các trình duyệt khác lưu vào thư mục Tải xuống.
+	The browser makes the PDF with Plume's own engine, as it can't run TeX: the template's paper, margins and fonts are applied.	Trình duyệt tạo PDF bằng bộ máy riêng của Plume vì không chạy được TeX: khổ giấy, lề và phông chữ của mẫu được áp dụng.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Không tìm thấy bộ máy TeX: bản Plume này không có Tectonic. Hãy cài nó (brew install tectonic) hoặc MacTeX rồi xuất lại.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Không tìm thấy bộ máy TeX: bản Plume này không có Tectonic. Hãy cài nó (winget install TectonicTypesetting.Tectonic) hoặc MiKTeX rồi xuất lại.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Không tìm thấy bộ máy TeX: bản Plume này không có Tectonic. Hãy cài Tectonic hoặc TeX Live bằng trình quản lý gói rồi xuất lại.

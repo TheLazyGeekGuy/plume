@@ -63,6 +63,44 @@ copy_font_licences() {
   done
 }
 
+# Plume: the TeX engine its packages ship, for PDF export through a template (Tectonic, MIT;
+# https://tectonic-typesetting.github.io). Override the version with TECTONIC_VERSION, or give a
+# binary with TECTONIC_BIN (one platform's) to skip the download.
+TECTONIC_VERSION="${TECTONIC_VERSION:-0.15.0}"
+
+# fetch_tectonic <rust-target> <dest-file>: Tectonic's release binary for that target at
+# <dest-file>. Warns and returns 1 when there's none (a platform Tectonic doesn't build for, no
+# network): the package is then made without it, and Plume uses an installed TeX engine.
+fetch_tectonic() {
+  local target="$1" dest="$2" ext=tar.gz tmp url bin
+  if [ -n "${TECTONIC_BIN:-}" ] && [ -f "$TECTONIC_BIN" ]; then
+    install -m755 -D "$TECTONIC_BIN" "$dest" 2>/dev/null || { mkdir -p "$(dirname "$dest")" && cp "$TECTONIC_BIN" "$dest" && chmod 755 "$dest"; }
+    return 0
+  fi
+  case "$target" in
+    *-windows-*) ext=zip ;;
+    *-linux-gnu) target="${target%-gnu}-musl" ;;
+  esac
+  url="https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%40${TECTONIC_VERSION}/tectonic-${TECTONIC_VERSION}-${target}.${ext}"
+  tmp="$(mktemp -d)"
+  if ! curl -fsSL -o "$tmp/tectonic.$ext" "$url"; then
+    warn "no Tectonic $TECTONIC_VERSION for $target ($url): this package has no PDF engine of its own"
+    rm -rf "$tmp"
+    return 1
+  fi
+  if [ "$ext" = zip ]; then unzip -q -o "$tmp/tectonic.zip" -d "$tmp"; else tar -xzf "$tmp/tectonic.$ext" -C "$tmp"; fi
+  bin="$(find "$tmp" -type f \( -name tectonic -o -name tectonic.exe \) | head -n 1)"
+  if [ -z "$bin" ]; then
+    warn "the Tectonic $TECTONIC_VERSION archive for $target has no tectonic binary"
+    rm -rf "$tmp"
+    return 1
+  fi
+  mkdir -p "$(dirname "$dest")"
+  cp "$bin" "$dest"
+  chmod 755 "$dest"
+  rm -rf "$tmp"
+}
+
 # Portable SHA-256 of a file (prints just the hash).
 sha256() {
   if command -v sha256sum >/dev/null; then sha256sum "$1" | cut -d' ' -f1; else shasum -a 256 "$1" | cut -d' ' -f1; fi

@@ -35,6 +35,39 @@ pub struct Model {
 
 include!(concat!(env!("OUT_DIR"), "/credits.rs"));
 
+/// One project's credits: Plume's own, and WordCraft's, the project Plume is based on.
+#[derive(Clone, Copy, Debug)]
+pub struct Project {
+    pub name: &'static str,
+    pub contributors: &'static [Contributor],
+    pub models: &'static [Model],
+    pub total_commits: u64,
+}
+
+/// The projects the About window credits: Plume first, then WordCraft.
+pub fn projects() -> [Project; 2] {
+    [
+        Project { name: wordcraft_brand::APP_NAME, contributors: PLUME_CONTRIBUTORS, models: PLUME_MODELS, total_commits: PLUME_TOTAL_COMMITS },
+        Project { name: "WordCraft", contributors: CONTRIBUTORS, models: MODELS, total_commits: TOTAL_COMMITS },
+    ]
+}
+
+/// The project chooser above a credits tab; gives the chosen project.
+fn project_picker(ui: &mut egui::Ui) -> Project {
+    let id = egui::Id::new("credits_project");
+    let mut k = ui.data_mut(|d| d.get_temp::<usize>(id)).unwrap_or(0);
+    let all = projects();
+    ui.horizontal(|ui| {
+        for (i, p) in all.iter().enumerate() {
+            if ui.selectable_label(k == i, RichText::new(p.name).strong()).clicked() {
+                k = i;
+            }
+        }
+    });
+    ui.data_mut(|d| d.insert_temp(id, k));
+    all.get(k).copied().unwrap_or(all[0])
+}
+
 /// Which name to show. Display and real names fall back to the `@username` when not given.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum NameMode {
@@ -212,6 +245,7 @@ impl Default for View {
 
 /// About ▸ Contributors: a name toggle, a sort, and the list as a grab bag or a table.
 pub fn contributors_ui(ui: &mut egui::Ui) {
+    let project = project_picker(ui);
     let id = egui::Id::new("credits_view");
     let mut v = ui.data_mut(|d| d.get_temp::<View>(id)).unwrap_or_default();
     ui.horizontal_wrapped(|ui| {
@@ -242,10 +276,10 @@ pub fn contributors_ui(ui: &mut egui::Ui) {
             v.table = true;
         }
     });
-    let list = sorted(CONTRIBUTORS, v.names, v.key, v.ascending);
+    let list = sorted(project.contributors, v.names, v.key, v.ascending);
     let summary = crate::i18n::fmt(
         tl!("{contributors} contributors · {commits} commits"),
-        &[("contributors", &list.len().to_string()), ("commits", &group(TOTAL_COMMITS))],
+        &[("contributors", &list.len().to_string()), ("commits", &group(project.total_commits))],
     );
     ui.label(RichText::new(summary).small().weak());
     ui.separator();
@@ -300,23 +334,25 @@ fn table(ui: &mut egui::Ui, list: &[&Contributor], v: &mut View) {
 
 /// About ▸ Models: AI models credited in Co-Authored-By trailers.
 pub fn models_ui(ui: &mut egui::Ui) {
-    if MODELS.is_empty() {
+    let project = project_picker(ui);
+    let models = project.models;
+    if models.is_empty() {
         ui.label(tl!("No model credits were built into this copy."));
         return;
     }
-    let assisted: u64 = MODELS.iter().map(|m| m.commits).max().unwrap_or(0).max(1);
+    let assisted: u64 = models.iter().map(|m| m.commits).max().unwrap_or(0).max(1);
     egui::ScrollArea::both().auto_shrink([false, true]).max_height(360.0).show(ui, |ui| {
         egui::Grid::new("credits_models").striped(true).num_columns(6).show(ui, |ui| {
             for h in ["Company", "Model", "Version", "Commits", "% of all commits", "Lines +/−"] {
                 ui.label(RichText::new(tl!(h)).strong());
             }
             ui.end_row();
-            for m in MODELS {
+            for m in models {
                 ui.label(m.company);
                 ui.label(m.model);
                 ui.label(m.version);
                 ui.label(group(m.commits));
-                ui.label(format!("{:.0}%", 100.0 * m.commits as f64 / TOTAL_COMMITS.max(assisted) as f64));
+                ui.label(format!("{:.0}%", 100.0 * m.commits as f64 / project.total_commits.max(assisted) as f64));
                 ui.label(format!("+{} / −{}", group(m.lines_added), group(m.lines_deleted)));
                 ui.end_row();
             }
@@ -362,6 +398,15 @@ mod tests {
 
     fn logins(v: &[&Contributor]) -> Vec<&'static str> {
         v.iter().map(|c| c.login).collect()
+    }
+
+    /// Plume credits its own contributors and models first, then WordCraft's, both built in.
+    #[test]
+    fn plume_and_wordcraft_are_both_credited() {
+        let [plume, wordcraft] = projects();
+        assert_eq!((plume.name, wordcraft.name), (wordcraft_brand::APP_NAME, "WordCraft"));
+        assert!(!plume.contributors.is_empty() && !plume.models.is_empty() && plume.total_commits > 0);
+        assert!(!wordcraft.contributors.is_empty());
     }
 
     #[test]

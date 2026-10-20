@@ -57,6 +57,10 @@ rm -rf "$WORK"
 # ---- stage an FHS tree (shared by every format) -------------------------------------------------
 install -Dm755 "$BIN/wordcraft" "$STAGE/usr/bin/wordcraft"
 install -Dm755 "$BIN/wordcraft-cli" "$STAGE/usr/bin/wordcraft-cli"
+# Plume: the Tectonic TeX engine for PDF export through a template (/usr/lib/plume/tectonic,
+# where Plume looks beside /usr/bin/wordcraft). Always there, empty without Tectonic.
+mkdir -p "$STAGE/usr/lib/plume"
+fetch_tectonic "${CROSS_TARGET:-$ARCH-unknown-linux-gnu}" "$STAGE/usr/lib/plume/tectonic" || true
 "${CROSS_COMPILE:-}strip" "$STAGE/usr/bin/wordcraft" "$STAGE/usr/bin/wordcraft-cli" 2>/dev/null || true
 install -Dm644 "$HERE/$APP_ID.desktop" "$STAGE/usr/share/applications/$APP_ID.desktop"
 install -Dm644 "$HERE/$APP_ID.mime.xml" "$STAGE/usr/share/mime/packages/$APP_ID.xml"

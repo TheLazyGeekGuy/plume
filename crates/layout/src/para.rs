@@ -958,8 +958,15 @@ impl<'a> Builder<'a> {
                 _ => rc_cs.is_some() && rc.uses_complex(dc),
             };
             let prim = if complex { primary_cs.unwrap_or(primary) } else { primary };
+            // Plume: a character followed by U+FE0F asks to be drawn as an emoji (❤️, ☺️).
+            let as_emoji =
+                !complex && text.get(i + c.len_utf8()..).is_some_and(|r| r.starts_with('\u{FE0F}')) && !wordcraft_fonts::continues_emoji(c);
+            let emoji_face = if as_emoji { wordcraft_fonts::FontDb::global().emoji_face(dc).map(|f| FaceRef::of(&f)) } else { None };
             let face = match cur {
                 Some(k) if mark => k.face,
+                // Joiners, skin tones and tags stay in the emoji's face.
+                Some(SegKey { face: Some(f), .. }) if wordcraft_fonts::continues_emoji(c) && f.covers(dc) => Some(f),
+                _ if emoji_face.is_some() => emoji_face,
                 _ if !complex && east_asian(c) && primary_ea.is_some_and(|f| f.covers(c)) => primary_ea,
                 // The run's one substitute face for a missing Thai font (#1549).
                 _ if !c.is_control() && c != SOFT_HYPHEN && run_face.is_some_and(|f| f.covers(dc)) => run_face,

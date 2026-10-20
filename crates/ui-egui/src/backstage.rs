@@ -419,6 +419,11 @@ pub(crate) fn forget_open_error(ctx: &egui::Context) {
 /// Open a file from the Recent list. A file that can't be opened (deleted, moved, unreadable)
 /// leaves File open so the list can say why, rather than closing it on a greyed-out window.
 fn open_recent(app: &mut WordApp, path: &str) -> Result<(), String> {
+    // Plume, web: the document is in the browser's store; it opens when it arrives.
+    if let Some(f) = &app.services.open_stored_document {
+        f(path);
+        return Ok(());
+    }
     app.run("file.open", json!({"path": path}))?;
     app.ui.backstage = false;
     app.canvas.want_focus = true;
@@ -456,7 +461,10 @@ fn open_page(app: &mut WordApp, ui: &mut Ui) {
 /// opens it, which is not what Save As is for.
 fn save_as_page(app: &mut WordApp, ui: &mut Ui) {
     heading(ui, "Save As");
-    if ui.button(egui::RichText::new(tl!("Browse…")).font(medium(14.0))).clicked() {
+    // Plume, web: no file dialog to pick a format in; the page asks for the name and the format.
+    if app.services.download.is_some() {
+        web_save_as(app, ui);
+    } else if ui.button(egui::RichText::new(tl!("Browse…")).font(medium(14.0))).clicked() {
         app.save_as_dialog();
     }
     // Plume: as a Markdown document in a GitHub, GitLab or Forgejo project.
@@ -467,6 +475,67 @@ fn save_as_page(app: &mut WordApp, ui: &mut Ui) {
     {
         let _ = app.run("ui.dialog", json!({"name": "saveToForge"}));
     }
+}
+
+/// The formats Save As offers in the browser: (label, extension). Markdown's own formats first;
+/// Word, OpenDocument and RTF only outside Plume's Markdown profile.
+pub(crate) fn web_save_formats(app: &WordApp) -> Vec<(&'static str, &'static str)> {
+    let mut v = vec![
+        ("Markdown (*.md)", "md"),
+        ("Markdown and pictures (*.zip)", "zip"),
+        ("TextPack (*.textpack)", "textpack"),
+        ("PDF document (*.pdf)", "pdf"),
+        ("Web page (*.html)", "html"),
+        ("Plain text (*.txt)", "txt"),
+    ];
+    if !crate::widgets::profile_on(app) {
+        v.splice(0..0, [("Word document (*.docx)", "docx"), ("OpenDocument Text (*.odt)", "odt"), ("Rich Text Format (*.rtf)", "rtf")]);
+    }
+    v
+}
+
+/// Plume, web: Save As's file name and format, then Save.
+fn web_save_as(app: &mut WordApp, ui: &mut Ui) {
+    let id = egui::Id::new("web_save_as");
+    let formats = web_save_formats(app);
+    let current = app.web_save_name().unwrap_or_else(|| app.default_save_name());
+    let (default_stem, default_ext) = match current.rsplit_once('.') {
+        Some((s, e)) => (s.to_string(), e.to_ascii_lowercase()),
+        None => (current.clone(), "md".to_string()),
+    };
+    let (mut stem, mut ext) = ui.data(|d| d.get_temp::<(String, String)>(id)).unwrap_or((default_stem, default_ext));
+    if !formats.iter().any(|(_, e)| *e == ext) {
+        ext = formats.first().map_or("md", |(_, e)| *e).to_string();
+    }
+    egui::Grid::new("web_save_as_grid").num_columns(2).spacing(vec2(12.0, 8.0)).show(ui, |ui| {
+        ui.label(tl!("File name"));
+        ui.add(egui::TextEdit::singleline(&mut stem).desired_width(320.0));
+        ui.end_row();
+        ui.label(tl!("Format"));
+        ui.vertical(|ui| {
+            for (label, e) in &formats {
+                ui.radio_value(&mut ext, (*e).to_string(), tl!(label));
+            }
+        });
+        ui.end_row();
+    });
+    ui.add_space(8.0);
+    let name = format!("{}.{ext}", stem.trim().trim_end_matches(&format!(".{ext}")));
+    let ready = !stem.trim().is_empty();
+    if ui.add_enabled(ready, egui::Button::new(egui::RichText::new(tl!("Save")).font(medium(14.0)))).clicked() {
+        let r = if ext == "pdf" { app.run("file.exportPdf", json!({"path": name})) } else { app.run("file.saveAs", json!({"path": name})) };
+        if r.is_ok() {
+            app.ui.backstage = false;
+            app.canvas.want_focus = true;
+        }
+    }
+    ui.add_space(6.0);
+    ui.label(
+        egui::RichText::new(tl!("Chrome and Edge let you choose the folder, and save there again without asking; other browsers save to Downloads."))
+            .small()
+            .weak(),
+    );
+    ui.data_mut(|d| d.insert_temp(id, (stem, ext)));
 }
 
 fn info_page(app: &mut WordApp, ui: &mut Ui) {
@@ -1039,7 +1108,11 @@ mod tests {
         // Save (web: a download) writes them into docProps/core.xml, with fresh save stamps.
         let a = h.state_mut();
         let created = a.session.doc.core.created.clone();
-        a.run("file.save", json!({})).unwrap();
+        // Plume: a first Save in the browser asks for the name and the format (Save As); later
+        // ones save under it.
+        assert_eq!(a.run("file.save", json!({})).unwrap(), json!({"pending": "saveAs"}));
+        assert!(got.borrow().is_empty() && a.ui.backstage_page == "saveAs");
+        a.run("file.saveAs", json!({"path": "Notes.docx"})).unwrap();
         a.run("file.save", json!({})).unwrap();
         let (name, bytes) = got.borrow_mut().pop().unwrap();
         let back = wordcraft_engine::io::open_bytes(&name, &bytes).unwrap();
@@ -1147,7 +1220,57 @@ mod tests {
         h.run_steps(4);
         h.get_by_label("Save").click();
         h.run_steps(4);
+        // Plume: a first save in the browser asks for the name and the format.
+        assert!(h.state().ui.backstage && h.state().ui.backstage_page == "saveAs", "a first save asks");
+        assert!(got.borrow().is_empty());
+        h.get_all_by_label("Save").last().unwrap().click();
+        h.run_steps(4);
         assert!(!h.state().ui.backstage, "successful save closes backstage");
+        assert_eq!(got.borrow().last().map(|(n, _)| n.ends_with(".docx")), Some(true));
+        // Saved once, Save saves again under that name without asking.
+        h.state_mut().run("text.insert", json!({"text": "More"})).unwrap();
+        h.state_mut().run("file.save", json!({})).unwrap();
+        assert_eq!(got.borrow().len(), 2);
+    }
+
+    /// Plume, web: Save As offers the name and Markdown's formats (Word's only outside the Markdown
+    /// profile); a ZIP saved keeps the document, opening a file lists it in Recent and saves
+    /// back under its name.
+    #[test]
+    fn web_save_as_offers_names_and_formats() {
+        let got: std::rc::Rc<std::cell::RefCell<Vec<(String, Vec<u8>)>>> = Default::default();
+        let kept: std::rc::Rc<std::cell::RefCell<Vec<String>>> = Default::default();
+        let (sink, keep) = (got.clone(), kept.clone());
+        let services = Services {
+            download: Some(Box::new(move |n: &str, b: &[u8]| {
+                sink.borrow_mut().push((n.to_string(), b.to_vec()));
+                Ok(())
+            })),
+            remember_document: Some(Box::new(move |n: &str, _: &[u8]| keep.borrow_mut().push(n.to_string()))),
+            inbox: Some(crate::Inbox::default()),
+            ..Default::default()
+        };
+        let mut s = wordcraft_engine::Session::new(wordcraft_doc::Document::from_text("Hello"));
+        s.native_markdown = true;
+        let mut a = WordApp::new(s, services);
+        let exts: Vec<&str> = super::web_save_formats(&a).iter().map(|(_, e)| *e).collect();
+        assert_eq!(exts, ["md", "zip", "textpack", "pdf", "html", "txt"], "the Markdown profile's formats");
+        a.run("file.saveAs", json!({"path": "Plan.zip"})).unwrap();
+        assert_eq!(got.borrow().last().map(|(n, _)| n.as_str()), Some("Plan.zip"));
+        assert!(!a.session.dirty && a.web_save_name().as_deref() == Some("Plan.zip"));
+        assert_eq!(kept.borrow().last().map(String::as_str), Some("Plan.zip"));
+        assert_eq!(a.ui.recent.first().map(String::as_str), Some("Plan.zip"));
+        // A Markdown file opened in the browser saves back under its name.
+        let md = b"# Notes\n".to_vec();
+        a.services.inbox.as_ref().unwrap().lock().unwrap().push(("notes.md".into(), md));
+        a.drain_inbox();
+        a.run("text.insert", json!({"text": "x"})).unwrap();
+        a.run("file.save", json!({})).unwrap();
+        assert_eq!(got.borrow().last().map(|(n, _)| n.as_str()), Some("notes.md"));
+        assert!(kept.borrow().contains(&"notes.md".to_string()));
+        // Outside the Markdown profile, Word's formats too.
+        a.session.prefs.markdown_strict = false;
+        assert!(super::web_save_formats(&a).iter().any(|(_, e)| *e == "docx"));
     }
 
     /// #1124: the side menu had no Close. It sits after Export and closes the document, asking

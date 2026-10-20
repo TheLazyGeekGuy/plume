@@ -53,6 +53,7 @@ pub mod dialogs_ribbon;
 pub mod dialogs_smart_art;
 pub mod dialogs_table_style;
 pub mod dialogs_templates;
+pub mod emoji_picker;
 pub mod equation_tab;
 /// The built-in file browser, for desktops without a system file dialog (#576).
 #[cfg(not(target_arch = "wasm32"))]
@@ -180,6 +181,16 @@ pub struct Services {
     pub forget_font: Option<Box<dyn Fn(&str)>>,
     /// Web: request browser to query and load local installed fonts (`window.queryLocalFonts()`).
     pub load_system_fonts: Option<Box<dyn Fn()>>,
+    /// Plume, web: keep a document opened or saved in the browser (its file name, its bytes) for
+    /// File › Open's Recent list on the next visit.
+    pub remember_document: Option<Box<dyn Fn(&str, &[u8])>>,
+    /// Plume, web: open a document the Recent list names, from the browser's store; it arrives
+    /// through `inbox` like a picked file.
+    pub open_stored_document: Option<Box<dyn Fn(&str)>>,
+    /// Plume, web: forget where the last save went, so the next save asks for the place again
+    /// (Save As). Without it, a later Save writes to the same file without asking, where the
+    /// browser can (Chrome, Edge).
+    pub forget_save_location: Option<Box<dyn Fn()>>,
     /// Desktop: File › Options › General › Make WordCraft the default for Word documents (#295),
     /// only from that button (never a programmatic command). Windows opens the Settings app's
     /// Default apps page (apps can't set defaults themselves); Linux and BSD set it with
@@ -631,6 +642,9 @@ pub struct WordApp {
     autosave_path: Option<std::path::PathBuf>,
     /// Web: saves the browser's picker hasn't finished yet ([`async_saves`], #1315).
     saves_in_flight: Vec<SaveInFlight>,
+    /// Plume, web: the file name the document was last saved under (or opened from, for a
+    /// Markdown file), with the document and the file it belongs to; a later Save reuses it.
+    pub(crate) web_save: Option<(u64, Option<std::path::PathBuf>, String)>,
     /// Web: the command a Save Changes prompt held back until its picker save ends (#1315).
     awaiting_save: Option<AwaitingSave>,
     /// The file dialog the host is showing, and what its answer is for ([`file_dialogs`]).
@@ -742,6 +756,7 @@ impl WordApp {
             read_aloud_error: None,
             autosave_path: None,
             saves_in_flight: Vec::new(),
+            web_save: None,
             awaiting_save: None,
             change_picture_target: None,
             recipient_list_pending: false,
@@ -889,6 +904,16 @@ impl WordApp {
             self.ui.backstage = true;
             self.ui.backstage_page = "recover".into();
         }
+        // Plume, web: a first Save, and every Save As, ask for the name and the format (File ›
+        // Save As), as the desktop's dialog does; the browser chooses the folder.
+        if self.services.download.is_some()
+            && params.get("path").is_none()
+            && (id == "file.saveAs" || (id == "file.save" && self.web_save_name().is_none() && self.session.path.is_none()))
+        {
+            self.ui.backstage = true;
+            self.ui.backstage_page = "saveAs".into();
+            return Ok(json!({"pending": "saveAs"}));
+        }
         // A button whose command needs input the user hasn't given yet opens its dialog (#240).
         if let Some(name) = input_dialog(id, &params)
             && widgets::enabled(self, id)
@@ -1000,7 +1025,18 @@ impl WordApp {
         }
         // Web: saving and exporting become downloads.
         if self.services.download.is_some() && matches!(id, "file.save" | "file.saveAs" | "file.exportPdf" | "file.exportPng") {
-            let name = params.get("path").and_then(Value::as_str).map(str::to_string).unwrap_or_else(|| self.default_save_name());
+            let name = params
+                .get("path")
+                .and_then(Value::as_str)
+                .map(str::to_string)
+                .or_else(|| self.web_save_name())
+                .unwrap_or_else(|| self.default_save_name());
+            // Save As writes a new file: the browser asks where again.
+            if id == "file.saveAs"
+                && let Some(f) = &self.services.forget_save_location
+            {
+                f();
+            }
             let name = if id == "file.exportPdf" && !name.ends_with(".pdf") { format!("{name}.pdf") } else { name };
             // A save with a password encrypts this and later saves (`file.save`'s `password`).
             if matches!(id, "file.save" | "file.saveAs")
@@ -1045,6 +1081,9 @@ impl WordApp {
             let marked_saved = matches!(id, "file.save" | "file.saveAs") && (keeps_everything(&name) || native_md);
             if marked_saved {
                 self.session.dirty = false;
+                // Plume: the next Save goes to the same file, and Open lists it.
+                self.web_save = Some((self.session.document_id(), self.session.path.clone(), name.clone()));
+                self.remember_web_document(&name, &bytes);
             }
             // The browser's picker writes the file later (#1315): until it says how that went,
             // the document's save isn't confirmed.
@@ -1933,9 +1972,24 @@ impl WordApp {
             .is_some_and(|e| e.eq_ignore_ascii_case("doc") || e.eq_ignore_ascii_case("dot"))
     }
 
+    /// Plume, web: the name this document was last saved under in the browser, if any.
+    pub(crate) fn web_save_name(&self) -> Option<String> {
+        self.web_save.as_ref().filter(|(d, p, _)| *d == self.session.document_id() && *p == self.session.path).map(|(_, _, n)| n.clone())
+    }
+
+    /// Plume, web: keep a document's bytes in the browser for Open's Recent list.
+    fn remember_web_document(&mut self, name: &str, bytes: &[u8]) {
+        if let Some(f) = &self.services.remember_document {
+            f(name, bytes);
+        }
+        self.ui.recent.retain(|r| r != name);
+        self.ui.recent.insert(0, name.to_string());
+        self.ui.recent.truncate(MAX_RECENT);
+    }
+
     /// The name Save suggests: the open file's own Word format (so a .docm keeps its macros),
     /// otherwise .docx.
-    fn default_save_name(&self) -> String {
+    pub(crate) fn default_save_name(&self) -> String {
         let ext = self.session.path.as_ref().and_then(|p| p.extension()).map(|e| e.to_string_lossy().to_string());
         match ext {
             // Markdown is the document's own format: everything else saves as a new `.md`.
@@ -2424,7 +2478,7 @@ impl WordApp {
 
     /// Files that arrived asynchronously (web picker, drops): documents open, pictures insert,
     /// recipient lists (CSV/TSV, spreadsheets, or a text file asked for as one) load as recipients.
-    fn drain_inbox(&mut self) {
+    pub(crate) fn drain_inbox(&mut self) {
         let Some(inbox) = self.services.inbox.clone() else { return };
         let files = std::mem::take(&mut *inbox.lock().unwrap_or_else(|e| e.into_inner()));
         let mut placed_picture = false;
@@ -2448,7 +2502,14 @@ impl WordApp {
                 placed_picture = Self::placed_in_text(&r);
                 r
             } else {
-                self.run("file.open", json!({"path": name, "data": wordcraft_engine::cmd::insert::base64_encode(&bytes)}))
+                let r = self.run("file.open", json!({"path": name, "data": wordcraft_engine::cmd::insert::base64_encode(&bytes)}));
+                // Plume, web: a Markdown document saves back under its name; Open lists it.
+                if r.is_ok() {
+                    self.remember_web_document(&name, &bytes);
+                    let own = is_markdown_name(&name) && self.session.imported_from.is_none();
+                    self.web_save = own.then(|| (self.session.document_id(), self.session.path.clone(), name.clone()));
+                }
+                r
             };
             if r.is_ok() {
                 self.ui.backstage = false;

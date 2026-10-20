@@ -65,6 +65,10 @@ contents:
   - src: ${STAGE}/usr/share/
     dst: /usr/share/
     type: tree
+  # Plume: the shipped Tectonic TeX engine (empty folder when the build has none).
+  - src: ${STAGE}/usr/lib/plume/
+    dst: /usr/lib/plume/
+    type: tree
 
 scripts:
   postinstall: packaging/linux/postinst.sh

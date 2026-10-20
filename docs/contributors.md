@@ -21,6 +21,18 @@ this page is the local copy of the decision.
   first or last commit date. The name toggle cycles **Username → Display name → Real name**; a
   missing name falls back to `@username`. Alphabetical sorting is case-insensitive and ignores the `@`.
 
+## In Plume
+
+Plume credits its own people and models first, then WordCraft's, the project it is based on:
+**About ▸ Contributors** and **About ▸ Models** have a Plume / WordCraft switch.
+
+- [`contributors/contributors.json`](../contributors/contributors.json) stays WordCraft's, as
+  upstream generates it (merged from upstream, never edited here).
+- [`contributors/plume.json`](../contributors/plume.json) is Plume's, in the same schema, counting
+  only the commits WordCraft doesn't have. Regenerate it after merging into `main`:
+  `git fetch upstream && cargo xtask plume-credits`. A commit an AI wrote in the repository
+  owner's session is credited to the owner, and its model from the `Co-Authored-By` trailer.
+
 ## In WordCraft
 
 - The About window is `Dialog::About` in `crates/ui-egui/src/dialogs.rs` (Help, or Backstage ▸ About); `ui.dialog {"name":"contributors"}` / `"models"` opens a tab.

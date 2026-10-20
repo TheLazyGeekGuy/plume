@@ -2892,3 +2892,23 @@ preview	Title	Ukázka
 	Import…	Importovat…
 	Emoji	Emoji
 	Markdown and pictures (*.zip)	Markdown a obrázky (*.zip)
+	Find Emoji	Najít emoji
+	Smileys & Emotion	Smajlíci a emoce
+	People & Body	Lidé a tělo
+	Animals & Nature	Zvířata a příroda
+	Food & Drink	Jídlo a pití
+	Travel & Places	Cestování a místa
+	Activities	Aktivity
+	Objects	Předměty
+	Flags	Vlajky
+	Recently Used	Naposledy použité
+	Search emoji	Hledat emoji
+	Skin tone	Odstín pleti
+	No emoji found	Nenalezeno žádné emoji
+	No recent emoji yet	Zatím žádná nedávná emoji
+	File name	Název souboru
+	Chrome and Edge let you choose the folder, and save there again without asking; other browsers save to Downloads.	Chrome a Edge umožňují vybrat složku a poté do ní ukládat bez ptaní; ostatní prohlížeče ukládají do Stažených souborů.
+	The browser makes the PDF with Plume's own engine, as it can't run TeX: the template's paper, margins and fonts are applied.	Prohlížeč vytvoří PDF vlastním enginem Plume, protože nemůže spustit TeX: použije se papír, okraje a písma šablony.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Nebyl nalezen žádný engine TeX: tato kopie Plume nemá Tectonic. Nainstalujte jej (brew install tectonic) nebo MacTeX a exportujte znovu.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Nebyl nalezen žádný engine TeX: tato kopie Plume nemá Tectonic. Nainstalujte jej (winget install TectonicTypesetting.Tectonic) nebo MiKTeX a exportujte znovu.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Nebyl nalezen žádný engine TeX: tato kopie Plume nemá Tectonic. Nainstalujte Tectonic nebo TeX Live správcem balíčků a exportujte znovu.

@@ -57,8 +57,35 @@ fn refresh(app: &mut WordApp) {
     app.pdf_templates.listed = true;
 }
 
+/// In the browser, how a template's PDF is made.
+const WEB_PDF_NOTE: &str =
+    "The browser makes the PDF with Plume's own engine, as it can't run TeX: the template's paper, margins and fonts are applied.";
+
+/// No TeX engine: how to get one on this system (Plume's packages ship Tectonic).
+const NO_ENGINE: &str = if cfg!(target_os = "macos") {
+    "No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again."
+} else if cfg!(windows) {
+    "No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again."
+} else {
+    "No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again."
+};
+
 /// Start an export to `path` on a worker thread.
 pub fn start_export(app: &mut WordApp, ctx: &egui::Context, path: &str, preview: bool) {
+    // Plume, web: the browser can't run TeX; Plume's own PDF engine makes the PDF, with the
+    // template's paper, margins and fonts.
+    if app.services.download.is_some() {
+        let id = app.pdf_templates.id().to_string();
+        let name = std::path::Path::new(path).file_name().map_or_else(|| "document.pdf".to_string(), |n| n.to_string_lossy().to_string());
+        app.pdf_templates.message = match wordcraft_engine::pdf_template::native_pdf(&app.session.doc, &id) {
+            Ok(bytes) => match app.services.download.as_ref().map(|d| d(&name, &bytes)) {
+                Some(Err(e)) => e,
+                _ => tl!(WEB_PDF_NOTE).to_string(),
+            },
+            Err(e) => e.to_string(),
+        };
+        return;
+    }
     let params = json!({"path": path, "template": app.pdf_templates.id()});
     let job = match wordcraft_engine::pdf_template::PdfJob::prepare(&app.session, &params) {
         Ok(j) => j,
@@ -186,13 +213,12 @@ pub fn section(app: &mut WordApp, ui: &mut Ui) {
     } else if !app.pdf_templates.message.is_empty() {
         ui.label(RichText::new(&app.pdf_templates.message).weak());
     }
-    if let Ok(engine) = app.run("pdfTemplate.engine", json!({}))
+    if app.services.download.is_some() {
+        ui.label(RichText::new(tl!(WEB_PDF_NOTE)).weak());
+    } else if let Ok(engine) = app.run("pdfTemplate.engine", json!({}))
         && engine["found"] != json!(true)
     {
-        ui.label(
-            RichText::new(tl!("No TeX engine was found. Install Tectonic (brew install tectonic) or MacTeX, then export again."))
-                .color(egui::Color32::from_rgb(200, 120, 0)),
-        );
+        ui.label(RichText::new(tl!(NO_ENGINE)).color(egui::Color32::from_rgb(200, 120, 0)));
     }
 }
 

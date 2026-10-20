@@ -9,13 +9,17 @@ use web_sys::{IdbDatabase, IdbRequest, IdbTransactionMode};
 
 const DB_NAME: &str = wordcraft_brand::WEB_DB_NAME;
 const STORE: &str = "fonts";
+/// The database's version: 2 added Plume's document store ([`super::doc_store`]).
+const DB_VERSION: u32 = 2;
+/// Every store of the database, made on first use.
+const STORES: [&str; 2] = [STORE, super::doc_store::STORE];
 
-fn js(e: JsValue) -> String {
+pub(super) fn js(e: JsValue) -> String {
     format!("{e:?}")
 }
 
 /// Wait for an IndexedDB request; its result.
-async fn done(req: &IdbRequest) -> Result<JsValue, String> {
+pub(super) async fn done(req: &IdbRequest) -> Result<JsValue, String> {
     let promise = js_sys::Promise::new(&mut |resolve: js_sys::Function, reject: js_sys::Function| {
         let ok_req = req.clone();
         let ok = Closure::once_into_js(move || {
@@ -30,17 +34,20 @@ async fn done(req: &IdbRequest) -> Result<JsValue, String> {
     wasm_bindgen_futures::JsFuture::from(promise).await.map_err(js)
 }
 
-/// The database, with its font store made on first use.
-async fn open() -> Result<IdbDatabase, String> {
+/// The database, with its stores made on first use.
+pub(super) async fn open() -> Result<IdbDatabase, String> {
     let factory = web_sys::window().ok_or("no window")?.indexed_db().map_err(js)?.ok_or("IndexedDB is unavailable")?;
-    let req = factory.open_with_u32(DB_NAME, 1).map_err(js)?;
+    let req = factory.open_with_u32(DB_NAME, DB_VERSION).map_err(js)?;
     let upgrade_req = req.clone();
     let upgrade = Closure::<dyn FnMut()>::new(move || {
-        if let Ok(db) = upgrade_req.result().and_then(|r| r.dyn_into::<IdbDatabase>())
-            && !db.object_store_names().contains(STORE)
-            && let Err(e) = db.create_object_store(STORE)
-        {
-            log::error!("couldn't make the font store: {e:?}");
+        if let Ok(db) = upgrade_req.result().and_then(|r| r.dyn_into::<IdbDatabase>()) {
+            for store in STORES {
+                if !db.object_store_names().contains(store)
+                    && let Err(e) = db.create_object_store(store)
+                {
+                    log::error!("couldn't make the {store} store: {e:?}");
+                }
+            }
         }
     });
     req.set_onupgradeneeded(Some(upgrade.as_ref().unchecked_ref()));

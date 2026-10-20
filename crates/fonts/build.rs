@@ -5,6 +5,9 @@
 //! budget. With `CRAFT_FONTS_REQUIRED` (releases), a native build also fails when the checkout
 //! has no font for a CJK interface language (Japanese, Simplified Chinese), as an outdated pin
 //! once did (#241). It only reads the local checkout: no network.
+//!
+//! Plume: with `PLUME_EMOJI_FONT=<file>` (the web build downloads Noto Color Emoji) that font is
+//! embedded as `EMOJI_FONT`, for colour emoji where the system has no emoji font (the browser).
 use std::fmt::Write as _;
 use std::path::PathBuf;
 
@@ -32,6 +35,18 @@ fn main() {
         }
     }
     src.push_str("];\n");
+    println!("cargo::rerun-if-env-changed=PLUME_EMOJI_FONT");
+    match std::env::var_os("PLUME_EMOJI_FONT").map(PathBuf::from) {
+        Some(f) if f.is_file() => {
+            println!("cargo::rerun-if-changed={}", f.display());
+            let _ = writeln!(src, "pub static EMOJI_FONT: &[u8] = include_bytes!({:?});", f.display().to_string());
+        }
+        Some(f) => {
+            println!("cargo::warning=PLUME_EMOJI_FONT={}: no such file; building without an emoji font", f.display());
+            src.push_str("pub static EMOJI_FONT: &[u8] = &[];\n");
+        }
+        None => src.push_str("pub static EMOJI_FONT: &[u8] = &[];\n"),
+    }
     let out = PathBuf::from(std::env::var_os("OUT_DIR").unwrap_or_default()).join("craft_fonts.rs");
     if let Err(e) = std::fs::write(&out, src) {
         println!("cargo::error=writing {}: {e}", out.display());

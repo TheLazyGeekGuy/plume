@@ -8434,11 +8434,19 @@ fn strict_markdown_inserts_emoji_not_symbols() {
     }
     let text = wordcraft_formats::markdown::export_native(&s.doc, &Default::default()).text;
     assert_eq!(text, "👍⚠️\n");
-    for (_, emoji) in crate::cmd::insert::EMOJI {
-        for e in *emoji {
-            assert!(s.run("insert.emoji", &json!({"char": e})).is_ok(), "{e}");
+    // Every emoji the menu offers, in every skin tone, is one `insert.emoji` takes.
+    for e in crate::emoji::all() {
+        for t in std::iter::once(&e.text).chain(&e.tones) {
+            assert!(t.chars().count() <= 16 && !t.chars().any(char::is_control), "{t}");
         }
     }
+    for e in crate::emoji::all().iter().step_by(97) {
+        assert!(s.run("insert.emoji", &json!({"char": e.in_tone(2)})).is_ok(), "{}", e.text);
+    }
+    let found = s.run("emoji.search", &json!({"query": "pouce", "tone": 5, "limit": 3})).unwrap();
+    assert_eq!(found[0]["emoji"], json!("👍🏿"), "{found}");
+    assert_eq!(s.run("emoji.search", &json!({"group": 8, "limit": 2})).unwrap().as_array().map(Vec::len), Some(2));
+    assert!(s.run("emoji.search", &json!({"group": 9})).is_err());
 }
 
 /// A ZIP the Markdown file and its pictures in it, at their own paths, plus `extra` files.

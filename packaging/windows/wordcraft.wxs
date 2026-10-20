@@ -153,6 +153,13 @@
       <Component Id="WordcraftCli">
         <File Id="WordcraftCliExe" Source="$(var.BinDir)\wordcraft-cli.exe" KeyPath="yes" />
       </Component>
+
+      <?if $(var.HasTectonic) = "yes" ?>
+      <!-- Plume: the Tectonic TeX engine, for PDF export through a template. -->
+      <Component Id="PlumeTectonic">
+        <File Id="TectonicExe" Source="$(var.BinDir)\tectonic.exe" KeyPath="yes" />
+      </Component>
+      <?endif?>
     </ComponentGroup>
   </Fragment>
 </Wix>

@@ -27,6 +27,10 @@ concurrency:
 
 env:
   TRUNK_VERSION: v0.21.14
+  # Colour emoji in the browser, which has no system emoji font (Noto Color Emoji, OFL-1.1;
+  # ATTRIBUTION.md). Not a file in this repository: downloaded here and embedded by
+  # crates/fonts/build.rs through PLUME_EMOJI_FONT.
+  NOTO_EMOJI_REF: v2.047
 
 jobs:
   build:
@@ -43,6 +47,13 @@ jobs:
         run: |
           curl -sSfL "https://github.com/trunk-rs/trunk/releases/download/${TRUNK_VERSION}/trunk-x86_64-unknown-linux-gnu.tar.gz" | tar xz -C /usr/local/bin
           trunk --version
+      - name: Download the emoji font
+        run: |
+          font="$RUNNER_TEMP/Noto-COLRv1.ttf"
+          curl -sSfL -o "$font" "https://github.com/googlefonts/noto-emoji/raw/${NOTO_EMOJI_REF}/fonts/Noto-COLRv1.ttf" \
+            || curl -sSfL -o "$font" "https://github.com/googlefonts/noto-emoji/raw/main/fonts/Noto-COLRv1.ttf"
+          ls -l "$font"
+          echo "PLUME_EMOJI_FONT=$font" >> "$GITHUB_ENV"
       - name: Build
         working-directory: apps/wordcraft-web
         run: trunk build --release --locked

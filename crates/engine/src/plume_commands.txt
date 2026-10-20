@@ -124,6 +124,7 @@ markdown edit.spike
 markdown edit.undo
 markdown edit.undoHistory
 markdown edit.undoTo
+markdown emoji.search
 markdown equation.backspace
 markdown equation.convert
 markdown equation.delete

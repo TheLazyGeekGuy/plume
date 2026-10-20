@@ -2898,3 +2898,23 @@ preview	Title	Пример
 	Import…	Импорт…
 	Emoji	Эмодзи
 	Markdown and pictures (*.zip)	Markdown и изображения (*.zip)
+	Find Emoji	Найти эмодзи
+	Smileys & Emotion	Смайлики и эмоции
+	People & Body	Люди и тело
+	Animals & Nature	Животные и природа
+	Food & Drink	Еда и напитки
+	Travel & Places	Путешествия и места
+	Activities	Занятия
+	Objects	Предметы
+	Flags	Флаги
+	Recently Used	Недавние
+	Search emoji	Поиск эмодзи
+	Skin tone	Тон кожи
+	No emoji found	Эмодзи не найдены
+	No recent emoji yet	Недавних эмодзи пока нет
+	File name	Имя файла
+	Chrome and Edge let you choose the folder, and save there again without asking; other browsers save to Downloads.	Chrome и Edge позволяют выбрать папку и затем сохраняют в неё без вопросов; другие браузеры сохраняют в «Загрузки».
+	The browser makes the PDF with Plume's own engine, as it can't run TeX: the template's paper, margins and fonts are applied.	Браузер создаёт PDF собственным движком Plume, так как не может запустить TeX: применяются бумага, поля и шрифты шаблона.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Движок TeX не найден: в этой копии Plume нет Tectonic. Установите его (brew install tectonic) или MacTeX и экспортируйте снова.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Движок TeX не найден: в этой копии Plume нет Tectonic. Установите его (winget install TectonicTypesetting.Tectonic) или MiKTeX и экспортируйте снова.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Движок TeX не найден: в этой копии Plume нет Tectonic. Установите Tectonic или TeX Live менеджером пакетов и экспортируйте снова.

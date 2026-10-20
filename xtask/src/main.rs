@@ -4,10 +4,12 @@
 //! invoked through `std::process::Command`.
 
 mod assets;
+mod emoji_data;
 mod icns;
 mod ico;
 mod layers;
 mod parity;
+mod plume_credits;
 mod stats;
 mod tables_corpus;
 mod version;
@@ -29,6 +31,12 @@ commands:
                   --tables fetches Word documents with nested tables into corpus/tables
   stats [--exact] count tests and lines per crate (--exact: ask the test harness via `-- --list`)
   parity          recompute the Word feature-parity summary in docs/parity-checklist.md
+  emoji-data <emoji-test.txt> <cldr-dir>
+                  write crates/engine/src/emoji.tsv (Insert › Emoji) from Unicode's emoji list
+                  and CLDR's English and French annotations
+  plume-credits [--upstream <ref>] [--repo <owner/name>]
+                  write contributors/plume.json: Plume's own commits (not in WordCraft's
+                  --upstream, default upstream/main), credited by GitHub login and model
   visual-diff <ref.pdf> <test.pdf> <outdir> [--private] [--dpi N]
                   compare two PDFs of a document page by page (SSIM, line breaks, offsets);
                   needs poppler (pdftoppm, pdftotext)
@@ -50,6 +58,8 @@ fn main() -> ExitCode {
         Some("corpus") => cmd_corpus(rest.contains(&"--download")),
         Some("stats") => stats::run(&root(), rest.contains(&"--exact")),
         Some("parity") => parity::run(&root()),
+        Some("emoji-data") => emoji_data::run(&root(), &rest),
+        Some("plume-credits") => plume_credits::run(&root(), &rest),
         Some("ico") => ico::run(&rest),
         Some("icns") => icns::run(&rest),
         Some("visual-diff") => visual_diff::run(&rest),

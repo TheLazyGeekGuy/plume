@@ -10,6 +10,7 @@ pub mod ai;
 pub mod catalog;
 pub mod cmd;
 pub mod diagrams;
+pub mod emoji;
 pub mod file_access;
 pub mod io;
 mod io_ext;
