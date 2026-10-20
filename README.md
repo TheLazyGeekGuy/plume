@@ -71,10 +71,10 @@ as the Markdown work lands (`cargo run -p wordcraft-ui-egui --example ui_shot`).
 
 Plume starts from WordCraft's editor, so on day one it already is:
 
-- **Familiar.** Word's ribbon tabs, groups, shortcuts and behaviour: Enter continues a list,
+- **Familiar.** Ribbon tabs, groups, shortcuts and behaviour: Enter continues a list,
   Tab demotes it, Ctrl/⌘+B bolds the word under the caret, the Styles gallery previews styles live,
   F4 repeats, F7 checks spelling, F8 extends the selection.
-- **Your files.** Opens and saves .docx (OOXML), and also .odt, .rtf, .html, .md, .tex (LaTeX), .txt; opens Word 97-2003 .doc; exports PDF
+- **Your files.** Opens and saves .docx (OOXML), and also .odt, .rtf, .html, .md, .tex (LaTeX), .txt; opens legacy 97-2003 .doc; exports PDF
   with real, selectable text, links and bookmarks.
 - **Fast.** Paragraph layout is cached, so typing in a 188-page document re-lays it out in about
   1.4 ms; pages render on demand.
@@ -103,7 +103,7 @@ Plume starts from WordCraft's editor, so on day one it already is:
 | **Review** | Spelling and grammar with suggestions (English and Polish, by each run's language), thesaurus, word count, comments in margin balloons or a pane, track changes, accept/reject, compare documents, restrict editing, accessibility checker, document inspector |
 | **Mailings** | Mail merge from CSV, merge fields, address block, greeting line, rules, preview, finish to a document; envelopes and labels |
 | **View** | Print layout, web layout, draft, read mode, focus, zoom, one/multiple pages, page width, Navigation pane, rulers, gridlines, dark mode; interface in English, 简体中文, 繁體中文, 日本語, Português (Brasil), Español, Українська, Српски / Srpski, Eesti, Türkçe, Русский, Italiano, Deutsch, Polski, Čeština, Magyar, Français, Български, Tiếng Việt, 한국어 or Svenska (follows the system language by default) |
-| **Files** | .docx read/write (opens in Word), Word 97-2003 .doc import, PDF export, .odt, .rtf, .html, .md, .tex, .txt import/export, page images |
+| **Files** | .docx read/write, legacy 97-2003 .doc import, PDF export, .odt, .rtf, .html, .md, .tex, .txt import/export, page images |
 
 The honest picture, area by area, is in [ROADMAP.md](ROADMAP.md), the
 [parity assessment](docs/target-app-parity.md) and the generated
@@ -126,6 +126,7 @@ wordcraft-cli text report.docx                      # plain text
 wordcraft-cli inspect report.docx                   # structure as JSON
 wordcraft-cli run --template sample \
   --cmd 'select.text={"text":"Membership"}' --cmd format.bold --save out.docx
+wordcraft-cli run --script job.json                 # the same from a file: commands, then save to docx and pdf
 ```
 
 Web: `cd apps/wordcraft-web && trunk serve`, then open <http://127.0.0.1:8771/?sample>.
@@ -178,9 +179,9 @@ product name, app id and settings folders come from one place, `crates/brand` (`
 | L1 | `wordcraft-doc`, `wordcraft-fonts`, `wordcraft-proof` | document model and editing; fonts and shaping; spelling, grammar, hyphenation |
 | L2 | `wordcraft-layout`, `wordcraft-docx`, `wordcraft-formats` | line breaking, pagination, tables, notes, hit testing; OOXML; ODT/RTF/HTML/Markdown/TXT |
 | L3 | `wordcraft-render`, `wordcraft-pdf` | rasteriser (vello_cpu); PDF ([craft-pdf](docs/shared-pdf.md), Krilla) |
-| L4 | `wordcraft-engine` | session, undo, 422 commands, Word feature catalog |
+| L4 | `wordcraft-engine` | session, undo, 422 commands, document feature catalog |
 | L5 | `wordcraft-mcp` | MCP server |
-| L6 | `wordcraft-ui-egui` | the Word-style front end (swappable) |
+| L6 | `wordcraft-ui-egui` | the word processor front end (swappable) |
 | apps | `wordcraft`, `wordcraft-cli`, `wordcraft-web` | desktop, command line, browser |
 
 `cargo xtask ci` runs formatting, clippy, ~800 tests, the asset-attribution check, the layering
@@ -189,7 +190,8 @@ check and the wasm build. Contributor and agent instructions: [AGENTS.md](AGENTS
 ## Roadmap
 
 Plume's own milestones are in the status table at the top. The Word-compatible editor underneath
-is WordCraft's, which is in **alpha**. It covers 88% of Word's ribbon features with commands today; counting
+is WordCraft's, which is in **alpha**. It has commands for 97% of the ribbon and menu features in its feature catalog
+([`docs/parity-checklist.md`](docs/parity-checklist.md)) today; counting
 depth, file fidelity, stability and the rest, we estimate it is about 60% of the way to replacing
 all of Word for real work, about 55% for a typical professional's weekly work and about 63% for
 everyday essentials. Beta needs testing against real-world .docx files, keeping charts and SmartArt
@@ -231,9 +233,10 @@ Plume compiles DirectX 12 shaders with FXC, the compiler built into Windows, so 
 also avoids DirectX 12 altogether.
 
 **If the app is slow on an older Windows PC:** when DirectX 12 finds no graphics card with a
-driver for it (for example Intel 4th-generation graphics on Windows 11), it only offers Microsoft's
-software renderer, which draws every frame on the processor. In that case Plume uses OpenGL
-instead, without setting anything. The log file records the choice (lines starting with
+driver for it (for example Intel 4th-generation graphics on Windows 11), it only offers the built-in
+software renderer, which draws every frame on the processor. Plume normally uses OpenGL instead,
+without setting anything. If OpenGL has no usable adapter, it can use DirectX 12's WARP software
+adapter. The log file records the choice (lines starting with
 `graphics:`). `WGPU_BACKEND` still overrides it, e.g. `$env:WGPU_BACKEND = "gl"` or `"dx12"`.
 
 **Wayland:** on a Wayland desktop the app runs through XWayland when it is available, because
@@ -258,7 +261,9 @@ with its author, source and license in [ATTRIBUTION.md](ATTRIBUTION.md). The Plu
 original work (MIT OR Apache-2.0).
 
 The English spelling dictionary and hyphenation come from Grady Ward's public-domain Moby
-Hyphenator II word list. Polish spelling reads the Hunspell `pl_PL` dictionary installed on the system (not bundled) and
+Hyphenator II word list. Polish spelling reads the Hunspell `pl_PL` dictionary installed on the system (not bundled), as
+do Russian, Portuguese, Czech, Italian, Croatian and Turkish spelling (how to install them:
+[docs/spelling-dictionaries.md](docs/spelling-dictionaries.md)), and
 Polish hyphenation the TeX patterns by Hanna Kołodziejska, Bogusław Jackowski and Marek Ryćko (MIT
 option). The sample documents and templates are original text written for WordCraft.
 

@@ -108,6 +108,7 @@ markdown edit.findReplace
 markdown edit.formatPainter
 markdown edit.goBack
 markdown edit.goto
+markdown edit.insertSpike
 markdown edit.paste
 markdown edit.pasteAllClipboard
 markdown edit.pasteClipboardItem
@@ -119,6 +120,7 @@ markdown edit.redo
 markdown edit.repeat
 markdown edit.replace
 markdown edit.replaceAll
+markdown edit.spike
 markdown edit.undo
 markdown edit.undoHistory
 markdown edit.undoTo
@@ -161,7 +163,6 @@ markdown file.exportPdf
 markdown file.exportPdfTemplate
 markdown file.exportPng
 markdown file.frontMatter
-markdown file.setFrontMatter
 markdown file.info
 markdown file.inspect
 markdown file.new
@@ -181,6 +182,7 @@ markdown file.save
 markdown file.saveAs
 office file.saveTemplate
 markdown file.setAuthor
+markdown file.setFrontMatter
 markdown file.share
 markdown file.versions
 office font.add
@@ -300,6 +302,7 @@ office layout.verticalAlign
 markdown link.targets
 office list.define
 markdown list.get
+office list.multilevelPreset
 office mailings.addressBlock
 office mailings.checkErrors
 office mailings.editRecipients
@@ -319,6 +322,16 @@ office mailings.recipients
 office mailings.rules
 office mailings.sortRecipients
 office mailings.start
+markdown markdown.block
+markdown markdown.callout
+markdown markdown.codeBlock
+markdown markdown.codeLanguage
+markdown markdown.diagram
+markdown markdown.headingAnchor
+markdown markdown.include
+markdown markdown.leaveBlock
+markdown markdown.setSource
+markdown markdown.source
 markdown markdown.strict
 markdown object.altText
 markdown outline.close
@@ -637,6 +650,8 @@ markdown view.fullScreen
 office view.gridlines
 markdown view.hideWhiteSpace
 markdown view.immersive
+markdown view.interfaceTheme
+markdown view.markdownSource
 markdown view.marks
 markdown view.multiplePages
 markdown view.navigationPane
@@ -665,14 +680,3 @@ office wordArt.style
 office wordArt.textFill
 office wordArt.textOutline
 office wordArt.transform
-markdown markdown.codeBlock
-markdown markdown.callout
-markdown markdown.codeLanguage
-markdown markdown.leaveBlock
-markdown markdown.block
-markdown markdown.diagram
-markdown markdown.headingAnchor
-markdown markdown.include
-markdown markdown.source
-markdown markdown.setSource
-markdown view.markdownSource
