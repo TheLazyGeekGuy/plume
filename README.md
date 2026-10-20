@@ -112,7 +112,7 @@ The honest picture, area by area, is in [ROADMAP.md](ROADMAP.md), the
 ## Quick start
 
 ```sh
-git clone https://github.com/TheLazyGeekGuy/wordcraft
+git clone https://github.com/TheLazyGeekGuy/plume
 cd wordcraft
 cargo run --release -p wordcraft -- --sample        # the desktop app with the sample document
 cargo run --release -p wordcraft -- report.docx     # open a document
@@ -262,6 +262,6 @@ Hyphenator II word list. Polish spelling reads the Hunspell `pl_PL` dictionary i
 Polish hyphenation the TeX patterns by Hanna Kołodziejska, Bogusław Jackowski and Marek Ryćko (MIT
 option). The sample documents and templates are original text written for WordCraft.
 
-Source code: <https://github.com/TheLazyGeekGuy/wordcraft>.
+Source code: <https://github.com/TheLazyGeekGuy/plume>.
 
 <sub>Microsoft and Microsoft Word are trademarks of the Microsoft group of companies. Adobe, Photoshop, Illustrator, Premiere Pro, Lightroom, Acrobat, After Effects and InDesign are trademarks or registered trademarks of Adobe Inc. in the United States and/or other countries. Plume (like WordCraft, which it is based on) is an independent, open-source project and is not affiliated with, sponsored by or endorsed by Microsoft Corporation or Adobe Inc.; these names are used only to describe the workflows it is compatible with.</sub>

@@ -2469,7 +2469,7 @@ preview	Title	제목
 	About Plume	Plume 정보
 	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	{language} 맞춤법 사전이 설치되어 있지 않아 검사하지 않습니다. Plume은 WORDCRAFT_DICTIONARIES 폴더와 일반적인 시스템 위치에서 Hunspell 사전 {name}을(를) 찾습니다.
 	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 Plume 기여자, ArtCraft 팀 및 WordCraft 기여자.
-	Source code: github.com/TheLazyGeekGuy/wordcraft	소스 코드: github.com/TheLazyGeekGuy/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	소스 코드: github.com/TheLazyGeekGuy/plume
 	Plume	Plume
 	AutoSave documents you have saved in Plume	Plume에서 저장한 문서 자동 저장
 	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	암호를 안전한 곳에 보관하세요. 암호가 없으면 Plume를 포함해 누구도 문서를 열 수 없습니다. 암호를 제거하려면 두 입력란을 모두 비워 두세요.

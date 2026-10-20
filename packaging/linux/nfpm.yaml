@@ -14,7 +14,7 @@ section: graphics
 priority: optional
 maintainer: ${WORDCRAFT_MAINTAINER}
 vendor: Plume contributors
-homepage: https://github.com/TheLazyGeekGuy/wordcraft
+homepage: https://github.com/TheLazyGeekGuy/plume
 license: MIT OR Apache-2.0
 description: |-
   Plume: an open-source, native word processor that works the way Word users

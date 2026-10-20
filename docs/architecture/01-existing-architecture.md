@@ -7,8 +7,8 @@
 
 | Item | Finding |
 |---|---|
-| Working repository | `TheLazyGeekGuy/wordcraft` (public fork of `storytold/wordcraft`) |
-| Remote | `origin` → `https://github.com/TheLazyGeekGuy/wordcraft`; **no `upstream` remote** configured in this clone |
+| Working repository | `TheLazyGeekGuy/plume` (public fork of `storytold/wordcraft`, named `TheLazyGeekGuy/wordcraft` until 2026-10-20) |
+| Remotes | `origin` → `https://github.com/TheLazyGeekGuy/plume`; `upstream` → `https://github.com/storytold/wordcraft` (merged regularly) |
 | Branches | `main`, `claude/gallant-allen-2rb6nx` (working branch, identical to `main` at the start) |
 | Uncommitted changes | none when the audit started (clean `git status`) |
 | Last upstream commit merged | `eb54d88` "Mail merge: .xls recipients…" |

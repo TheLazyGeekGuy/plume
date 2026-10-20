@@ -2626,7 +2626,7 @@ preview	Title	Titel
 	About Plume	Om Plume
 	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Ingen stavningsordlista för {language} är installerad, så språket kontrolleras inte. Plume letar efter Hunspell-ordlistan {name} i mappen WORDCRAFT_DICTIONARIES och på systemets vanliga platser.
 	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 Plumes bidragsgivare, ArtCraft-teamet och WordCrafts bidragsgivare.
-	Source code: github.com/TheLazyGeekGuy/wordcraft	Källkod: github.com/TheLazyGeekGuy/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	Källkod: github.com/TheLazyGeekGuy/plume
 	Plume	Plume
 	AutoSave documents you have saved in Plume	Autospara dokument som du har sparat i Plume
 	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Förvara lösenordet på ett säkert ställe: utan det kan ingen, inte heller Plume, öppna dokumentet. Lämna båda rutorna tomma för att ta bort lösenordet.

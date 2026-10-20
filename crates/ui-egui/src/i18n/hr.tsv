@@ -2611,7 +2611,7 @@ preview	Title	Naslov
 	About Plume	O programu Plume
 	No spelling dictionary for {language} is installed, so it isn't checked. Plume looks for the Hunspell dictionary {name} in the WORDCRAFT_DICTIONARIES folder and in the usual system locations.	Pravopisni rječnik za {language} nije instaliran pa se taj jezik ne provjerava. Plume traži Hunspell rječnik {name} u mapi WORDCRAFT_DICTIONARIES i na uobičajenim mjestima u sustavu.
 	MIT OR Apache-2.0. Copyright (c) 2026 the Plume contributors, the ArtCraft Team and the WordCraft contributors.	MIT OR Apache-2.0. Copyright (c) 2026 suradnici projekta Plume, tim ArtCraft i suradnici projekta WordCraft.
-	Source code: github.com/TheLazyGeekGuy/wordcraft	Izvorni kod: github.com/TheLazyGeekGuy/wordcraft
+	Source code: github.com/TheLazyGeekGuy/plume	Izvorni kod: github.com/TheLazyGeekGuy/plume
 	Plume	Plume
 	AutoSave documents you have saved in Plume	Automatsko spremanje dokumenata koje ste spremili u programu Plume
 	Keep the password somewhere safe: without it nobody, Plume included, can open the document. Leave both boxes empty to remove the password.	Lozinku spremite na sigurno mjesto: bez nje nitko, pa ni Plume, ne može otvoriti dokument. Ostavite oba polja praznima da biste uklonili lozinku.

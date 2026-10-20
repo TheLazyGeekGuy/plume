@@ -2651,7 +2651,7 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
                     ui.label(tl!("A free, open-source word processor written in Rust, with Markdown as its native format."));
                     ui.label(tl!("Plume — based on WordCraft by the ArtCraft team."));
                     ui.add_space(6.0);
-                    ui.hyperlink_to(tl!("Source code: github.com/TheLazyGeekGuy/wordcraft"), wordcraft_brand::REPO_URL);
+                    ui.hyperlink_to(tl!("Source code: github.com/TheLazyGeekGuy/plume"), wordcraft_brand::REPO_URL);
                     ui.hyperlink_to(tl!("WordCraft: github.com/storytold/wordcraft"), wordcraft_brand::UPSTREAM_URL);
                     ui.add_space(6.0);
                     ui.label(

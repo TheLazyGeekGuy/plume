@@ -178,7 +178,7 @@ GitHub affiche le front matter sous forme de tableau en tête du fichier. Ces cl
 3. **Suivi des modifications.** Plume montre déjà les changements depuis la dernière version, à partir de git. Faut-il retirer le suivi des modifications de Word lui-même ?
 4. **« Éditeur » dans l'en-tête.** S'agit-il de la personne qui a modifié le document en dernier, ou du logiciel qui l'a produit ?
 5. **Calendrier.** D'accord pour commencer par le profil à l'exécution et un mois de mesures avant toute suppression physique ?
-6. **Renommage du dépôt.** D'accord pour renommer `TheLazyGeekGuy/wordcraft` en `plume` maintenant ? C'est sans effet sur les fusions.
+6. **Renommage du dépôt.** Fait le 2026-10-20 : `TheLazyGeekGuy/wordcraft` devient `TheLazyGeekGuy/plume` (GitHub redirige les anciennes adresses ; sans effet sur les fusions avec `storytold/wordcraft`).
 
 ## 9. Décisions du 16 octobre 2026
 

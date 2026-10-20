@@ -33,9 +33,9 @@
 
     <Icon Id="WordcraftIcon.ico" SourceFile="$(var.IconPath)" />
     <Property Id="ARPPRODUCTICON" Value="WordcraftIcon.ico" />
-    <Property Id="ARPURLINFOABOUT" Value="https://github.com/TheLazyGeekGuy/wordcraft" />
-    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/TheLazyGeekGuy/wordcraft/releases" />
-    <Property Id="ARPHELPLINK" Value="https://github.com/TheLazyGeekGuy/wordcraft/issues" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/TheLazyGeekGuy/plume" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/TheLazyGeekGuy/plume/releases" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/TheLazyGeekGuy/plume/issues" />
 
     <!-- Installer UI (#198): WixUI_Minimal is welcome + license, progress, then a finish page so
          people can see the install worked. Its dialogs and bitmaps are WiX's own

@@ -30,7 +30,7 @@ pub const CONFIG_DIR: &str = "plume";
 pub const WEB_DB_NAME: &str = "plume";
 
 /// The project's home page (source code and issues).
-pub const REPO_URL: &str = "https://github.com/TheLazyGeekGuy/wordcraft";
+pub const REPO_URL: &str = "https://github.com/TheLazyGeekGuy/plume";
 
 /// The project this one is based on.
 pub const UPSTREAM_NAME: &str = "WordCraft";
