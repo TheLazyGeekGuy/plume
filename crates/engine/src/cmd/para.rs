@@ -455,6 +455,10 @@ fn style_id(s: &Session, name: &str) -> Result<String, CmdError> {
 /// styles pane, which is view state and never an edit.
 fn apply_styles(s: &mut Session, v: &Value) -> CmdResult {
     match v.get("style") {
+        // The Styles pane manages styles a Markdown file can't keep.
+        None if s.markdown_blocks("styles.pane").is_some() => {
+            Err(CmdError::Disabled("styles.apply: the Styles pane is off in strict Markdown mode; give a `style`".into()))
+        }
         None => {
             s.view.styles_pane = true;
             Ok(json!({"pane": true}))
@@ -468,6 +472,10 @@ fn apply_styles(s: &mut Session, v: &Value) -> CmdResult {
 fn apply_style(s: &mut Session, v: &Value) -> CmdResult {
     let name = p::req_str(v, "style")?;
     let id = style_id(s, name)?;
+    // Plume: a style that isn't a Markdown block would be saved as plain text.
+    if s.prefs.markdown_strict && s.is_markdown() && !crate::plume::is_markdown_style(&id) {
+        return Err(CmdError::Disabled(format!("para.style: Markdown can't keep the style `{name}` (strict Markdown mode)")));
+    }
     let kind = s.doc.styles.get(&id).map(|x| x.kind).unwrap_or_default();
     if kind == StyleKind::Character {
         return super::format::apply(s, &|c| c.style = Some(id.clone()));

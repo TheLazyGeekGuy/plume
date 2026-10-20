@@ -79,6 +79,22 @@ fn bundle_document(
     doc
 }
 
+/// Plume: `doc` as its Markdown keeps it, written as the native copy and read back. An imported
+/// document then shows what saving it keeps: its styles become Markdown blocks (a caption or a
+/// subtitle plain text, the title a level-1 heading), its fonts, colours and page layout give
+/// way to the theme. Its pictures come along from the copy's assets.
+pub fn as_markdown(doc: &Document, page: &wordcraft_doc::SectionProps) -> Document {
+    let bundle = wordcraft_formats::markdown::export_native(doc, &Default::default());
+    let assets: std::collections::BTreeMap<&str, std::sync::Arc<Vec<u8>>> = bundle.assets.iter().map(|(p, b)| (p.as_str(), b.clone())).collect();
+    let mut out = wordcraft_formats::markdown::import_with(&bundle.text, page, &|src| assets.get(src).cloned());
+    wordcraft_formats::markdown::apply_theme(&mut out, Default::default());
+    // Markdown carries no language: the document keeps its own.
+    out.styles.default_chr.lang = doc.styles.default_chr.lang.clone();
+    fit_pictures(&mut out);
+    out.ensure_nonempty();
+    out
+}
+
 /// A TextPack's document.
 fn open_textpack(bytes: &[u8], page: &wordcraft_doc::SectionProps) -> Result<Document, String> {
     let u = textbundle::unpack(bytes)?;

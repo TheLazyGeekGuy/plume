@@ -8336,6 +8336,111 @@ fn native_markdown_imports_word_documents() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+/// Strict Markdown mode flattens an imported Word document to its Markdown at once: styles
+/// become Markdown blocks (the title a level-1 heading, an intense quote a quote, a caption plain
+/// text), direct fonts, sizes and colours go, bold stays. What shows is what saving writes.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn strict_markdown_flattens_imported_documents() {
+    use wordcraft_doc::{Block, CharProps, Paragraph, TextColor, para_block};
+    let dir = scratch_dir("native-md-flat");
+    let docx = dir.join("flat.docx");
+    let mut doc = wordcraft_doc::Document::new();
+    let styled = |text: &str, style: &str| para_block(Paragraph::with_text(text, CharProps::default()).styled(style));
+    doc.body = vec![
+        styled("Report", "Title"),
+        styled("Part one", "Heading2"),
+        styled("Figure 1", "Caption"),
+        styled("Said loudly", "IntenseQuote"),
+        para_block(Paragraph::with_text(
+            "Loud",
+            CharProps {
+                bold: Some(true),
+                font: Some("Georgia".into()),
+                size: Some(20.0),
+                color: Some(TextColor::Rgb(wordcraft_doc::Rgb(0xC0, 0, 0))),
+                ..Default::default()
+            },
+        )),
+    ];
+    std::fs::write(&docx, crate::io::save_bytes("flat.docx", &doc).unwrap()).unwrap();
+    let para = |s: &Session, text: &str| -> Paragraph {
+        s.doc
+            .body
+            .iter()
+            .find_map(|b| match &**b {
+                Block::Para(p) if p.plain_text() == text => Some(p.clone()),
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("no paragraph {text:?}"))
+    };
+
+    // Strict mode off: the import keeps Word's styles and formatting.
+    let mut kept = Session::new(wordcraft_doc::Document::new());
+    kept.native_markdown = true;
+    kept.prefs.markdown_strict = false;
+    kept.run("file.open", &json!({"path": docx.to_string_lossy()})).unwrap();
+    assert_eq!(para(&kept, "Figure 1").props.style.as_deref(), Some("Caption"));
+
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": docx.to_string_lossy()})).unwrap();
+    assert!(s.dirty, "the import is still to be saved");
+    assert_eq!(para(&s, "Report").props.style.as_deref(), Some("Heading1"));
+    assert_eq!(para(&s, "Part one").props.style.as_deref(), Some("Heading2"));
+    assert_eq!(para(&s, "Said loudly").props.style.as_deref(), Some("Quote"));
+    assert_eq!(para(&s, "Figure 1").props.style.as_deref().unwrap_or("Normal"), "Normal");
+    let loud = para(&s, "Loud").runs[0].props.clone();
+    assert_eq!(loud.bold, Some(true));
+    assert!(loud.font.is_none() && loud.size.is_none() && loud.color.is_none(), "{loud:?}");
+    // Flattened, the document writes the Markdown the unflattened import would have written.
+    let native = |d: &wordcraft_doc::Document| wordcraft_formats::markdown::export_native(d, &Default::default()).text;
+    assert_eq!(native(&s.doc), native(&kept.doc));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Strict Markdown mode applies only the styles a Markdown file keeps, and leaves the Styles
+/// pane closed: the others would be saved as plain text.
+#[test]
+fn strict_markdown_applies_markdown_styles_only() {
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("text.insert", &json!({"text": "Hello"})).unwrap();
+    s.run("styles.apply", &json!({"style": "Heading 2"})).unwrap();
+    assert!(matches!(s.run("para.style", &json!({"style": "Title"})), Err(crate::CmdError::Disabled(_))));
+    assert!(matches!(s.run("styles.apply", &json!({"style": "Subtitle"})), Err(crate::CmdError::Disabled(_))));
+    assert!(matches!(s.run("styles.apply", &json!({})), Err(crate::CmdError::Disabled(_))));
+    assert!(matches!(s.run("styles.pane", &json!({})), Err(crate::CmdError::Disabled(_))));
+    assert!(!s.view.styles_pane);
+    assert_eq!(s.doc.para_at(&s.sel.focus).and_then(|p| p.props.style.clone()).as_deref(), Some("Heading2"));
+    s.prefs.markdown_strict = false;
+    s.run("para.style", &json!({"style": "Title"})).unwrap();
+}
+
+/// Strict Markdown mode replaces the ™ © ® list with Insert › Emoji: an emoji is plain text a
+/// Markdown file keeps, a symbol may need its own font.
+#[test]
+fn strict_markdown_inserts_emoji_not_symbols() {
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("insert.emoji", &json!({"char": "👍"})).unwrap();
+    s.run("insert.emoji", &json!({"char": "⚠️"})).unwrap();
+    assert_eq!(s.doc.plain_text(StoryRef::Body).trim_end(), "👍⚠️");
+    for bad in [json!({}), json!({"char": ""}), json!({"char": "\u{7}"}), json!({"char": "x".repeat(17)})] {
+        assert!(matches!(s.run("insert.emoji", &bad), Err(crate::CmdError::Params(_))), "{bad}");
+    }
+    for id in ["text.trademark", "text.copyright", "text.registered", "insert.symbol"] {
+        assert!(matches!(s.run(id, &json!({"char": "Ω"})), Err(crate::CmdError::Disabled(_))), "{id}");
+    }
+    let text = wordcraft_formats::markdown::export_native(&s.doc, &Default::default()).text;
+    assert_eq!(text, "👍⚠️\n");
+    for (_, emoji) in crate::cmd::insert::EMOJI {
+        for e in *emoji {
+            assert!(s.run("insert.emoji", &json!({"char": e})).is_ok(), "{e}");
+        }
+    }
+}
+
 /// In the browser a Markdown save downloads the Markdown alone, or a zip with its pictures.
 #[test]
 fn markdown_download_zips_pictures() {

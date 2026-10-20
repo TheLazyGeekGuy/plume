@@ -1515,7 +1515,29 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
             ui.separator();
             mi(ui, app, "More Symbols…", "ui.dialog", json!({"name": "symbol"}));
         });
+        // Plume: emoji are plain text, so a Markdown file keeps them.
+        menu_button(ui, app, "emoji", Some("Emoji"), "Emoji", true, "insert.emoji", emoji_items);
     });
+}
+
+/// Insert › Emoji's menu: the engine's groups, one grid each.
+fn emoji_items(ui: &mut Ui, app: &mut WordApp) {
+    for (k, (group, emoji)) in wordcraft_engine::cmd::insert::EMOJI.iter().enumerate() {
+        if k > 0 {
+            ui.separator();
+        }
+        egui::Grid::new(("emoji", *group)).show(ui, |ui| {
+            for (i, e) in emoji.iter().enumerate() {
+                if ui.button(egui::RichText::new(*e).size(18.0)).clicked() {
+                    let _ = app.run("insert.emoji", json!({"char": e}));
+                    ui.close();
+                }
+                if i % 8 == 7 {
+                    ui.end_row();
+                }
+            }
+        });
+    }
 }
 
 /// Insert › Drop Cap's menu (#2601): None, Dropped and In margin (the current one checked),
