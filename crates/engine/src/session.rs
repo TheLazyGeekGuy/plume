@@ -461,6 +461,9 @@ pub struct Session {
     /// hold (one line per kind of adaptation; empty = nothing).
     pub imported_from: Option<std::path::PathBuf>,
     pub import_report: Vec<String>,
+    /// Plume: the ZIP archive the document was read from where Plume can't read it again (the
+    /// browser, a forge), so a save writes the archive again with its other files.
+    pub source_archive: Option<std::sync::Arc<Vec<u8>>>,
     /// The forge document this session edits (opened from GitHub, GitLab or Forgejo), if any.
     pub forge: Option<crate::cmd::versions::Remote>,
     /// How forge requests are sent: the app's HTTP client. `None`: no network here.
@@ -709,6 +712,7 @@ impl Session {
             native_markdown: false,
             imported_from: None,
             import_report: Vec::new(),
+            source_archive: None,
             forge: None,
             forge_transport: None,
             ai_transport: None,
@@ -1153,6 +1157,7 @@ impl Session {
         self.doc.ensure_nonempty();
         self.password = None;
         self.forge = None;
+        self.source_archive = None;
         self.file_name = None;
         self.sel = Selection::caret(self.doc.start_of(StoryRef::Body));
         self.pending = None;
@@ -1236,6 +1241,7 @@ impl Session {
             native_markdown: _,
             imported_from: _,
             import_report: _,
+            source_archive: _,
             forge: _,
             forge_transport: _,
             ai_transport: _,

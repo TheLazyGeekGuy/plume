@@ -2,6 +2,7 @@
 
 use wordcraft_doc::Document;
 
+pub mod mdzip;
 #[cfg(not(target_arch = "wasm32"))]
 mod safe_save;
 pub mod templates;
@@ -20,6 +21,7 @@ pub const OPEN_EXTS: &[&str] = &[
     "markdown",
     "textbundle",
     "textpack",
+    "zip",
     "html",
     "htm",
     "rtf",
@@ -33,7 +35,7 @@ pub const OPEN_EXTS: &[&str] = &[
 ];
 /// Formats WordCraft saves (Save As).
 pub const SAVE_EXTS: &[&str] =
-    &["docx", "docm", "dotx", "dotm", "pdf", "txt", "md", "textbundle", "textpack", "html", "rtf", "odt", "tex", "png", "json", "xml"];
+    &["docx", "docm", "dotx", "dotm", "pdf", "txt", "md", "textbundle", "textpack", "zip", "html", "rtf", "odt", "tex", "png", "json", "xml"];
 
 /// Magic number for ZIP package signatures (used by .docx/.docm/.dotx/.dotm).
 const ZIP_SIG: &[u8] = b"PK\x03\x04";
@@ -48,9 +50,10 @@ fn ext_of(name: &str) -> String {
 }
 
 /// Plume: is `ext` a Markdown document's own format: a Markdown file (`.md`, `.markdown`), a
-/// TextBundle folder (`.textbundle`) or a TextPack (`.textpack`)?
+/// TextBundle folder (`.textbundle`), a TextPack (`.textpack`) or a ZIP holding a Markdown file
+/// and its pictures (`.zip`)?
 pub fn is_markdown_ext(ext: &str) -> bool {
-    matches!(ext.to_ascii_lowercase().as_str(), "md" | "markdown" | "textbundle" | "textpack")
+    matches!(ext.to_ascii_lowercase().as_str(), "md" | "markdown" | "textbundle" | "textpack" | "zip")
 }
 
 /// [`is_markdown_ext`] for a file name or path.
@@ -93,6 +96,32 @@ pub fn as_markdown(doc: &Document, page: &wordcraft_doc::SectionProps) -> Docume
     fit_pictures(&mut out);
     out.ensure_nonempty();
     out
+}
+
+/// A Markdown ZIP's document ([`mdzip`]).
+pub fn open_zip(bytes: &[u8], page: &wordcraft_doc::SectionProps) -> Result<Document, String> {
+    let u = mdzip::unpack(bytes)?;
+    Ok(bundle_document(&u.text, true, page, &|src| u.file(src).map(|b| std::sync::Arc::new(b.to_vec()))))
+}
+
+/// A Markdown ZIP of `doc` over the archive `existing` when there is one (see [`mdzip::pack`]);
+/// a new archive holds `<name>.md`, `name` being the archive's file name.
+pub fn zip_bytes(name: &str, doc: &Document, existing: Option<&[u8]>) -> Result<(Vec<u8>, wordcraft_formats::markdown::Report), String> {
+    let bundle = wordcraft_formats::markdown::export_native(&markdown_ready(doc), &wordcraft_formats::markdown::NativeOptions::default());
+    let file = name.rsplit(['/', '\\']).next().unwrap_or(name);
+    let stem = file.rsplit_once('.').map_or(file, |(stem, _)| stem);
+    let stem = if stem.trim().is_empty() { "document" } else { stem };
+    let assets: Vec<(String, &[u8])> = bundle.assets.iter().map(|(p, b)| (p.clone(), b.as_slice())).collect();
+    Ok((mdzip::pack(existing, &format!("{stem}.md"), bundle.text.as_bytes(), &assets)?, bundle.report))
+}
+
+/// Save `doc` as a Markdown ZIP at `path`, over the one there.
+#[cfg(not(target_arch = "wasm32"))]
+fn save_zip(path: &std::path::Path, doc: &Document) -> Result<wordcraft_formats::markdown::Report, String> {
+    let existing = if path.is_file() { read_regular_file(path, 2 << 30) } else { None };
+    let (bytes, report) = zip_bytes(&path.to_string_lossy(), doc, existing.as_deref())?;
+    safe_save::write(path, &bytes).map_err(|e| format!("{}: {e}", path.display()))?;
+    Ok(report)
 }
 
 /// A TextPack's document.
@@ -279,6 +308,7 @@ fn read_bytes(name: &str, bytes: &[u8], password: Option<&str>, page: &wordcraft
             d
         }
         "textpack" => open_textpack(bytes, page).map_err(|e| format!("{name}: {e}"))?,
+        "zip" => open_zip(bytes, page).map_err(|e| format!("{name}: {e}"))?,
         "textbundle" => return Err(format!("{name}: a TextBundle is a folder; open the folder, or a .textpack file")),
         other => match crate::io_ext::open(other, bytes, page) {
             Some(r) => r?,
@@ -450,6 +480,7 @@ pub fn save_bytes_opts(name: &str, doc: &Document, opts: &ExportOptions) -> Resu
         }
         "json" => serde_json::to_vec_pretty(doc).map_err(|e| e.to_string()),
         "textpack" => textpack_bytes(doc, None).map(|(bytes, _)| bytes),
+        "zip" => zip_bytes(name, doc, None).map(|(bytes, _)| bytes),
         "textbundle" => Err(format!("{name}: a TextBundle is a folder; save a .textpack to download it")),
         other => match crate::io_ext::save(other, doc, opts) {
             Some(r) => r,
@@ -815,10 +846,11 @@ pub fn save_markdown(path: &std::path::Path, doc: &Document) -> Result<wordcraft
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save_markdown_files(path: &std::path::Path, doc: &Document) -> Result<(wordcraft_formats::markdown::Report, Vec<std::path::PathBuf>), String> {
     crate::file_access::check_write(&path.to_string_lossy())?;
-    // TextBundle and TextPack hold their pictures themselves.
+    // TextBundle, TextPack and ZIP hold their pictures themselves.
     match ext_of(&path.to_string_lossy()).as_str() {
         "textbundle" => return save_textbundle(path, doc).map(|r| (r, Vec::new())),
         "textpack" => return save_textpack(path, doc).map(|r| (r, Vec::new())),
+        "zip" => return save_zip(path, doc).map(|r| (r, Vec::new())),
         _ => {}
     }
     let doc = markdown_ready(doc);
@@ -846,11 +878,13 @@ pub fn save_path_with(path: &std::path::Path, _doc: &Document, _password: Option
 }
 
 /// The download for a Markdown-native save in the browser: `name` and the Markdown when the
-/// document has no pictures, else `<name>.zip` holding the Markdown and its `assets/` folder.
-pub fn markdown_download(name: &str, doc: &Document) -> Result<(String, Vec<u8>), String> {
+/// document has no pictures, else `<name>.zip` holding the Markdown and its `assets/` folder. A
+/// ZIP is written over `archive`, the one the document was opened from, when there is one.
+pub fn markdown_download(name: &str, doc: &Document, archive: Option<&[u8]>) -> Result<(String, Vec<u8>), String> {
     // A TextPack downloads as itself, a TextBundle (a folder) as the TextPack holding it.
     match ext_of(name).as_str() {
         "textpack" => return textpack_bytes(doc, None).map(|(b, _)| (name.to_string(), b)),
+        "zip" => return zip_bytes(name, doc, archive).map(|(b, _)| (name.to_string(), b)),
         "textbundle" => {
             let stem = name.rsplit_once('.').map_or(name, |(stem, _)| stem);
             return textpack_bytes(doc, None).map(|(b, _)| (format!("{stem}.textpack"), b));

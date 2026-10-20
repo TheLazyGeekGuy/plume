@@ -116,8 +116,64 @@ pub fn import_with(text: &str, page: &wordcraft_doc::SectionProps, resolve: &dyn
         return import_on(text, page);
     }
     let resolved: BTreeMap<String, Arc<Vec<u8>>> = dests.into_iter().filter_map(|d| resolve(&d).map(|b| (d, b))).collect();
+    // Where each picture came from: a save writes it back there, under its own name.
+    let mut paths = String::new();
+    let mut seen = std::collections::BTreeSet::new();
+    for (dest, bytes) in &resolved {
+        let hash = fnv64(bytes);
+        if picture_path(dest).is_some() && !dest.contains(['\t', '\n']) && seen.insert(hash) {
+            paths.push_str(&format!("{hash:016x}\t{dest}\n"));
+        }
+    }
     let _guard = set_refs(ImageRefs::Use(resolved));
-    model::to_doc_in(&parse(text), page.clone())
+    let mut doc = model::to_doc_in(&parse(text), page.clone());
+    if !paths.is_empty() {
+        doc.passthrough.insert(IMAGES_PART.to_string(), Arc::new(paths.into_bytes()));
+    }
+    doc
+}
+
+/// Where a document keeps the path its Markdown named each picture by: `hash\tdestination`
+/// lines, the hash being the picture's bytes' ([`fnv64`]). A save writes the picture back at that
+/// path rather than renaming it `assets/img-<hash>`.
+pub const IMAGES_PART: &str = "markdown/images.tsv";
+
+/// The file a picture destination names, relative and plain (`images/a b.png` for
+/// `./images/a%20b.png?raw=1`); `None` for a URL, an absolute path, one climbing out of the
+/// document's folder or a name that isn't a picture's, which a save never writes to.
+pub fn picture_path(dest: &str) -> Option<String> {
+    let dest = dest.split(['#', '?']).next().unwrap_or("");
+    if dest.len() > 512 || dest.contains("://") || dest.starts_with("data:") {
+        return None;
+    }
+    let decoded = String::from_utf8(model::percent_decode(dest)).ok()?.replace('\\', "/");
+    if decoded.starts_with('/') || decoded.contains(':') || decoded.chars().any(char::is_control) {
+        return None;
+    }
+    let parts: Vec<&str> = decoded.split('/').filter(|p| !p.is_empty() && *p != ".").collect();
+    if parts.is_empty() || parts.contains(&"..") {
+        return None;
+    }
+    // A picture's own file: a save never writes picture bytes under another kind of name.
+    let ext = parts.last()?.rsplit_once('.')?.1.to_ascii_lowercase();
+    if !matches!(ext.as_str(), "png" | "jpg" | "jpeg" | "gif" | "webp" | "bmp" | "svg" | "avif" | "tif" | "tiff" | "heic" | "ico") {
+        return None;
+    }
+    Some(parts.join("/"))
+}
+
+/// The picture paths a document recorded ([`IMAGES_PART`]): hash → (destination as written,
+/// file path).
+fn picture_paths(doc: &Document) -> BTreeMap<u64, (String, String)> {
+    let Some(b) = doc.passthrough.get(IMAGES_PART) else { return BTreeMap::new() };
+    String::from_utf8_lossy(b)
+        .lines()
+        .take(MAX_IMAGE_REFS)
+        .filter_map(|l| {
+            let (h, dest) = l.split_once('\t')?;
+            Some((u64::from_str_radix(h, 16).ok()?, (dest.to_string(), picture_path(dest)?)))
+        })
+        .collect()
 }
 
 /// Parse Markdown text into the flow model.
@@ -2130,6 +2186,8 @@ struct Ctx {
     cell_tables: Vec<(u32, FTable)>,
     /// The last number given to a table written out of its cell.
     cell_table_count: u32,
+    /// Where the source named each picture ([`IMAGES_PART`]): hash → (destination, file path).
+    picture_paths: BTreeMap<u64, (String, String)>,
 }
 
 impl Ctx {
@@ -2144,11 +2202,19 @@ impl Ctx {
         }
     }
 
-    /// The asset path of `img`: `assets/img-<hash>.<ext>`, the same for the same bytes, so saving
-    /// again doesn't rename files and identical pictures are stored once.
+    /// The asset path of `img`: where the Markdown it was read from had it, else
+    /// `assets/img-<hash>.<ext>`, the same for the same bytes, so saving again doesn't rename
+    /// files and identical pictures are stored once. Gives the destination to write.
     fn asset(&mut self, img: &Img) -> String {
         let converted = web_image(img);
         let img = converted.as_ref().unwrap_or(img);
+        if let Some((dest, file)) = self.picture_paths.get(&fnv64(&img.data)).cloned() {
+            if !self.assets.iter().any(|(p, _)| *p == file) {
+                self.assets.push((file, img.data.clone()));
+                self.report.images = self.report.images.saturating_add(1);
+            }
+            return dest;
+        }
         if !matches!(img.ext.as_str(), "png" | "jpeg" | "jpg" | "gif" | "webp" | "bmp" | "svg") {
             self.note(Adaptation::ImageFormat);
         }
@@ -2789,6 +2855,7 @@ fn write_doc(doc: &Document, ctx: &mut Ctx) -> String {
 /// it, reading it back with [`import_with`] and writing again gives the same text.
 pub fn export_native(doc: &Document, opts: &NativeOptions) -> Bundle {
     let mut ctx = Ctx::native(opts);
+    ctx.picture_paths = picture_paths(doc);
     let mut text = write_doc(doc, &mut ctx);
     if !ctx.comment_keys.is_empty() {
         ctx.report.comments = ctx.comment_keys.len();

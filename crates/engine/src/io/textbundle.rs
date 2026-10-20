@@ -17,12 +17,12 @@ pub const MARKDOWN_TYPE: &str = "net.daringfireball.markdown";
 /// The text file Plume writes in a new bundle.
 pub const TEXT_NAME: &str = "text.md";
 /// Largest text file read.
-const MAX_TEXT: u64 = 64 << 20;
+pub(crate) const MAX_TEXT: u64 = 64 << 20;
 /// Largest other entry read, and all entries together.
-const MAX_ENTRY: u64 = 256 << 20;
-const MAX_TOTAL: u64 = 1 << 30;
+pub(crate) const MAX_ENTRY: u64 = 256 << 20;
+pub(crate) const MAX_TOTAL: u64 = 1 << 30;
 /// Most entries read from a TextPack.
-const MAX_ENTRIES: usize = 10_000;
+pub(crate) const MAX_ENTRIES: usize = 10_000;
 /// Largest `info.json` read.
 pub const MAX_INFO: u64 = 1 << 20;
 
@@ -86,7 +86,7 @@ pub fn pick_text<'a>(names: impl Iterator<Item = &'a str>) -> Option<&'a str> {
 
 /// A path inside the bundle, made relative and plain (`./a/../b` → `b`); `None` when it climbs
 /// out of the bundle or is absolute.
-fn clean(path: &str) -> Option<String> {
+pub(crate) fn clean(path: &str) -> Option<String> {
     let path = path.replace('\\', "/");
     if path.starts_with('/') || path.contains(':') {
         return None;

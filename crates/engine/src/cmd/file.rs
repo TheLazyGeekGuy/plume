@@ -248,6 +248,11 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
     s.path = Some(path.into());
     s.imported_from = None;
     s.import_report.clear();
+    // A ZIP read from bytes (the browser) is written again over them.
+    s.source_archive = match p::str(v, "data") {
+        Some(data) if ext == "zip" => super::insert::base64_decode(data).map(std::sync::Arc::new),
+        _ => None,
+    };
     // Like Word, a document opened with a password is saved with it again.
     if encrypted {
         s.password = password.map(crate::io::Password::new);
