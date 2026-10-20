@@ -3102,3 +3102,5 @@ preview	Title	Tytuł
 	Zero or more	Zero lub więcej
 	Zero or one	Zero lub jeden
 	Pick a kind of diagram.	Wybierz rodzaj diagramu.
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)

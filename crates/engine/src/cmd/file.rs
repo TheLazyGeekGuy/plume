@@ -210,6 +210,10 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
         s.ui_requests.push(json!({"open": "openFile"}));
         return sel_result(s);
     };
+    // A TextBundle's text or metadata file picked (file dialogs pick files, and a TextBundle is
+    // a folder): the bundle opens.
+    let bundle = textbundle_of(path);
+    let path = bundle.as_deref().unwrap_or(path);
     let password = p::str(v, "password");
     let (mut doc, encrypted) = if let Some(data) = p::str(v, "data") {
         let bytes = super::insert::base64_decode(data).ok_or_else(|| CmdError::Params("bad base64".into()))?;
@@ -228,7 +232,7 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
     // Plain text and Markdown carry no language: they are in the editing language.
     let ext = std::path::Path::new(path).extension().and_then(|e| e.to_str()).unwrap_or("").to_ascii_lowercase();
     if let Some(lang) = &s.editing_lang
-        && matches!(ext.as_str(), "txt" | "text" | "md" | "markdown")
+        && (matches!(ext.as_str(), "txt" | "text") || crate::io::is_markdown_ext(&ext))
     {
         doc.styles.default_chr.lang = Some(lang.clone());
     }
@@ -243,7 +247,7 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
     if encrypted {
         s.password = password.map(crate::io::Password::new);
     }
-    if s.native_markdown && !matches!(ext.as_str(), "md" | "markdown") {
+    if s.native_markdown && !crate::io::is_markdown_ext(&ext) {
         import_as_markdown(s, std::path::Path::new(path));
     }
     let saves_to = s.path.as_ref().map(|p| p.to_string_lossy().to_string());
@@ -255,6 +259,15 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
         "savesTo": saves_to,
         "adapted": s.import_report,
     }))
+}
+
+/// The TextBundle folder `path` is the text (`text.md`) or `info.json` of, if it is.
+fn textbundle_of(path: &str) -> Option<String> {
+    let p = std::path::Path::new(path);
+    let name = p.file_name()?.to_str()?;
+    let dir = p.parent()?;
+    let is_bundle = dir.extension().is_some_and(|e| e.eq_ignore_ascii_case("textbundle"));
+    (is_bundle && (crate::io::textbundle::is_text_name(name) || name.eq_ignore_ascii_case("info.json"))).then(|| dir.to_string_lossy().to_string())
 }
 
 /// A document opened from another format (Word, RTF, ODT…) with Markdown as the document's own
@@ -334,7 +347,7 @@ fn save(s: &mut Session, v: &Value) -> CmdResult {
     let password = s.password.as_ref().map(crate::io::Password::as_str);
     // A header/footer just made and left empty isn't saved (#960).
     let copy = super::insert::saved_copy(s);
-    let markdown = matches!(ext.as_str(), "md" | "markdown");
+    let markdown = crate::io::is_markdown_ext(&ext);
     let mut adapted: Vec<String> = Vec::new();
     if markdown {
         adapted = save_markdown(&path, copy.as_ref().unwrap_or(&s.doc))?;

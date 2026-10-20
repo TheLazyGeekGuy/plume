@@ -45,6 +45,12 @@ pub(crate) struct Listing {
     pub(crate) truncated: bool,
 }
 
+/// Whether `path` is a document that is a folder: a TextBundle (`name.textbundle/`), listed
+/// and picked like a file.
+pub(crate) fn is_package(path: &Path) -> bool {
+    path.extension().is_some_and(|e| e.eq_ignore_ascii_case("textbundle")) && path.is_dir()
+}
+
 /// Whether `path` has one of `exts` (case-insensitive); `*` takes any file.
 pub(crate) fn matches(path: &Path, exts: &[String]) -> bool {
     exts.iter().any(|e| e == "*") || path.extension().and_then(|e| e.to_str()).is_some_and(|e| exts.iter().any(|x| x.eq_ignore_ascii_case(e)))
@@ -72,6 +78,8 @@ pub(crate) fn list_dir(dir: &Path, exts: &[String], cap: usize) -> std::io::Resu
             Ok(t) => t.is_dir(),
             Err(_) => continue,
         };
+        // A TextBundle is a document, not a folder to go into.
+        let is_dir = is_dir && !is_package(&path);
         if !is_dir && !matches(&path, exts) {
             continue;
         }
@@ -198,19 +206,19 @@ impl FileBrowser {
     /// pick. Save adds the chosen type's extension to a name without one and asks once more
     /// before replacing a file; Open wants a file that exists.
     pub(crate) fn accept(&mut self) -> Step {
-        if let Some(dir) = self.selected.take().filter(|p| p.is_dir()) {
+        if let Some(dir) = self.selected.take().filter(|p| p.is_dir() && !is_package(p)) {
             self.navigate(dir);
             return Step::Stay;
         }
         let Some(mut path) = resolve(&self.dir, &self.name) else { return Step::Stay };
-        if path.is_dir() {
+        if path.is_dir() && !is_package(&path) {
             self.name.clear();
             self.navigate(path);
             return Step::Stay;
         }
         match self.req {
             FileDialogRequest::Open { .. } => {
-                if path.is_file() {
+                if path.is_file() || is_package(&path) {
                     return Step::Pick(path);
                 }
                 self.note = Note::NotFound(self.name.trim().to_string());
@@ -504,6 +512,21 @@ mod tests {
         assert_eq!(capped.entries.len(), 2);
         assert!(capped.truncated);
         assert!(list_dir(&dir.join("missing"), &exts(&["*"]), 10).is_err(), "an unreadable folder is an error, not a panic");
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// A TextBundle is a folder listed and picked as a document, never gone into.
+    #[test]
+    fn a_textbundle_is_picked_like_a_file() {
+        let dir = scratch("bundle");
+        std::fs::create_dir_all(dir.join("Note.textbundle").join("assets")).unwrap();
+        std::fs::create_dir(dir.join("plain")).unwrap();
+        let l = list_dir(&dir, &exts(&["textbundle"]), 100).unwrap();
+        let entries: Vec<(&str, bool)> = l.entries.iter().map(|e| (e.name.as_str(), e.dir)).collect();
+        assert_eq!(entries, [("plain", true), ("Note.textbundle", false)]);
+        let mut b = FileBrowser::new(FileDialogRequest::Open { purpose: String::new() }, AfterPick::OpenDocument, dir.clone(), false);
+        b.name = "Note.textbundle".into();
+        assert_eq!(b.accept(), Step::Pick(dir.join("Note.textbundle")));
         let _ = std::fs::remove_dir_all(&dir);
     }
 

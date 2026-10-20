@@ -5,6 +5,7 @@ use wordcraft_doc::Document;
 #[cfg(not(target_arch = "wasm32"))]
 mod safe_save;
 pub mod templates;
+pub mod textbundle;
 
 /// Formats WordCraft opens.
 pub const OPEN_EXTS: &[&str] = &[
@@ -17,6 +18,8 @@ pub const OPEN_EXTS: &[&str] = &[
     "txt",
     "md",
     "markdown",
+    "textbundle",
+    "textpack",
     "html",
     "htm",
     "rtf",
@@ -29,7 +32,8 @@ pub const OPEN_EXTS: &[&str] = &[
     "json",
 ];
 /// Formats WordCraft saves (Save As).
-pub const SAVE_EXTS: &[&str] = &["docx", "docm", "dotx", "dotm", "pdf", "txt", "md", "html", "rtf", "odt", "tex", "png", "json", "xml"];
+pub const SAVE_EXTS: &[&str] =
+    &["docx", "docm", "dotx", "dotm", "pdf", "txt", "md", "textbundle", "textpack", "html", "rtf", "odt", "tex", "png", "json", "xml"];
 
 /// Magic number for ZIP package signatures (used by .docx/.docm/.dotx/.dotm).
 const ZIP_SIG: &[u8] = b"PK\x03\x04";
@@ -41,6 +45,58 @@ const OLE_SIG: &[u8] = &[0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1];
 fn ext_of(name: &str) -> String {
     let file = name.rsplit(['/', '\\']).next().unwrap_or(name);
     file.rsplit_once('.').map(|(_, ext)| ext.to_ascii_lowercase()).unwrap_or_default()
+}
+
+/// Plume: is `ext` a Markdown document's own format: a Markdown file (`.md`, `.markdown`), a
+/// TextBundle folder (`.textbundle`) or a TextPack (`.textpack`)?
+pub fn is_markdown_ext(ext: &str) -> bool {
+    matches!(ext.to_ascii_lowercase().as_str(), "md" | "markdown" | "textbundle" | "textpack")
+}
+
+/// [`is_markdown_ext`] for a file name or path.
+pub fn is_markdown_name(name: &str) -> bool {
+    is_markdown_ext(&ext_of(name))
+}
+
+/// A TextBundle's or TextPack's text as a document: Markdown with its pictures (`resolve` gives
+/// a picture's bytes by its path in the bundle), or plain text when the bundle says so.
+fn bundle_document(
+    text: &[u8],
+    markdown: bool,
+    page: &wordcraft_doc::SectionProps,
+    resolve: &dyn Fn(&str) -> Option<std::sync::Arc<Vec<u8>>>,
+) -> Document {
+    let mut doc = if markdown {
+        let text = wordcraft_formats::txt::decode(text);
+        let mut doc = wordcraft_formats::markdown::import_with(&text, page, resolve);
+        wordcraft_formats::markdown::apply_theme(&mut doc, Default::default());
+        doc
+    } else {
+        wordcraft_formats::txt::import_on(text, page)
+    };
+    fit_pictures(&mut doc);
+    doc.ensure_nonempty();
+    doc
+}
+
+/// A TextPack's document.
+fn open_textpack(bytes: &[u8], page: &wordcraft_doc::SectionProps) -> Result<Document, String> {
+    let u = textbundle::unpack(bytes)?;
+    Ok(bundle_document(&u.text, u.is_markdown(), page, &|src| u.file(src).map(|b| std::sync::Arc::new(b.to_vec()))))
+}
+
+/// A TextBundle folder's document: its `info.json` and text file, its pictures read from the
+/// folder (within it only, with the limits of [`LocalImages`]).
+#[cfg(not(target_arch = "wasm32"))]
+fn open_textbundle(dir: &std::path::Path, page: &wordcraft_doc::SectionProps) -> Result<Document, String> {
+    let entries = std::fs::read_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    let names: Vec<String> = entries.flatten().filter(|e| e.path().is_file()).filter_map(|e| e.file_name().into_string().ok()).take(10_000).collect();
+    let text_name = textbundle::pick_text(names.iter().map(String::as_str))
+        .ok_or_else(|| format!("{}: the TextBundle has no text file (text.md)", dir.display()))?;
+    let text = read_regular_file(&dir.join(text_name), 64 << 20).ok_or_else(|| format!("{}: can't read {text_name}", dir.display()))?;
+    let info = read_regular_file(&dir.join("info.json"), textbundle::MAX_INFO).map(|b| textbundle::parse_info(&b)).unwrap_or_default();
+    let images = LocalImages::new(dir);
+    Ok(bundle_document(&text, textbundle::is_markdown_type(&info), page, &|src| images.load(src)))
 }
 
 /// Is `ext` one of Word's package formats (.docx/.docm/.dotx/.dotm), which save without loss?
@@ -203,6 +259,8 @@ fn read_bytes(name: &str, bytes: &[u8], password: Option<&str>, page: &wordcraft
             d.normalize_runs();
             d
         }
+        "textpack" => open_textpack(bytes, page).map_err(|e| format!("{name}: {e}"))?,
+        "textbundle" => return Err(format!("{name}: a TextBundle is a folder; open the folder, or a .textpack file")),
         other => match crate::io_ext::open(other, bytes, page) {
             Some(r) => r?,
             None => return open_by_content(name, other, bytes, password, page),
@@ -323,6 +381,8 @@ pub fn save_bytes_opts(name: &str, doc: &Document, opts: &ExportOptions) -> Resu
             Ok(if opts.markup && opts.comments { wordcraft_formats::comments::append("txt", doc, bytes) } else { bytes })
         }
         "json" => serde_json::to_vec_pretty(doc).map_err(|e| e.to_string()),
+        "textpack" => textpack_bytes(doc, None).map(|(bytes, _)| bytes),
+        "textbundle" => Err(format!("{name}: a TextBundle is a folder; save a .textpack to download it")),
         other => match crate::io_ext::save(other, doc, opts) {
             Some(r) => r,
             None => Err(format!("{name}: can't save as `.{other}`")),
@@ -356,6 +416,12 @@ pub fn open_path_in(path: &std::path::Path, password: Option<&str>, region: &wor
     crate::diagrams::register();
     crate::file_access::check_read(&path.to_string_lossy())?;
     let meta = std::fs::metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    // A TextBundle is a folder.
+    if meta.is_dir() && ext_of(&path.to_string_lossy()) == "textbundle" {
+        let mut doc = open_textbundle(path, &region_page(region))?;
+        opened(&mut doc);
+        return Ok((doc, false));
+    }
     if meta.len() > 2 << 30 {
         return Err(format!("{}: file is larger than 2 GB", path.display()));
     }
@@ -597,7 +663,7 @@ pub fn save_path(path: &std::path::Path, doc: &Document) -> Result<(), String> {
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save_path_with(path: &std::path::Path, doc: &Document, password: Option<&str>, opts: &ExportOptions) -> Result<(), String> {
     crate::file_access::check_write(&path.to_string_lossy())?;
-    if is_markdown(&ext_of(&path.to_string_lossy())) {
+    if is_markdown_name(&path.to_string_lossy()) {
         return save_markdown(path, doc).map(|_| ());
     }
     let bytes = save_bytes_with(&path.to_string_lossy(), doc, password, opts)?;
@@ -607,6 +673,65 @@ pub fn save_path_with(path: &std::path::Path, doc: &Document, password: Option<&
 #[cfg(not(target_arch = "wasm32"))]
 fn is_markdown(ext: &str) -> bool {
     matches!(ext, "md" | "markdown")
+}
+
+/// A TextPack of `doc` (its Markdown, pictures and `info.json`), over the TextPack `existing`
+/// when there is one: its other files and other applications' metadata are kept.
+pub fn textpack_bytes(doc: &Document, existing: Option<&[u8]>) -> Result<(Vec<u8>, wordcraft_formats::markdown::Report), String> {
+    let old = existing.and_then(|b| textbundle::unpack(b).ok());
+    let bundle = wordcraft_formats::markdown::export_native(&markdown_ready(doc), &wordcraft_formats::markdown::NativeOptions::default());
+    let info = textbundle::info_for_save(old.as_ref().map(|o| &o.info));
+    let text_name = old.as_ref().map_or(textbundle::TEXT_NAME, |o| o.text_name.as_str());
+    let mut files: Vec<(String, &[u8])> = bundle.assets.iter().map(|(p, b)| (p.clone(), b.as_slice())).collect();
+    if let Some(o) = &old {
+        files.extend(o.files.iter().map(|(p, b)| (p.clone(), b.as_slice())));
+    }
+    Ok((textbundle::pack(&info, text_name, bundle.text.as_bytes(), &files)?, bundle.report))
+}
+
+/// Save `doc` as a TextBundle folder: its text file (`text.md`, or the one the folder has), its
+/// pictures under `assets/`, `info.json` with other applications' metadata kept. Nothing else in
+/// the folder is touched.
+#[cfg(not(target_arch = "wasm32"))]
+fn save_textbundle(dir: &std::path::Path, doc: &Document) -> Result<wordcraft_formats::markdown::Report, String> {
+    if dir.is_file() {
+        return Err(format!("{}: a file is there, not a TextBundle folder", dir.display()));
+    }
+    std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    let names: Vec<String> = std::fs::read_dir(dir)
+        .map_err(|e| format!("{}: {e}", dir.display()))?
+        .flatten()
+        .filter_map(|e| e.file_name().into_string().ok())
+        .take(10_000)
+        .collect();
+    let text_name = textbundle::pick_text(names.iter().map(String::as_str)).unwrap_or(textbundle::TEXT_NAME).to_string();
+    let old = read_regular_file(&dir.join("info.json"), textbundle::MAX_INFO).map(|b| textbundle::parse_info(&b));
+    let bundle = wordcraft_formats::markdown::export_native(&markdown_ready(doc), &wordcraft_formats::markdown::NativeOptions::default());
+    for (rel, bytes) in &bundle.assets {
+        let target = dir.join(rel);
+        if target.is_file() {
+            continue;
+        }
+        crate::file_access::check_write(&target.to_string_lossy())?;
+        if let Some(parent) = target.parent() {
+            std::fs::create_dir_all(parent).map_err(|e| format!("{}: {e}", parent.display()))?;
+        }
+        safe_save::write(&target, bytes).map_err(|e| format!("{}: {e}", target.display()))?;
+    }
+    let text = dir.join(&text_name);
+    safe_save::write(&text, bundle.text.as_bytes()).map_err(|e| format!("{}: {e}", text.display()))?;
+    let info = dir.join("info.json");
+    safe_save::write(&info, &textbundle::info_bytes(&textbundle::info_for_save(old.as_ref()))).map_err(|e| format!("{}: {e}", info.display()))?;
+    Ok(bundle.report)
+}
+
+/// Save `doc` as a TextPack at `path`, over the one there (see [`textpack_bytes`]).
+#[cfg(not(target_arch = "wasm32"))]
+fn save_textpack(path: &std::path::Path, doc: &Document) -> Result<wordcraft_formats::markdown::Report, String> {
+    let existing = if path.is_file() { read_regular_file(path, 2 << 30) } else { None };
+    let (bytes, report) = textpack_bytes(doc, existing.as_deref())?;
+    safe_save::write(path, &bytes).map_err(|e| format!("{}: {e}", path.display()))?;
+    Ok(report)
 }
 
 /// Save `doc` as a Markdown-native file ([`wordcraft_formats::markdown::export_native`]): the
@@ -622,6 +747,12 @@ pub fn save_markdown(path: &std::path::Path, doc: &Document) -> Result<wordcraft
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save_markdown_files(path: &std::path::Path, doc: &Document) -> Result<(wordcraft_formats::markdown::Report, Vec<std::path::PathBuf>), String> {
     crate::file_access::check_write(&path.to_string_lossy())?;
+    // TextBundle and TextPack hold their pictures themselves.
+    match ext_of(&path.to_string_lossy()).as_str() {
+        "textbundle" => return save_textbundle(path, doc).map(|r| (r, Vec::new())),
+        "textpack" => return save_textpack(path, doc).map(|r| (r, Vec::new())),
+        _ => {}
+    }
     let doc = markdown_ready(doc);
     let bundle = wordcraft_formats::markdown::export_native(&doc, &wordcraft_formats::markdown::NativeOptions::default());
     let dir = path.parent().unwrap_or(std::path::Path::new(""));
@@ -649,6 +780,15 @@ pub fn save_path_with(path: &std::path::Path, _doc: &Document, _password: Option
 /// The download for a Markdown-native save in the browser: `name` and the Markdown when the
 /// document has no pictures, else `<name>.zip` holding the Markdown and its `assets/` folder.
 pub fn markdown_download(name: &str, doc: &Document) -> Result<(String, Vec<u8>), String> {
+    // A TextPack downloads as itself, a TextBundle (a folder) as the TextPack holding it.
+    match ext_of(name).as_str() {
+        "textpack" => return textpack_bytes(doc, None).map(|(b, _)| (name.to_string(), b)),
+        "textbundle" => {
+            let stem = name.rsplit_once('.').map_or(name, |(stem, _)| stem);
+            return textpack_bytes(doc, None).map(|(b, _)| (format!("{stem}.textpack"), b));
+        }
+        _ => {}
+    }
     let doc = markdown_ready(doc);
     let bundle = wordcraft_formats::markdown::export_native(&doc, &wordcraft_formats::markdown::NativeOptions::default());
     if bundle.assets.is_empty() {

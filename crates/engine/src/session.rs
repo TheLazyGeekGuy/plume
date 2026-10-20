@@ -1222,7 +1222,7 @@ impl Session {
             return false;
         }
         match &self.path {
-            Some(p) => p.extension().is_some_and(|e| e.eq_ignore_ascii_case("md") || e.eq_ignore_ascii_case("markdown")),
+            Some(p) => p.extension().is_some_and(|e| crate::io::is_markdown_ext(&e.to_string_lossy())),
             None => true,
         }
     }

@@ -3152,3 +3152,5 @@ template	Letter	Thư
 	Zero or more	Không hoặc nhiều
 	Zero or one	Không hoặc một
 	Pick a kind of diagram.	Hãy chọn một loại sơ đồ.
+	TextBundle (*.textbundle)	TextBundle (*.textbundle)
+	TextPack (*.textpack)	TextPack (*.textpack)

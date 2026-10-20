@@ -67,6 +67,73 @@
         <string>public.plain-text</string>
       </array>
     </dict>
+    <!-- Markdown with its pictures (textbundle.org): a package folder, or one ZIP file. -->
+    <dict>
+      <key>CFBundleTypeName</key>
+      <string>TextBundle</string>
+      <key>CFBundleTypeRole</key>
+      <string>Editor</string>
+      <key>LSHandlerRank</key>
+      <string>Alternate</string>
+      <key>LSTypeIsPackage</key>
+      <true/>
+      <key>LSItemContentTypes</key>
+      <array>
+        <string>org.textbundle.package</string>
+      </array>
+    </dict>
+    <dict>
+      <key>CFBundleTypeName</key>
+      <string>TextPack</string>
+      <key>CFBundleTypeRole</key>
+      <string>Editor</string>
+      <key>LSHandlerRank</key>
+      <string>Alternate</string>
+      <key>LSItemContentTypes</key>
+      <array>
+        <string>org.textbundle.compressed</string>
+      </array>
+    </dict>
+  </array>
+
+  <!-- The TextBundle types, as textbundle.org declares them, for systems that don't know them. -->
+  <key>UTImportedTypeDeclarations</key>
+  <array>
+    <dict>
+      <key>UTTypeIdentifier</key>
+      <string>org.textbundle.package</string>
+      <key>UTTypeDescription</key>
+      <string>TextBundle</string>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>com.apple.package</string>
+        <string>public.composite-content</string>
+      </array>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key>
+        <array>
+          <string>textbundle</string>
+        </array>
+      </dict>
+    </dict>
+    <dict>
+      <key>UTTypeIdentifier</key>
+      <string>org.textbundle.compressed</string>
+      <key>UTTypeDescription</key>
+      <string>TextPack</string>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>com.pkware.zip-archive</string>
+      </array>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key>
+        <array>
+          <string>textpack</string>
+        </array>
+      </dict>
+    </dict>
   </array>
 </dict>
 </plist>

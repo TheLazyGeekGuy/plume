@@ -322,6 +322,8 @@ pub fn export_formats(app: &mut WordApp, ui: &mut Ui) {
         ("Rich Text Format (*.rtf)", "rtf"),
         ("Web page (*.html)", "html"),
         ("Markdown (*.md)", "md"),
+        ("TextBundle (*.textbundle)", "textbundle"),
+        ("TextPack (*.textpack)", "textpack"),
         ("LaTeX (*.tex)", "tex"),
         ("Plain text (*.txt)", "txt"),
         ("Page image (*.png)", "png"),

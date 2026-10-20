@@ -1741,7 +1741,7 @@ impl WordApp {
         let ext = self.session.path.as_ref().and_then(|p| p.extension()).map(|e| e.to_string_lossy().to_string());
         match ext {
             // Markdown is the document's own format: everything else saves as a new `.md`.
-            Some(e) if self.session.native_markdown && matches!(e.to_ascii_lowercase().as_str(), "md" | "markdown") => {
+            Some(e) if self.session.native_markdown && wordcraft_engine::io::is_markdown_ext(&e) => {
                 format!("{}.{e}", self.title_stem())
             }
             _ if self.session.native_markdown => format!("{}.md", self.title_stem()),
@@ -2372,8 +2372,7 @@ pub fn keeps_everything(name: &str) -> bool {
 /// Whether `name` is a Markdown file (`.md`, `.markdown`): the document's own format when
 /// [`wordcraft_engine::Session::native_markdown`] is on.
 pub fn is_markdown_name(name: &str) -> bool {
-    let ext = std::path::Path::new(name).extension().map(|e| e.to_string_lossy().to_ascii_lowercase()).unwrap_or_default();
-    matches!(ext.as_str(), "md" | "markdown")
+    wordcraft_engine::io::is_markdown_name(name)
 }
 
 /// The dialog a user-run command opens when it lacks the input it needs (scripts and agents get

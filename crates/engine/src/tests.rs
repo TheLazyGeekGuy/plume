@@ -8409,3 +8409,64 @@ fn anchors_includes_and_the_markdown_source() {
     assert!(saved.starts_with("# Install {#installation}\n\nRead [setup](#setup)."), "{saved}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// Plume: a TextBundle made by another application opens with its pictures, saves back into
+/// the folder keeping that application's metadata and files, and a TextPack round-trips.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn textbundles_and_textpacks_open_and_save() {
+    let dir = scratch_dir("textbundle");
+    let bundle = dir.join("Note.textbundle");
+    std::fs::create_dir_all(bundle.join("assets")).unwrap();
+    std::fs::write(bundle.join("info.json"), r#"{"version":2,"creatorIdentifier":"net.shinyfrog.bear","net.shinyfrog.bear":{"version":3}}"#).unwrap();
+    std::fs::write(bundle.join("text.markdown"), "# Note\n\nA picture:\n\n![dot](assets/dot.png)\n").unwrap();
+    std::fs::write(bundle.join("assets/dot.png"), tiny_png()).unwrap();
+    std::fs::write(bundle.join("bear-extra.txt"), "theirs").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    // Picked through its text file, as file dialogs pick files: the bundle opens.
+    s.run("file.open", &json!({"path": bundle.join("text.markdown").to_string_lossy()})).unwrap();
+    assert_eq!(s.path.as_deref(), Some(bundle.as_path()));
+    assert!(s.is_markdown(), "a TextBundle is a Markdown document");
+    assert!(!s.doc.media.is_empty(), "its picture is read from the bundle");
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " Edited."})).unwrap();
+    s.run("file.save", &json!({})).unwrap();
+    let text = std::fs::read_to_string(bundle.join("text.markdown")).unwrap();
+    assert!(text.contains("Edited.") && text.contains("](assets/"), "{text}");
+    assert!(!bundle.join("text.md").exists(), "the bundle's own text file is kept");
+    let info: serde_json::Value = serde_json::from_slice(&std::fs::read(bundle.join("info.json")).unwrap()).unwrap();
+    assert_eq!((info["version"].as_i64(), info["type"].as_str()), (Some(2), Some("net.daringfireball.markdown")));
+    assert_eq!(info["creatorIdentifier"], "net.shinyfrog.bear");
+    assert_eq!(info["net.shinyfrog.bear"]["version"], 3);
+    assert_eq!(std::fs::read_to_string(bundle.join("bear-extra.txt")).unwrap(), "theirs");
+
+    // Save As a TextPack, then open it.
+    let pack = dir.join("Note.textpack");
+    s.run("file.saveAs", &json!({"path": pack.to_string_lossy()})).unwrap();
+    assert_eq!(s.path.as_deref(), Some(pack.as_path()));
+    let u = crate::io::textbundle::unpack(&std::fs::read(&pack).unwrap()).unwrap();
+    assert!(String::from_utf8_lossy(&u.text).contains("Edited."));
+    assert!(u.files.iter().any(|(p, _)| p.starts_with("assets/")), "{:?}", u.files.iter().map(|f| &f.0).collect::<Vec<_>>());
+    assert_eq!(u.info["creatorIdentifier"], wordcraft_brand::APP_ID);
+    let mut t = Session::new(wordcraft_doc::Document::new());
+    t.native_markdown = true;
+    t.run("file.open", &json!({"path": pack.to_string_lossy()})).unwrap();
+    assert!(t.doc.plain_text(StoryRef::Body).contains("Edited.") && !t.doc.media.is_empty());
+    // Saved again over itself: a second save changes nothing.
+    t.run("file.save", &json!({})).unwrap();
+    let again = crate::io::textbundle::unpack(&std::fs::read(&pack).unwrap()).unwrap();
+    assert_eq!(again.text, u.text);
+
+    // A new bundle from a Markdown document; bytes and the web.
+    let fresh = dir.join("New.textbundle");
+    s.run("file.saveAs", &json!({"path": fresh.to_string_lossy()})).unwrap();
+    assert!(fresh.join("text.md").is_file() && fresh.join("info.json").is_file());
+    assert!(crate::io::open_bytes("x.textpack", &std::fs::read(&pack).unwrap()).is_ok());
+    assert!(crate::io::open_bytes("x.textbundle", b"").is_err());
+    assert!(crate::io::open_bytes("x.textpack", b"PK\x03\x04junk").is_err());
+    let (name, bytes) = crate::io::markdown_download("New.textbundle", &s.doc).unwrap();
+    assert_eq!(name, "New.textpack");
+    assert!(crate::io::textbundle::unpack(&bytes).is_ok());
+    let _ = std::fs::remove_dir_all(&dir);
+}
