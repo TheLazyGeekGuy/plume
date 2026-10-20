@@ -1,0 +1,45 @@
+{
+  "branch": "main",
+  "commits": 66,
+  "contributors": [
+    {
+      "binary_added": 30,
+      "binary_deleted": 0,
+      "commits": 66,
+      "first_commit": "2026-10-14T21:28:24+00:00",
+      "github_name": null,
+      "last_commit": "2026-10-20T17:20:26+00:00",
+      "lines_added": 36173,
+      "lines_deleted": 3903,
+      "login": "TheLazyGeekGuy",
+      "people_entry": false,
+      "prs": 2
+    }
+  ],
+  "head": "111cbb137f61ada915bab8bfd3b027560f7ea05a",
+  "head_date": "2026-10-20T20:39:55+02:00",
+  "models": [
+    {
+      "commits": 63,
+      "company": "Anthropic",
+      "id": "anthropic/claude-opus/5.5",
+      "lines_added": 35977,
+      "lines_deleted": 3867,
+      "model": "Claude Opus",
+      "version": "5.5"
+    },
+    {
+      "commits": 3,
+      "company": "Anthropic",
+      "id": "anthropic/claude-fable/5.1",
+      "lines_added": 196,
+      "lines_deleted": 36,
+      "model": "Claude Fable",
+      "version": "5.1"
+    }
+  ],
+  "repo": "TheLazyGeekGuy/plume",
+  "schema": 1,
+  "unattributed_commits": 0,
+  "upstream": "upstream/main"
+}
