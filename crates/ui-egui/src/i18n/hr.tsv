@@ -2854,3 +2854,262 @@ preview	Title	Naslov
 	Shape	Oblik
 	This kind of diagram has no visual editor yet; its text is kept as written.	Ova vrsta dijagrama još nema vizualni uređivač; tekst se čuva kako je napisan.
 	To	Za
+	Action	Radnja
+	Activate	Aktiviraj
+	Actor	Sudionik (osoba)
+	Add Column	Dodaj stupac
+	Aggregation	Agregacija
+	Aggregation (at the start)	Agregacija (na početku)
+	All Diagrams…	Svi dijagrami…
+	Alternative	Alternativa
+	Amount	Iznos
+	Analysis	Analiza
+	Arrow at the End	Strelica na kraju
+	Arrow at the Start	Strelica na početku
+	Assigned to	Dodijeljeno
+	Association	Asocijacija
+	Association (to the start)	Asocijacija (prema početku)
+	Asynchronous	Asinkrono
+	Asynchronous Reply	Asinkroni odgovor
+	Axis	Os
+	Axis Format	Oblik osi
+	Back to the Visual Editor	Natrag na vizualni uređivač
+	Bang	Prasak
+	Bar and Line Chart	Stupčasti i linijski grafikon
+	Bars	Stupci
+	Block Diagram	Blok-dijagram
+	Both Ways	U oba smjera
+	Both Ways, Dashed	U oba smjera, isprekidano
+	Bottom Left Quadrant	Donji lijevi kvadrant
+	Bottom Right Quadrant	Donji desni kvadrant
+	Bottom to Top	Odozdo prema gore
+	Boundary	Granica
+	Break	Prekid
+	C4 Architecture	C4 arhitektura
+	Call	Poziv
+	Card (empty: an empty column)	Kartica (prazno: prazan stupac)
+	Card Id	Oznaka kartice
+	Cards	Kartice
+	Category Axis Title	Naslov osi kategorija
+	Change Kind…	Promijeni vrstu…
+	Cherry-pick	Cherry-pick
+	Choice	Izbor
+	Choose a kind of diagram:	Odaberite vrstu dijagrama:
+	Circles	Krugovi
+	Class Diagram	Dijagram klasa
+	Cloud	Oblak
+	Cloud Architecture	Arhitektura oblaka
+	Column Id	Oznaka stupca
+	Columns Wide	Širina u stupcima
+	Commit	Commit
+	Commit Id	Oznaka commita
+	Component	Komponenta
+	Component Database	Baza podataka komponente
+	Component Queue	Red komponente
+	Composition	Kompozicija
+	Composition (at the start)	Kompozicija (na početku)
+	Connection	Veza
+	Container	Spremnik
+	Container Boundary	Granica spremnika
+	Container Database	Baza podataka spremnika
+	Container Queue	Red spremnika
+	Control	Upravljanje
+	Critical	Kritično
+	Curve	Krivulja
+	Dashed Line	Isprekidana linija
+	Dashed Link	Isprekidana veza
+	Data (Left)	Podaci (lijevo)
+	Database	Baza podataka
+	Date Format	Oblik datuma
+	Deactivate	Deaktiviraj
+	Decision	Odluka
+	Demonstration	Demonstracija
+	Dependency	Ovisnost
+	Dependency (to the start)	Ovisnost (prema početku)
+	Deployment	Implementacija
+	Deployment Node	Čvor implementacije
+	Derives	Izvodi
+	Description	Opis
+	Design Constraint	Ograničenje dizajna
+	Destroy	Uništi
+	Diagram Level	Razina dijagrama
+	Direction	Smjer
+	Disk	Disk
+	Display Name	Prikazani naziv
+	Done	Gotovo
+	Dotted Arrow	Točkasta strelica
+	Dotted Line	Točkasta linija
+	Double Circle	Dvostruki krug
+	Dynamic	Dinamički
+	Edit as Text	Uredi kao tekst
+	Element	Element
+	Else	Inače
+	End	Kraj
+	End (date, or duration: 5d, 1w)	Kraj (datum ili trajanje: 5d, 1w)
+	End Cardinality	Kardinalnost na kraju
+	End Multiplicity	Višestrukost na kraju
+	End Side	Strana kraja
+	Enterprise Boundary	Granica poduzeća
+	Entity	Entitet
+	Entity Relationship	Entiteti i veze
+	Event	Događaj
+	Events	Događaji
+	Exactly one	Točno jedan
+	Excluded Days	Isključeni dani
+	External	Vanjski
+	First Bit	Prvi bit
+	Flag	Zastavica
+	Flows	Tokovi
+	Fork	Grananje
+	From the Start's Group	Iz grupe početka
+	Functional Requirement	Funkcionalni zahtjev
+	Gantt Chart	Ganttov dijagram
+	Git History	Git povijest
+	Grid	Mreža
+	Half Arrow (Bottom)	Polustrelica (dolje)
+	Half Arrow (Top)	Polustrelica (gore)
+	Half Arrow at the Start (Bottom)	Polustrelica na početku (dolje)
+	Half Arrow at the Start (Top)	Polustrelica na početku (gore)
+	Half Arrow at the Start, Dashed (Bottom)	Polustrelica na početku, isprekidana (dolje)
+	Half Arrow at the Start, Dashed (Top)	Polustrelica na početku, isprekidana (gore)
+	Half Arrow, Dashed (Bottom)	Polustrelica, isprekidana (dolje)
+	Half Arrow, Dashed (Top)	Polustrelica, isprekidana (gore)
+	Hexagon	Šesterokut
+	Hide the Legend	Sakrij legendu
+	Highlighted	Istaknuto
+	History	Povijest
+	Horizontal Bars	Vodoravni stupci
+	Icon	Ikona
+	Id	Oznaka
+	Idea	Ideja
+	Ideas	Ideje
+	Identifying Relationship	Identificirajuća veza
+	In Group	U grupi
+	In Progress	U tijeku
+	Inheritance	Nasljeđivanje
+	Inheritance (from the end)	Nasljeđivanje (s kraja)
+	Insert Row Below	Umetni redak ispod
+	Inspection	Pregled
+	Interface Requirement	Zahtjev sučelja
+	Internet	Internet
+	Item	Stavka
+	Items	Stavke
+	Join	Spajanje
+	Junction	Čvorište
+	Kanban Board	Kanban ploča
+	Last Bit	Zadnji bit
+	Left of	Lijevo od
+	Left to Right	Slijeva nadesno
+	Level	Razina
+	Loop	Petlja
+	Lost (Cross)	Izgubljeno (križić)
+	Lost Reply (Cross)	Izgubljeni odgovor (križić)
+	Manual Operation	Ručna operacija
+	Members (+public, -private, #protected; methods end with ())	Članovi (+javno, -privatno, #zaštićeno; metode završavaju s ())
+	Milestone	Prekretnica
+	Mind Map	Mentalna mapa
+	Move Left	Pomakni ulijevo
+	Move Right	Pomakni udesno
+	New Branch	Nova grana
+	Non-identifying Relationship	Neidentificirajuća veza
+	Number the Messages	Numeriraj poruke
+	One or more	Jedan ili više
+	Option	Opcija
+	Optional	Neobavezno
+	Order or Parent	Redoslijed ili roditelj
+	Over	Iznad
+	Packet Layout	Raspored paketa
+	Parallel	Paralelno
+	Parts of this diagram (notes, groups or styles) can't be shown here: applying changes made here drops them. Edit it as text to keep them.	Dijelovi ovog dijagrama (bilješke, grupe ili stilovi) ne mogu se ovdje prikazati: primjena ovdje napravljenih promjena uklanja ih. Uredite ga kao tekst da biste ih zadržali.
+	People (comma separated)	Osobe (odvojene zarezom)
+	Performance Requirement	Zahtjev performansi
+	Period	Razdoblje
+	Person	Osoba
+	Physical Requirement	Fizički zahtjev
+	Pie Chart	Tortni grafikon
+	Plain	Obično
+	Planned	Planirano
+	Planning	Planiranje
+	Point	Točka
+	Polygons	Mnogokuti
+	Predefined Process	Unaprijed definiran proces
+	Preparation	Priprema
+	Priority	Prioritet
+	Quadrant Chart	Kvadrantni grafikon
+	Radar Chart	Radarski grafikon
+	Realization	Realizacija
+	Realization (from the end)	Realizacija (s kraja)
+	Refines	Pročišćava
+	Requirement	Zahtjev
+	Requirement Diagram	Dijagram zahtjeva
+	Reverted	Poništeno
+	Right of	Desno od
+	Rings	Prstenovi
+	Risk	Rizik
+	Rounded	Zaobljeno
+	Sankey Flows	Sankeyjevi tokovi
+	Satisfies	Zadovoljava
+	Score (1 to 5)	Ocjena (1 do 5)
+	Section	Odjeljak
+	Sequence Diagram	Sekvencijski dijagram
+	Service	Usluga
+	Show the Values	Prikaži vrijednosti
+	Show the whole drawing	Prikaži cijeli crtež
+	Slice	Isječak
+	Slices	Isječci
+	Software System	Programski sustav
+	Start	Početak
+	Start (date, or after id)	Početak (datum ili after oznaka)
+	Start Cardinality	Kardinalnost na početku
+	Start Multiplicity	Višestrukost na početku
+	Start Side	Strana početka
+	State Diagram	Dijagram stanja
+	Status	Stanje
+	Step	Korak
+	Steps	Koraci
+	Stereotype	Stereotip
+	Structure	Struktura
+	Switch to Branch	Prijeđi na granu
+	System Boundary	Granica sustava
+	System Context	Kontekst sustava
+	System Database	Baza podataka sustava
+	System Queue	Red sustava
+	Task	Zadatak
+	Tasks	Zadaci
+	Terminator	Terminator
+	Test	Test
+	The diagram's Mermaid text	Mermaid tekst dijagrama
+	Thick Arrow	Debela strelica
+	Thick Line	Debela linija
+	This diagram uses what the visual editor can't show yet; its text is kept as written.	Ovaj dijagram koristi ono što vizualni uređivač još ne može prikazati; tekst se čuva kako je napisan.
+	Tick Interval	Razmak oznaka
+	Ticket	Kartica zadatka
+	Timeline	Vremenska crta
+	To the End's Group	Prema grupi kraja
+	Today Marker	Oznaka današnjeg dana
+	Top Left Quadrant	Gornji lijevi kvadrant
+	Top Right Quadrant	Gornji desni kvadrant
+	Top to Bottom	Odozgo prema dolje
+	Traces	Prati
+	Transition	Prijelaz
+	Trapezoid (Inverted)	Trapez (obrnuti)
+	Treemap	Stablasta karta
+	User Journey	Korisničko putovanje
+	Value (leaves)	Vrijednost (listovi)
+	Value Axis Maximum	Najveća vrijednost osi
+	Value Axis Minimum	Najmanja vrijednost osi
+	Value Axis Title	Naslov osi vrijednosti
+	Verification	Provjera
+	Verifies	Provjerava
+	Very High	Vrlo visok
+	Very Low	Vrlo nizak
+	X (0 to 1)	X (0 do 1)
+	X Axis, Left	Os X, lijevo
+	X Axis, Right	Os X, desno
+	Y (0 to 1)	Y (0 do 1)
+	Y Axis, Bottom	Os Y, dolje
+	Y Axis, Top	Os Y, gore
+	ZenUML Sequence	ZenUML sekvenca
+	Zero or more	Nula ili više
+	Zero or one	Nula ili jedan
+	Pick a kind of diagram.	Odaberite vrstu dijagrama.

@@ -1094,12 +1094,23 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
             }
         });
         menu_button(ui, app, "diagram", Some("Diagram"), "Diagram", true, "markdown.diagram", |ui, app| {
-            use crate::diagram_editor::{DiagramEditor, Kind};
-            for (label, kind) in [("Shapes and Connectors", Kind::Shapes), ("Sequence", Kind::Sequence), ("Chart", Kind::Chart)] {
-                if ui.button(tl!(label)).clicked() {
-                    app.dialog = Some(crate::dialogs::Dialog::Diagram(Box::new(DiagramEditor::new(kind))));
-                    ui.close();
-                }
+            use crate::diagram_editor::DiagramEditor;
+            use wordcraft_engine::diagram::codec::Kind;
+            // Every kind of diagram, by group, as Insert › Shapes and SmartArt list theirs.
+            for cat in Kind::CATEGORIES {
+                ui.menu_button(tl!(cat), |ui| {
+                    for kind in Kind::ALL.into_iter().filter(|k| k.category() == cat) {
+                        if ui.button(tl!(kind.label())).clicked() {
+                            app.dialog = Some(crate::dialogs::Dialog::Diagram(Box::new(DiagramEditor::new(kind))));
+                            ui.close();
+                        }
+                    }
+                });
+            }
+            ui.separator();
+            if ui.button(tl!("All Diagrams…")).clicked() {
+                app.dialog = Some(crate::dialogs::Dialog::Diagram(Box::new(DiagramEditor::gallery())));
+                ui.close();
             }
         });
         // In a code block: its language; in any block: back to plain text.

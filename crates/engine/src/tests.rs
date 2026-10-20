@@ -8299,6 +8299,31 @@ fn drawn_diagrams_become_flowcharts() {
     }
 }
 
+/// Plume: every kind of Mermaid diagram can be made from its kind, read back as the model its
+/// visual editor shows, edited as that model and written again, without writing Mermaid.
+#[test]
+fn every_kind_of_diagram_through_its_model() {
+    let mut s = Session::new(wordcraft_doc::Document::from_text("Intro."));
+    s.native_markdown = true;
+    for kind in wordcraft_diagram::codec::Kind::ALL {
+        let name = serde_json::to_value(kind).unwrap();
+        s.run("caret.docEnd", &json!({})).unwrap();
+        s.run("markdown.diagram", &json!({"kind": name})).unwrap_or_else(|e| panic!("{name}: {e:?}"));
+        let block = s.run("markdown.block", &json!({})).unwrap();
+        assert_eq!(block["editor"]["kind"], name, "{block}");
+        assert_eq!(block["editor"]["complete"], true, "{name}: {}", block["diagram"]);
+        // The model edited and applied: the diagram changes in place.
+        let mut d = block["editor"]["diagram"].clone();
+        if let Some(fields) = d["model"]["fields"].as_object_mut() {
+            fields.insert("title".into(), json!("Edited"));
+        }
+        s.run("markdown.diagram", &json!({"diagram": d})).unwrap_or_else(|e| panic!("{name}: {e:?}"));
+        s.run("text.newParagraph", &json!({})).unwrap();
+    }
+    assert!(s.run("markdown.diagram", &json!({"kind": "nope"})).is_err());
+    assert!(s.run("markdown.diagram", &json!({"diagram": {"kind": "pie"}})).is_err());
+}
+
 /// Plume: a Word drawing canvas of shapes glued to connectors is saved as a Mermaid flowchart.
 #[test]
 fn word_drawings_with_connectors_become_mermaid() {

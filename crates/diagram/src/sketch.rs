@@ -42,10 +42,17 @@ pub enum NodeShape {
     Hexagon,
     Parallelogram,
     Database,
+    Subroutine,
+    DoubleCircle,
+    /// A flag pointing right (`id>text]`).
+    Flag,
+    ParallelogramAlt,
+    Trapezoid,
+    TrapezoidAlt,
 }
 
 impl NodeShape {
-    pub const ALL: [NodeShape; 8] = [
+    pub const ALL: [NodeShape; 14] = [
         NodeShape::Rectangle,
         NodeShape::Rounded,
         NodeShape::Stadium,
@@ -54,6 +61,12 @@ impl NodeShape {
         NodeShape::Hexagon,
         NodeShape::Parallelogram,
         NodeShape::Database,
+        NodeShape::Subroutine,
+        NodeShape::DoubleCircle,
+        NodeShape::Flag,
+        NodeShape::ParallelogramAlt,
+        NodeShape::Trapezoid,
+        NodeShape::TrapezoidAlt,
     ];
 
     /// The label the shape palette shows.
@@ -67,7 +80,37 @@ impl NodeShape {
             NodeShape::Hexagon => "Preparation",
             NodeShape::Parallelogram => "Data",
             NodeShape::Database => "Database",
+            NodeShape::Subroutine => "Predefined Process",
+            NodeShape::DoubleCircle => "Double Circle",
+            NodeShape::Flag => "Flag",
+            NodeShape::ParallelogramAlt => "Data (Left)",
+            NodeShape::Trapezoid => "Manual Operation",
+            NodeShape::TrapezoidAlt => "Trapezoid (Inverted)",
         }
+    }
+
+    /// The shape's id in Plume's canvas (its [`crate::graph::NodeKind`]).
+    pub fn id(self) -> &'static str {
+        match self {
+            NodeShape::Rectangle => "rectangle",
+            NodeShape::Rounded => "rounded",
+            NodeShape::Stadium => "stadium",
+            NodeShape::Circle => "circle",
+            NodeShape::Diamond => "diamond",
+            NodeShape::Hexagon => "hexagon",
+            NodeShape::Parallelogram => "parallelogram",
+            NodeShape::Database => "database",
+            NodeShape::Subroutine => "subroutine",
+            NodeShape::DoubleCircle => "doubleCircle",
+            NodeShape::Flag => "flag",
+            NodeShape::ParallelogramAlt => "parallelogramAlt",
+            NodeShape::Trapezoid => "trapezoid",
+            NodeShape::TrapezoidAlt => "trapezoidAlt",
+        }
+    }
+
+    pub fn from_id(id: &str) -> NodeShape {
+        NodeShape::ALL.into_iter().find(|s| s.id() == id).unwrap_or_default()
     }
 
     /// Opening and closing brackets, longest first so `((` is read before `(`.
@@ -81,6 +124,12 @@ impl NodeShape {
             NodeShape::Hexagon => ("{{", "}}"),
             NodeShape::Parallelogram => ("[/", "/]"),
             NodeShape::Database => ("[(", ")]"),
+            NodeShape::Subroutine => ("[[", "]]"),
+            NodeShape::DoubleCircle => ("(((", ")))"),
+            NodeShape::Flag => (">", "]"),
+            NodeShape::ParallelogramAlt => ("[\\", "\\]"),
+            NodeShape::Trapezoid => ("[/", "\\]"),
+            NodeShape::TrapezoidAlt => ("[\\", "/]"),
         }
     }
 
@@ -139,7 +188,7 @@ pub enum Dir {
 }
 
 impl Dir {
-    fn name(self) -> &'static str {
+    pub fn name(self) -> &'static str {
         match self {
             Dir::LR => "LR",
             Dir::RL => "RL",
@@ -147,7 +196,7 @@ impl Dir {
             Dir::BT => "BT",
         }
     }
-    fn parse(s: &str) -> Option<Dir> {
+    pub fn parse(s: &str) -> Option<Dir> {
         match s {
             "LR" => Some(Dir::LR),
             "RL" => Some(Dir::RL),
@@ -373,22 +422,29 @@ impl Sketch {
             return None;
         }
         let rest = s.get(end..)?;
-        let mut found = None;
-        // Longest opening bracket first.
-        let mut shapes = NodeShape::ALL;
-        shapes.sort_by_key(|k| std::cmp::Reverse(k.brackets().0.len()));
-        for shape in shapes {
+        // The longest opening bracket, then the nearest closing one (`[/a\\]` is a
+        // trapezoid, `[/a/]` a parallelogram).
+        let mut best: Option<(usize, usize, NodeShape)> = None;
+        for shape in NodeShape::ALL {
             let (o, c) = shape.brackets();
-            if let Some(inner) = rest.strip_prefix(o) {
-                let close = if inner.starts_with('"') {
-                    inner.get(1..)?.find('"').map(|q| q + 2).and_then(|q| inner.get(q..)?.find(c).map(|k| k + q))?
-                } else {
-                    inner.find(c)?
-                };
-                found = Some((shape, unquote(inner.get(..close)?), inner.get(close + c.len()..)?));
-                break;
+            let Some(inner) = rest.strip_prefix(o) else { continue };
+            let close = if inner.starts_with('"') {
+                inner.get(1..).and_then(|r| r.find('"')).map(|q| q + 2).and_then(|q| inner.get(q..)?.find(c).map(|k| k + q))
+            } else {
+                inner.find(c)
+            };
+            let Some(close) = close else { continue };
+            if best.is_none_or(|(ol, cl, _)| o.len() > ol || (o.len() == ol && close < cl)) {
+                best = Some((o.len(), close, shape));
             }
         }
+        let found = match best {
+            Some((ol, close, shape)) => {
+                let inner = rest.get(ol..)?;
+                Some((shape, unquote(inner.get(..close)?), inner.get(close + shape.brackets().1.len()..)?))
+            }
+            None => None,
+        };
         let i = match self.nodes.iter().position(|n| n.id == id) {
             Some(i) => i,
             None => {

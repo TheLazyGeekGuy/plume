@@ -2893,3 +2893,262 @@ template	Letter	Thư
 	Shape	Hình
 	This kind of diagram has no visual editor yet; its text is kept as written.	Loại sơ đồ này chưa có trình chỉnh sửa trực quan; văn bản được giữ nguyên.
 	To	Đến
+	Action	Thao tác
+	Activate	Kích hoạt
+	Actor	Tác nhân
+	Add Column	Thêm cột
+	Aggregation	Kết tập
+	Aggregation (at the start)	Kết tập (ở đầu)
+	All Diagrams…	Tất cả sơ đồ…
+	Alternative	Lựa chọn
+	Amount	Số lượng
+	Analysis	Phân tích
+	Arrow at the End	Mũi tên ở cuối
+	Arrow at the Start	Mũi tên ở đầu
+	Assigned to	Giao cho
+	Association	Liên kết
+	Association (to the start)	Liên kết (về đầu)
+	Asynchronous	Bất đồng bộ
+	Asynchronous Reply	Trả lời bất đồng bộ
+	Axis	Trục
+	Axis Format	Định dạng trục
+	Back to the Visual Editor	Quay lại trình chỉnh sửa trực quan
+	Bang	Nổ
+	Bar and Line Chart	Biểu đồ cột và đường
+	Bars	Cột
+	Block Diagram	Sơ đồ khối
+	Both Ways	Hai chiều
+	Both Ways, Dashed	Hai chiều, nét đứt
+	Bottom Left Quadrant	Góc phần tư dưới trái
+	Bottom Right Quadrant	Góc phần tư dưới phải
+	Bottom to Top	Từ dưới lên trên
+	Boundary	Ranh giới
+	Break	Ngắt
+	C4 Architecture	Kiến trúc C4
+	Call	Gọi
+	Card (empty: an empty column)	Thẻ (để trống: cột trống)
+	Card Id	Mã thẻ
+	Cards	Thẻ
+	Category Axis Title	Tiêu đề trục danh mục
+	Change Kind…	Đổi loại…
+	Cherry-pick	Cherry-pick
+	Choice	Lựa chọn
+	Choose a kind of diagram:	Chọn loại sơ đồ:
+	Circles	Hình tròn
+	Class Diagram	Sơ đồ lớp
+	Cloud	Đám mây
+	Cloud Architecture	Kiến trúc đám mây
+	Column Id	Mã cột
+	Columns Wide	Rộng (số cột)
+	Commit	Commit
+	Commit Id	Mã commit
+	Component	Thành phần
+	Component Database	Cơ sở dữ liệu thành phần
+	Component Queue	Hàng đợi thành phần
+	Composition	Hợp thành
+	Composition (at the start)	Hợp thành (ở đầu)
+	Connection	Kết nối
+	Container	Vùng chứa
+	Container Boundary	Ranh giới vùng chứa
+	Container Database	Cơ sở dữ liệu vùng chứa
+	Container Queue	Hàng đợi vùng chứa
+	Control	Điều khiển
+	Critical	Quan trọng
+	Curve	Đường cong
+	Dashed Line	Đường nét đứt
+	Dashed Link	Liên kết nét đứt
+	Data (Left)	Dữ liệu (trái)
+	Database	Cơ sở dữ liệu
+	Date Format	Định dạng ngày
+	Deactivate	Hủy kích hoạt
+	Decision	Quyết định
+	Demonstration	Trình diễn
+	Dependency	Phụ thuộc
+	Dependency (to the start)	Phụ thuộc (về đầu)
+	Deployment	Triển khai
+	Deployment Node	Nút triển khai
+	Derives	Dẫn xuất
+	Description	Mô tả
+	Design Constraint	Ràng buộc thiết kế
+	Destroy	Hủy
+	Diagram Level	Cấp độ sơ đồ
+	Direction	Hướng
+	Disk	Ổ đĩa
+	Display Name	Tên hiển thị
+	Done	Xong
+	Dotted Arrow	Mũi tên chấm
+	Dotted Line	Đường chấm
+	Double Circle	Vòng tròn kép
+	Dynamic	Động
+	Edit as Text	Sửa dạng văn bản
+	Element	Phần tử
+	Else	Ngược lại
+	End	Kết thúc
+	End (date, or duration: 5d, 1w)	Kết thúc (ngày, hoặc thời lượng: 5d, 1w)
+	End Cardinality	Bản số ở cuối
+	End Multiplicity	Bội số ở cuối
+	End Side	Cạnh cuối
+	Enterprise Boundary	Ranh giới doanh nghiệp
+	Entity	Thực thể
+	Entity Relationship	Thực thể – quan hệ
+	Event	Sự kiện
+	Events	Sự kiện
+	Exactly one	Đúng một
+	Excluded Days	Ngày loại trừ
+	External	Bên ngoài
+	First Bit	Bit đầu
+	Flag	Cờ
+	Flows	Luồng
+	Fork	Rẽ nhánh
+	From the Start's Group	Từ nhóm của điểm đầu
+	Functional Requirement	Yêu cầu chức năng
+	Gantt Chart	Biểu đồ Gantt
+	Git History	Lịch sử Git
+	Grid	Lưới
+	Half Arrow (Bottom)	Nửa mũi tên (dưới)
+	Half Arrow (Top)	Nửa mũi tên (trên)
+	Half Arrow at the Start (Bottom)	Nửa mũi tên ở đầu (dưới)
+	Half Arrow at the Start (Top)	Nửa mũi tên ở đầu (trên)
+	Half Arrow at the Start, Dashed (Bottom)	Nửa mũi tên ở đầu, nét đứt (dưới)
+	Half Arrow at the Start, Dashed (Top)	Nửa mũi tên ở đầu, nét đứt (trên)
+	Half Arrow, Dashed (Bottom)	Nửa mũi tên, nét đứt (dưới)
+	Half Arrow, Dashed (Top)	Nửa mũi tên, nét đứt (trên)
+	Hexagon	Lục giác
+	Hide the Legend	Ẩn chú giải
+	Highlighted	Được tô sáng
+	History	Lịch sử
+	Horizontal Bars	Cột ngang
+	Icon	Biểu tượng
+	Id	Mã
+	Idea	Ý tưởng
+	Ideas	Ý tưởng
+	Identifying Relationship	Quan hệ định danh
+	In Group	Trong nhóm
+	In Progress	Đang thực hiện
+	Inheritance	Kế thừa
+	Inheritance (from the end)	Kế thừa (từ cuối)
+	Insert Row Below	Chèn hàng bên dưới
+	Inspection	Kiểm tra
+	Interface Requirement	Yêu cầu giao diện
+	Internet	Internet
+	Item	Mục
+	Items	Mục
+	Join	Hợp nhánh
+	Junction	Điểm nối
+	Kanban Board	Bảng Kanban
+	Last Bit	Bit cuối
+	Left of	Bên trái
+	Left to Right	Từ trái sang phải
+	Level	Cấp
+	Loop	Vòng lặp
+	Lost (Cross)	Mất (dấu chéo)
+	Lost Reply (Cross)	Trả lời bị mất (dấu chéo)
+	Manual Operation	Thao tác thủ công
+	Members (+public, -private, #protected; methods end with ())	Thành viên (+công khai, -riêng, #bảo vệ; phương thức kết thúc bằng ())
+	Milestone	Mốc
+	Mind Map	Sơ đồ tư duy
+	Move Left	Chuyển sang trái
+	Move Right	Chuyển sang phải
+	New Branch	Nhánh mới
+	Non-identifying Relationship	Quan hệ không định danh
+	Number the Messages	Đánh số thông điệp
+	One or more	Một hoặc nhiều
+	Option	Tùy chọn
+	Optional	Tùy chọn
+	Order or Parent	Thứ tự hoặc cha
+	Over	Phía trên
+	Packet Layout	Bố cục gói tin
+	Parallel	Song song
+	Parts of this diagram (notes, groups or styles) can't be shown here: applying changes made here drops them. Edit it as text to keep them.	Một số phần của sơ đồ này (ghi chú, nhóm hoặc kiểu) không hiển thị được ở đây: áp dụng thay đổi tại đây sẽ bỏ chúng. Hãy sửa dạng văn bản để giữ lại.
+	People (comma separated)	Người (cách nhau bằng dấu phẩy)
+	Performance Requirement	Yêu cầu hiệu năng
+	Period	Giai đoạn
+	Person	Người
+	Physical Requirement	Yêu cầu vật lý
+	Pie Chart	Biểu đồ tròn
+	Plain	Thường
+	Planned	Đã lên kế hoạch
+	Planning	Lập kế hoạch
+	Point	Điểm
+	Polygons	Đa giác
+	Predefined Process	Quy trình định sẵn
+	Preparation	Chuẩn bị
+	Priority	Ưu tiên
+	Quadrant Chart	Biểu đồ góc phần tư
+	Radar Chart	Biểu đồ radar
+	Realization	Hiện thực hóa
+	Realization (from the end)	Hiện thực hóa (từ cuối)
+	Refines	Tinh chỉnh
+	Requirement	Yêu cầu
+	Requirement Diagram	Sơ đồ yêu cầu
+	Reverted	Đã hoàn tác
+	Right of	Bên phải
+	Rings	Vòng
+	Risk	Rủi ro
+	Rounded	Bo tròn
+	Sankey Flows	Luồng Sankey
+	Satisfies	Thỏa mãn
+	Score (1 to 5)	Điểm (1 đến 5)
+	Section	Phần
+	Sequence Diagram	Sơ đồ tuần tự
+	Service	Dịch vụ
+	Show the Values	Hiện giá trị
+	Show the whole drawing	Hiện toàn bộ hình vẽ
+	Slice	Lát
+	Slices	Các lát
+	Software System	Hệ thống phần mềm
+	Start	Bắt đầu
+	Start (date, or after id)	Bắt đầu (ngày, hoặc after mã)
+	Start Cardinality	Bản số ở đầu
+	Start Multiplicity	Bội số ở đầu
+	Start Side	Cạnh đầu
+	State Diagram	Sơ đồ trạng thái
+	Status	Trạng thái
+	Step	Bước
+	Steps	Các bước
+	Stereotype	Khuôn mẫu
+	Structure	Cấu trúc
+	Switch to Branch	Chuyển sang nhánh
+	System Boundary	Ranh giới hệ thống
+	System Context	Bối cảnh hệ thống
+	System Database	Cơ sở dữ liệu hệ thống
+	System Queue	Hàng đợi hệ thống
+	Task	Nhiệm vụ
+	Tasks	Các nhiệm vụ
+	Terminator	Điểm đầu/cuối
+	Test	Kiểm thử
+	The diagram's Mermaid text	Văn bản Mermaid của sơ đồ
+	Thick Arrow	Mũi tên dày
+	Thick Line	Đường dày
+	This diagram uses what the visual editor can't show yet; its text is kept as written.	Sơ đồ này dùng những gì trình chỉnh sửa trực quan chưa hiển thị được; văn bản được giữ nguyên.
+	Tick Interval	Khoảng chia vạch
+	Ticket	Phiếu
+	Timeline	Dòng thời gian
+	To the End's Group	Tới nhóm của điểm cuối
+	Today Marker	Mốc hôm nay
+	Top Left Quadrant	Góc phần tư trên trái
+	Top Right Quadrant	Góc phần tư trên phải
+	Top to Bottom	Từ trên xuống dưới
+	Traces	Truy vết
+	Transition	Chuyển tiếp
+	Trapezoid (Inverted)	Hình thang (ngược)
+	Treemap	Bản đồ cây
+	User Journey	Hành trình người dùng
+	Value (leaves)	Giá trị (lá)
+	Value Axis Maximum	Tối đa trục giá trị
+	Value Axis Minimum	Tối thiểu trục giá trị
+	Value Axis Title	Tiêu đề trục giá trị
+	Verification	Xác minh
+	Verifies	Xác minh
+	Very High	Rất cao
+	Very Low	Rất thấp
+	X (0 to 1)	X (0 đến 1)
+	X Axis, Left	Trục X, trái
+	X Axis, Right	Trục X, phải
+	Y (0 to 1)	Y (0 đến 1)
+	Y Axis, Bottom	Trục Y, dưới
+	Y Axis, Top	Trục Y, trên
+	ZenUML Sequence	Tuần tự ZenUML
+	Zero or more	Không hoặc nhiều
+	Zero or one	Không hoặc một
+	Pick a kind of diagram.	Hãy chọn một loại sơ đồ.

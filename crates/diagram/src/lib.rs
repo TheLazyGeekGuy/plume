@@ -3,8 +3,11 @@
 //! the bundled fonts, so the picture is the same on every machine and in the browser.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
+pub mod codec;
+pub mod form;
+pub mod graph;
 pub mod mermaid;
-pub mod sequence;
+pub mod sheet;
 pub mod sketch;
 
 use std::sync::{Arc, OnceLock};

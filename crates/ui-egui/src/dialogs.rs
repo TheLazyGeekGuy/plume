@@ -1091,7 +1091,7 @@ impl Dialog {
                 let block = app.session.run("markdown.block", &json!({})).unwrap_or_default();
                 Dialog::Diagram(Box::new(match block.get("diagram").and_then(Value::as_str) {
                     Some(src) => crate::diagram_editor::DiagramEditor::open(src),
-                    None => crate::diagram_editor::DiagramEditor::default(),
+                    None => crate::diagram_editor::DiagramEditor::gallery(),
                 }))
             }
             "requestReview" => Dialog::RequestReview { title: String::new(), message: String::new(), error: String::new(), focus: true },

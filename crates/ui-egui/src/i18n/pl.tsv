@@ -2843,3 +2843,262 @@ preview	Title	Tytuł
 	Shape	Kształt
 	This kind of diagram has no visual editor yet; its text is kept as written.	Ten rodzaj diagramu nie ma jeszcze edytora wizualnego; jego tekst pozostaje bez zmian.
 	To	Do
+	Action	Akcja
+	Activate	Aktywuj
+	Actor	Aktor
+	Add Column	Dodaj kolumnę
+	Aggregation	Agregacja
+	Aggregation (at the start)	Agregacja (na początku)
+	All Diagrams…	Wszystkie diagramy…
+	Alternative	Alternatywa
+	Amount	Wartość
+	Analysis	Analiza
+	Arrow at the End	Strzałka na końcu
+	Arrow at the Start	Strzałka na początku
+	Assigned to	Przypisane do
+	Association	Asocjacja
+	Association (to the start)	Asocjacja (do początku)
+	Asynchronous	Asynchroniczny
+	Asynchronous Reply	Odpowiedź asynchroniczna
+	Axis	Oś
+	Axis Format	Format osi
+	Back to the Visual Editor	Wróć do edytora wizualnego
+	Bang	Wybuch
+	Bar and Line Chart	Wykres słupkowy i liniowy
+	Bars	Słupki
+	Block Diagram	Diagram blokowy
+	Both Ways	W obie strony
+	Both Ways, Dashed	W obie strony, przerywana
+	Bottom Left Quadrant	Lewa dolna ćwiartka
+	Bottom Right Quadrant	Prawa dolna ćwiartka
+	Bottom to Top	Od dołu do góry
+	Boundary	Granica
+	Break	Przerwanie
+	C4 Architecture	Architektura C4
+	Call	Wywołanie
+	Card (empty: an empty column)	Karta (pusta: pusta kolumna)
+	Card Id	Identyfikator karty
+	Cards	Karty
+	Category Axis Title	Tytuł osi kategorii
+	Change Kind…	Zmień rodzaj…
+	Cherry-pick	Cherry-pick
+	Choice	Wybór
+	Choose a kind of diagram:	Wybierz rodzaj diagramu:
+	Circles	Okręgi
+	Class Diagram	Diagram klas
+	Cloud	Chmura
+	Cloud Architecture	Architektura chmury
+	Column Id	Identyfikator kolumny
+	Columns Wide	Szerokość w kolumnach
+	Commit	Commit
+	Commit Id	Identyfikator commita
+	Component	Komponent
+	Component Database	Baza danych komponentu
+	Component Queue	Kolejka komponentu
+	Composition	Kompozycja
+	Composition (at the start)	Kompozycja (na początku)
+	Connection	Połączenie
+	Container	Kontener
+	Container Boundary	Granica kontenera
+	Container Database	Baza danych kontenera
+	Container Queue	Kolejka kontenera
+	Control	Kontrola
+	Critical	Krytyczne
+	Curve	Krzywa
+	Dashed Line	Linia przerywana
+	Dashed Link	Łącze przerywane
+	Data (Left)	Dane (w lewo)
+	Database	Baza danych
+	Date Format	Format daty
+	Deactivate	Dezaktywuj
+	Decision	Decyzja
+	Demonstration	Demonstracja
+	Dependency	Zależność
+	Dependency (to the start)	Zależność (do początku)
+	Deployment	Wdrożenie
+	Deployment Node	Węzeł wdrożenia
+	Derives	Wyprowadza
+	Description	Opis
+	Design Constraint	Ograniczenie projektowe
+	Destroy	Zniszcz
+	Diagram Level	Poziom diagramu
+	Direction	Kierunek
+	Disk	Dysk
+	Display Name	Nazwa wyświetlana
+	Done	Gotowe
+	Dotted Arrow	Strzałka kropkowana
+	Dotted Line	Linia kropkowana
+	Double Circle	Podwójne koło
+	Dynamic	Dynamiczny
+	Edit as Text	Edytuj jako tekst
+	Element	Element
+	Else	W przeciwnym razie
+	End	Koniec
+	End (date, or duration: 5d, 1w)	Koniec (data lub czas trwania: 5d, 1w)
+	End Cardinality	Liczność na końcu
+	End Multiplicity	Krotność na końcu
+	End Side	Strona końca
+	Enterprise Boundary	Granica przedsiębiorstwa
+	Entity	Encja
+	Entity Relationship	Diagram związków encji
+	Event	Zdarzenie
+	Events	Zdarzenia
+	Exactly one	Dokładnie jeden
+	Excluded Days	Wykluczone dni
+	External	Zewnętrzny
+	First Bit	Pierwszy bit
+	Flag	Flaga
+	Flows	Przepływy
+	Fork	Rozwidlenie
+	From the Start's Group	Z grupy początku
+	Functional Requirement	Wymaganie funkcjonalne
+	Gantt Chart	Wykres Gantta
+	Git History	Historia Git
+	Grid	Siatka
+	Half Arrow (Bottom)	Półstrzałka (dół)
+	Half Arrow (Top)	Półstrzałka (góra)
+	Half Arrow at the Start (Bottom)	Półstrzałka na początku (dół)
+	Half Arrow at the Start (Top)	Półstrzałka na początku (góra)
+	Half Arrow at the Start, Dashed (Bottom)	Półstrzałka na początku, przerywana (dół)
+	Half Arrow at the Start, Dashed (Top)	Półstrzałka na początku, przerywana (góra)
+	Half Arrow, Dashed (Bottom)	Półstrzałka, przerywana (dół)
+	Half Arrow, Dashed (Top)	Półstrzałka, przerywana (góra)
+	Hexagon	Sześciokąt
+	Hide the Legend	Ukryj legendę
+	Highlighted	Wyróżniony
+	History	Historia
+	Horizontal Bars	Słupki poziome
+	Icon	Ikona
+	Id	Identyfikator
+	Idea	Pomysł
+	Ideas	Pomysły
+	Identifying Relationship	Związek identyfikujący
+	In Group	W grupie
+	In Progress	W toku
+	Inheritance	Dziedziczenie
+	Inheritance (from the end)	Dziedziczenie (od końca)
+	Insert Row Below	Wstaw wiersz poniżej
+	Inspection	Inspekcja
+	Interface Requirement	Wymaganie interfejsu
+	Internet	Internet
+	Item	Element
+	Items	Elementy
+	Join	Złączenie
+	Junction	Węzeł
+	Kanban Board	Tablica Kanban
+	Last Bit	Ostatni bit
+	Left of	Na lewo od
+	Left to Right	Od lewej do prawej
+	Level	Poziom
+	Loop	Pętla
+	Lost (Cross)	Utracone (krzyżyk)
+	Lost Reply (Cross)	Utracona odpowiedź (krzyżyk)
+	Manual Operation	Operacja ręczna
+	Members (+public, -private, #protected; methods end with ())	Składowe (+publiczne, -prywatne, #chronione; metody kończą się na ())
+	Milestone	Kamień milowy
+	Mind Map	Mapa myśli
+	Move Left	Przesuń w lewo
+	Move Right	Przesuń w prawo
+	New Branch	Nowa gałąź
+	Non-identifying Relationship	Związek nieidentyfikujący
+	Number the Messages	Numeruj komunikaty
+	One or more	Jeden lub więcej
+	Option	Opcja
+	Optional	Opcjonalne
+	Order or Parent	Kolejność lub rodzic
+	Over	Nad
+	Packet Layout	Układ pakietu
+	Parallel	Równolegle
+	Parts of this diagram (notes, groups or styles) can't be shown here: applying changes made here drops them. Edit it as text to keep them.	Części tego diagramu (notatki, grupy lub style) nie mogą być tu pokazane: zastosowanie zmian wprowadzonych tutaj je usunie. Edytuj go jako tekst, aby je zachować.
+	People (comma separated)	Osoby (oddzielone przecinkami)
+	Performance Requirement	Wymaganie wydajnościowe
+	Period	Okres
+	Person	Osoba
+	Physical Requirement	Wymaganie fizyczne
+	Pie Chart	Wykres kołowy
+	Plain	Zwykły
+	Planned	Zaplanowane
+	Planning	Planowanie
+	Point	Punkt
+	Polygons	Wielokąty
+	Predefined Process	Proces zdefiniowany
+	Preparation	Przygotowanie
+	Priority	Priorytet
+	Quadrant Chart	Wykres ćwiartek
+	Radar Chart	Wykres radarowy
+	Realization	Realizacja
+	Realization (from the end)	Realizacja (od końca)
+	Refines	Uszczegóławia
+	Requirement	Wymaganie
+	Requirement Diagram	Diagram wymagań
+	Reverted	Wycofany
+	Right of	Na prawo od
+	Rings	Pierścienie
+	Risk	Ryzyko
+	Rounded	Zaokrąglony
+	Sankey Flows	Przepływy Sankeya
+	Satisfies	Spełnia
+	Score (1 to 5)	Ocena (1 do 5)
+	Section	Sekcja
+	Sequence Diagram	Diagram sekwencji
+	Service	Usługa
+	Show the Values	Pokaż wartości
+	Show the whole drawing	Pokaż cały rysunek
+	Slice	Wycinek
+	Slices	Wycinki
+	Software System	System oprogramowania
+	Start	Początek
+	Start (date, or after id)	Początek (data lub after identyfikator)
+	Start Cardinality	Liczność na początku
+	Start Multiplicity	Krotność na początku
+	Start Side	Strona początku
+	State Diagram	Diagram stanów
+	Status	Stan
+	Step	Krok
+	Steps	Kroki
+	Stereotype	Stereotyp
+	Structure	Struktura
+	Switch to Branch	Przełącz na gałąź
+	System Boundary	Granica systemu
+	System Context	Kontekst systemu
+	System Database	Baza danych systemu
+	System Queue	Kolejka systemu
+	Task	Zadanie
+	Tasks	Zadania
+	Terminator	Terminator
+	Test	Test
+	The diagram's Mermaid text	Tekst Mermaid diagramu
+	Thick Arrow	Gruba strzałka
+	Thick Line	Gruba linia
+	This diagram uses what the visual editor can't show yet; its text is kept as written.	Ten diagram używa elementów, których edytor wizualny jeszcze nie pokazuje; jego tekst pozostaje bez zmian.
+	Tick Interval	Odstęp podziałki
+	Ticket	Zgłoszenie
+	Timeline	Oś czasu
+	To the End's Group	Do grupy końca
+	Today Marker	Znacznik dzisiejszego dnia
+	Top Left Quadrant	Lewa górna ćwiartka
+	Top Right Quadrant	Prawa górna ćwiartka
+	Top to Bottom	Z góry na dół
+	Traces	Śledzi
+	Transition	Przejście
+	Trapezoid (Inverted)	Trapez (odwrócony)
+	Treemap	Mapa drzewa
+	User Journey	Ścieżka użytkownika
+	Value (leaves)	Wartość (liście)
+	Value Axis Maximum	Maksimum osi wartości
+	Value Axis Minimum	Minimum osi wartości
+	Value Axis Title	Tytuł osi wartości
+	Verification	Weryfikacja
+	Verifies	Weryfikuje
+	Very High	Bardzo wysoki
+	Very Low	Bardzo niski
+	X (0 to 1)	X (0 do 1)
+	X Axis, Left	Oś X, lewa
+	X Axis, Right	Oś X, prawa
+	Y (0 to 1)	Y (0 do 1)
+	Y Axis, Bottom	Oś Y, dół
+	Y Axis, Top	Oś Y, góra
+	ZenUML Sequence	Sekwencja ZenUML
+	Zero or more	Zero lub więcej
+	Zero or one	Zero lub jeden
+	Pick a kind of diagram.	Wybierz rodzaj diagramu.

@@ -48,7 +48,7 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("markdown.setSource", "Apply Markdown Source", "View › Markdown Source", set_source)
             .params(r#"{"text": string} — the document becomes what this Markdown says (undoable)"#),
         CommandSpec::new("markdown.diagram", "Diagram", "Insert › Markdown", diagram)
-            .params(r#"{"source": string (Mermaid)} | {"sketch": {"nodes": [{"text", "shape": "rectangle"|"rounded"|"stadium"|"circle"|"diamond"|"hexagon"|"parallelogram"|"database", "x", "y"}], "edges": [{"from": index, "to": index, "label", "arrow": bool, "line": "solid"|"dotted"|"thick"}]}} (shapes joined by connectors, written as a Mermaid flowchart) — the diagram at the caret takes it, or a new one goes after the caret's paragraph; refused when it can't be drawn"#),
+            .params(r#"{"source": string (Mermaid)} | {"kind": "flowchart"|"sequence"|"state"|"class"|"er"|"requirement"|"c4"|"architecture"|"block"|"gantt"|"journey"|"timeline"|"kanban"|"mindmap"|"gitGraph"|"pie"|"xyChart"|"radar"|"quadrant"|"sankey"|"treemap"|"packet"|"zenUml"} (a new one from its template) | {"diagram": the model `markdown.block` gives under `editor.diagram`, edited} | {"sketch": {"nodes": [{"text", "shape": "rectangle"|"rounded"|"stadium"|"circle"|"diamond"|"hexagon"|"parallelogram"|"database", "x", "y"}], "edges": [{"from": index, "to": index, "label", "arrow": bool, "line": "solid"|"dotted"|"thick"}]}} (shapes joined by connectors, written as a Mermaid flowchart) — the diagram at the caret takes it, or a new one goes after the caret's paragraph; refused when it can't be drawn"#),
     ]
 }
 
@@ -72,6 +72,15 @@ fn block_at_caret(s: &Session) -> Value {
         // A flowchart the canvas can open: its shapes and connectors.
         if let Some(sk) = wordcraft_diagram::sketch::Sketch::parse(src) {
             out["sketch"] = serde_json::to_value(sk).unwrap_or_default();
+        }
+        // Any kind: the model its visual editor shows, and whether it shows all of it.
+        let (model, complete) = match wordcraft_diagram::codec::open(src) {
+            wordcraft_diagram::codec::Opened::Visual(d) => (Some(d), true),
+            wordcraft_diagram::codec::Opened::Partial(d) => (Some(d), false),
+            wordcraft_diagram::codec::Opened::Text => (None, false),
+        };
+        if let Some(d) = model {
+            out["editor"] = json!({"kind": d.kind, "complete": complete, "diagram": d});
         }
     }
     if let Some(a) = &md.anchor {
@@ -161,6 +170,7 @@ fn diagram(s: &mut Session, v: &Value) -> CmdResult {
     let source = match (v.get("source"), v.get("sketch")) {
         (Some(Value::String(x)), _) if x.len() <= wordcraft_diagram::MAX_SOURCE => x.replace("\r\n", "\n").trim_end().to_string(),
         (None, Some(sk)) => sketch_source(sk)?,
+        (None, None) if v.get("diagram").is_some() || v.get("kind").is_some() => model_source(v)?,
         _ => return Err(CmdError::Params(format!("`source`: the diagram's Mermaid text, at most {} bytes", wordcraft_diagram::MAX_SOURCE))),
     };
     let pic = wordcraft_diagram::draw(&source).map_err(|e| CmdError::Params(e.to_string()))?;
@@ -199,6 +209,22 @@ fn diagram(s: &mut Session, v: &Value) -> CmdResult {
     };
     s.sel = crate::Selection::caret(wordcraft_doc::Pos { story, path: target, off: 0 });
     Ok(json!({"diagram": true, "width": pic.width * k, "height": pic.height * k}))
+}
+
+/// A diagram's Mermaid source from its editor's model (`diagram`, as `markdown.block` gives it
+/// under `editor`), or a new diagram of a `kind` from its template.
+fn model_source(v: &Value) -> Result<String, CmdError> {
+    use wordcraft_diagram::codec::{self, Diagram, Kind};
+    if let Some(d) = v.get("diagram") {
+        let d: Diagram = serde_json::from_value(d.clone()).map_err(|e| CmdError::Params(format!("`diagram`: {e}")))?;
+        return Ok(codec::write(&d));
+    }
+    let kind: Kind = serde_json::from_value(v.get("kind").cloned().unwrap_or_default()).map_err(|_| {
+        let kinds: Vec<String> =
+            Kind::ALL.iter().filter_map(|k| serde_json::to_value(k).ok()).filter_map(|k| k.as_str().map(str::to_string)).collect();
+        CmdError::Params(format!("`kind`: one of {}", kinds.join(", ")))
+    })?;
+    codec::new(kind).map(|d| codec::write(&d)).ok_or_else(|| CmdError::Failed(format!("no template for {kind:?}")))
 }
 
 /// A drawn diagram's Mermaid source, from its shapes and connectors.

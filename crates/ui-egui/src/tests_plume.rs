@@ -146,10 +146,13 @@ fn the_diagram_editor_draws_shapes_and_connectors() {
     assert!(h.state_mut().session.run("markdown.block", &serde_json::json!({})).unwrap().get("diagram").is_some(), "the caret is on the diagram");
     let _ = h.state_mut().run("ui.dialog", serde_json::json!({"name": "diagram"}));
     h.run_steps(4);
-    assert!(h.query_by_label("Shapes and Connectors").is_some() && h.query_by_label("Preview").is_some());
+    assert!(h.query_by_label("Flowchart").is_some() && h.query_by_label("Preview").is_some());
     assert!(h.query_by_label("Arrange").is_some() && h.query_by_label("Mermaid source").is_none());
     let Some(crate::dialogs::Dialog::Diagram(e)) = &h.state().dialog else { panic!("the diagram editor is open") };
-    assert_eq!((e.kind, e.sketch.nodes.len(), e.sketch.edges.len()), (crate::diagram_editor::Kind::Shapes, 2, 1));
+    let Some(wordcraft_engine::diagram::codec::Diagram { kind, model: wordcraft_engine::diagram::codec::Model::Graph(g), .. }) = &e.diagram else {
+        panic!("a flowchart on the canvas")
+    };
+    assert_eq!((*kind, g.nodes.len(), g.edges.len()), (wordcraft_engine::diagram::codec::Kind::Flowchart, 2, 1));
 }
 
 /// View › Markdown Source shows the document as its file is written; edited and applied, the
