@@ -75,7 +75,8 @@ jobs:
       - name: Report the conflicts
         if: steps.merge.outputs.clean == 'false'
         run: |
-          files=$(sed 's/^/- `/; s/$/`/' conflicts.txt)
+          bt=$(printf '\140')
+          files=$(sed "s/^/- ${bt}/; s/\$/${bt}/" conflicts.txt)
           title="Upstream sync needs a hand (${{ steps.merge.outputs.behind }} commits)"
           if gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number' | grep -q .; then
             echo "issue already open"
