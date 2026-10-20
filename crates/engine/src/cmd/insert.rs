@@ -98,6 +98,8 @@ pub fn specs() -> Vec<CommandSpec> {
         }),
         CommandSpec::new("insert.dateTime", "Date & Time", "Insert › Text", date_time).params(r#"{"format"?: "M/d/yyyy", "update"?: bool}"#),
         CommandSpec::new("insert.symbol", "Symbol", "Insert › Symbols", symbol).params(r#"{"char": string, "font"?: family (the symbol's own font)}"#),
+        // Plume: an emoji is plain text, so a Markdown file keeps it (Symbol's own fonts it can't).
+        CommandSpec::new("insert.emoji", "Emoji", "Insert › Symbols", emoji).params(r#"{"char": string (an emoji, as text; EMOJI lists the menu's)}"#),
         CommandSpec::new("insert.field", "Field", "Insert › Text › Quick Parts", field).key("Mod+F9").params(r#"{"instr": string, "result"?: string}"#),
         // Word's Alt+Shift+D / T / P (Control+Shift+… in Word for Mac): DATE, TIME and PAGE fields.
         CommandSpec::new("insert.dateField", "Insert Date Field", "Insert › Text › Quick Parts", |s, _| field(s, &json!({"instr": "DATE"})))
@@ -869,6 +871,27 @@ pub fn format_date_parts(fmt: &str, y: i64, m: usize, d: u32, (hh, mm, ss): (u32
         i += n;
     }
     out
+}
+
+/// Insert › Emoji's menu, by group: the emoji a document most often uses (`insert.emoji` takes
+/// any other too).
+pub const EMOJI: &[(&str, &[&str])] = &[
+    ("Smileys", &["😀", "😃", "😄", "😁", "😅", "😂", "🙂", "😉", "😊", "😍", "🤔", "😎", "😮", "😢", "😴", "🙃"]),
+    ("Gestures", &["👍", "👎", "👏", "🙌", "🙏", "👋", "✌️", "👌", "💪", "🤝", "👉", "👀"]),
+    ("Status", &["✅", "❌", "⚠️", "❗", "❓", "💡", "📌", "🔥", "⭐", "🚀", "🎉", "🏁", "⏳", "🔒", "🐛", "🔧"]),
+    ("Objects", &["📄", "📁", "📝", "📚", "📅", "📎", "🔗", "💬", "📊", "📈", "💻", "⌨️"]),
+    ("Arrows", &["➡️", "⬅️", "⬆️", "⬇️", "↔️", "🔁", "🔄", "🔙"]),
+];
+
+/// Insert › Emoji: the emoji at the caret, as text in the caret's formatting.
+fn emoji(s: &mut Session, v: &Value) -> CmdResult {
+    let c = p::req_str(v, "char")?;
+    // An emoji is a few code points at most (a family or a flag joins several).
+    if c.is_empty() || c.chars().count() > 16 || c.chars().any(char::is_control) {
+        return Err(CmdError::Params("char: an emoji (1–16 characters, no control characters)".into()));
+    }
+    type_text(s, c)?;
+    sel_result(s)
 }
 
 /// Insert › Symbol: the character at the caret, in its own font when `font` names one (the rest of

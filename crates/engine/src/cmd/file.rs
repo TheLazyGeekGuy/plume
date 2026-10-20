@@ -248,6 +248,11 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
     s.path = Some(path.into());
     s.imported_from = None;
     s.import_report.clear();
+    // A ZIP read from bytes (the browser) is written again over them.
+    s.source_archive = match p::str(v, "data") {
+        Some(data) if ext == "zip" => super::insert::base64_decode(data).map(std::sync::Arc::new),
+        _ => None,
+    };
     // Like Word, a document opened with a password is saved with it again.
     if encrypted {
         s.password = password.map(crate::io::Password::new);
@@ -278,15 +283,27 @@ fn textbundle_of(path: &str) -> Option<String> {
 /// A document opened from another format (Word, RTF, ODT…) with Markdown as the document's own
 /// format: it will be saved as `<name>.md` beside the original, which is never written; when that
 /// file already exists, Save asks where instead. The import report says what Markdown can't hold.
+/// In strict Markdown mode the document is flattened to its Markdown at once
+/// ([`crate::io::as_markdown`]): what shows is what saving keeps.
 fn import_as_markdown(s: &mut Session, from: &std::path::Path) {
     let md = from.with_extension("md");
+    // Its Word properties (dates, category, custom properties) go into the front matter.
+    wordcraft_formats::front_matter::adopt_converted(&mut s.doc);
+    let report = wordcraft_formats::markdown::export_native(&s.doc, &Default::default()).report;
+    if s.prefs.markdown_strict {
+        #[allow(unused_mut)]
+        let mut flat = crate::io::as_markdown(&s.doc, &crate::io::region_page(&s.region()));
+        // The folder's publication profile, as when the `.md` itself opens.
+        #[cfg(not(target_arch = "wasm32"))]
+        if let Some((profile, _)) = crate::publication::Profile::for_document(&md) {
+            profile.apply(&mut flat);
+        }
+        s.set_document(flat);
+    }
     s.imported_from = Some(from.to_path_buf());
     s.path = (!md.exists()).then_some(md);
     s.password = None;
     s.dirty = true;
-    // Its Word properties (dates, category, custom properties) go into the front matter.
-    wordcraft_formats::front_matter::adopt_converted(&mut s.doc);
-    let report = wordcraft_formats::markdown::export_native(&s.doc, &Default::default()).report;
     s.import_report = report.lines();
 }
 

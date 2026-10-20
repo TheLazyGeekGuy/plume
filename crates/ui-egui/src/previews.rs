@@ -513,7 +513,14 @@ const STYLE_TILES_COMPACT: usize = 3;
 pub fn style_gallery(app: &mut WordApp, ui: &mut Ui, state: &Value) {
     let t = Tokens::get(ui.ctx());
     let current = state.get("style").and_then(Value::as_str).unwrap_or("Normal").to_string();
-    let styles: Vec<(String, String)> = app.session.doc.styles.gallery().iter().map(|s| (s.id.clone(), crate::i18n::style_name(s))).collect();
+    // Plume's Markdown profile: only the styles a Markdown file keeps (its blocks).
+    let profile = crate::widgets::profile_on(app);
+    let gallery = if profile {
+        wordcraft_engine::plume::MARKDOWN_STYLES.iter().filter_map(|id| app.session.doc.styles.get(id)).collect()
+    } else {
+        app.session.doc.styles.gallery()
+    };
+    let styles: Vec<(String, String)> = gallery.iter().map(|s| (s.id.clone(), crate::i18n::style_name(s))).collect();
     let rev = app.session.rev();
     let skey = app.previews.styles_key(&app.session.doc, rev);
     let ppp = ui.ctx().pixels_per_point();
@@ -560,17 +567,20 @@ pub fn style_gallery(app: &mut WordApp, ui: &mut Ui, state: &Value) {
         let galley = ui.painter().layout_job(job);
         let label_pos = pos2(r.center().x - galley.size().x / 2.0, r.max.y - 9.0 - galley.size().y / 2.0);
         ui.painter().with_clip_rect(r).galley(label_pos, galley, t.text);
-        // Right-click a tile: the same style actions as the Styles pane.
-        resp.context_menu(|ui| {
-            if ui.button(tl!("Update to Match Selection")).clicked() {
-                let _ = app.run("styles.updateToMatch", json!({"style": id}));
-                ui.close();
-            }
-            if ui.button(tl!("Modify…")).clicked() {
-                app.dialog = crate::dialogs::Dialog::modify_style(app, id);
-                ui.close();
-            }
-        });
+        // Right-click a tile: the same style actions as the Styles pane (off in the Markdown
+        // profile: a Markdown file keeps no style definitions).
+        if !profile {
+            resp.context_menu(|ui| {
+                if ui.button(tl!("Update to Match Selection")).clicked() {
+                    let _ = app.run("styles.updateToMatch", json!({"style": id}));
+                    ui.close();
+                }
+                if ui.button(tl!("Modify…")).clicked() {
+                    app.dialog = crate::dialogs::Dialog::modify_style(app, id);
+                    ui.close();
+                }
+            });
+        }
         if resp.on_hover_text(name).clicked() {
             let _ = app.run("para.style", json!({"style": id}));
         }
@@ -579,6 +589,10 @@ pub fn style_gallery(app: &mut WordApp, ui: &mut Ui, state: &Value) {
     let ar = Rect::from_min_max(pos2(area.max.x - 16.0, area.min.y + 2.0), pos2(area.max.x - 2.0, area.max.y - 2.0));
     let thirds = ar.height() / 3.0;
     for (i, (icon, delta)) in [("chevronUp", -1i32), ("chevronDown", 1), ("more", 0)].iter().enumerate() {
+        // The Styles pane is off in the Markdown profile.
+        if profile && *delta == 0 {
+            continue;
+        }
         let br = Rect::from_min_size(pos2(ar.min.x, ar.min.y + thirds * i as f32), vec2(ar.width(), thirds));
         let resp = ui.interact(br, ui.id().with(("gal_arrow", i)), Sense::click());
         if resp.hovered() {

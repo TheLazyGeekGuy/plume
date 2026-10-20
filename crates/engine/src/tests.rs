@@ -8336,10 +8336,251 @@ fn native_markdown_imports_word_documents() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+/// Strict Markdown mode flattens an imported Word document to its Markdown at once: styles
+/// become Markdown blocks (the title a level-1 heading, an intense quote a quote, a caption plain
+/// text), direct fonts, sizes and colours go, bold stays. What shows is what saving writes.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn strict_markdown_flattens_imported_documents() {
+    use wordcraft_doc::{Block, CharProps, Paragraph, TextColor, para_block};
+    let dir = scratch_dir("native-md-flat");
+    let docx = dir.join("flat.docx");
+    let mut doc = wordcraft_doc::Document::new();
+    let styled = |text: &str, style: &str| para_block(Paragraph::with_text(text, CharProps::default()).styled(style));
+    doc.body = vec![
+        styled("Report", "Title"),
+        styled("Part one", "Heading2"),
+        styled("Figure 1", "Caption"),
+        styled("Said loudly", "IntenseQuote"),
+        para_block(Paragraph::with_text(
+            "Loud",
+            CharProps {
+                bold: Some(true),
+                font: Some("Georgia".into()),
+                size: Some(20.0),
+                color: Some(TextColor::Rgb(wordcraft_doc::Rgb(0xC0, 0, 0))),
+                ..Default::default()
+            },
+        )),
+    ];
+    std::fs::write(&docx, crate::io::save_bytes("flat.docx", &doc).unwrap()).unwrap();
+    let para = |s: &Session, text: &str| -> Paragraph {
+        s.doc
+            .body
+            .iter()
+            .find_map(|b| match &**b {
+                Block::Para(p) if p.plain_text() == text => Some(p.clone()),
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("no paragraph {text:?}"))
+    };
+
+    // Strict mode off: the import keeps Word's styles and formatting.
+    let mut kept = Session::new(wordcraft_doc::Document::new());
+    kept.native_markdown = true;
+    kept.prefs.markdown_strict = false;
+    kept.run("file.open", &json!({"path": docx.to_string_lossy()})).unwrap();
+    assert_eq!(para(&kept, "Figure 1").props.style.as_deref(), Some("Caption"));
+
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": docx.to_string_lossy()})).unwrap();
+    assert!(s.dirty, "the import is still to be saved");
+    assert_eq!(para(&s, "Report").props.style.as_deref(), Some("Heading1"));
+    assert_eq!(para(&s, "Part one").props.style.as_deref(), Some("Heading2"));
+    assert_eq!(para(&s, "Said loudly").props.style.as_deref(), Some("Quote"));
+    assert_eq!(para(&s, "Figure 1").props.style.as_deref().unwrap_or("Normal"), "Normal");
+    let loud = para(&s, "Loud").runs[0].props.clone();
+    assert_eq!(loud.bold, Some(true));
+    assert!(loud.font.is_none() && loud.size.is_none() && loud.color.is_none(), "{loud:?}");
+    // Flattened, the document writes the Markdown the unflattened import would have written.
+    let native = |d: &wordcraft_doc::Document| wordcraft_formats::markdown::export_native(d, &Default::default()).text;
+    assert_eq!(native(&s.doc), native(&kept.doc));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Strict Markdown mode applies only the styles a Markdown file keeps, and leaves the Styles
+/// pane closed: the others would be saved as plain text.
+#[test]
+fn strict_markdown_applies_markdown_styles_only() {
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("text.insert", &json!({"text": "Hello"})).unwrap();
+    s.run("styles.apply", &json!({"style": "Heading 2"})).unwrap();
+    assert!(matches!(s.run("para.style", &json!({"style": "Title"})), Err(crate::CmdError::Disabled(_))));
+    assert!(matches!(s.run("styles.apply", &json!({"style": "Subtitle"})), Err(crate::CmdError::Disabled(_))));
+    assert!(matches!(s.run("styles.apply", &json!({})), Err(crate::CmdError::Disabled(_))));
+    assert!(matches!(s.run("styles.pane", &json!({})), Err(crate::CmdError::Disabled(_))));
+    assert!(!s.view.styles_pane);
+    assert_eq!(s.doc.para_at(&s.sel.focus).and_then(|p| p.props.style.clone()).as_deref(), Some("Heading2"));
+    s.prefs.markdown_strict = false;
+    s.run("para.style", &json!({"style": "Title"})).unwrap();
+}
+
+/// Strict Markdown mode replaces the ™ © ® list with Insert › Emoji: an emoji is plain text a
+/// Markdown file keeps, a symbol may need its own font.
+#[test]
+fn strict_markdown_inserts_emoji_not_symbols() {
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("insert.emoji", &json!({"char": "👍"})).unwrap();
+    s.run("insert.emoji", &json!({"char": "⚠️"})).unwrap();
+    assert_eq!(s.doc.plain_text(StoryRef::Body).trim_end(), "👍⚠️");
+    for bad in [json!({}), json!({"char": ""}), json!({"char": "\u{7}"}), json!({"char": "x".repeat(17)})] {
+        assert!(matches!(s.run("insert.emoji", &bad), Err(crate::CmdError::Params(_))), "{bad}");
+    }
+    for id in ["text.trademark", "text.copyright", "text.registered", "insert.symbol"] {
+        assert!(matches!(s.run(id, &json!({"char": "Ω"})), Err(crate::CmdError::Disabled(_))), "{id}");
+    }
+    let text = wordcraft_formats::markdown::export_native(&s.doc, &Default::default()).text;
+    assert_eq!(text, "👍⚠️\n");
+    for (_, emoji) in crate::cmd::insert::EMOJI {
+        for e in *emoji {
+            assert!(s.run("insert.emoji", &json!({"char": e})).is_ok(), "{e}");
+        }
+    }
+}
+
+/// A ZIP the Markdown file and its pictures in it, at their own paths, plus `extra` files.
+#[cfg(test)]
+fn markdown_zip(md_path: &str, md: &str, pictures: &[(&str, &[u8])], extra: &[(&str, &[u8])]) -> Vec<u8> {
+    use std::io::Write;
+    let mut z = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
+    let o = zip::write::SimpleFileOptions::default();
+    z.start_file(md_path, o).unwrap();
+    z.write_all(md.as_bytes()).unwrap();
+    for (p, b) in pictures.iter().chain(extra) {
+        z.start_file(*p, o).unwrap();
+        z.write_all(b).unwrap();
+    }
+    z.finish().unwrap().into_inner()
+}
+
+/// Plume: a ZIP holding a Markdown file and its pictures opens, is edited and saved back as the
+/// same ZIP: the Markdown under its own name and folder, the pictures at their own paths, every
+/// other file kept.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn markdown_zip_opens_edits_and_saves_back() {
+    let dir = scratch_dir("md-zip");
+    let zip_path = dir.join("Rapport.zip");
+    let png = tiny_png();
+    let md = "# Rapport annuel\n\n![Logo](images/logo%20v2.png)\n\nTexte.\n";
+    std::fs::write(&zip_path, markdown_zip("Rapport/rapport.md", md, &[("Rapport/images/logo v2.png", &png)], &[("Rapport/data.csv", b"1,2")]))
+        .unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    let r = s.run("file.open", &json!({"path": zip_path.to_string_lossy()})).unwrap();
+    assert_eq!(r["savesTo"], json!(zip_path.to_string_lossy()), "a ZIP is the document's own file");
+    assert!(s.is_markdown() && s.doc.media.len() == 1, "the picture is read from the archive");
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": " Ajouté."})).unwrap();
+    s.run("file.save", &json!({})).unwrap();
+    assert!(!s.dirty);
+    let u = crate::io::mdzip::unpack(&std::fs::read(&zip_path).unwrap()).unwrap();
+    assert_eq!(u.text_path, "Rapport/rapport.md");
+    let text = String::from_utf8(u.text.clone()).unwrap();
+    assert!(text.contains("Texte. Ajouté.") && text.contains("![Logo](images/logo%20v2.png)"), "{text}");
+    let names: Vec<&str> = u.files.iter().map(|(p, _)| p.as_str()).collect();
+    assert_eq!(names, ["Rapport/images/logo v2.png", "Rapport/data.csv"], "nothing renamed, nothing added, nothing lost");
+    assert_eq!(u.file("images/logo%20v2.png"), Some(png.as_slice()));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Plume: a Markdown file's pictures keep their own names and folders when it is saved (they were
+/// renamed `assets/img-<hash>` before); a new picture goes to `assets/`.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn markdown_pictures_keep_their_paths() {
+    let dir = scratch_dir("md-picture-paths");
+    std::fs::create_dir_all(dir.join("pics")).unwrap();
+    let png = tiny_png();
+    std::fs::write(dir.join("pics").join("chart.png"), &png).unwrap();
+    let md = dir.join("notes.md");
+    std::fs::write(&md, "Intro\n\n![Chart](pics/chart.png)\n").unwrap();
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.run("file.open", &json!({"path": md.to_string_lossy()})).unwrap();
+    s.run("caret.docStart", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": "New "})).unwrap();
+    s.run("file.save", &json!({})).unwrap();
+    let text = std::fs::read_to_string(&md).unwrap();
+    assert_eq!(text, "New Intro\n\n![Chart](pics/chart.png)\n");
+    assert!(!dir.join("assets").exists(), "no copy of the picture under another name");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// A recorded picture path is only ever a picture inside the document's folder: a hostile table
+/// (in a Word file's parts) can't make a save write elsewhere or under another kind of name.
+#[test]
+fn recorded_picture_paths_stay_pictures_inside_the_folder() {
+    use wordcraft_formats::markdown::picture_path;
+    assert_eq!(picture_path("./images/a%20b.png?raw=1").as_deref(), Some("images/a b.png"));
+    for bad in ["../evil.png", "/etc/x.png", "https://x.org/a.png", "C:/a.png", "images/run.sh", "a/../../b.png", "data:image/png;base64,AA"] {
+        assert_eq!(picture_path(bad), None, "{bad}");
+    }
+}
+
+/// In the browser a ZIP opened from its bytes downloads as the same ZIP, its other files kept.
+#[test]
+fn markdown_zip_in_the_browser_keeps_the_archive() {
+    let png = tiny_png();
+    let bytes = markdown_zip("notes/guide.md", "Hello\n\n![](img/a.png)\n", &[("notes/img/a.png", &png)], &[("notes/LICENSE", b"CC0")]);
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    let data = crate::cmd::insert::base64_encode(&bytes);
+    s.run("file.open", &json!({"path": "guide.zip", "data": data})).unwrap();
+    assert!(s.source_archive.is_some());
+    s.run("caret.docEnd", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": "!"})).unwrap();
+    let (name, out) = crate::io::markdown_download("guide.zip", &s.doc, s.source_archive.as_deref().map(Vec::as_slice)).unwrap();
+    assert_eq!(name, "guide.zip");
+    let u = crate::io::mdzip::unpack(&out).unwrap();
+    assert_eq!(u.text_path, "notes/guide.md");
+    assert!(String::from_utf8(u.text).unwrap().contains("![](img/a.png)"));
+    assert_eq!(u.files.iter().map(|(p, _)| p.as_str()).collect::<Vec<_>>(), ["notes/img/a.png", "notes/LICENSE"]);
+    // A new document saved as a ZIP holds `<name>.md` and its pictures.
+    let (_, fresh) = crate::io::markdown_download("Plan.zip", &wordcraft_doc::Document::from_text("Plan"), None).unwrap();
+    assert_eq!(crate::io::mdzip::unpack(&fresh).unwrap().text_path, "Plan.md");
+    // Opening something else forgets the archive.
+    s.run("file.open", &json!({"path": "x.md", "data": crate::cmd::insert::base64_encode(b"x")})).unwrap();
+    assert!(s.source_archive.is_none());
+}
+
+/// Plume: a ZIP in a forge repository opens like a Markdown file; Save Version commits the ZIP
+/// written again, its other files kept.
+#[test]
+fn forge_markdown_zip() {
+    let png = tiny_png();
+    let archive = markdown_zip("report.md", "Report\n\n![](images/a.png)\n", &[("images/a.png", &png)], &[("data.csv", b"1,2")]);
+    let server = std::sync::Arc::new(fake_github::Server::new(&[("docs/report.zip", &archive)]));
+    let mut s = Session::new(wordcraft_doc::Document::new());
+    s.native_markdown = true;
+    s.forge_transport = Some(server.clone());
+    s.run("forge.signIn", &json!({"forge": "github", "token": "t"})).unwrap();
+    s.run("forge.open", &json!({"forge": "github", "repo": "acme/docs", "path": "docs/report.zip"})).unwrap();
+    assert_eq!(s.file_name.as_deref(), Some("report"));
+    assert_eq!(s.doc.media.len(), 1);
+    s.run("caret.docStart", &json!({})).unwrap();
+    s.run("text.insert", &json!({"text": "Annual "})).unwrap();
+    s.run("vcs.saveVersion", &json!({"message": "Edit"})).unwrap();
+    let u = crate::io::mdzip::unpack(&server.file("docs/report.zip").unwrap()).unwrap();
+    let text = String::from_utf8(u.text).unwrap();
+    assert!(text.starts_with("Annual Report") && text.contains("![](images/a.png)"), "{text}");
+    assert_eq!(u.files.iter().map(|(p, _)| p.as_str()).collect::<Vec<_>>(), ["images/a.png", "data.csv"]);
+    assert!(server.file("docs/images/a.png").is_none(), "the picture stays inside the ZIP");
+    // And again, over the version just saved.
+    s.run("text.insert", &json!({"text": "!"})).unwrap();
+    s.run("vcs.saveVersion", &json!({"message": "Again"})).unwrap();
+    let u = crate::io::mdzip::unpack(&server.file("docs/report.zip").unwrap()).unwrap();
+    assert!(String::from_utf8(u.text).unwrap().starts_with("Annual !Report"));
+    assert_eq!(u.files.len(), 2);
+}
+
 /// In the browser a Markdown save downloads the Markdown alone, or a zip with its pictures.
 #[test]
 fn markdown_download_zips_pictures() {
-    let (name, bytes) = crate::io::markdown_download("notes.md", &crate::sample::sample_document()).unwrap();
+    let (name, bytes) = crate::io::markdown_download("notes.md", &crate::sample::sample_document(), None).unwrap();
     assert_eq!(name, "notes.md");
     assert!(wordcraft_formats::markdown::html_lines(&String::from_utf8(bytes).unwrap()).is_empty());
     let mut doc = crate::sample::sample_document();
@@ -8347,7 +8588,7 @@ fn markdown_download_zips_pictures() {
     let pic =
         wordcraft_doc::InlineObject::Image { media: key, w: 20.0, h: 20.0, alt: "dot".into(), float: Default::default(), crop: [0.0; 4], ole: None };
     doc.insert_object(&Pos::body(0, 0), pic, &Default::default()).unwrap();
-    let (name, bytes) = crate::io::markdown_download("notes.md", &doc).unwrap();
+    let (name, bytes) = crate::io::markdown_download("notes.md", &doc, None).unwrap();
     assert_eq!(name, "notes.zip");
     let mut z = zip::ZipArchive::new(std::io::Cursor::new(bytes)).unwrap();
     let names: Vec<String> = (0..z.len()).map(|i| z.by_index(i).unwrap().name().to_string()).collect();
@@ -8687,7 +8928,8 @@ fn forge_document_versions() {
     assert_eq!(v["version"]["message"], json!("Say hello to the world"));
     assert!(!s.dirty);
     let saved = String::from_utf8(server.file("guide/intro.md").unwrap()).unwrap();
-    assert!(saved.contains("Hello ![logo](assets/img-") && saved.contains("World"), "{saved}");
+    // The picture keeps its own name (Plume no longer renames it `assets/img-<hash>`).
+    assert!(saved.contains("Hello ![logo](assets/logo.png)") && saved.contains("World"), "{saved}");
     let h = s.run("vcs.history", &json!({})).unwrap();
     assert_eq!(h["versions"].as_array().unwrap().len(), 2);
 
@@ -9461,7 +9703,7 @@ fn textbundles_and_textpacks_open_and_save() {
     assert!(crate::io::open_bytes("x.textpack", &std::fs::read(&pack).unwrap()).is_ok());
     assert!(crate::io::open_bytes("x.textbundle", b"").is_err());
     assert!(crate::io::open_bytes("x.textpack", b"PK\x03\x04junk").is_err());
-    let (name, bytes) = crate::io::markdown_download("New.textbundle", &s.doc).unwrap();
+    let (name, bytes) = crate::io::markdown_download("New.textbundle", &s.doc, None).unwrap();
     assert_eq!(name, "New.textpack");
     assert!(crate::io::textbundle::unpack(&bytes).is_ok());
     let _ = std::fs::remove_dir_all(&dir);

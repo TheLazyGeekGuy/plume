@@ -234,6 +234,7 @@ fn format_name(ext: &str) -> String {
         "md" => "Markdown".into(),
         "textbundle" => "TextBundle".into(),
         "textpack" => "TextPack".into(),
+        "zip" => "Markdown and pictures (ZIP)".into(),
         "html" => "Web Page".into(),
         "rtf" => "Rich Text Format".into(),
         "odt" => "OpenDocument Text".into(),

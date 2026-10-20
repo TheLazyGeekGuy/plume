@@ -48,14 +48,17 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
             .frame(egui::Frame::NONE.fill(t.panel).inner_margin(10).stroke(Stroke::new(1.0, t.border)))
             .show(ui, |ui| clipboard(app, ui));
     }
-    if app.session.view.styles_pane {
+    // Plume's Markdown profile: the Styles pane and the Style Inspector manage styles a Markdown
+    // file can't keep.
+    let styles_off = crate::widgets::profile_on(app);
+    if app.session.view.styles_pane && !styles_off {
         egui::Panel::right("styles_pane")
             .default_size(250.0)
             .resizable(true)
             .frame(egui::Frame::NONE.fill(t.panel).inner_margin(10).stroke(Stroke::new(1.0, t.border)))
             .show(ui, |ui| styles(app, ui));
     }
-    if app.session.view.style_inspector {
+    if app.session.view.style_inspector && !styles_off {
         egui::Panel::right("style_inspector")
             .default_size(240.0)
             .resizable(true)

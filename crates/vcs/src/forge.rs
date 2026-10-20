@@ -326,11 +326,6 @@ impl Client<'_> {
             Kind::GitLab => format!("{}/repository/files/{}?ref={rev}", Self::repo_url(doc), encode_component(path)),
         };
         let v = self.call(kind, Method::Get, url, None)?;
-        let content = v
-            .get("content")
-            .and_then(Value::as_str)
-            .ok_or_else(|| ForgeError::Server(200, "no content (a folder, or a file too large for the API)".into()))?;
-        let bytes = base64_decode(content, MAX_FILE).ok_or_else(|| ForgeError::Server(200, "bad or oversized content".into()))?;
         let sha = match kind {
             Kind::GitHub | Kind::Forgejo => v.get("sha"),
             Kind::GitLab => v.get("blob_id"),
@@ -338,6 +333,19 @@ impl Client<'_> {
         .and_then(Value::as_str)
         .unwrap_or("")
         .to_string();
+        let mut content = v.get("content").and_then(Value::as_str).map(str::to_string);
+        // GitHub sends files over 1 MB (a ZIP, a large picture) without their content: the blob
+        // has it.
+        if content.as_deref().is_none_or(str::is_empty)
+            && v.get("type").and_then(Value::as_str).is_none_or(|t| t == "file")
+            && matches!(kind, Kind::GitHub | Kind::Forgejo)
+            && crate::is_object_id(&sha)
+        {
+            let blob = self.call(kind, Method::Get, format!("{}/git/blobs/{sha}", Self::repo_url(doc)), None)?;
+            content = blob.get("content").and_then(Value::as_str).map(str::to_string);
+        }
+        let content = content.ok_or_else(|| ForgeError::Server(200, "no content (a folder, or a file too large for the API)".into()))?;
+        let bytes = base64_decode(&content, MAX_FILE).ok_or_else(|| ForgeError::Server(200, "bad or oversized content".into()))?;
         Ok((bytes, sha))
     }
 
@@ -569,9 +577,10 @@ impl Client<'_> {
         check_doc(&doc)?;
         let base = Self::repo_url(&doc);
         let k = forge.kind;
+        // Markdown files, and ZIPs (a Markdown file with its pictures).
         let is_md = |p: &str| {
             let l = p.to_ascii_lowercase();
-            (l.ends_with(".md") || l.ends_with(".markdown")) && check_path(p).is_ok()
+            (l.ends_with(".md") || l.ends_with(".markdown") || l.ends_with(".zip")) && check_path(p).is_ok()
         };
         let mut out = Vec::new();
         match k {

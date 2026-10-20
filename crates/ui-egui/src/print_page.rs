@@ -347,6 +347,7 @@ pub fn export_formats(app: &mut WordApp, ui: &mut Ui) {
         ("Markdown (*.md)", "md"),
         ("TextBundle (*.textbundle)", "textbundle"),
         ("TextPack (*.textpack)", "textpack"),
+        ("Markdown and pictures (*.zip)", "zip"),
         ("LaTeX (*.tex)", "tex"),
         ("Plain text (*.txt)", "txt"),
         ("Page image (*.png)", "png"),

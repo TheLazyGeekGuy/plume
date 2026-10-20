@@ -578,6 +578,14 @@ pub fn paint(p: &Painter, r: Rect, name: &str, c: Color32, accent: Color32) {
             pen.lines(7.0, 15.5, &[8.0, 11.0, 14.0]);
         }
         "symbol" => pen.text(10.0, 10.0, 17.0, "Ω", c, false),
+        // Plume: a smiling face.
+        "emoji" => {
+            pen.fcircle(10.0, 10.0, 7.5, a.linear_multiply(0.2));
+            pen.circle(10.0, 10.0, 7.5, c);
+            pen.fcircle(7.5, 8.0, 1.1, c);
+            pen.fcircle(12.5, 8.0, 1.1, c);
+            pen.line(&[(6.5, 11.5), (8.0, 13.3), (10.0, 14.0), (12.0, 13.3), (13.5, 11.5)]);
+        }
         // Draw
         "pen" => {
             pen.line(&[(4.0, 16.0), (14.0, 6.0), (16.0, 8.0), (6.0, 18.0), (3.5, 18.5), (4.0, 16.0)]);

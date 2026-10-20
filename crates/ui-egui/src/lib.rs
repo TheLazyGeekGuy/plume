@@ -1023,7 +1023,7 @@ impl WordApp {
             // zip beside it when it has any.
             let native_md = self.session.native_markdown && matches!(id, "file.save" | "file.saveAs") && is_markdown_name(&name);
             let (name, bytes) = if native_md {
-                wordcraft_engine::io::markdown_download(&name, &self.session.doc)?
+                wordcraft_engine::io::markdown_download(&name, &self.session.doc, self.session.source_archive.as_deref().map(Vec::as_slice))?
             } else {
                 (name.clone(), wordcraft_engine::io::save_bytes_with(&name, &self.session.doc, password, &opts)?)
             };

@@ -493,7 +493,24 @@ mod remote {
     }
 
     fn load(c: &Client, doc: &DocRef, at: Option<&str>) -> Result<(Document, String), CmdError> {
+        load_raw(c, doc, at).map(|(d, sha, _)| (d, sha))
+    }
+
+    /// Whether a forge path names a Markdown ZIP (`.zip`): the document and its pictures in one
+    /// file of the repository.
+    fn is_zip(path: &str) -> bool {
+        path.to_ascii_lowercase().ends_with(".zip")
+    }
+
+    /// [`load`], also giving the file's bytes (a ZIP is saved again over them).
+    fn load_raw(c: &Client, doc: &DocRef, at: Option<&str>) -> Result<(Document, String, Vec<u8>), CmdError> {
         let (bytes, sha) = c.read(doc, at).map_err(ferr)?;
+        if is_zip(&doc.path) {
+            let mut d = crate::io::open_zip(&bytes, &crate::io::region_page(&Default::default()))
+                .map_err(|e| CmdError::Failed(format!("{}: {e}", doc.path)))?;
+            d.ensure_nonempty();
+            return Ok((d, sha, bytes));
+        }
         let text = wordcraft_formats::txt::decode(&bytes);
         let dir = folder_of(&doc.path);
         let count = std::cell::Cell::new(0usize);
@@ -513,7 +530,33 @@ mod remote {
         let mut d = wordcraft_formats::markdown::import_with(&text, &crate::io::region_page(&Default::default()), &resolve);
         wordcraft_formats::markdown::apply_theme(&mut d, Default::default());
         d.ensure_nonempty();
-        Ok((d, sha))
+        Ok((d, sha, bytes))
+    }
+
+    /// What a forge version of the document holds: the file at `path` and the pictures to add
+    /// beside it (repository paths). A ZIP is the archive written again over `archive`, its
+    /// pictures inside.
+    fn version_files(doc: &Document, path: &str, archive: Option<&[u8]>) -> Result<(Vec<u8>, Vec<(String, Vec<u8>)>), CmdError> {
+        if is_zip(path) {
+            let (bytes, _) = crate::io::zip_bytes(path, doc, archive).map_err(CmdError::Failed)?;
+            return Ok((bytes, Vec::new()));
+        }
+        let doc = crate::io::web_pictures(doc);
+        let bundle = wordcraft_formats::markdown::export_native(&doc, &Default::default());
+        let dir = folder_of(path);
+        let assets = bundle.assets.iter().filter_map(|(p, b)| normalize(&format!("{dir}{p}")).map(|full| (full, b.to_vec()))).collect();
+        Ok((bundle.text.into_bytes(), assets))
+    }
+
+    /// The name a forge file gives the document (`guide` for `docs/guide.md` or `guide.zip`).
+    fn stem_of(path: &str) -> String {
+        let name = path.rsplit('/').next().unwrap_or(path);
+        let lower = name.to_ascii_lowercase();
+        [".markdown", ".md", ".zip"]
+            .iter()
+            .find(|e| lower.ends_with(*e))
+            .map_or(name, |e| name.get(..name.len() - e.len()).unwrap_or(name))
+            .to_string()
     }
 
     pub(super) fn open(s: &mut Session, v: &Value) -> CmdResult {
@@ -530,8 +573,8 @@ mod remote {
         let forge = forge_of(v)?;
         let path = p::req_str(v, "path")?.trim().trim_start_matches('/').to_string();
         let ext = path.rsplit_once('.').map(|(_, e)| e.to_ascii_lowercase()).unwrap_or_default();
-        if !matches!(ext.as_str(), "md" | "markdown") {
-            return Err(CmdError::Params("`path` names a Markdown file (.md)".into()));
+        if !matches!(ext.as_str(), "md" | "markdown" | "zip") {
+            return Err(CmdError::Params("`path` names a Markdown file (.md) or a ZIP holding one (.zip)".into()));
         }
         let doc = DocRef {
             forge,
@@ -544,16 +587,19 @@ mod remote {
         let mut doc = doc;
         // A locked main branch: the document opens on this person's work branch.
         let flow = crate::cmd::workflow::apply(&c, &mut doc)?;
-        let (d, sha) = match (&flow, c.read(&doc, None)) {
+        let (d, sha, bytes) = match (&flow, c.read(&doc, None)) {
             // Not on the work branch yet (added to the target since): the target's copy, saved
             // on the work branch as a new file.
-            (Some((w, _)), Err(ForgeError::NotFound)) => (load(&c, &DocRef { branch: w.target.clone(), ..doc.clone() }, None)?.0, String::new()),
-            _ => load(&c, &doc, None)?,
+            (Some((w, _)), Err(ForgeError::NotFound)) => {
+                let (d, _, bytes) = load_raw(&c, &DocRef { branch: w.target.clone(), ..doc.clone() }, None)?;
+                (d, String::new(), bytes)
+            }
+            _ => load_raw(&c, &doc, None)?,
         };
         s.set_document(d);
-        let name = doc.path.rsplit('/').next().unwrap_or(&doc.path).to_string();
         s.path = None;
-        s.file_name = Some(name.trim_end_matches(".markdown").trim_end_matches(".md").to_string());
+        s.file_name = Some(stem_of(&doc.path));
+        s.source_archive = is_zip(&doc.path).then(|| Arc::new(bytes));
         let (workflow, review) = flow.map_or((None, None), |(w, r)| (Some(w), r));
         let branch = doc.branch.clone();
         s.forge = Some(Remote {
@@ -581,7 +627,7 @@ mod remote {
         let forge = forge_of(v)?;
         let mut path = p::req_str(v, "path")?.trim().trim_matches('/').to_string();
         let ext = path.rsplit_once('.').map(|(_, e)| e.to_ascii_lowercase()).unwrap_or_default();
-        if !matches!(ext.as_str(), "md" | "markdown") {
+        if !matches!(ext.as_str(), "md" | "markdown" | "zip") {
             path.push_str(".md");
         }
         let path = normalize(&path)
@@ -597,29 +643,27 @@ mod remote {
         let c = Client { transport: t.as_ref(), token: token(s, &doc.forge)? };
         let mut doc = doc;
         let flow = crate::cmd::workflow::apply(&c, &mut doc)?;
-        let existing = match c.read(&doc, None) {
-            Ok((_, sha)) => Some(sha),
-            Err(ForgeError::NotFound) => None,
+        let (existing, old_bytes) = match c.read(&doc, None) {
+            Ok((bytes, sha)) => (Some(sha), Some(bytes)),
+            Err(ForgeError::NotFound) => (None, None),
             Err(e) => return Err(ferr(e)),
         };
         if existing.is_some() && p::bool(v, "replace") != Some(true) {
             return Err(CmdError::Failed(format!("{} already has {}: choose another name, or replace it", doc.repo, doc.path)));
         }
-        let pictures = crate::io::web_pictures(&s.doc);
-        let bundle = wordcraft_formats::markdown::export_native(&pictures, &Default::default());
-        let dir = folder_of(&doc.path);
-        let assets: Vec<(String, Vec<u8>)> =
-            bundle.assets.iter().filter_map(|(p, b)| normalize(&format!("{dir}{p}")).map(|full| (full, b.to_vec()))).collect();
+        // A ZIP replaced keeps the other files the archive there holds.
+        let (text, assets) = version_files(&s.doc, &doc.path, old_bytes.as_deref().filter(|_| is_zip(&doc.path)))?;
         let name = doc.path.rsplit('/').next().unwrap_or(&doc.path).to_string();
         let default_message = format!("{} {name}", if existing.is_some() { "Update" } else { "Add" });
         let message = p::str(v, "message").filter(|m| !m.trim().is_empty()).unwrap_or(&default_message).to_string();
-        let id = c.save_version(&doc, bundle.text.as_bytes(), &assets, &message, existing.as_deref()).map_err(|e| match e {
+        let id = c.save_version(&doc, &text, &assets, &message, existing.as_deref()).map_err(|e| match e {
             ForgeError::Conflict => CmdError::Failed("someone saved this file meanwhile: try again".into()),
             e => ferr(e),
         })?;
         let (_, sha) = c.read(&doc, None).map_err(ferr)?;
         s.path = None;
-        s.file_name = Some(name.trim_end_matches(".markdown").trim_end_matches(".md").to_string());
+        s.file_name = Some(stem_of(&name));
+        s.source_archive = is_zip(&doc.path).then(|| Arc::new(text));
         let saved = doc.path.clone();
         let (workflow, review) = flow.map_or((None, None), |(w, r)| (Some(w), r));
         let branch = doc.branch.clone();
@@ -661,15 +705,11 @@ mod remote {
         let r = current(s)?;
         let t = transport(s)?;
         let c = Client { transport: t.as_ref(), token: token(s, &r.doc.forge)? };
-        let doc = crate::io::web_pictures(&s.doc);
-        let bundle = wordcraft_formats::markdown::export_native(&doc, &Default::default());
-        let dir = folder_of(&r.doc.path);
-        let assets: Vec<(String, Vec<u8>)> =
-            bundle.assets.iter().filter_map(|(p, b)| normalize(&format!("{dir}{p}")).map(|full| (full, b.to_vec()))).collect();
+        let (text, assets) = version_files(&s.doc, &r.doc.path, s.source_archive.as_deref().map(Vec::as_slice))?;
         let message = p::str(v, "message").unwrap_or("");
         // No blob id: the file is new on this branch (a work branch made after it was added).
         let expected = (!r.sha.is_empty()).then_some(r.sha.as_str());
-        let id = match c.save_version(&r.doc, bundle.text.as_bytes(), &assets, message, expected) {
+        let id = match c.save_version(&r.doc, &text, &assets, message, expected) {
             Ok(id) => id,
             Err(ForgeError::Conflict) => {
                 return Err(CmdError::Failed("someone saved a newer version: use Synchronize to see their changes first".into()));
@@ -679,6 +719,9 @@ mod remote {
         let (_, sha) = c.read(&r.doc, None).map_err(ferr)?;
         if let Some(f) = s.forge.as_mut() {
             f.sha = sha;
+        }
+        if is_zip(&r.doc.path) {
+            s.source_archive = Some(Arc::new(text));
         }
         s.dirty = false;
         // The version holds the text as it reads; it is the new starting point of tracked changes.

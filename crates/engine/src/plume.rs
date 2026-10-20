@@ -41,6 +41,16 @@ pub fn is_classified(id: &str) -> bool {
     table().contains_key(id)
 }
 
+/// The paragraph styles a Markdown file keeps, as the Styles gallery shows them in the Markdown
+/// profile: each is a Markdown block (text, `#` to `######`, `>`, a code block). Any other style
+/// would be saved as plain text and come back as Normal, so the profile doesn't apply it.
+pub const MARKDOWN_STYLES: &[&str] = &["Normal", "Heading1", "Heading2", "Heading3", "Heading4", "Heading5", "Heading6", "Quote", "Code"];
+
+/// Whether style `id` is one a Markdown file keeps ([`MARKDOWN_STYLES`]).
+pub fn is_markdown_style(id: &str) -> bool {
+    MARKDOWN_STYLES.contains(&id)
+}
+
 /// Whether ribbon tab `name` holds only Office commands.
 pub fn is_office_tab(name: &str) -> bool {
     OFFICE_TABS.contains(&name)
