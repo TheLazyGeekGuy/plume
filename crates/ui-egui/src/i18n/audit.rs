@@ -146,8 +146,12 @@ impl Exempt {
         }
         // Document templates' names (File › Export): the user's own, or a template's.
         names.extend(app.pdf_templates.names().map(str::to_string));
-        for m in crate::credits::MODELS {
-            names.extend([m.company, m.model, m.version].map(str::to_string));
+        // The credited projects (Plume, WordCraft) and models: names.
+        for p in crate::credits::projects() {
+            names.insert(p.name.to_string());
+            for m in p.models {
+                names.extend([m.company, m.model, m.version].map(str::to_string));
+            }
         }
         Exempt { body: app.session.doc.plain_text(wordcraft_doc::StoryRef::Body), names }
     }

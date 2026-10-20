@@ -142,8 +142,82 @@ pub fn specs() -> Vec<CommandSpec> {
     ]
 }
 
-/// How to get a TeX engine, for messages.
-pub const INSTALL_HINT: &str = "install Tectonic (brew install tectonic) or MacTeX/TinyTeX, then export again";
+/// How to get a TeX engine on this system, for messages. Plume's packages ship Tectonic; a copy
+/// built without it (from source, a platform Tectonic has no build for) uses an installed one.
+pub const INSTALL_HINT: &str = if cfg!(target_os = "macos") {
+    "this copy of Plume has no Tectonic: install it (brew install tectonic) or MacTeX, then export again"
+} else if cfg!(windows) {
+    "this copy of Plume has no Tectonic: install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again"
+} else {
+    "this copy of Plume has no Tectonic: install Tectonic or TeX Live with your package manager, then export again"
+};
+
+/// Where a Plume package puts the Tectonic it ships, relative to the app's executable: beside
+/// it (Windows), in `engine/`, in the macOS bundle's `Contents/Helpers`, and in `../lib/plume`
+/// (Linux packages: `/usr/bin/wordcraft` → `/usr/lib/plume/tectonic`).
+fn shipped_engine_dirs() -> Vec<PathBuf> {
+    let Some(dir) = std::env::current_exe().ok().and_then(|e| e.parent().map(Path::to_path_buf)) else { return Vec::new() };
+    vec![dir.join("engine"), dir.join("../Helpers"), dir.join("../lib/plume"), dir]
+}
+
+/// Plume: the PDF the browser makes for a template export, with Plume's own PDF engine (the web
+/// version can't run TeX): the document laid out with the template's settings it can apply —
+/// paper (`papersize`), margins (`geometry: margin=…`, Eisvogel's 2.5 cm by default), base font
+/// size (`fontsize`) and font (`mainfont`) — the document's front matter winning, as with TeX.
+pub fn native_pdf(doc: &Document, template: &str) -> Result<Vec<u8>, CmdError> {
+    let metadata = if template == DEFAULT_TEMPLATE {
+        EISVOGEL_METADATA.to_string()
+    } else {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            read_text(&template_dir(template)?.join(METADATA_FILE)).unwrap_or_default()
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            EISVOGEL_METADATA.to_string()
+        }
+    };
+    let mut vars = parse_yaml(&metadata);
+    let front = doc.passthrough.get(wordcraft_formats::model::FRONT_MATTER_PART).map(|b| String::from_utf8_lossy(b).into_owned()).unwrap_or_default();
+    vars.extend(parse_yaml(&front));
+    let text = |k: &str| vars.get(k).map(Value::text).map(|s| s.trim().to_string()).filter(|s| !s.is_empty());
+    let mut d = doc.clone();
+    let page = &mut d.last_section;
+    let (w, h) = match text("papersize").unwrap_or_else(|| "a4".into()).to_ascii_lowercase().trim_end_matches("paper") {
+        "letter" => (612.0, 792.0),
+        "legal" => (612.0, 1008.0),
+        "a5" => (419.53, 595.28),
+        "b5" => (498.9, 708.66),
+        _ => (595.28, 841.89),
+    };
+    (page.page_w, page.page_h) = if page.page_w > page.page_h { (h, w) } else { (w, h) };
+    let geometry = vars.get("geometry").map(|v| match v {
+        Value::List(l) => l.iter().map(Value::text).collect::<Vec<_>>(),
+        v => v.text().split(',').map(str::to_string).collect(),
+    });
+    let mut margins = [72.0 / 2.54 * 2.5; 4];
+    for g in geometry.unwrap_or_default() {
+        let Some((k, v)) = g.split_once('=') else { continue };
+        let Some(pt) = wordcraft_geom::parse_measure(v.trim(), wordcraft_geom::Unit::Points) else { continue };
+        match k.trim() {
+            "margin" => margins = [pt; 4],
+            "top" => margins[0] = pt,
+            "right" => margins[1] = pt,
+            "bottom" => margins[2] = pt,
+            "left" => margins[3] = pt,
+            _ => {}
+        }
+    }
+    let [top, right, bottom, left] = margins.map(|m| m.clamp(0.0, 200.0));
+    (page.margin_top, page.margin_right, page.margin_bottom, page.margin_left) = (top, right, bottom, left);
+    if let Some(size) = text("fontsize").and_then(|s| s.trim_end_matches("pt").trim().parse::<f32>().ok()).filter(|s| (6.0..=36.0).contains(s)) {
+        d.styles.default_chr.size = Some(size);
+    }
+    if let Some(font) = text("mainfont") {
+        d.styles.default_chr.font = Some(font);
+    }
+    crate::io::save_bytes("document.pdf", &d).map_err(CmdError::Failed)
+}
 
 fn no_settings() -> CmdError {
     CmdError::Failed("Plume's settings folder isn't known on this system".into())
@@ -418,9 +492,10 @@ pub struct Engine {
     pub path: PathBuf,
 }
 
-/// A TeX engine on this machine: `PLUME_TEX` (a path to `tectonic` or `xelatex`), Plume's own
-/// `<settings>/engine/bin`, then the places installers put them (apps opened from the Finder
-/// don't get the shell's `PATH`), then `PATH`.
+/// A TeX engine on this machine: `PLUME_TEX` (a path to `tectonic` or `xelatex`), the Tectonic
+/// Plume's package ships ([`shipped_engine_dirs`]), Plume's own `<settings>/engine/bin`, then the
+/// places installers put them (apps opened from the Finder don't get the shell's `PATH`; MiKTeX
+/// and TeX Live on Windows), then `PATH`.
 pub fn find_engine() -> Option<Engine> {
     let kind_of = |p: &Path| {
         let n = p.file_stem().map(|s| s.to_string_lossy().to_ascii_lowercase()).unwrap_or_default();
@@ -430,7 +505,8 @@ pub fn find_engine() -> Option<Engine> {
         return Some(Engine { kind: kind_of(&p), path: p });
     }
     let home = std::env::var_os("HOME").map(PathBuf::from);
-    let mut dirs: Vec<PathBuf> = Vec::new();
+    // The Tectonic Plume's package ships first, then one installed.
+    let mut dirs: Vec<PathBuf> = shipped_engine_dirs();
     if let Some(s) = wordcraft_control_key::settings_dir() {
         dirs.push(s.join("engine/bin"));
     }
@@ -438,6 +514,18 @@ pub fn find_engine() -> Option<Engine> {
     if let Some(h) = &home {
         for d in ["Library/TinyTeX/bin/universal-darwin", ".TinyTeX/bin/x86_64-linux", ".TinyTeX/bin/aarch64-linux", ".cargo/bin", "bin"] {
             dirs.push(h.join(d));
+        }
+    }
+    // Windows: MiKTeX (per user and for everyone) and TeX Live's default folders.
+    if cfg!(windows) {
+        if let Some(local) = std::env::var_os("LOCALAPPDATA").map(PathBuf::from) {
+            dirs.push(local.join("Programs/MiKTeX/miktex/bin/x64"));
+        }
+        if let Some(pf) = std::env::var_os("ProgramFiles").map(PathBuf::from) {
+            dirs.push(pf.join("MiKTeX/miktex/bin/x64"));
+        }
+        for year in (2022..=2030).rev() {
+            dirs.push(PathBuf::from(format!("C:/texlive/{year}/bin/windows")));
         }
     }
     if let Some(path) = std::env::var_os("PATH") {
@@ -555,6 +643,31 @@ mod tests {
         assert!(fixed.contains("\\IfFileExists{sourcecodepro.sty}{\\usepackage{sourcecodepro}}{}"), "{fixed}");
         assert_eq!(portable_fonts(&fixed), fixed, "applied once");
         assert_eq!(portable_fonts(EISVOGEL_LATEX), EISVOGEL_LATEX, "the built-in template already falls back");
+    }
+
+    /// The browser's PDF for a template (no TeX): the template's paper and margins, the front
+    /// matter winning, and a PDF.
+    #[test]
+    fn web_pdf_applies_the_template_settings() {
+        let mut doc = Document::from_text("Hello");
+        let pdf = native_pdf(&doc, DEFAULT_TEMPLATE).unwrap();
+        assert!(pdf.starts_with(b"%PDF"));
+        let a4 = |s: &str| s.contains("595.28") && s.contains("841.89");
+        assert!(a4(&String::from_utf8_lossy(&pdf)), "Eisvogel's default paper is A4");
+        doc.passthrough.insert(
+            wordcraft_formats::model::FRONT_MATTER_PART.into(),
+            std::sync::Arc::new(b"papersize: letter\ngeometry: margin=1in\nfontsize: 12pt\n".to_vec()),
+        );
+        let pdf = String::from_utf8_lossy(&native_pdf(&doc, DEFAULT_TEMPLATE).unwrap()).into_owned();
+        assert!(pdf.contains("612") && pdf.contains("792") && !a4(&pdf), "the front matter's letter paper wins");
+    }
+
+    /// No TeX engine: the hint names this system's way to get one, never another system's.
+    #[test]
+    fn the_install_hint_fits_the_system() {
+        assert_eq!(INSTALL_HINT.contains("brew"), cfg!(target_os = "macos"));
+        assert_eq!(INSTALL_HINT.contains("winget"), cfg!(windows));
+        assert!(shipped_engine_dirs().iter().any(|d| d.ends_with("lib/plume")));
     }
 
     #[test]

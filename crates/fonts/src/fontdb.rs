@@ -554,11 +554,15 @@ const SYSTEM_FALLBACKS: &[&str] = &[
     "Segoe UI Symbol",
     "Noto Sans Symbols",
     "Noto Sans Symbols2",
-    "Noto Emoji",
+    // Colour emoji before the monochrome Noto Emoji.
     "Segoe UI Emoji",
     "Apple Color Emoji",
     "Noto Color Emoji",
+    "Noto Emoji",
 ];
+
+/// Plume: the colour emoji families, in the order [`FontDb::emoji_face`] prefers them.
+const EMOJI_FAMILIES: [&str; 3] = ["Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji"];
 
 /// Arabic-script marks and digits (bidi classes NSM / AN): they belong with the Arabic letters
 /// around them when choosing a fallback font.
@@ -961,7 +965,9 @@ impl FontDb {
         let mut faces = Vec::new();
         let others = crate::CRAFT_FONTS.iter().filter(|f| !f.scripts.contains(&"Jpan"));
         let craft = crate::japanese_document_fonts().into_iter().chain(others).map(|f| f.bytes);
-        for data in BUNDLED.iter().copied().chain(craft) {
+        // Plume: the emoji font the build embedded, if any (`PLUME_EMOJI_FONT`).
+        let emoji = Some(crate::EMOJI_FONT).filter(|b| !b.is_empty());
+        for data in BUNDLED.iter().copied().chain(craft).chain(emoji) {
             for f in enumerate_faces(data) {
                 if let Some(mut face) = make_face(FontBytes::Static(data), f.index, f.family, f.style, f.legacy, f.coords) {
                     face.local_names = f.local;
@@ -1572,6 +1578,32 @@ impl FontDb {
         (None, self.read_faces().len())
     }
 
+    /// Plume: a colour emoji face covering `c`, for a character asking for emoji presentation
+    /// (followed by U+FE0F, as `❤️` and `☺️` are): a loaded face first, then the system's emoji
+    /// families. `None` when there's none; the text fallback draws it then.
+    pub fn emoji_face(&self, c: char) -> Option<Arc<FontFace>> {
+        let find = || {
+            let faces = self.read_faces();
+            let mut colour: Vec<&Arc<FontFace>> = faces.iter().filter(|f| f.covers(c) && f.has_color_glyphs()).collect();
+            colour.sort_by_key(|f| EMOJI_FAMILIES.iter().position(|n| f.family.eq_ignore_ascii_case(n)).unwrap_or(EMOJI_FAMILIES.len()));
+            colour.first().map(|f| Arc::clone(f))
+        };
+        if let Some(f) = find() {
+            return Some(f);
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let enabled = self.sys.lock().unwrap_or_else(|e| e.into_inner()).enabled;
+            if enabled {
+                for family in EMOJI_FAMILIES {
+                    self.load_cataloged(family);
+                }
+                return find();
+            }
+        }
+        None
+    }
+
     /// The best loaded face covering `c`, and the number of loaded faces it was chosen from.
     fn loaded_fallback(&self, c: char, exclude: u32) -> (Option<Arc<FontFace>>, usize) {
         let faces = self.read_faces();
@@ -1589,7 +1621,12 @@ impl FontDb {
         // the script's own families, so syllables reorder and stack (#604).
         let complex = crate::needs_layout_tables(c);
         let shaping = |f: &FontFace| if complex { (!f.has_layout_tables(), crate::fallback_rank(c, &f.family)) } else { (false, 0) };
-        order.sort_by_key(|f| (rank(f), shaping(f), !f.family.eq_ignore_ascii_case(FALLBACK_FAMILY), f.italic, (f.weight - 400.0).abs() as i32));
+        // Plume: an emoji drawn as an emoji by default (😀, flags) prefers a colour face.
+        let emoji = crate::is_emoji_presentation(c);
+        let mono = |f: &FontFace| emoji && !f.has_color_glyphs();
+        order.sort_by_key(|f| {
+            (rank(f), mono(f), shaping(f), !f.family.eq_ignore_ascii_case(FALLBACK_FAMILY), f.italic, (f.weight - 400.0).abs() as i32)
+        });
         (order.into_iter().find(|f| f.covers(c)).cloned(), faces.len())
     }
 

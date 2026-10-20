@@ -2746,3 +2746,23 @@ preview	Title	제목
 	Import…	가져오기…
 	Emoji	이모지
 	Markdown and pictures (*.zip)	Markdown 및 그림 (*.zip)
+	Find Emoji	이모지 찾기
+	Smileys & Emotion	스마일리 및 감정
+	People & Body	사람 및 신체
+	Animals & Nature	동물 및 자연
+	Food & Drink	음식 및 음료
+	Travel & Places	여행 및 장소
+	Activities	활동
+	Objects	사물
+	Flags	깃발
+	Recently Used	최근 사용
+	Search emoji	이모지 검색
+	Skin tone	피부색
+	No emoji found	이모지를 찾을 수 없음
+	No recent emoji yet	최근 사용한 이모지가 아직 없음
+	File name	파일 이름
+	Chrome and Edge let you choose the folder, and save there again without asking; other browsers save to Downloads.	Chrome과 Edge에서는 폴더를 선택할 수 있고 이후에는 묻지 않고 그곳에 저장합니다. 다른 브라우저는 다운로드에 저장합니다.
+	The browser makes the PDF with Plume's own engine, as it can't run TeX: the template's paper, margins and fonts are applied.	브라우저는 TeX를 실행할 수 없으므로 Plume 자체 엔진으로 PDF를 만듭니다. 템플릿의 용지, 여백, 글꼴이 적용됩니다.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	TeX 엔진을 찾을 수 없습니다. 이 Plume에는 Tectonic이 없습니다.Tectonic(brew install tectonic) 또는 MacTeX를 설치한 다음 다시 내보내세요.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	TeX 엔진을 찾을 수 없습니다. 이 Plume에는 Tectonic이 없습니다.Tectonic(winget install TectonicTypesetting.Tectonic) 또는 MiKTeX를 설치한 다음 다시 내보내세요.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	TeX 엔진을 찾을 수 없습니다. 이 Plume에는 Tectonic이 없습니다.패키지 관리자로 Tectonic 또는 TeX Live를 설치한 다음 다시 내보내세요.

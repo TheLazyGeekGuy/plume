@@ -2896,3 +2896,23 @@
 	Import…	Importálás…
 	Emoji	Emodzsi
 	Markdown and pictures (*.zip)	Markdown és képek (*.zip)
+	Find Emoji	Emodzsi keresése
+	Smileys & Emotion	Hangulatjelek és érzelmek
+	People & Body	Emberek és test
+	Animals & Nature	Állatok és természet
+	Food & Drink	Étel és ital
+	Travel & Places	Utazás és helyek
+	Activities	Tevékenységek
+	Objects	Tárgyak
+	Flags	Zászlók
+	Recently Used	Legutóbb használt
+	Search emoji	Emodzsi keresése
+	Skin tone	Bőrszín
+	No emoji found	Nincs találat
+	No recent emoji yet	Még nincs legutóbb használt emodzsi
+	File name	Fájlnév
+	Chrome and Edge let you choose the folder, and save there again without asking; other browsers save to Downloads.	A Chrome és az Edge engedi kiválasztani a mappát, és később kérdés nélkül oda ment; más böngészők a Letöltések mappába mentenek.
+	The browser makes the PDF with Plume's own engine, as it can't run TeX: the template's paper, margins and fonts are applied.	A böngésző a Plume saját motorjával készíti a PDF-et, mert nem tud TeX-et futtatni: a sablon papírmérete, margói és betűtípusai érvényesülnek.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Nem található TeX-motor: a Plume ezen példányában nincs Tectonic. Telepítse (brew install tectonic) vagy a MacTeX-et, majd exportáljon újra.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Nem található TeX-motor: a Plume ezen példányában nincs Tectonic. Telepítse (winget install TectonicTypesetting.Tectonic) vagy a MiKTeX-et, majd exportáljon újra.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Nem található TeX-motor: a Plume ezen példányában nincs Tectonic. Telepítse a Tectonicot vagy a TeX Live-ot a csomagkezelővel, majd exportáljon újra.

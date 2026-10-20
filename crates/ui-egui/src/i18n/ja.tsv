@@ -2489,3 +2489,23 @@
 	Import…	インポート…
 	Emoji	絵文字
 	Markdown and pictures (*.zip)	Markdown と画像 (*.zip)
+	Find Emoji	絵文字を検索
+	Smileys & Emotion	スマイリーと感情
+	People & Body	人と体
+	Animals & Nature	動物と自然
+	Food & Drink	食べ物と飲み物
+	Travel & Places	旅行と場所
+	Activities	アクティビティ
+	Objects	物
+	Flags	旗
+	Recently Used	最近使用したもの
+	Search emoji	絵文字を検索
+	Skin tone	肌の色
+	No emoji found	絵文字が見つかりません
+	No recent emoji yet	最近使用した絵文字はまだありません
+	File name	ファイル名
+	Chrome and Edge let you choose the folder, and save there again without asking; other browsers save to Downloads.	Chrome と Edge ではフォルダーを選べ、次回からは確認なしでそこに保存されます。ほかのブラウザーはダウンロードに保存します。
+	The browser makes the PDF with Plume's own engine, as it can't run TeX: the template's paper, margins and fonts are applied.	ブラウザーは TeX を実行できないため、Plume 独自のエンジンで PDF を作成します。テンプレートの用紙、余白、フォントが適用されます。
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	TeX エンジンが見つかりません。この Plume には Tectonic が含まれていません。Tectonic (brew install tectonic) または MacTeX をインストールしてから、もう一度エクスポートしてください。
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	TeX エンジンが見つかりません。この Plume には Tectonic が含まれていません。Tectonic (winget install TectonicTypesetting.Tectonic) または MiKTeX をインストールしてから、もう一度エクスポートしてください。
+	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	TeX エンジンが見つかりません。この Plume には Tectonic が含まれていません。パッケージマネージャーで Tectonic または TeX Live をインストールしてから、もう一度エクスポートしてください。

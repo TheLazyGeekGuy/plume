@@ -2501,3 +2501,23 @@
 	Import…	导入…
 	Emoji	表情符号
 	Markdown and pictures (*.zip)	Markdown 和图片 (*.zip)
+	Find Emoji	查找表情符号
+	Smileys & Emotion	笑脸与情感
+	People & Body	人与身体
+	Animals & Nature	动物与自然
+	Food & Drink	食物与饮料
+	Travel & Places	旅行与地点
+	Activities	活动
+	Objects	物品
+	Flags	旗帜
+	Recently Used	最近使用
+	Search emoji	搜索表情符号
+	Skin tone	肤色
+	No emoji found	未找到表情符号
+	No recent emoji yet	还没有最近使用的表情符号
+	File name	文件名
+	Chrome and Edge let you choose the folder, and save there again without asking; other browsers save to Downloads.	Chrome 和 Edge 可让你选择文件夹，之后无需询问即保存到那里；其他浏览器保存到“下载”。
+	The browser makes the PDF with Plume's own engine, as it can't run TeX: the template's paper, margins and fonts are applied.	浏览器无法运行 TeX，因此用 Plume 自己的引擎生成 PDF：会应用模板的纸张、页边距和字体。
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	找不到 TeX 引擎：此 Plume 副本不含 Tectonic。请安装它（brew install tectonic）或 MacTeX，然后重新导出。
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	找不到 TeX 引擎：此 Plume 副本不含 Tectonic。请安装它（winget install TectonicTypesetting.Tectonic）或 MiKTeX，然后重新导出。
+	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	找不到 TeX 引擎：此 Plume 副本不含 Tectonic。请用包管理器安装 Tectonic 或 TeX Live，然后重新导出。

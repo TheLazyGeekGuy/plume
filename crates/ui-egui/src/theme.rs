@@ -963,9 +963,12 @@ mod tests {
         // Equation gallery templates are UnicodeMath input (`lim┬(n→∞)`, `≜`) that the math
         // renderer draws with document fonts, not interface text.
         // The ➢ bullet is a value for `para.bullets`; its menu tile draws the shape instead.
+        // Insert › Emoji's emoji are drawn by the document renderer, never by egui.
         let exempt = |c: char, file: &str| match file {
             "equation_tab.rs" => matches!(c, '≜' | '┬'),
             "ribbon.rs" => c == '➢',
+            // Plume: emoji are drawn by the document renderer, in colour (Insert › Emoji).
+            "emoji_picker.rs" => true,
             _ => false,
         };
         symbols.retain(|(c, file)| !exempt(*c, file));

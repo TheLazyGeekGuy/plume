@@ -245,6 +245,20 @@ pub fn first_glyph(face: &FontFace, chars: &[char]) -> u32 {
     chars.iter().map(|c| face.glyph_for(*c)).find(|g| *g != 0).unwrap_or(0)
 }
 
+/// Plume: a character drawn as an emoji by default (😀, 🚀, regional indicators for flags): the
+/// emoji planes from U+1F000, which text fonts don't draw. Characters with a text form (❤, ☺, ✈)
+/// are emoji only when U+FE0F follows them.
+pub fn is_emoji_presentation(c: char) -> bool {
+    matches!(u32::from(c), 0x1F000..=0x1FAFF)
+}
+
+/// Plume: a character that continues the emoji before it: the zero-width joiner of a sequence
+/// (👩‍💻), the emoji presentation selector, skin tones, the tags of a subdivision flag and the
+/// keycap mark. It draws in the emoji's face, or the sequence falls apart.
+pub fn continues_emoji(c: char) -> bool {
+    matches!(u32::from(c), 0x200D | 0xFE0F | 0x20E3 | 0x1F3FB..=0x1F3FF | 0xE0020..=0xE007F)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

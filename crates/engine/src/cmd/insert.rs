@@ -99,7 +99,10 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("insert.dateTime", "Date & Time", "Insert › Text", date_time).params(r#"{"format"?: "M/d/yyyy", "update"?: bool}"#),
         CommandSpec::new("insert.symbol", "Symbol", "Insert › Symbols", symbol).params(r#"{"char": string, "font"?: family (the symbol's own font)}"#),
         // Plume: an emoji is plain text, so a Markdown file keeps it (Symbol's own fonts it can't).
-        CommandSpec::new("insert.emoji", "Emoji", "Insert › Symbols", emoji).params(r#"{"char": string (an emoji, as text; EMOJI lists the menu's)}"#),
+        CommandSpec::new("insert.emoji", "Emoji", "Insert › Symbols", emoji).params(r#"{"char": string (an emoji, as text; emoji.search finds them)}"#),
+        CommandSpec::new("emoji.search", "Find Emoji", "Insert › Symbols", emoji_search)
+            .params(r#"{"query"?: string (names and keywords, English or French; none: the group's), "group"?: 0-8 (Smileys & Emotion … Flags), "tone"?: 0-5 (skin tone, 0 none), "limit"?: number (default 50)} → [{emoji, name, nameFr, group, tones}]"#)
+            .pure(),
         CommandSpec::new("insert.field", "Field", "Insert › Text › Quick Parts", field).key("Mod+F9").params(r#"{"instr": string, "result"?: string}"#),
         // Word's Alt+Shift+D / T / P (Control+Shift+… in Word for Mac): DATE, TIME and PAGE fields.
         CommandSpec::new("insert.dateField", "Insert Date Field", "Insert › Text › Quick Parts", |s, _| field(s, &json!({"instr": "DATE"})))
@@ -873,15 +876,30 @@ pub fn format_date_parts(fmt: &str, y: i64, m: usize, d: u32, (hh, mm, ss): (u32
     out
 }
 
-/// Insert › Emoji's menu, by group: the emoji a document most often uses (`insert.emoji` takes
-/// any other too).
-pub const EMOJI: &[(&str, &[&str])] = &[
-    ("Smileys", &["😀", "😃", "😄", "😁", "😅", "😂", "🙂", "😉", "😊", "😍", "🤔", "😎", "😮", "😢", "😴", "🙃"]),
-    ("Gestures", &["👍", "👎", "👏", "🙌", "🙏", "👋", "✌️", "👌", "💪", "🤝", "👉", "👀"]),
-    ("Status", &["✅", "❌", "⚠️", "❗", "❓", "💡", "📌", "🔥", "⭐", "🚀", "🎉", "🏁", "⏳", "🔒", "🐛", "🔧"]),
-    ("Objects", &["📄", "📁", "📝", "📚", "📅", "📎", "🔗", "💬", "📊", "📈", "💻", "⌨️"]),
-    ("Arrows", &["➡️", "⬅️", "⬆️", "⬇️", "↔️", "🔁", "🔄", "🔙"]),
-];
+/// Emoji by name or keyword (English or French), or a group's, for scripts and agents.
+fn emoji_search(_s: &mut Session, v: &Value) -> CmdResult {
+    let limit = p::u64(v, "limit").unwrap_or(50).clamp(1, 2000) as usize;
+    let tone = p::u64(v, "tone").unwrap_or(0).min(5) as usize;
+    let group = p::u64(v, "group").map(|g| g as usize);
+    if group.is_some_and(|g| g >= crate::emoji::GROUPS.len()) {
+        return Err(CmdError::Params(format!("group: 0–{}", crate::emoji::GROUPS.len() - 1)));
+    }
+    let found: Vec<&crate::emoji::Emoji> = match p::str(v, "query").filter(|q| !q.trim().is_empty()) {
+        Some(q) => crate::emoji::search(q, 2000).into_iter().filter(|e| group.is_none_or(|g| e.group == g)).take(limit).collect(),
+        None => crate::emoji::group(group.unwrap_or(0)).take(limit).collect(),
+    };
+    Ok(Value::Array(
+        found
+            .iter()
+            .map(|e| {
+                json!({"emoji": e.in_tone(tone), "name": e.name_en, "nameFr": e.name_fr, "group": crate::emoji::GROUPS.get(e.group), "tones": !e.tones.is_empty()})
+            })
+            .collect(),
+    ))
+}
+
+/// How many emoji Insert › Emoji's Recently Used keeps.
+pub const RECENT_EMOJI: usize = 32;
 
 /// Insert › Emoji: the emoji at the caret, as text in the caret's formatting.
 fn emoji(s: &mut Session, v: &Value) -> CmdResult {
@@ -891,6 +909,11 @@ fn emoji(s: &mut Session, v: &Value) -> CmdResult {
         return Err(CmdError::Params("char: an emoji (1–16 characters, no control characters)".into()));
     }
     type_text(s, c)?;
+    // Insert › Emoji's Recently Used.
+    let recent = &mut s.prefs.recent_emoji;
+    recent.retain(|e| e != c);
+    recent.insert(0, c.to_string());
+    recent.truncate(RECENT_EMOJI);
     sel_result(s)
 }
 

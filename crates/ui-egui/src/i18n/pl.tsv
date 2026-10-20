@@ -3188,3 +3188,23 @@ preview	Title	Tytuł
 	Import…	Importuj…
 	Emoji	Emoji
 	Markdown and pictures (*.zip)	Markdown i obrazy (*.zip)
+	Find Emoji	Znajdź emoji
+	Smileys & Emotion	Buźki i emocje
+	People & Body	Ludzie i ciało
+	Animals & Nature	Zwierzęta i natura
+	Food & Drink	Jedzenie i picie
+	Travel & Places	Podróże i miejsca
+	Activities	Aktywności
+	Objects	Przedmioty
+	Flags	Flagi
+	Recently Used	Ostatnio używane
+	Search emoji	Szukaj emoji
+	Skin tone	Odcień skóry
+	No emoji found	Nie znaleziono emoji
+	No recent emoji yet	Brak ostatnio używanych emoji
+	File name	Nazwa pliku
+	Chrome and Edge let you choose the folder, and save there again without asking; other browsers save to Downloads.	Chrome i Edge pozwalają wybrać folder i później zapisują w nim bez pytania; inne przeglądarki zapisują w Pobranych.
+	The browser makes the PDF with Plume's own engine, as it can't run TeX: the template's paper, margins and fonts are applied.	Przeglądarka tworzy PDF własnym silnikiem Plume, bo nie może uruchomić TeX: stosowane są papier, marginesy i czcionki szablonu.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Nie znaleziono silnika TeX: ta kopia Plume nie ma Tectonic. Zainstaluj go (brew install tectonic) lub MacTeX, a potem wyeksportuj ponownie.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Nie znaleziono silnika TeX: ta kopia Plume nie ma Tectonic. Zainstaluj go (winget install TectonicTypesetting.Tectonic) lub MiKTeX, a potem wyeksportuj ponownie.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Nie znaleziono silnika TeX: ta kopia Plume nie ma Tectonic. Zainstaluj Tectonic lub TeX Live menedżerem pakietów, a potem wyeksportuj ponownie.

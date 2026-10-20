@@ -4,6 +4,7 @@
 //! invoked through `std::process::Command`.
 
 mod assets;
+mod emoji_data;
 mod icns;
 mod ico;
 mod layers;
@@ -30,6 +31,9 @@ commands:
                   --tables fetches Word documents with nested tables into corpus/tables
   stats [--exact] count tests and lines per crate (--exact: ask the test harness via `-- --list`)
   parity          recompute the Word feature-parity summary in docs/parity-checklist.md
+  emoji-data <emoji-test.txt> <cldr-dir>
+                  write crates/engine/src/emoji.tsv (Insert › Emoji) from Unicode's emoji list
+                  and CLDR's English and French annotations
   plume-credits [--upstream <ref>] [--repo <owner/name>]
                   write contributors/plume.json: Plume's own commits (not in WordCraft's
                   --upstream, default upstream/main), credited by GitHub login and model
@@ -54,6 +58,7 @@ fn main() -> ExitCode {
         Some("corpus") => cmd_corpus(rest.contains(&"--download")),
         Some("stats") => stats::run(&root(), rest.contains(&"--exact")),
         Some("parity") => parity::run(&root()),
+        Some("emoji-data") => emoji_data::run(&root(), &rest),
         Some("plume-credits") => plume_credits::run(&root(), &rest),
         Some("ico") => ico::run(&rest),
         Some("icns") => icns::run(&rest),

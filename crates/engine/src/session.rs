@@ -549,6 +549,11 @@ pub struct Prefs {
     /// document is saved (`markdown.strict`). On by default: Plume edits Markdown, and the
     /// Office-only features are opt-in (File › Options › Markdown).
     pub markdown_strict: bool,
+    /// Plume: the emoji inserted last, newest first (Insert › Emoji's Recently Used).
+    pub recent_emoji: Vec<String>,
+    /// Plume: the skin tone Insert › Emoji gives the emoji that have one (0 none, 1–5 lightest
+    /// to darkest).
+    pub emoji_tone: u8,
     /// Track Changes Options: what markup shows and how revisions are drawn (per user, as in
     /// Word).
     pub markup: wordcraft_layout::display::MarkupOptions,
@@ -596,6 +601,8 @@ impl Default for Prefs {
         Prefs {
             count_notes: true,
             markdown_strict: true,
+            recent_emoji: Vec::new(),
+            emoji_tone: 0,
             markup: Default::default(),
             print_markup: false,
             typing_replaces_selection: true,

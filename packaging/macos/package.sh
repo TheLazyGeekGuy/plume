@@ -105,6 +105,16 @@ cp "$WORK/bin/wordcraft" "$APP/Contents/MacOS/Plume"
 cp "$ROOT/assets/app-icon/plume.icns" "$APP/Contents/Resources/Plume.icns"
 # Licences of the embedded craft-fonts fonts (only when built with CRAFT_FONTS_DIR).
 copy_font_licences "$APP/Contents/Resources"
+# Plume: the Tectonic TeX engine for PDF export through a template, one binary per architecture
+# joined like the app's (Plume looks for it in Contents/Helpers).
+TEC_INPUTS=()
+for t in "${TARGETS[@]}"; do
+  if fetch_tectonic "$t" "$WORK/tectonic-$t/tectonic"; then TEC_INPUTS+=("$WORK/tectonic-$t/tectonic"); fi
+done
+if [ "${#TEC_INPUTS[@]}" = "${#TARGETS[@]}" ]; then
+  mkdir -p "$APP/Contents/Helpers"
+  lipo -create -output "$APP/Contents/Helpers/tectonic" "${TEC_INPUTS[@]}"
+fi
 sed -e "s/@VERSION@/$VERSION/g" -e "s/@SHORT_VERSION@/$SHORT_VERSION/g" \
   -e "s/@BUILD_SHA@/${WORDCRAFT_BUILD_SHA:-unknown}/g" \
   "$HERE/Info.plist.in" >"$APP/Contents/Info.plist"
@@ -116,7 +126,8 @@ printf 'APPL????' >"$APP/Contents/PkgInfo"
 # Clear them before signing; nothing after this point may write xattrs onto the bundle (#525).
 xattr -cr "$APP"
 # Sign inside-out: nested code first, then the bundle itself (no --deep on the final signature).
-# Today the only nested code is the main executable; frameworks/helpers would be signed here too.
+# The nested code: the shipped Tectonic, then the main executable.
+if [ -f "$APP/Contents/Helpers/tectonic" ]; then sign --options runtime "$APP/Contents/Helpers/tectonic"; fi
 sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP/Contents/MacOS/Plume"
 sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP"
 codesign --verify --strict --deep --verbose=2 "$APP"

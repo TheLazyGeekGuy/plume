@@ -13,6 +13,7 @@ const DOC_EXTS: &[&str] =
     &["docx", "docm", "dotx", "dotm", "doc", "dot", "odt", "rtf", "txt", "md", "textpack", "zip", "html", "htm", "tex", "json", "xml"];
 const IMAGE_EXTS: &[&str] = &["png", "jpg", "jpeg", "gif", "webp", "bmp", "wmf", "emf"];
 const RECIPIENT_EXTS: &[&str] = wordcraft_engine::cmd::mailings::RECIPIENT_EXTENSIONS;
+mod doc_store;
 mod font_store;
 const CANVAS_ID: &str = "wordcraft_canvas";
 const LOADING_ID: &str = "wordcraft_loading";
@@ -111,7 +112,7 @@ struct WebShell {
     prefs: crate::prefs::PrefsSync,
 }
 
-fn local_storage() -> Option<web_sys::Storage> {
+pub(crate) fn local_storage() -> Option<web_sys::Storage> {
     web_sys::window()?.local_storage().ok()?
 }
 
@@ -217,6 +218,7 @@ fn services(inbox: Inbox, ctx: egui::Context, dirty: Rc<Cell<bool>>, saves: Asyn
     let save_ctx = ctx.clone();
     let font_ctx = ctx.clone();
     let font_messages = messages.clone();
+    let (recent_inbox, recent_ctx) = (inbox.clone(), ctx.clone());
     Services {
         open_async: Some(Box::new(move |purpose: &str| {
             let inbox = open_inbox.clone();
@@ -262,6 +264,10 @@ fn services(inbox: Inbox, ctx: egui::Context, dirty: Rc<Cell<bool>>, saves: Asyn
         load_system_fonts: Some(Box::new(move || {
             load_system_fonts(font_ctx.clone(), font_messages.clone());
         })),
+        // Plume: File › Open's Recent list, kept in the browser.
+        remember_document: Some(Box::new(doc_store::remember)),
+        open_stored_document: Some(Box::new(move |name: &str| doc_store::open_stored(name, recent_inbox.clone(), recent_ctx.clone()))),
+        forget_save_location: Some(Box::new(|| LAST_SAVE.with(|l| *l.borrow_mut() = None))),
         ..Default::default()
     }
 }
@@ -395,10 +401,35 @@ fn guard_unload(dirty: Rc<Cell<bool>>, saves: AsyncSaves) -> Result<(), String> 
     Ok(())
 }
 
+thread_local! {
+    /// Plume: the file the save picker last wrote, by name (Chrome, Edge): a later save under the
+    /// same name writes it again without asking. Save As forgets it.
+    static LAST_SAVE: RefCell<Option<(String, wasm_bindgen::JsValue)>> = const { RefCell::new(None) };
+}
+
 /// Trigger a browser save dialog or download of `bytes` named after the last component of `path`.
 fn download(saves: &AsyncSaves, ctx: &egui::Context, path: &str, bytes: &[u8]) -> Result<(), String> {
     let name = std::path::Path::new(path).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| "document".into());
     let window = web_sys::window().ok_or("no window")?;
+
+    // Plume: saved under this name already: the same file again, no picker.
+    if let Some(handle) = LAST_SAVE.with(|l| l.borrow().as_ref().filter(|(n, _)| *n == name).map(|(_, h)| h.clone())) {
+        let (saves, ctx, bytes, name) = (saves.clone(), ctx.clone(), bytes.to_vec(), name.clone());
+        let ticket = saves.start();
+        wasm_bindgen_futures::spawn_local(async move {
+            let outcome = match write_file_handle(&handle, &bytes).await {
+                Ok(()) => SaveOutcome::Saved,
+                Err(e) => {
+                    log::error!("couldn't write {name} again: {e}");
+                    LAST_SAVE.with(|l| *l.borrow_mut() = None);
+                    SaveOutcome::Failed(e)
+                }
+            };
+            saves.finish(ticket, outcome);
+            ctx.request_repaint();
+        });
+        return Ok(());
+    }
 
     // On browsers supporting the File System Access API (Chromium: Chrome, Edge, etc.),
     // `showSaveFilePicker` lets the user choose the save location and filename natively.
@@ -471,6 +502,9 @@ fn trigger_save_file_picker(
             Ok(handle_val) => match write_file_handle(&handle_val, &bytes_vec).await {
                 Ok(()) => {
                     log::info!("saved {name} through the save picker");
+                    // The name the person gave in the picker; the next save under it goes there.
+                    let picked = js_sys::Reflect::get(&handle_val, &wasm_bindgen::JsValue::from_str("name")).ok().and_then(|v| v.as_string());
+                    LAST_SAVE.with(|l| *l.borrow_mut() = Some((picked.unwrap_or_else(|| name.clone()), handle_val.clone())));
                     SaveOutcome::Saved
                 }
                 Err(e) => {

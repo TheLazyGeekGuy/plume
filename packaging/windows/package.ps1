@@ -93,6 +93,25 @@ Copy-Item (Join-Path $Bin 'wordcraft.exe'), (Join-Path $Bin 'wordcraft-cli.exe')
 
 & (Join-Path $PSScriptRoot 'sign.ps1') (Join-Path $Stage 'wordcraft.exe') (Join-Path $Stage 'wordcraft-cli.exe')
 
+# Plume: the Tectonic TeX engine for PDF export through a template, beside wordcraft.exe (where
+# Plume looks first). Tectonic builds for x64 Windows only; elsewhere Plume uses an installed one.
+$TectonicVersion = if ($env:TECTONIC_VERSION) { $env:TECTONIC_VERSION } else { '0.15.0' }
+$HasTectonic = 'no'
+if ($Arch -eq 'x64') {
+  $tecZip = Join-Path $TargetDir 'tectonic-windows.zip'
+  $tecUrl = "https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%40$TectonicVersion/tectonic-$TectonicVersion-x86_64-pc-windows-msvc.zip"
+  try {
+    Invoke-WebRequest -Uri $tecUrl -OutFile $tecZip -UseBasicParsing
+    $tecDir = Join-Path $TargetDir 'tectonic-windows'
+    Remove-Item -Recurse -Force $tecDir -ErrorAction SilentlyContinue
+    Expand-Archive -Path $tecZip -DestinationPath $tecDir -Force
+    $tecExe = Get-ChildItem -Path $tecDir -Recurse -Filter 'tectonic.exe' | Select-Object -First 1
+    if ($tecExe) { Copy-Item $tecExe.FullName (Join-Path $Stage 'tectonic.exe'); $HasTectonic = 'yes' }
+  } catch {
+    Write-Warning "no Tectonic $TectonicVersion ($tecUrl): this package has no PDF engine of its own ($_)"
+  }
+}
+
 # ---- MSI ---------------------------------------------------------------------------------------
 # The installer's welcome page shows the license: build its RTF from LICENSE-MIT and LICENSE-APACHE
 # so it never drifts from them. Hard-wrapped lines are rejoined into paragraphs so the text wraps
@@ -129,7 +148,7 @@ Invoke-Native 'wix build' {
   wix build (Join-Path $PSScriptRoot 'wordcraft.wxs') -arch $Arch `
     -ext WixToolset.UI.wixext -ext WixToolset.Util.wixext `
     -d "Version=$MsiVersion" -d "BinDir=$Stage" -d "IconPath=$(Join-Path $Root 'assets\app-icon\plume.ico')" `
-    -d "LicenseRtf=$LicenseRtf" `
+    -d "LicenseRtf=$LicenseRtf" -d "HasTectonic=$HasTectonic" `
     -o $Msi
 }
 # wix writes its debug symbols (.wixpdb) next to the MSI; keep them out of the release assets.

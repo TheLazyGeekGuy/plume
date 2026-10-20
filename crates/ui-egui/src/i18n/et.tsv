@@ -2523,3 +2523,23 @@
 	Import…	Impordi…
 	Emoji	Emoji
 	Markdown and pictures (*.zip)	Markdown ja pildid (*.zip)
+	Find Emoji	Otsi emojisid
+	Smileys & Emotion	Emotikonid ja emotsioonid
+	People & Body	Inimesed ja keha
+	Animals & Nature	Loomad ja loodus
+	Food & Drink	Toit ja jook
+	Travel & Places	Reisimine ja kohad
+	Activities	Tegevused
+	Objects	Esemed
+	Flags	Lipud
+	Recently Used	Hiljuti kasutatud
+	Search emoji	Otsi emojisid
+	Skin tone	Nahatoon
+	No emoji found	Emojisid ei leitud
+	No recent emoji yet	Hiljutisi emojisid veel pole
+	File name	Faili nimi
+	Chrome and Edge let you choose the folder, and save there again without asking; other browsers save to Downloads.	Chrome ja Edge lasevad valida kausta ja salvestavad sinna hiljem küsimata; teised brauserid salvestavad kausta Allalaadimised.
+	The browser makes the PDF with Plume's own engine, as it can't run TeX: the template's paper, margins and fonts are applied.	Brauser teeb PDF-i Plume'i enda mootoriga, sest ei saa TeX-i käivitada: rakendatakse malli paber, veerised ja fondid.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	TeX-mootorit ei leitud: sellel Plume'i koopial pole Tectonicut. Paigaldage see (brew install tectonic) või MacTeX ja eksportige uuesti.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	TeX-mootorit ei leitud: sellel Plume'i koopial pole Tectonicut. Paigaldage see (winget install TectonicTypesetting.Tectonic) või MiKTeX ja eksportige uuesti.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	TeX-mootorit ei leitud: sellel Plume'i koopial pole Tectonicut. Paigaldage Tectonic või TeX Live paketihalduriga ja eksportige uuesti.

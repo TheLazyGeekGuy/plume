@@ -418,6 +418,19 @@ pub fn style_snippet(base: &Document, para: Paragraph, w: f32, h: f32, ppp: f32,
     snippet_blocks(base, vec![Block::Para(para)], w, h, ppp, margin, None, dark)
 }
 
+/// Plume: one emoji drawn by the document renderer, in colour (egui's own emoji font is
+/// monochrome and has few of them), `pt` points tall on `paper`; the image is `pt * 1.4` points
+/// square, the emoji centred.
+pub fn emoji_image(text: &str, pt: f32, ppp: f32, paper: wordcraft_doc::Rgb) -> Option<egui::ColorImage> {
+    let mut p = Paragraph::with_text(text, CharProps { size: Some(pt), ..CharProps::default() });
+    p.props.space_before = Some(0.0);
+    p.props.space_after = Some(0.0);
+    p.props.align = Some(wordcraft_doc::Align::Center);
+    p.props.line_spacing = Some(wordcraft_doc::props::LineSpacing::Multiple(1.0));
+    let side = pt * 1.4;
+    snippet_blocks(&Document::new(), vec![Block::Para(p)], side, side, ppp, 0.0, Some(paper), false)
+}
+
 /// How a gallery draws a page preview: as rendered on a light interface or on Switch Modes' dark
 /// page, and dimmed in the dark theme so a white page isn't the brightest thing on screen (#663).
 pub fn preview_tint(t: &Tokens, dark_page: bool) -> egui::Color32 {

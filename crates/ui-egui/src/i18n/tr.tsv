@@ -2897,3 +2897,23 @@ preview	Title	Örnek
 	Import…	İçe aktar…
 	Emoji	Emoji
 	Markdown and pictures (*.zip)	Markdown ve resimler (*.zip)
+	Find Emoji	Emoji bul
+	Smileys & Emotion	İfadeler ve duygular
+	People & Body	İnsanlar ve vücut
+	Animals & Nature	Hayvanlar ve doğa
+	Food & Drink	Yiyecek ve içecek
+	Travel & Places	Seyahat ve yerler
+	Activities	Etkinlikler
+	Objects	Nesneler
+	Flags	Bayraklar
+	Recently Used	Son kullanılanlar
+	Search emoji	Emoji ara
+	Skin tone	Ten rengi
+	No emoji found	Emoji bulunamadı
+	No recent emoji yet	Henüz son kullanılan emoji yok
+	File name	Dosya adı
+	Chrome and Edge let you choose the folder, and save there again without asking; other browsers save to Downloads.	Chrome ve Edge klasörü seçmenize izin verir ve sonra sormadan oraya kaydeder; diğer tarayıcılar İndirilenler'e kaydeder.
+	The browser makes the PDF with Plume's own engine, as it can't run TeX: the template's paper, margins and fonts are applied.	Tarayıcı TeX çalıştıramadığı için PDF'yi Plume'un kendi motoruyla oluşturur: şablonun kâğıdı, kenar boşlukları ve yazı tipleri uygulanır.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	TeX motoru bulunamadı: Plume'un bu kopyasında Tectonic yok. Onu (brew install tectonic) veya MacTeX'i yükleyin, sonra yeniden dışa aktarın.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	TeX motoru bulunamadı: Plume'un bu kopyasında Tectonic yok. Onu (winget install TectonicTypesetting.Tectonic) veya MiKTeX'i yükleyin, sonra yeniden dışa aktarın.
+	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	TeX motoru bulunamadı: Plume'un bu kopyasında Tectonic yok. Tectonic veya TeX Live'ı paket yöneticinizle yükleyin, sonra yeniden dışa aktarın.
