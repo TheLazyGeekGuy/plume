@@ -578,6 +578,34 @@ pub fn paint(p: &Painter, r: Rect, name: &str, c: Color32, accent: Color32) {
             pen.lines(7.0, 15.5, &[8.0, 11.0, 14.0]);
         }
         "symbol" => pen.text(10.0, 10.0, 17.0, "Ω", c, false),
+        // Plume: classification — a shield, a briefcase (context), an eye (visibility), a star
+        // (importance).
+        "shield" => {
+            pen.fill(&[(10.0, 2.5), (16.5, 5.0), (16.0, 11.0), (10.0, 17.5), (4.0, 11.0), (3.5, 5.0)], a.linear_multiply(0.25));
+            pen.closed(&[(10.0, 2.5), (16.5, 5.0), (16.0, 11.0), (10.0, 17.5), (4.0, 11.0), (3.5, 5.0)], c);
+            pen.line(&[(7.0, 10.0), (9.3, 12.3), (13.5, 7.5)]);
+        }
+        "briefcase" => {
+            pen.rect(3.0, 6.5, 17.0, 16.5, c);
+            pen.line(&[(7.5, 6.5), (7.5, 4.0), (12.5, 4.0), (12.5, 6.5)]);
+            pen.line(&[(3.0, 11.0), (17.0, 11.0)]);
+            pen.frect(9.0, 10.0, 11.0, 12.5, a);
+        }
+        "eye" => {
+            pen.line(&[(2.5, 10.0), (5.0, 7.0), (10.0, 5.0), (15.0, 7.0), (17.5, 10.0), (15.0, 13.0), (10.0, 15.0), (5.0, 13.0), (2.5, 10.0)]);
+            pen.fcircle(10.0, 10.0, 3.0, a);
+        }
+        "star" => {
+            let pts: Vec<(f32, f32)> = (0..10)
+                .map(|i| {
+                    let r = if i % 2 == 0 { 7.5 } else { 3.2 };
+                    let t = std::f32::consts::PI * (i as f32 / 5.0) - std::f32::consts::FRAC_PI_2;
+                    (10.0 + r * t.cos(), 10.5 + r * t.sin())
+                })
+                .collect();
+            pen.closed(&pts, c);
+            pen.fcircle(10.0, 10.5, 2.0, a);
+        }
         // Plume: a smiling face.
         "emoji" => {
             pen.fcircle(10.0, 10.0, 7.5, a.linear_multiply(0.2));

@@ -2912,3 +2912,69 @@ preview	Title	Ukázka
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Nebyl nalezen žádný engine TeX: tato kopie Plume nemá Tectonic. Nainstalujte jej (brew install tectonic) nebo MacTeX a exportujte znovu.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Nebyl nalezen žádný engine TeX: tato kopie Plume nemá Tectonic. Nainstalujte jej (winget install TectonicTypesetting.Tectonic) nebo MiKTeX a exportujte znovu.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Nebyl nalezen žádný engine TeX: tato kopie Plume nemá Tectonic. Nainstalujte Tectonic nebo TeX Live správcem balíčků a exportujte znovu.
+	Classification	Klasifikace
+	Set Classification	Nastavit klasifikaci
+	Classification Referential	Klasifikační schéma
+	Classification Referentials	Klasifikační schémata
+	Check Classification	Zkontrolovat klasifikaci
+	Classification Options	Možnosti klasifikace
+	Save Classification Referential	Uložit schéma
+	Delete Classification Referential	Odstranit schéma
+	Document Classification	Klasifikace dokumentů
+	Personal	Osobní
+	Association	Spolkový
+	Private	Soukromý
+	Shared	Sdílený
+	Public	Veřejný
+	Ordinary	Běžná
+	Strategic	Strategická
+	No personal data	Bez osobních údajů
+	Personal data	Osobní údaje
+	Sensitive personal data	Citlivé osobní údaje
+	Visibility	Viditelnost
+	Importance	Důležitost
+	Unclassified	Neklasifikováno
+	Not set	Nenastaveno
+	Confidentiality	Důvěrnost
+	Referential definition	Definice schématu
+	Change referential	Změnit schéma
+	Classification Options…	Možnosti klasifikace…
+	Referential	Schéma
+	Default referential	Výchozí schéma
+	Labels in the title bar	Štítky v záhlaví okna
+	Each label	Každý štítek
+	One compact label	Jeden kompaktní štítek
+	Referentials	Schémata
+	{name} (built in)	{name} (vestavěné)
+	Duplicate to customise	Duplikovat k úpravě
+	custom	vlastní
+	Code	Kód
+	Label	Popisek
+	Add a level	Přidat úroveň
+	Classified document	Klasifikovaný dokument
+	Publish anyway	Přesto publikovat
+	Internal	Interní
+	Confidential	Důvěrné
+	Restricted	Vyhrazené
+	Highly restricted	Přísně vyhrazené
+	Referential: {name}	Schéma: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Klasifikace určuje, jak smí dokument kolovat; soubor nešifruje.
+	Anyone may read it.	Číst jej smí kdokoli.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Barvy vždy doprovází kód a název úrovně. Změna referenčního rámce dokumentu vyžaduje novou úroveň: dokument se nikdy nepřeklasifikuje potichu.
+	Description and rules of diffusion	Popis a pravidla šíření
+	FIRST's Traffic Light Protocol, version 2.0.	Traffic Light Protocol organizace FIRST, verze 2.0.
+	For named people only, under strict control; never exported unencrypted.	Jen pro jmenované osoby, pod přísnou kontrolou; nikdy se neexportuje nešifrovaně.
+	For named people only; disclosure would cause serious harm.	Jen pro jmenované osoby; vyzrazení by způsobilo vážnou škodu.
+	For the eyes and ears of the individual recipients only.	Výhradně pro jednotlivé příjemce.
+	For the people of the organisation or group.	Pro lidi z organizace nebo skupiny.
+	For the people who need it; not to be published.	Pro ty, kdo jej potřebují; nezveřejňovat.
+	Plume's five levels, from public to highly restricted.	Pět úrovní Plume, od veřejné po přísně omezenou.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Zveřejnění tam vytvoří čitelnou kopii. Štítek ji nechrání; chrání ji šifrování.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Příjemci jej smějí sdílet jen ve své organizaci a s jejími klienty, podle potřeby.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Příjemci jej smějí sdílet jen ve své organizaci, podle potřeby.
+	Recipients may share it within their community, not publicly.	Příjemci jej smějí sdílet ve své komunitě, ne veřejně.
+	Recipients may share it without limit.	Příjemci jej smějí sdílet bez omezení.
+	Referential {name} (not known here; kept as written)	Referenční rámec {name} (zde neznámý; ponechán, jak je zapsán)
+	Show the level on PDF and HTML copies	Zobrazit úroveň na kopiích PDF a HTML
+	This document's classification asks for a decision before it is published:	Klasifikace tohoto dokumentu vyžaduje před zveřejněním rozhodnutí:
+	Warn before publishing a document its level asks to keep	Upozornit před zveřejněním dokumentu, který má podle své úrovně zůstat neveřejný

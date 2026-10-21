@@ -44,6 +44,14 @@ office chart.editData
 office chart.legend
 office chart.title
 office chart.type
+markdown classification.check
+markdown classification.deleteReference
+markdown classification.get
+markdown classification.options
+markdown classification.references
+markdown classification.saveReference
+markdown classification.set
+markdown classification.setReference
 office design.effects
 office design.pageBorders
 office design.pageColor

@@ -2918,3 +2918,69 @@ preview	Title	Пример
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Движок TeX не найден: в этой копии Plume нет Tectonic. Установите его (brew install tectonic) или MacTeX и экспортируйте снова.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Движок TeX не найден: в этой копии Plume нет Tectonic. Установите его (winget install TectonicTypesetting.Tectonic) или MiKTeX и экспортируйте снова.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Движок TeX не найден: в этой копии Plume нет Tectonic. Установите Tectonic или TeX Live менеджером пакетов и экспортируйте снова.
+	Classification	Классификация
+	Set Classification	Задать классификацию
+	Classification Referential	Схема классификации
+	Classification Referentials	Схемы классификации
+	Check Classification	Проверить классификацию
+	Classification Options	Параметры классификации
+	Save Classification Referential	Сохранить схему
+	Delete Classification Referential	Удалить схему
+	Document Classification	Классификация документов
+	Personal	Личный
+	Association	Общественный
+	Private	Личный доступ
+	Shared	Общий доступ
+	Public	Публичный
+	Ordinary	Обычная
+	Strategic	Стратегическая
+	No personal data	Нет персональных данных
+	Personal data	Персональные данные
+	Sensitive personal data	Чувствительные персональные данные
+	Visibility	Видимость
+	Importance	Важность
+	Unclassified	Не классифицирован
+	Not set	Не задано
+	Confidentiality	Конфиденциальность
+	Referential definition	Определение схемы
+	Change referential	Сменить схему
+	Classification Options…	Параметры классификации…
+	Referential	Схема
+	Default referential	Схема по умолчанию
+	Labels in the title bar	Метки в заголовке окна
+	Each label	Каждая метка
+	One compact label	Одна компактная метка
+	Referentials	Схемы
+	{name} (built in)	{name} (встроенная)
+	Duplicate to customise	Дублировать для настройки
+	custom	своя
+	Code	Код
+	Label	Название
+	Add a level	Добавить уровень
+	Classified document	Классифицированный документ
+	Publish anyway	Всё равно опубликовать
+	Internal	Внутренний
+	Confidential	Конфиденциальный
+	Restricted	Ограниченный
+	Highly restricted	Строго ограниченный
+	Referential: {name}	Схема: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Классификация указывает, как документ может распространяться; она не шифрует файл.
+	Anyone may read it.	Читать может любой.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Цвет всегда сопровождается кодом и названием уровня. При смене системы классификации запрашивается новый уровень: документ никогда не переклассифицируется молча.
+	Description and rules of diffusion	Описание и правила распространения
+	FIRST's Traffic Light Protocol, version 2.0.	Traffic Light Protocol от FIRST, версия 2.0.
+	For named people only, under strict control; never exported unencrypted.	Только для названных лиц, под строгим контролем; никогда не экспортируется без шифрования.
+	For named people only; disclosure would cause serious harm.	Только для названных лиц; раскрытие нанесёт серьёзный ущерб.
+	For the eyes and ears of the individual recipients only.	Только для отдельных получателей лично.
+	For the people of the organisation or group.	Для сотрудников организации или группы.
+	For the people who need it; not to be published.	Для тех, кому он нужен; не для публикации.
+	Plume's five levels, from public to highly restricted.	Пять уровней Plume — от открытого до строго ограниченного.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Публикация создаёт там читаемую копию. Метка её не защищает; защищает шифрование.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Получатели могут делиться им только внутри своей организации и с её клиентами, по принципу необходимости.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Получатели могут делиться им только внутри своей организации, по принципу необходимости.
+	Recipients may share it within their community, not publicly.	Получатели могут делиться им внутри своего сообщества, но не публично.
+	Recipients may share it without limit.	Получатели могут делиться им без ограничений.
+	Referential {name} (not known here; kept as written)	Система классификации {name} (здесь неизвестна; сохранена как есть)
+	Show the level on PDF and HTML copies	Показывать уровень на копиях PDF и HTML
+	This document's classification asks for a decision before it is published:	Классификация этого документа требует решения перед публикацией:
+	Warn before publishing a document its level asks to keep	Предупреждать перед публикацией документа, который по своему уровню не должен распространяться

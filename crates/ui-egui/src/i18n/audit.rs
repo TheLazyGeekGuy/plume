@@ -153,6 +153,8 @@ impl Exempt {
                 names.extend([m.company, m.model, m.version].map(str::to_string));
             }
         }
+        // Classification referentials' names and versions: names (a custom one is the user's own).
+        names.extend(wordcraft_engine::classification::all(&app.session.prefs.classification).iter().map(|r| format!("{} {}", r.name, r.version)));
         Exempt { body: app.session.doc.plain_text(wordcraft_doc::StoryRef::Body), names }
     }
 

@@ -2510,3 +2510,69 @@
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	找不到 TeX 引擎：此 Plume 副本未含 Tectonic。請安裝它（brew install tectonic）或 MacTeX，然後重新匯出。
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	找不到 TeX 引擎：此 Plume 副本未含 Tectonic。請安裝它（winget install TectonicTypesetting.Tectonic）或 MiKTeX，然後重新匯出。
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	找不到 TeX 引擎：此 Plume 副本未含 Tectonic。請用套件管理員安裝 Tectonic 或 TeX Live，然後重新匯出。
+	Classification	分類
+	Set Classification	設定分類
+	Classification Referential	分類體系
+	Classification Referentials	分類體系清單
+	Check Classification	檢查分類
+	Classification Options	分類選項
+	Save Classification Referential	儲存體系
+	Delete Classification Referential	刪除體系
+	Document Classification	文件分類
+	Personal	個人
+	Association	社團
+	Private	私密
+	Shared	共用
+	Public	公開
+	Ordinary	普通
+	Strategic	策略
+	No personal data	無個人資料
+	Personal data	含個人資料
+	Sensitive personal data	含敏感個人資料
+	Visibility	可見性
+	Importance	重要性
+	Unclassified	未分類
+	Not set	未設定
+	Confidentiality	機密等級
+	Referential definition	體系定義
+	Change referential	變更體系
+	Classification Options…	分類選項…
+	Referential	體系
+	Default referential	預設體系
+	Labels in the title bar	標題列中的標籤
+	Each label	每個標籤
+	One compact label	一個精簡標籤
+	Referentials	體系清單
+	{name} (built in)	{name} (內建)
+	Duplicate to customise	複製以自訂
+	custom	自訂
+	Code	代碼
+	Label	標籤
+	Add a level	新增等級
+	Classified document	已分類文件
+	Publish anyway	仍要發布
+	Internal	內部
+	Confidential	機密
+	Restricted	受限
+	Highly restricted	嚴格受限
+	Referential: {name}	體系：{name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	分類說明文件可以如何流通；它不會加密檔案。
+	Anyone may read it.	任何人都可以閱讀。
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	顏色一律與等級的代碼和名稱一同顯示。變更文件的分類體系時會要求選擇新等級：文件絕不會被默默重新分類。
+	Description and rules of diffusion	說明與散布規則
+	FIRST's Traffic Light Protocol, version 2.0.	FIRST 的 Traffic Light Protocol，版本 2.0。
+	For named people only, under strict control; never exported unencrypted.	僅限指定人員，嚴格管控；絕不以未加密形式匯出。
+	For named people only; disclosure would cause serious harm.	僅限指定人員；洩漏將造成嚴重損害。
+	For the eyes and ears of the individual recipients only.	僅限各個收件者本人。
+	For the people of the organisation or group.	供組織或群組內的人員使用。
+	For the people who need it; not to be published.	供需要的人使用；不得公開。
+	Plume's five levels, from public to highly restricted.	Plume 的五個等級，從公開到高度受限。
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	發布會在那裡產生可讀的副本。標籤無法保護它；加密才能。
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	收件者只能在其組織內部及其客戶之間依需知原則分享。
+	Recipients may share it only within their organisation, on a need-to-know basis.	收件者只能在其組織內部依需知原則分享。
+	Recipients may share it within their community, not publicly.	收件者可在其社群內分享，但不得公開。
+	Recipients may share it without limit.	收件者可無限制分享。
+	Referential {name} (not known here; kept as written)	分類體系 {name}（此處未知；依原樣保留）
+	Show the level on PDF and HTML copies	在 PDF 和 HTML 副本上顯示等級
+	This document's classification asks for a decision before it is published:	此文件的分類要求在發布前作出決定：
+	Warn before publishing a document its level asks to keep	發布依等級應予保留的文件前發出警告

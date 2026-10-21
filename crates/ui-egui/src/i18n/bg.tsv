@@ -2909,3 +2909,69 @@
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Не е намерен TeX механизъм: това копие на Plume няма Tectonic. Инсталирайте го (brew install tectonic) или MacTeX и експортирайте отново.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Не е намерен TeX механизъм: това копие на Plume няма Tectonic. Инсталирайте го (winget install TectonicTypesetting.Tectonic) или MiKTeX и експортирайте отново.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Не е намерен TeX механизъм: това копие на Plume няма Tectonic. Инсталирайте Tectonic или TeX Live с мениджъра на пакети и експортирайте отново.
+	Classification	Класификация
+	Set Classification	Задаване на класификация
+	Classification Referential	Класификационна схема
+	Classification Referentials	Класификационни схеми
+	Check Classification	Проверка на класификацията
+	Classification Options	Опции за класификация
+	Save Classification Referential	Запис на схемата
+	Delete Classification Referential	Изтриване на схемата
+	Document Classification	Класификация на документи
+	Personal	Личен
+	Association	Сдружение
+	Private	Частен
+	Shared	Споделен
+	Public	Публичен
+	Ordinary	Обикновена
+	Strategic	Стратегическа
+	No personal data	Без лични данни
+	Personal data	Лични данни
+	Sensitive personal data	Чувствителни лични данни
+	Visibility	Видимост
+	Importance	Важност
+	Unclassified	Некласифициран
+	Not set	Не е зададено
+	Confidentiality	Поверителност
+	Referential definition	Определение на схемата
+	Change referential	Смяна на схемата
+	Classification Options…	Опции за класификация…
+	Referential	Схема
+	Default referential	Схема по подразбиране
+	Labels in the title bar	Етикети в заглавната лента
+	Each label	Всеки етикет
+	One compact label	Един компактен етикет
+	Referentials	Схеми
+	{name} (built in)	{name} (вградена)
+	Duplicate to customise	Дублиране за персонализиране
+	custom	собствена
+	Code	Код
+	Label	Етикет
+	Add a level	Добавяне на ниво
+	Classified document	Класифициран документ
+	Publish anyway	Публикуване въпреки това
+	Internal	Вътрешен
+	Confidential	Поверителен
+	Restricted	Ограничен
+	Highly restricted	Строго ограничен
+	Referential: {name}	Схема: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Класификацията указва как може да се разпространява документът; тя не шифрова файла.
+	Anyone may read it.	Всеки може да го чете.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Цветовете винаги са придружени от кода и името на нивото. Смяната на класификационната система на документа изисква новото му ниво: документът никога не се прекласифицира мълчаливо.
+	Description and rules of diffusion	Описание и правила за разпространение
+	FIRST's Traffic Light Protocol, version 2.0.	Traffic Light Protocol на FIRST, версия 2.0.
+	For named people only, under strict control; never exported unencrypted.	Само за посочени лица, под строг контрол; никога не се експортира нешифрован.
+	For named people only; disclosure would cause serious harm.	Само за посочени лица; разкриването би причинило сериозна вреда.
+	For the eyes and ears of the individual recipients only.	Само за отделните получатели лично.
+	For the people of the organisation or group.	За хората от организацията или групата.
+	For the people who need it; not to be published.	За хората, на които е нужен; не се публикува.
+	Plume's five levels, from public to highly restricted.	Петте нива на Plume — от публично до строго ограничено.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Публикуването създава там четимо копие. Етикетът не го защитава; шифроването го защитава.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Получателите могат да го споделят само в своята организация и с нейните клиенти, при необходимост.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Получателите могат да го споделят само в своята организация, при необходимост.
+	Recipients may share it within their community, not publicly.	Получателите могат да го споделят в своята общност, но не публично.
+	Recipients may share it without limit.	Получателите могат да го споделят без ограничение.
+	Referential {name} (not known here; kept as written)	Класификационна система {name} (неизвестна тук; запазена както е записана)
+	Show the level on PDF and HTML copies	Показване на нивото в копията PDF и HTML
+	This document's classification asks for a decision before it is published:	Класификацията на този документ изисква решение преди публикуване:
+	Warn before publishing a document its level asks to keep	Предупреждение преди публикуване на документ, който според нивото си трябва да се пази

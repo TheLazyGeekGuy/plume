@@ -29,6 +29,7 @@ pub mod backstage;
 pub mod canvas;
 pub mod caret_glide;
 pub mod chrome;
+pub mod classification_ui;
 pub mod colors;
 pub mod content_controls;
 pub mod control;
@@ -645,6 +646,9 @@ pub struct WordApp {
     /// Plume, web: the file name the document was last saved under (or opened from, for a
     /// Markdown file), with the document and the file it belongs to; a later Save reuses it.
     pub(crate) web_save: Option<(u64, Option<std::path::PathBuf>, String)>,
+    /// Plume: a publication waiting for the explicit decision the document's classification asks
+    /// for: the command, its parameters and the warnings.
+    pub(crate) classification_confirm: Option<(String, Value, Vec<String>)>,
     /// Web: the command a Save Changes prompt held back until its picker save ends (#1315).
     awaiting_save: Option<AwaitingSave>,
     /// The file dialog the host is showing, and what its answer is for ([`file_dialogs`]).
@@ -757,6 +761,7 @@ impl WordApp {
             autosave_path: None,
             saves_in_flight: Vec::new(),
             web_save: None,
+            classification_confirm: None,
             awaiting_save: None,
             change_picture_target: None,
             recipient_list_pending: false,
@@ -903,6 +908,16 @@ impl WordApp {
         if id == "file.recover" && params.as_object().is_none_or(|p| p.is_empty()) {
             self.ui.backstage = true;
             self.ui.backstage_page = "recover".into();
+        }
+        // Plume: publishing a document its classification keeps waits for an explicit decision.
+        if (id == "forge.saveAs" || (id == "vcs.saveVersion" && self.session.forge.is_some())) && params.get("acknowledged").is_none() {
+            let labels = wordcraft_engine::classification::read(&self.session.doc);
+            let c = wordcraft_engine::classification::check(&self.session.prefs.classification, &labels, "publish");
+            if c["confirm"] == json!(true) {
+                let warnings = c["warnings"].as_array().map(|a| a.iter().filter_map(Value::as_str).map(str::to_string).collect()).unwrap_or_default();
+                self.classification_confirm = Some((id.to_string(), params, warnings));
+                return Ok(json!({"pending": "classification"}));
+            }
         }
         // Plume, web: a first Save, and every Save As, ask for the name and the format (File ›
         // Save As), as the desktop's dialog does; the browser chooses the folder.
@@ -1061,7 +1076,14 @@ impl WordApp {
             let (name, bytes) = if native_md {
                 wordcraft_engine::io::markdown_download(&name, &self.session.doc, self.session.source_archive.as_deref().map(Vec::as_slice))?
             } else {
-                (name.clone(), wordcraft_engine::io::save_bytes_with(&name, &self.session.doc, password, &opts)?)
+                // Plume: a copy for reading (PDF, HTML) shows the document's classification.
+                let lower = name.to_ascii_lowercase();
+                let doc = if lower.ends_with(".pdf") || lower.ends_with(".html") || lower.ends_with(".htm") {
+                    wordcraft_engine::classification::marked(&self.session.prefs.classification, &self.session.doc)
+                } else {
+                    std::borrow::Cow::Borrowed(&self.session.doc)
+                };
+                (name.clone(), wordcraft_engine::io::save_bytes_with(&name, &doc, password, &opts)?)
             };
             // A ticket left over from an earlier call isn't this save's.
             let saves = self.services.async_saves.clone();
@@ -2385,6 +2407,7 @@ impl WordApp {
         }
         content_controls::popup(self, &ctx);
         dialogs::show(self, &ctx);
+        classification_ui::confirm_dialog(self, &ctx);
         #[cfg(not(target_arch = "wasm32"))]
         file_browser::show(self, &ctx);
         colors::show(self, &ctx);

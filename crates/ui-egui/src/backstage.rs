@@ -595,6 +595,9 @@ fn info_page(app: &mut WordApp, ui: &mut Ui) {
         if focused != app.info_editing.map(|(f, _)| f) {
             app.info_editing = None;
         }
+        // Plume: the document's classification, every dimension.
+        ui.add_space(18.0);
+        crate::classification_ui::info_section(app, ui);
         // Protect Document › Encrypt with Password (#55).
         ui.add_space(18.0);
         ui.label(egui::RichText::new(tl!("Protect Document")).font(semibold(15.0)));

@@ -624,6 +624,8 @@ mod remote {
     /// Save the document (new, or from anywhere) as a Markdown file in a forge repository; it
     /// becomes a forge document, as if opened from there.
     pub(super) fn save_as(s: &mut Session, v: &Value) -> CmdResult {
+        // Plume: a document its classification keeps is published only after deciding to.
+        crate::classification::require_ack(s, v, "publish")?;
         let forge = forge_of(v)?;
         let mut path = p::req_str(v, "path")?.trim().trim_matches('/').to_string();
         let ext = path.rsplit_once('.').map(|(_, e)| e.to_ascii_lowercase()).unwrap_or_default();
@@ -703,6 +705,7 @@ mod remote {
 
     pub(super) fn save_version(s: &mut Session, v: &Value) -> CmdResult {
         let r = current(s)?;
+        crate::classification::require_ack(s, v, "publish")?;
         let t = transport(s)?;
         let c = Client { transport: t.as_ref(), token: token(s, &r.doc.forge)? };
         let (text, assets) = version_files(&s.doc, &r.doc.path, s.source_archive.as_deref().map(Vec::as_slice))?;

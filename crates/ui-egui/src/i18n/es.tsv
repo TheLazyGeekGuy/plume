@@ -2875,3 +2875,69 @@ preview	Title	Título
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	No se encontró ningún motor TeX: esta copia de Plume no incluye Tectonic. Instálelo (brew install tectonic) o MacTeX y vuelva a exportar.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	No se encontró ningún motor TeX: esta copia de Plume no incluye Tectonic. Instálelo (winget install TectonicTypesetting.Tectonic) o MiKTeX y vuelva a exportar.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	No se encontró ningún motor TeX: esta copia de Plume no incluye Tectonic. Instale Tectonic o TeX Live con su gestor de paquetes y vuelva a exportar.
+	Classification	Clasificación
+	Set Classification	Establecer clasificación
+	Classification Referential	Referencial de clasificación
+	Classification Referentials	Referenciales de clasificación
+	Check Classification	Comprobar clasificación
+	Classification Options	Opciones de clasificación
+	Save Classification Referential	Guardar referencial
+	Delete Classification Referential	Eliminar referencial
+	Document Classification	Clasificación documental
+	Personal	Personal
+	Association	Asociativo
+	Private	Privado
+	Shared	Compartido
+	Public	Público
+	Ordinary	Ordinaria
+	Strategic	Estratégica
+	No personal data	Sin datos personales
+	Personal data	Datos personales
+	Sensitive personal data	Datos personales sensibles
+	Visibility	Visibilidad
+	Importance	Importancia
+	Unclassified	Sin clasificar
+	Not set	Sin definir
+	Confidentiality	Confidencialidad
+	Referential definition	Definición del referencial
+	Change referential	Cambiar de referencial
+	Classification Options…	Opciones de clasificación…
+	Referential	Referencial
+	Default referential	Referencial predeterminado
+	Labels in the title bar	Etiquetas en la barra de título
+	Each label	Cada etiqueta
+	One compact label	Una etiqueta compacta
+	Referentials	Referenciales
+	{name} (built in)	{name} (integrado)
+	Duplicate to customise	Duplicar para personalizar
+	custom	personalizado
+	Code	Código
+	Label	Etiqueta
+	Add a level	Añadir un nivel
+	Classified document	Documento clasificado
+	Publish anyway	Publicar de todos modos
+	Internal	Interno
+	Confidential	Confidencial
+	Restricted	Restringido
+	Highly restricted	Muy restringido
+	Referential: {name}	Referencial: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Una clasificación indica cómo puede circular el documento; no cifra el archivo.
+	Anyone may read it.	Cualquiera puede leerlo.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Los colores siempre van acompañados del código y el nombre del nivel. Cambiar el referencial de un documento pide su nuevo nivel: un documento nunca se reclasifica en silencio.
+	Description and rules of diffusion	Descripción y reglas de difusión
+	FIRST's Traffic Light Protocol, version 2.0.	Traffic Light Protocol de FIRST, versión 2.0.
+	For named people only, under strict control; never exported unencrypted.	Solo para personas designadas, bajo control estricto; nunca se exporta sin cifrar.
+	For named people only; disclosure would cause serious harm.	Solo para personas designadas; su divulgación causaría un daño grave.
+	For the eyes and ears of the individual recipients only.	Solo para los destinatarios individuales.
+	For the people of the organisation or group.	Para las personas de la organización o del grupo.
+	For the people who need it; not to be published.	Para quienes lo necesitan; no se debe publicar.
+	Plume's five levels, from public to highly restricted.	Los cinco niveles de Plume, de público a muy restringido.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Publicar crea allí una copia legible. La etiqueta no la protege; el cifrado sí.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Los destinatarios solo pueden compartirlo dentro de su organización y con sus clientes, según la necesidad de saber.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Los destinatarios solo pueden compartirlo dentro de su organización, según la necesidad de saber.
+	Recipients may share it within their community, not publicly.	Los destinatarios pueden compartirlo dentro de su comunidad, no públicamente.
+	Recipients may share it without limit.	Los destinatarios pueden compartirlo sin límite.
+	Referential {name} (not known here; kept as written)	Referencial {name} (desconocido aquí; se conserva tal como está escrito)
+	Show the level on PDF and HTML copies	Mostrar el nivel en las copias PDF y HTML
+	This document's classification asks for a decision before it is published:	La clasificación de este documento pide una decisión antes de publicarlo:
+	Warn before publishing a document its level asks to keep	Avisar antes de publicar un documento que su nivel pide reservar

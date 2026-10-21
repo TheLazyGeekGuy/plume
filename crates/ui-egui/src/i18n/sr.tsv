@@ -2523,3 +2523,69 @@
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Није пронађен TeX механизам: ова копија Plume-а нема Tectonic. Инсталирајте га (brew install tectonic) или MacTeX, па поново извезите.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Није пронађен TeX механизам: ова копија Plume-а нема Tectonic. Инсталирајте га (winget install TectonicTypesetting.Tectonic) или MiKTeX, па поново извезите.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Није пронађен TeX механизам: ова копија Plume-а нема Tectonic. Инсталирајте Tectonic или TeX Live менаџером пакета, па поново извезите.
+	Classification	Класификација
+	Set Classification	Постави класификацију
+	Classification Referential	Класификациона шема
+	Classification Referentials	Класификационе шеме
+	Check Classification	Провери класификацију
+	Classification Options	Опције класификације
+	Save Classification Referential	Сачувај шему
+	Delete Classification Referential	Избриши шему
+	Document Classification	Класификација докумената
+	Personal	Лично
+	Association	Удружење
+	Private	Приватно
+	Shared	Дељено
+	Public	Јавно
+	Ordinary	Уобичајена
+	Strategic	Стратешка
+	No personal data	Без личних података
+	Personal data	Лични подаци
+	Sensitive personal data	Осетљиви лични подаци
+	Visibility	Видљивост
+	Importance	Важност
+	Unclassified	Некласификовано
+	Not set	Није постављено
+	Confidentiality	Поверљивост
+	Referential definition	Дефиниција шеме
+	Change referential	Промени шему
+	Classification Options…	Опције класификације…
+	Referential	Шема
+	Default referential	Подразумевана шема
+	Labels in the title bar	Ознаке на насловној траци
+	Each label	Свака ознака
+	One compact label	Једна сажета ознака
+	Referentials	Шеме
+	{name} (built in)	{name} (уграђена)
+	Duplicate to customise	Дуплирај ради прилагођавања
+	custom	прилагођена
+	Code	Код
+	Label	Ознака
+	Add a level	Додај ниво
+	Classified document	Класификовани документ
+	Publish anyway	Ипак објави
+	Internal	Интерно
+	Confidential	Поверљиво
+	Restricted	Ограничено
+	Highly restricted	Строго ограничено
+	Referential: {name}	Шема: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Класификација одређује како документ сме да кружи; она не шифрује датотеку.
+	Anyone may read it.	Свако сме да га чита.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Боје увек прате ознака и назив нивоа. Промена референтног оквира документа тражи нови ниво: документ се никад не рекласификује прећутно.
+	Description and rules of diffusion	Опис и правила дистрибуције
+	FIRST's Traffic Light Protocol, version 2.0.	FIRST-ов Traffic Light Protocol, верзија 2.0.
+	For named people only, under strict control; never exported unencrypted.	Само за именоване особе, под строгим надзором; никад се не извози нешифровано.
+	For named people only; disclosure would cause serious harm.	Само за именоване особе; откривање би нанело озбиљну штету.
+	For the eyes and ears of the individual recipients only.	Само за појединачне примаоце лично.
+	For the people of the organisation or group.	За особе у организацији или групи.
+	For the people who need it; not to be published.	За особе којима је потребан; не сме се објавити.
+	Plume's five levels, from public to highly restricted.	Пет нивоа Plume-а, од јавног до строго ограниченог.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Објава тамо ствара читљиву копију. Ознака је не штити; шифровање је штити.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Примаоци смеју да га деле само у својој организацији и са њеним клијентима, по принципу неопходности.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Примаоци смеју да га деле само у својој организацији, по принципу неопходности.
+	Recipients may share it within their community, not publicly.	Примаоци смеју да га деле у својој заједници, али не јавно.
+	Recipients may share it without limit.	Примаоци смеју да га деле без ограничења.
+	Referential {name} (not known here; kept as written)	Референтни оквир {name} (овде непознат; задржан како је записан)
+	Show the level on PDF and HTML copies	Прикажи ниво на PDF и HTML копијама
+	This document's classification asks for a decision before it is published:	Класификација овог документа тражи одлуку пре објаве:
+	Warn before publishing a document its level asks to keep	Упозори пре објаве документа који његов ниво тражи да се задржи

@@ -3243,3 +3243,67 @@ template	Letter	Thư
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Không tìm thấy bộ máy TeX: bản Plume này không có Tectonic. Hãy cài nó (brew install tectonic) hoặc MacTeX rồi xuất lại.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Không tìm thấy bộ máy TeX: bản Plume này không có Tectonic. Hãy cài nó (winget install TectonicTypesetting.Tectonic) hoặc MiKTeX rồi xuất lại.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Không tìm thấy bộ máy TeX: bản Plume này không có Tectonic. Hãy cài Tectonic hoặc TeX Live bằng trình quản lý gói rồi xuất lại.
+	Classification	Phân loại
+	Set Classification	Đặt phân loại
+	Classification Referential	Hệ phân loại
+	Classification Referentials	Các hệ phân loại
+	Check Classification	Kiểm tra phân loại
+	Classification Options	Tùy chọn phân loại
+	Save Classification Referential	Lưu hệ phân loại
+	Delete Classification Referential	Xóa hệ phân loại
+	Document Classification	Phân loại tài liệu
+	Personal	Cá nhân
+	Private	Riêng tư
+	Shared	Chia sẻ
+	Public	Công khai
+	Ordinary	Thông thường
+	Strategic	Chiến lược
+	No personal data	Không có dữ liệu cá nhân
+	Personal data	Dữ liệu cá nhân
+	Sensitive personal data	Dữ liệu cá nhân nhạy cảm
+	Visibility	Mức hiển thị
+	Importance	Mức quan trọng
+	Unclassified	Chưa phân loại
+	Not set	Chưa đặt
+	Confidentiality	Mức bảo mật
+	Referential definition	Định nghĩa hệ phân loại
+	Change referential	Đổi hệ phân loại
+	Classification Options…	Tùy chọn phân loại…
+	Referential	Hệ phân loại
+	Default referential	Hệ phân loại mặc định
+	Labels in the title bar	Nhãn trên thanh tiêu đề
+	Each label	Từng nhãn
+	One compact label	Một nhãn gọn
+	Referentials	Các hệ phân loại
+	{name} (built in)	{name} (tích hợp)
+	Duplicate to customise	Nhân bản để tùy chỉnh
+	custom	tùy chỉnh
+	Code	Mã
+	Add a level	Thêm mức
+	Classified document	Tài liệu đã phân loại
+	Publish anyway	Vẫn xuất bản
+	Internal	Nội bộ
+	Confidential	Mật
+	Restricted	Hạn chế
+	Highly restricted	Hạn chế nghiêm ngặt
+	Referential: {name}	Hệ phân loại: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Phân loại cho biết tài liệu được lưu hành thế nào; nó không mã hóa tệp.
+	Anyone may read it.	Ai cũng có thể đọc.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Màu luôn đi kèm mã và nhãn của cấp. Đổi hệ quy chiếu của tài liệu sẽ hỏi cấp mới: tài liệu không bao giờ bị phân loại lại âm thầm.
+	Description and rules of diffusion	Mô tả và quy tắc phổ biến
+	FIRST's Traffic Light Protocol, version 2.0.	Traffic Light Protocol của FIRST, phiên bản 2.0.
+	For named people only, under strict control; never exported unencrypted.	Chỉ dành cho người được chỉ định, kiểm soát chặt chẽ; không bao giờ xuất ra mà không mã hóa.
+	For named people only; disclosure would cause serious harm.	Chỉ dành cho người được chỉ định; tiết lộ sẽ gây hại nghiêm trọng.
+	For the eyes and ears of the individual recipients only.	Chỉ dành riêng cho từng người nhận.
+	For the people of the organisation or group.	Dành cho người trong tổ chức hoặc nhóm.
+	For the people who need it; not to be published.	Dành cho người cần đến; không được công bố.
+	Plume's five levels, from public to highly restricted.	Năm cấp của Plume, từ công khai đến hạn chế cao.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Công bố sẽ tạo một bản đọc được ở đó. Nhãn không bảo vệ nó; mã hóa mới bảo vệ.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Người nhận chỉ được chia sẻ trong tổ chức của mình và khách hàng của tổ chức, khi cần biết.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Người nhận chỉ được chia sẻ trong tổ chức của mình, khi cần biết.
+	Recipients may share it within their community, not publicly.	Người nhận được chia sẻ trong cộng đồng của mình, không công khai.
+	Recipients may share it without limit.	Người nhận được chia sẻ không giới hạn.
+	Referential {name} (not known here; kept as written)	Hệ quy chiếu {name} (không xác định ở đây; giữ nguyên như đã ghi)
+	Show the level on PDF and HTML copies	Hiển thị cấp trên bản PDF và HTML
+	This document's classification asks for a decision before it is published:	Phân loại của tài liệu này cần một quyết định trước khi công bố:
+	Warn before publishing a document its level asks to keep	Cảnh báo trước khi công bố tài liệu mà cấp của nó yêu cầu giữ kín

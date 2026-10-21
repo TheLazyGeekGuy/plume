@@ -560,7 +560,9 @@ impl PdfJob {
         let tpl = template_dir(id)?;
         let work = std::env::temp_dir().join(format!("plume-pdf-{}-{}", std::process::id(), s.document_id()));
         fs::fresh_work_dir(&work).map_err(failed)?;
-        let tex = build(&s.doc, s.path.as_deref(), &tpl, &work)?;
+        // Plume: the classification in the page footer.
+        let doc = crate::classification::for_template(&s.prefs.classification, &s.doc);
+        let tex = build(&doc, s.path.as_deref(), &tpl, &work)?;
         fs::write_work_file(&work.join("document.tex"), tex.as_bytes()).map_err(failed)?;
         Ok(PdfJob { work, out, engine: find_engine(), keep_tex: p::bool(v, "keepTex").unwrap_or(false) })
     }

@@ -381,7 +381,22 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
             };
             let font = TypeRung::Chrome.semibold();
             let track = TypeRung::Chrome.tracking();
-            let cx = full.center().x;
+            let mut cx = full.center().x;
+            // Plume: the classification labels, left of the search box. Each label when the title
+            // still fits beside them (centred on the window, else in the space left), one compact
+            // label otherwise.
+            if let Some((full_w, compact_w)) = crate::classification_ui::title_widths(app, ui) {
+                let title_w = text_width(ui.painter(), &title, &font, track, t.text).min(420.0) + 24.0;
+                let band = |w: f32| right_start - w - 12.0 - (qat_end + 10.0);
+                let w = if band(full_w) >= title_w { full_w } else { compact_w };
+                let rect = Rect::from_min_max(pos2(right_start - w - 12.0, full.min.y), pos2(right_start - 8.0, full.max.y));
+                crate::classification_ui::title_labels(app, ui, rect, w < full_w);
+                right_start -= w + 12.0;
+                // Centred on the window when it fits there, else in the space between.
+                if 2.0 * (cx - qat_end - 10.0).min(right_start - 10.0 - cx) < title_w {
+                    cx = (qat_end + right_start) / 2.0;
+                }
+            }
             let available = 2.0 * (cx - qat_end - 10.0).min(right_start - 10.0 - cx);
             let mut shown: String = title.chars().take(240).collect();
             if text_width(ui.painter(), &shown, &font, track, t.text) > available {
@@ -461,6 +476,8 @@ pub fn status_bar(app: &mut WordApp, ui: &mut Ui) {
                 if st(ui, &wtxt).clicked() {
                     let _ = app.run("ui.dialog", json!({"name": "wordCount"}));
                 }
+                // Plume: the classification, compactly, with its menu.
+                crate::classification_ui::status(app, ui);
                 if app.session.sel.focus.story != StoryRef::Body && !crate::canvas::in_text_box(app) {
                     st(ui, tl!("Editing header/footer"));
                 }

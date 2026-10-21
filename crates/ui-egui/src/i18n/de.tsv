@@ -2508,3 +2508,69 @@
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Keine TeX-Engine gefunden: Diese Plume-Kopie enthält kein Tectonic. Installieren Sie es (brew install tectonic) oder MacTeX und exportieren Sie erneut.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Keine TeX-Engine gefunden: Diese Plume-Kopie enthält kein Tectonic. Installieren Sie es (winget install TectonicTypesetting.Tectonic) oder MiKTeX und exportieren Sie erneut.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Keine TeX-Engine gefunden: Diese Plume-Kopie enthält kein Tectonic. Installieren Sie Tectonic oder TeX Live mit Ihrer Paketverwaltung und exportieren Sie erneut.
+	Classification	Klassifizierung
+	Set Classification	Klassifizierung festlegen
+	Classification Referential	Klassifizierungsschema
+	Classification Referentials	Klassifizierungsschemas
+	Check Classification	Klassifizierung prüfen
+	Classification Options	Klassifizierungsoptionen
+	Save Classification Referential	Schema speichern
+	Delete Classification Referential	Schema löschen
+	Document Classification	Dokumentklassifizierung
+	Personal	Privat
+	Association	Verein
+	Private	Privat
+	Shared	Geteilt
+	Public	Öffentlich
+	Ordinary	Normal
+	Strategic	Strategisch
+	No personal data	Keine personenbezogenen Daten
+	Personal data	Personenbezogene Daten
+	Sensitive personal data	Sensible personenbezogene Daten
+	Visibility	Sichtbarkeit
+	Importance	Wichtigkeit
+	Unclassified	Nicht klassifiziert
+	Not set	Nicht festgelegt
+	Confidentiality	Vertraulichkeit
+	Referential definition	Definition des Schemas
+	Change referential	Schema wechseln
+	Classification Options…	Klassifizierungsoptionen…
+	Referential	Schema
+	Default referential	Standardschema
+	Labels in the title bar	Kennzeichen in der Titelleiste
+	Each label	Jedes Kennzeichen
+	One compact label	Ein kompaktes Kennzeichen
+	Referentials	Schemas
+	{name} (built in)	{name} (integriert)
+	Duplicate to customise	Zum Anpassen duplizieren
+	custom	eigenes
+	Code	Code
+	Label	Bezeichnung
+	Add a level	Stufe hinzufügen
+	Classified document	Klassifiziertes Dokument
+	Publish anyway	Trotzdem veröffentlichen
+	Internal	Intern
+	Confidential	Vertraulich
+	Restricted	Eingeschränkt
+	Highly restricted	Streng eingeschränkt
+	Referential: {name}	Schema: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Eine Klassifizierung legt fest, wie das Dokument weitergegeben werden darf; sie verschlüsselt die Datei nicht.
+	Anyone may read it.	Jeder darf es lesen.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Farben erscheinen immer zusammen mit Code und Bezeichnung der Stufe. Beim Wechsel des Referenzsystems wird die neue Stufe abgefragt: Ein Dokument wird nie stillschweigend umklassifiziert.
+	Description and rules of diffusion	Beschreibung und Verbreitungsregeln
+	FIRST's Traffic Light Protocol, version 2.0.	Traffic Light Protocol von FIRST, Version 2.0.
+	For named people only, under strict control; never exported unencrypted.	Nur für benannte Personen, unter strenger Kontrolle; nie unverschlüsselt exportiert.
+	For named people only; disclosure would cause serious harm.	Nur für benannte Personen; eine Offenlegung würde schweren Schaden verursachen.
+	For the eyes and ears of the individual recipients only.	Nur für die einzelnen Empfänger persönlich.
+	For the people of the organisation or group.	Für die Personen der Organisation oder Gruppe.
+	For the people who need it; not to be published.	Für die Personen, die es brauchen; nicht zur Veröffentlichung.
+	Plume's five levels, from public to highly restricted.	Die fünf Stufen von Plume, von öffentlich bis streng vertraulich.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Die Veröffentlichung erzeugt dort eine lesbare Kopie. Die Kennzeichnung schützt sie nicht; die Verschlüsselung schon.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Empfänger dürfen es nur innerhalb ihrer Organisation und mit deren Kunden teilen, nach Kenntnisbedarf.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Empfänger dürfen es nur innerhalb ihrer Organisation teilen, nach Kenntnisbedarf.
+	Recipients may share it within their community, not publicly.	Empfänger dürfen es in ihrer Gemeinschaft teilen, nicht öffentlich.
+	Recipients may share it without limit.	Empfänger dürfen es uneingeschränkt teilen.
+	Referential {name} (not known here; kept as written)	Referenzsystem {name} (hier unbekannt; wie geschrieben beibehalten)
+	Show the level on PDF and HTML copies	Stufe auf PDF- und HTML-Kopien anzeigen
+	This document's classification asks for a decision before it is published:	Die Klassifizierung dieses Dokuments verlangt vor der Veröffentlichung eine Entscheidung:
+	Warn before publishing a document its level asks to keep	Warnen, bevor ein Dokument veröffentlicht wird, das laut seiner Stufe zurückzuhalten ist

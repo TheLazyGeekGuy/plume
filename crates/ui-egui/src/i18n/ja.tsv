@@ -2509,3 +2509,69 @@
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	TeX エンジンが見つかりません。この Plume には Tectonic が含まれていません。Tectonic (brew install tectonic) または MacTeX をインストールしてから、もう一度エクスポートしてください。
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	TeX エンジンが見つかりません。この Plume には Tectonic が含まれていません。Tectonic (winget install TectonicTypesetting.Tectonic) または MiKTeX をインストールしてから、もう一度エクスポートしてください。
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	TeX エンジンが見つかりません。この Plume には Tectonic が含まれていません。パッケージマネージャーで Tectonic または TeX Live をインストールしてから、もう一度エクスポートしてください。
+	Classification	分類
+	Set Classification	分類の設定
+	Classification Referential	分類体系
+	Classification Referentials	分類体系の一覧
+	Check Classification	分類の確認
+	Classification Options	分類のオプション
+	Save Classification Referential	体系の保存
+	Delete Classification Referential	体系の削除
+	Document Classification	文書の分類
+	Personal	個人
+	Association	団体
+	Private	非公開
+	Shared	共有
+	Public	公開
+	Ordinary	通常
+	Strategic	戦略的
+	No personal data	個人情報なし
+	Personal data	個人情報あり
+	Sensitive personal data	機微な個人情報
+	Visibility	公開範囲
+	Importance	重要度
+	Unclassified	未分類
+	Not set	未設定
+	Confidentiality	機密性
+	Referential definition	体系の定義
+	Change referential	体系の変更
+	Classification Options…	分類のオプション…
+	Referential	体系
+	Default referential	既定の体系
+	Labels in the title bar	タイトル バーのラベル
+	Each label	すべてのラベル
+	One compact label	1 つのコンパクトなラベル
+	Referentials	体系
+	{name} (built in)	{name} (組み込み)
+	Duplicate to customise	複製してカスタマイズ
+	custom	カスタム
+	Code	コード
+	Label	ラベル
+	Add a level	レベルの追加
+	Classified document	分類済み文書
+	Publish anyway	それでも公開する
+	Internal	社内
+	Confidential	機密
+	Restricted	制限
+	Highly restricted	厳重制限
+	Referential: {name}	体系: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	分類は文書をどのように流通させてよいかを示すもので、ファイルを暗号化するものではありません。
+	Anyone may read it.	誰でも閲覧できます。
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	色は常にレベルのコードと名称とともに表示されます。文書の分類体系を変更すると新しいレベルを尋ねます。文書が黙って再分類されることはありません。
+	Description and rules of diffusion	説明と配布ルール
+	FIRST's Traffic Light Protocol, version 2.0.	FIRST の Traffic Light Protocol バージョン 2.0。
+	For named people only, under strict control; never exported unencrypted.	指名された人のみ、厳格な管理下。暗号化せずにエクスポートすることはありません。
+	For named people only; disclosure would cause serious harm.	指名された人のみ。漏えいすると重大な損害が生じます。
+	For the eyes and ears of the individual recipients only.	個々の受信者本人のみ。
+	For the people of the organisation or group.	組織またはグループの人向け。
+	For the people who need it; not to be published.	必要とする人向け。公開不可。
+	Plume's five levels, from public to highly restricted.	Plume の 5 つのレベル(公開から極秘まで)。
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	公開するとそこに読めるコピーが作られます。ラベルは保護しません。保護するのは暗号化です。
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	受信者は自組織とその顧客の中でのみ、知る必要に応じて共有できます。
+	Recipients may share it only within their organisation, on a need-to-know basis.	受信者は自組織の中でのみ、知る必要に応じて共有できます。
+	Recipients may share it within their community, not publicly.	受信者はコミュニティ内で共有できますが、公開はできません。
+	Recipients may share it without limit.	受信者は制限なく共有できます。
+	Referential {name} (not known here; kept as written)	分類体系 {name}(ここでは不明。記載どおり保持)
+	Show the level on PDF and HTML copies	PDF と HTML のコピーにレベルを表示
+	This document's classification asks for a decision before it is published:	この文書の分類では、公開前に判断が必要です:
+	Warn before publishing a document its level asks to keep	レベル上公開を控えるべき文書を公開する前に警告する

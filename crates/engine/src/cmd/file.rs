@@ -88,7 +88,9 @@ pub fn specs() -> Vec<CommandSpec> {
             };
             let path = if path.to_ascii_lowercase().ends_with(".pdf") { path.to_string() } else { format!("{path}.pdf") };
             let opts = export_options(s, v);
-            crate::io::save_path_with(std::path::Path::new(&path), &s.doc, None, &opts).map_err(CmdError::Failed)?;
+            // Plume: the copy shows the document's classification.
+            let doc = crate::classification::marked(&s.prefs.classification, &s.doc);
+            crate::io::save_path_with(std::path::Path::new(&path), &doc, None, &opts).map_err(CmdError::Failed)?;
             Ok(json!({"path": path, "markup": opts.markup}))
         })
         .params(r#"{"path": string, "markup"?: bool (Print Markup: tracked changes marked up and each page scaled down beside the comments in balloons; default file.printMarkup)}"#)
@@ -373,6 +375,10 @@ fn save(s: &mut Session, v: &Value) -> CmdResult {
     let mut adapted: Vec<String> = Vec::new();
     if markdown {
         adapted = save_markdown(&path, copy.as_ref().unwrap_or(&s.doc))?;
+    } else if matches!(ext.as_str(), "html" | "htm" | "pdf") {
+        // Plume: a copy for reading shows the document's classification.
+        let doc = crate::classification::marked(&s.prefs.classification, copy.as_ref().unwrap_or(&s.doc));
+        crate::io::save_path_with(&path, &doc, password, &opts).map_err(CmdError::Failed)?;
     } else {
         crate::io::save_path_with(&path, copy.as_ref().unwrap_or(&s.doc), password, &opts).map_err(CmdError::Failed)?;
     }

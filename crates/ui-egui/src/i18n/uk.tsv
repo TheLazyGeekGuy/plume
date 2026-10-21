@@ -2521,3 +2521,69 @@
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Рушій TeX не знайдено: у цій копії Plume немає Tectonic. Установіть його (brew install tectonic) або MacTeX і експортуйте знову.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Рушій TeX не знайдено: у цій копії Plume немає Tectonic. Установіть його (winget install TectonicTypesetting.Tectonic) або MiKTeX і експортуйте знову.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Рушій TeX не знайдено: у цій копії Plume немає Tectonic. Установіть Tectonic або TeX Live менеджером пакетів і експортуйте знову.
+	Classification	Класифікація
+	Set Classification	Задати класифікацію
+	Classification Referential	Схема класифікації
+	Classification Referentials	Схеми класифікації
+	Check Classification	Перевірити класифікацію
+	Classification Options	Параметри класифікації
+	Save Classification Referential	Зберегти схему
+	Delete Classification Referential	Видалити схему
+	Document Classification	Класифікація документів
+	Personal	Особистий
+	Association	Громадський
+	Private	Приватний
+	Shared	Спільний
+	Public	Публічний
+	Ordinary	Звичайна
+	Strategic	Стратегічна
+	No personal data	Без персональних даних
+	Personal data	Персональні дані
+	Sensitive personal data	Чутливі персональні дані
+	Visibility	Видимість
+	Importance	Важливість
+	Unclassified	Не класифіковано
+	Not set	Не задано
+	Confidentiality	Конфіденційність
+	Referential definition	Визначення схеми
+	Change referential	Змінити схему
+	Classification Options…	Параметри класифікації…
+	Referential	Схема
+	Default referential	Типова схема
+	Labels in the title bar	Мітки в заголовку вікна
+	Each label	Кожна мітка
+	One compact label	Одна компактна мітка
+	Referentials	Схеми
+	{name} (built in)	{name} (вбудована)
+	Duplicate to customise	Дублювати для налаштування
+	custom	власна
+	Code	Код
+	Label	Назва
+	Add a level	Додати рівень
+	Classified document	Класифікований документ
+	Publish anyway	Усе одно опублікувати
+	Internal	Внутрішній
+	Confidential	Конфіденційний
+	Restricted	Обмежений
+	Highly restricted	Суворо обмежений
+	Referential: {name}	Схема: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Класифікація визначає, як документ може поширюватися; вона не шифрує файл.
+	Anyone may read it.	Читати може будь-хто.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Колір завжди супроводжується кодом і назвою рівня. Зміна системи класифікації документа запитує новий рівень: документ ніколи не перекласифікується мовчки.
+	Description and rules of diffusion	Опис і правила поширення
+	FIRST's Traffic Light Protocol, version 2.0.	Traffic Light Protocol від FIRST, версія 2.0.
+	For named people only, under strict control; never exported unencrypted.	Лише для названих осіб, під суворим контролем; ніколи не експортується без шифрування.
+	For named people only; disclosure would cause serious harm.	Лише для названих осіб; розголошення завдасть серйозної шкоди.
+	For the eyes and ears of the individual recipients only.	Лише для окремих одержувачів особисто.
+	For the people of the organisation or group.	Для людей організації або групи.
+	For the people who need it; not to be published.	Для тих, кому він потрібен; не для публікації.
+	Plume's five levels, from public to highly restricted.	П'ять рівнів Plume — від відкритого до суворо обмеженого.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Публікація створює там читабельну копію. Мітка її не захищає; захищає шифрування.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Одержувачі можуть ділитися ним лише в межах своєї організації та з її клієнтами, за потреби знати.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Одержувачі можуть ділитися ним лише в межах своєї організації, за потреби знати.
+	Recipients may share it within their community, not publicly.	Одержувачі можуть ділитися ним у своїй спільноті, але не публічно.
+	Recipients may share it without limit.	Одержувачі можуть ділитися ним без обмежень.
+	Referential {name} (not known here; kept as written)	Система класифікації {name} (тут невідома; збережена як записано)
+	Show the level on PDF and HTML copies	Показувати рівень на копіях PDF і HTML
+	This document's classification asks for a decision before it is published:	Класифікація цього документа вимагає рішення перед публікацією:
+	Warn before publishing a document its level asks to keep	Попереджати перед публікацією документа, який за своїм рівнем слід притримати

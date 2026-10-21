@@ -8,6 +8,7 @@
 
 pub mod ai;
 pub mod catalog;
+pub mod classification;
 pub mod cmd;
 pub mod diagrams;
 pub mod emoji;
