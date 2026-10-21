@@ -137,6 +137,16 @@ fn the_callout_and_diagram_menus_are_galleries() {
     assert!(h.query_by_label("Flowchart").is_none(), "one group at a time");
 }
 
+/// The web version has no Zotero tab (it can't reach the Zotero app); the desktop app keeps it,
+/// in both profiles.
+#[test]
+fn the_web_version_has_no_zotero_tab() {
+    use crate::widgets::tab_hidden_in;
+    assert!(tab_hidden_in("Zotero", false, true) && tab_hidden_in("Zotero", true, true));
+    assert!(!tab_hidden_in("Zotero", false, false) && !tab_hidden_in("Zotero", true, false));
+    assert!(!tab_hidden_in("Insert", true, true), "other tabs stay");
+}
+
 /// A locked main branch: Save Version says the version goes on the person's work branch and
 /// offers to request the merge into main.
 #[test]

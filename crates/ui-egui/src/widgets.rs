@@ -175,8 +175,12 @@ fn keytip_badge(ui: &Ui, rect: Rect, id: &str, name: &str) {
 /// Plume's Markdown profile: command `id` is Office-only, so its button and menu item are not
 /// drawn at all (rather than greyed out).
 pub fn hidden(app: &WordApp, id: &str) -> bool {
-    !id.is_empty() && wordcraft_engine::plume::is_office(id) && app.session.markdown_blocks(id).is_some()
+    (!id.is_empty() && wordcraft_engine::plume::is_office(id) && app.session.markdown_blocks(id).is_some()) || (WEB && id.starts_with("ui.zotero."))
 }
+
+/// The web version: Zotero isn't there (a browser can't open the socket the Zotero app listens
+/// on), so its tab and buttons aren't drawn rather than shown greyed out.
+const WEB: bool = cfg!(target_arch = "wasm32");
 
 /// Plume's Markdown profile is on for this document (`markdown.strict`, a Markdown document).
 pub fn profile_on(app: &WordApp) -> bool {
@@ -185,7 +189,12 @@ pub fn profile_on(app: &WordApp) -> bool {
 
 /// Plume's Markdown profile: ribbon tab `name` holds only Office commands.
 pub fn tab_hidden(app: &WordApp, name: &str) -> bool {
-    wordcraft_engine::plume::is_office_tab(name) && profile_on(app)
+    tab_hidden_in(name, profile_on(app), WEB)
+}
+
+/// [`tab_hidden`] for a profile on or off, in the web version or not.
+pub(crate) fn tab_hidden_in(name: &str, profile: bool, web: bool) -> bool {
+    (wordcraft_engine::plume::is_office_tab(name) && profile) || (web && name == "Zotero")
 }
 
 /// A response for a control that isn't drawn (nothing allocated, never clicked).
@@ -201,7 +210,7 @@ pub fn enabled(app: &WordApp, id: &str) -> bool {
     match app.session.registry.get(id) {
         Some(s) => (s.enabled)(&app.session).is_none() && app.session.markdown_blocks(id).is_none(),
         // Zotero: one command at a time, and only in the desktop app.
-        None if id.starts_with("ui.zotero.") => app.zotero.busy.is_none() && !cfg!(target_arch = "wasm32"),
+        None if id.starts_with("ui.zotero.") => app.zotero.busy.is_none() && !WEB,
         None if id == "ui.linkTextBox" => enabled(app, "shape.link"),
         None if id == "ui.crop" => crate::crop::can_toggle(app),
         None => id.starts_with("ui."),
