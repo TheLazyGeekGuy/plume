@@ -2982,3 +2982,7 @@
 	Show the level on PDF and HTML copies	A szint megjelenítése a PDF- és HTML-másolatokon
 	This document's classification asks for a decision before it is published:	A dokumentum besorolása döntést kér a közzététel előtt:
 	Warn before publishing a document its level asks to keep	Figyelmeztetés olyan dokumentum közzététele előtt, amelyet a szintje szerint vissza kell tartani
+	Convert Document Package	Dokumentumcsomag átalakítása
+	Encrypt File	Fájl titkosítása
+	Decrypt File	Fájl visszafejtése
+	Inspect Encryption	Titkosítás vizsgálata

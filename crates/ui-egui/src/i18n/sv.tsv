@@ -3002,3 +3002,7 @@ preview	Title	Titel
 	Show the level on PDF and HTML copies	Visa nivån på PDF- och HTML-kopior
 	This document's classification asks for a decision before it is published:	Dokumentets klassificering kräver ett beslut innan det publiceras:
 	Warn before publishing a document its level asks to keep	Varna innan ett dokument publiceras som dess nivå säger ska hållas inne
+	Convert Document Package	Konvertera dokumentpaket
+	Encrypt File	Kryptera fil
+	Decrypt File	Dekryptera fil
+	Inspect Encryption	Granska kryptering

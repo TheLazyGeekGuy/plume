@@ -2589,3 +2589,7 @@
 	Show the level on PDF and HTML copies	Прикажи ниво на PDF и HTML копијама
 	This document's classification asks for a decision before it is published:	Класификација овог документа тражи одлуку пре објаве:
 	Warn before publishing a document its level asks to keep	Упозори пре објаве документа који његов ниво тражи да се задржи
+	Convert Document Package	Претвори пакет документа
+	Encrypt File	Шифруј датотеку
+	Decrypt File	Дешифруј датотеку
+	Inspect Encryption	Провери шифровање

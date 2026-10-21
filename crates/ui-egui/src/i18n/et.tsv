@@ -2609,3 +2609,7 @@
 	Show the level on PDF and HTML copies	Näita taset PDF- ja HTML-koopiatel
 	This document's classification asks for a decision before it is published:	Selle dokumendi klassifikatsioon nõuab enne avaldamist otsust:
 	Warn before publishing a document its level asks to keep	Hoiata enne dokumendi avaldamist, mille tase nõuab selle kinni hoidmist
+	Convert Document Package	Teisenda dokumendipakett
+	Encrypt File	Krüpteeri fail
+	Decrypt File	Dekrüpteeri fail
+	Inspect Encryption	Kontrolli krüpteerimist

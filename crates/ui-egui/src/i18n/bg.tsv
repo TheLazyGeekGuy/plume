@@ -2975,3 +2975,7 @@
 	Show the level on PDF and HTML copies	Показване на нивото в копията PDF и HTML
 	This document's classification asks for a decision before it is published:	Класификацията на този документ изисква решение преди публикуване:
 	Warn before publishing a document its level asks to keep	Предупреждение преди публикуване на документ, който според нивото си трябва да се пази
+	Convert Document Package	Преобразуване на пакета на документа
+	Encrypt File	Шифроване на файл
+	Decrypt File	Дешифриране на файл
+	Inspect Encryption	Проверка на шифроването

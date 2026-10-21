@@ -2576,3 +2576,7 @@
 	Show the level on PDF and HTML copies	在 PDF 和 HTML 副本上顯示等級
 	This document's classification asks for a decision before it is published:	此文件的分類要求在發布前作出決定：
 	Warn before publishing a document its level asks to keep	發布依等級應予保留的文件前發出警告
+	Convert Document Package	轉換文件套件
+	Encrypt File	加密檔案
+	Decrypt File	解密檔案
+	Inspect Encryption	檢查加密

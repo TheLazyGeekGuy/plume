@@ -31,6 +31,7 @@ wordcraft-ui-egui = { path = "crates/ui-egui" }
 wordcraft-metafile = { path = "crates/metafile" }
 wordcraft-diagram = { path = "crates/diagram" }
 wordcraft-vcs = { path = "crates/vcs" }
+wordcraft-crypt = { path = "crates/crypt" }
 
 # foundation
 kurbo = { version = "0.13", features = ["serde"] }
@@ -74,6 +75,8 @@ hmac = "0.13"
 base64 = "0.22"
 getrandom = "0.3"
 zeroize = "1"
+# Plume: AES Crypt's key derivation (PBKDF2-HMAC-SHA512), RustCrypto (MIT OR Apache-2.0).
+pbkdf2 = { version = "0.13", default-features = false }
 
 # ui
 egui = "0.36"

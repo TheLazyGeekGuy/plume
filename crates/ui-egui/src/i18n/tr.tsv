@@ -2983,3 +2983,7 @@ preview	Title	Örnek
 	Show the level on PDF and HTML copies	Düzeyi PDF ve HTML kopyalarında göster
 	This document's classification asks for a decision before it is published:	Bu belgenin sınıflandırması yayımlamadan önce bir karar gerektiriyor:
 	Warn before publishing a document its level asks to keep	Düzeyi saklı tutulmasını isteyen bir belgeyi yayımlamadan önce uyar
+	Convert Document Package	Belge paketini dönüştür
+	Encrypt File	Dosyayı şifrele
+	Decrypt File	Dosyanın şifresini çöz
+	Inspect Encryption	Şifrelemeyi incele

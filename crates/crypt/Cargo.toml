@@ -1,0 +1,23 @@
+[package]
+name = "wordcraft-crypt"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Plume: password encryption of whole files in published formats (AES Crypt, ZIP AES-256)"
+
+[lints]
+workspace = true
+
+[dependencies]
+aes = { workspace = true }
+sha2 = { workspace = true }
+hmac = { workspace = true }
+pbkdf2 = { workspace = true }
+getrandom = { workspace = true }
+zeroize = { workspace = true }
+# WinZip AES (AE-1/AE-2) entries, read and written by the `zip` crate's own implementation.
+zip = { workspace = true, features = ["aes-crypto"] }
+
+# The browser's `crypto.getRandomValues` for salts, IVs and keys.
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+getrandom = { workspace = true, features = ["wasm_js"] }

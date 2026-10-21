@@ -2832,3 +2832,7 @@ preview	Title	제목
 	Show the level on PDF and HTML copies	PDF 및 HTML 사본에 수준 표시
 	This document's classification asks for a decision before it is published:	이 문서의 분류는 게시 전에 결정을 요구합니다:
 	Warn before publishing a document its level asks to keep	수준상 공개를 보류해야 하는 문서를 게시하기 전에 경고
+	Convert Document Package	문서 패키지 변환
+	Encrypt File	파일 암호화
+	Decrypt File	파일 복호화
+	Inspect Encryption	암호화 검사

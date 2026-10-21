@@ -22,6 +22,7 @@ wordcraft-pdf = { workspace = true }
 wordcraft-formats = { workspace = true }
 wordcraft-diagram = { workspace = true }
 wordcraft-vcs = { workspace = true }
+wordcraft-crypt = { workspace = true }
 wordcraft-control-key = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

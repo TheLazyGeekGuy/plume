@@ -3307,3 +3307,7 @@ template	Letter	Thư
 	Show the level on PDF and HTML copies	Hiển thị cấp trên bản PDF và HTML
 	This document's classification asks for a decision before it is published:	Phân loại của tài liệu này cần một quyết định trước khi công bố:
 	Warn before publishing a document its level asks to keep	Cảnh báo trước khi công bố tài liệu mà cấp của nó yêu cầu giữ kín
+	Convert Document Package	Chuyển đổi gói tài liệu
+	Encrypt File	Mã hóa tệp
+	Decrypt File	Giải mã tệp
+	Inspect Encryption	Kiểm tra mã hóa

@@ -3268,3 +3268,7 @@ preview	Title	Naslov
 	Show the level on PDF and HTML copies	Prikaži razinu na PDF i HTML kopijama
 	This document's classification asks for a decision before it is published:	Klasifikacija ovog dokumenta traži odluku prije objave:
 	Warn before publishing a document its level asks to keep	Upozori prije objave dokumenta koji njegova razina traži da se zadrži
+	Convert Document Package	Pretvori paket dokumenta
+	Encrypt File	Šifriraj datoteku
+	Decrypt File	Dešifriraj datoteku
+	Inspect Encryption	Provjeri šifriranje

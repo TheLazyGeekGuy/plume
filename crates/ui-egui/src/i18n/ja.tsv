@@ -2575,3 +2575,7 @@
 	Show the level on PDF and HTML copies	PDF と HTML のコピーにレベルを表示
 	This document's classification asks for a decision before it is published:	この文書の分類では、公開前に判断が必要です:
 	Warn before publishing a document its level asks to keep	レベル上公開を控えるべき文書を公開する前に警告する
+	Convert Document Package	文書パッケージを変換
+	Encrypt File	ファイルを暗号化
+	Decrypt File	ファイルを復号
+	Inspect Encryption	暗号化を確認

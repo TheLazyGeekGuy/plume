@@ -52,6 +52,9 @@ markdown classification.references
 markdown classification.saveReference
 markdown classification.set
 markdown classification.setReference
+markdown crypto.decryptFile
+markdown crypto.encryptFile
+markdown crypto.inspect
 office design.effects
 office design.pageBorders
 office design.pageColor
@@ -635,6 +638,7 @@ office tools.recordMacro
 markdown tools.search
 office tools.templates
 office tools.updateStyles
+markdown transport.convert
 markdown vcs.changesSinceVersion
 markdown vcs.compare
 markdown vcs.history

@@ -2587,3 +2587,7 @@
 	Show the level on PDF and HTML copies	在 PDF 和 HTML 副本上显示级别
 	This document's classification asks for a decision before it is published:	此文档的分类要求在发布前作出决定：
 	Warn before publishing a document its level asks to keep	发布按级别应予保留的文档前发出警告
+	Convert Document Package	转换文档包
+	Encrypt File	加密文件
+	Decrypt File	解密文件
+	Inspect Encryption	检查加密

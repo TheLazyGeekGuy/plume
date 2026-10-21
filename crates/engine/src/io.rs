@@ -2,6 +2,8 @@
 
 use wordcraft_doc::Document;
 
+#[cfg(not(target_arch = "wasm32"))]
+pub mod folders;
 pub mod mdzip;
 #[cfg(not(target_arch = "wasm32"))]
 mod safe_save;

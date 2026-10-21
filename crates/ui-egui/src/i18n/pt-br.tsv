@@ -2587,3 +2587,7 @@
 	Show the level on PDF and HTML copies	Mostrar o nível nas cópias PDF e HTML
 	This document's classification asks for a decision before it is published:	A classificação deste documento pede uma decisão antes da publicação:
 	Warn before publishing a document its level asks to keep	Avisar antes de publicar um documento que o nível pede para reservar
+	Convert Document Package	Converter pacote do documento
+	Encrypt File	Criptografar arquivo
+	Decrypt File	Descriptografar arquivo
+	Inspect Encryption	Examinar criptografia

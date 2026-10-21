@@ -2574,3 +2574,7 @@
 	Show the level on PDF and HTML copies	Stufe auf PDF- und HTML-Kopien anzeigen
 	This document's classification asks for a decision before it is published:	Die Klassifizierung dieses Dokuments verlangt vor der Veröffentlichung eine Entscheidung:
 	Warn before publishing a document its level asks to keep	Warnen, bevor ein Dokument veröffentlicht wird, das laut seiner Stufe zurückzuhalten ist
+	Convert Document Package	Dokumentpaket konvertieren
+	Encrypt File	Datei verschlüsseln
+	Decrypt File	Datei entschlüsseln
+	Inspect Encryption	Verschlüsselung prüfen

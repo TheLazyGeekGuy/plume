@@ -2978,3 +2978,7 @@ preview	Title	Ukázka
 	Show the level on PDF and HTML copies	Zobrazit úroveň na kopiích PDF a HTML
 	This document's classification asks for a decision before it is published:	Klasifikace tohoto dokumentu vyžaduje před zveřejněním rozhodnutí:
 	Warn before publishing a document its level asks to keep	Upozornit před zveřejněním dokumentu, který má podle své úrovně zůstat neveřejný
+	Convert Document Package	Převést balíček dokumentu
+	Encrypt File	Zašifrovat soubor
+	Decrypt File	Dešifrovat soubor
+	Inspect Encryption	Zkontrolovat šifrování

@@ -3268,3 +3268,7 @@ template	Letter	Lettre
 	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Les destinataires ne peuvent le diffuser qu'au sein de leur organisation et de ses clients, selon le besoin d'en connaître.
 	Recipients may share it only within their organisation, on a need-to-know basis.	Les destinataires ne peuvent le diffuser qu'au sein de leur organisation, selon le besoin d'en connaître.
 	For the eyes and ears of the individual recipients only.	Réservé aux seuls destinataires individuels.
+	Convert Document Package	Convertir le paquet du document
+	Encrypt File	Chiffrer un fichier
+	Decrypt File	Déchiffrer un fichier
+	Inspect Encryption	Examiner le chiffrement

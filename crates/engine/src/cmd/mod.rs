@@ -85,6 +85,7 @@ pub fn registry() -> Registry {
     v.extend(review::specs());
     v.extend(file::specs());
     v.extend(crate::classification::specs());
+    v.extend(crate::transport::specs());
     v.extend(options::specs());
     v.extend(design::specs());
     v.extend(references::specs());
