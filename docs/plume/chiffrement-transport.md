@@ -4,6 +4,22 @@
 
 ## 1. Ce qui est livré
 
+### 1.0 Désactivé par défaut, en attendant la réponse de l'ANSSI
+
+Le chiffrement n'est compilé qu'avec l'option `encryption`. **Par défaut, elle est désactivée** : un exécutable ou une version web construits normalement (`cargo build --release -p wordcraft`, `cargo xtask wasm`, la CI de release) ne contiennent aucun chiffrement de fichiers ni de documents. Ils n'ont pas les crates `aes`, `pbkdf2` et `hmac`, ni le RC4 de Plume, ni la partie AES de la crate `zip` (vérifié avec `cargo tree`).
+
+Sans l'option :
+
+- un fichier chiffré (`.aes`, ZIP chiffré, document Word ou `.doc` protégé par mot de passe) est reconnu, et Plume dit qu'il ne peut pas l'ouvrir, sans demander de mot de passe ;
+- enregistrer avec un mot de passe, `crypto.encryptFile`, `crypto.decryptFile` ou un `transport.convert` avec mot de passe renvoient une erreur, et rien n'est écrit ;
+- l'interface ne montre ni le cadenas, ni « Protéger le document », ni les formats `.md.aes` et `.textpack.aes`.
+
+Restent dans tous les builds : HTTPS des connecteurs de forges (`rustls` avec `ring`, qui contient lui-même AES et ChaCha20 pour TLS ; la version web passe par le HTTPS du navigateur), les empreintes SHA des mots de passe de « Restreindre la modification » et la détection des formats chiffrés. Seul TLS chiffre, et seulement les communications.
+
+Pour construire une version avec chiffrement : `cargo build --release -p wordcraft --features encryption`. Même option pour `wordcraft-cli` et `wordcraft-web`. `cargo xtask ci` teste les deux modes.
+
+Le code reste dans le dépôt public. Savoir si publier ce seul code source compte déjà comme une fourniture est la première question posée à l'ANSSI.
+
 ### 1.1 Un document = un paquet
 
 Un document voyage sous forme de **paquet** : son fichier Markdown et les fichiers à côté de lui (images, pièces jointes, tout ce que l'archive contenait), chacun avec son chemin. Le paquet existe sous quatre formes :
@@ -91,5 +107,6 @@ Sources : [décret 2007-663 (Légifrance)](https://www.legifrance.gouv.fr/loda/i
 
 | Date | Changement |
 |---|---|
+| 2026-10-21 | Chiffrement derrière l'option `encryption`, désactivée par défaut : aucun algorithme dans les builds distribués. |
 | 2026-10-21 | Note juridique vérifiée : déclaration de fourniture, pas de dispense générale pour le logiciel libre trouvée, points à confirmer. |
 | 2026-10-21 | Création : moteur de transport, AES Crypt, ZIP AES-256, ouverture et enregistrement chiffrés, cadenas, confirmation avant publication d'un document chiffré. |

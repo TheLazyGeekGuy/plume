@@ -8,6 +8,7 @@ use proptest::prelude::*;
 use super::read;
 
 mod drawing;
+#[cfg(feature = "encryption")]
 mod encrypted;
 mod metadata;
 
@@ -176,7 +177,11 @@ fn word_6_95_rejected() {
 fn encrypted_asks_for_a_password() {
     let spec = FibSpec { flags: 0x1100, ..Default::default() };
     let f = cfb_file(&[("WordDocument", &fib_bytes(&spec))]);
+    #[cfg(feature = "encryption")]
     assert!(matches!(read(&f), Err(super::DocbinError::PasswordRequired)));
+    // Plume: a build without encryption says it can't open it, instead of asking for a password.
+    #[cfg(not(feature = "encryption"))]
+    assert!(matches!(read(&f), Err(super::DocbinError::Encryption(m)) if m.contains("no encryption")));
 }
 
 #[test]

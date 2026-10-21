@@ -8,16 +8,22 @@ description = "WordCraft reader for the Word 97-2003 binary file format (.doc, [
 [lints]
 workspace = true
 
+[features]
+# Plume: opening password-protected Word 97-2003 files (XOR obfuscation, RC4). Off by default:
+# a build without it says such a file can't be opened.
+encryption = ["dep:sha1"]
+
 [dependencies]
 wordcraft-doc = { workspace = true }
 wordcraft-geom = { workspace = true }
 cfb = { workspace = true }
 image = { workspace = true }
 miniz_oxide = { workspace = true }
-sha1 = { workspace = true }
+sha1 = { workspace = true, optional = true }
 thiserror = { workspace = true }
 log = { workspace = true }
 
 [dev-dependencies]
+sha1 = { workspace = true }
 proptest = { workspace = true }
 serde_json = { workspace = true }

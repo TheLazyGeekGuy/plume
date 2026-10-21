@@ -18,16 +18,16 @@ use sha1::{Digest, Sha1};
 
 use crate::DocbinError;
 
-/// Bytes at the start of the WordDocument stream that are stored untransformed.
-pub(crate) const FIB_PLAIN: usize = 68;
+#[cfg(test)]
+pub(crate) use crate::fib::F_ENCRYPTED;
+pub(crate) use crate::fib::FIB_PLAIN;
 /// RC4 re-keys every this many bytes of a stream.
 const BLOCK: usize = 512;
 /// Longest password considered (the specifications' limit for the RC4 schemes).
 const MAX_PASSWORD_CHARS: usize = 255;
 /// XOR obfuscation uses at most this many single-byte password characters.
 const MAX_XOR_PASSWORD: usize = 15;
-/// `FibBase.flags`: the document is encrypted (`fEncrypted`) / obfuscated (`fObfuscated`).
-pub(crate) const F_ENCRYPTED: u16 = 0x0100;
+/// `FibBase.flags`: the document is obfuscated (`fObfuscated`); see [`F_ENCRYPTED`].
 pub(crate) const F_OBFUSCATED: u16 = 0x8000;
 /// `EncryptionHeaderFlags`: `fCryptoAPI`, `fExternal`, `fAES`.
 const H_CRYPTO_API: u32 = 0x04;

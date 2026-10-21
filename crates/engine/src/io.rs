@@ -226,8 +226,15 @@ pub fn is_empty_file(_path: &std::path::Path) -> bool {
 /// and a Markdown ZIP (its entries in WinZip AES-256)?
 pub fn can_encrypt(name: &str) -> bool {
     let ext = ext_of(name);
-    is_word_package(&ext) || ext == "aes" || ext == "zip"
+    ENCRYPTION && (is_word_package(&ext) || ext == "aes" || ext == "zip")
 }
+
+/// Plume: is encryption compiled into this build (the `encryption` feature)? Without it no
+/// cipher is in the program: encrypted files are recognised and refused, never opened or written.
+pub const ENCRYPTION: bool = cfg!(feature = "encryption");
+
+/// What a build without encryption says.
+pub const NO_ENCRYPTION: &str = wordcraft_crypt::NO_ENCRYPTION;
 
 /// Plume: the name inside an AES Crypt file's name (`report.md` for `report.md.aes`).
 pub fn aes_inner(name: &str) -> Option<&str> {
@@ -251,7 +258,15 @@ fn crypt_error(e: wordcraft_crypt::Error) -> String {
 fn decrypted<'a>(name: &'a str, bytes: &[u8], password: Option<&str>) -> Result<Option<(&'a str, Vec<u8>)>, String> {
     use wordcraft_crypt::{Kind, aescrypt, zipaes};
     let pw = || password.filter(|p| !p.is_empty()).ok_or_else(|| wordcraft_docx::PASSWORD_REQUIRED.to_string());
-    match wordcraft_crypt::detect(bytes) {
+    let kind = wordcraft_crypt::detect(bytes);
+    // A build without encryption says so at once, rather than asking for a password it can't use.
+    if !ENCRYPTION
+        && (matches!(kind, Kind::AesCrypt(_))
+            || (matches!(kind, Kind::ZipAes | Kind::ZipLegacy) && matches!(ext_of(name).as_str(), "zip" | "textpack")))
+    {
+        return Err(format!("{name}: {NO_ENCRYPTION}"));
+    }
+    match kind {
         Kind::AesCrypt(_) => {
             let plain = aescrypt::decrypt(bytes, pw()?).map_err(crypt_error)?;
             Ok(Some((aes_inner(name).unwrap_or(name), plain.to_vec())))
@@ -292,6 +307,9 @@ fn plume_protected(name: &str, password: Option<&str>) -> bool {
 /// encrypted file `existing` when there is one: its other files are kept, as for an unencrypted
 /// ZIP or TextPack, which needs `existing` to open with `password`.
 fn protected_bytes(name: &str, doc: &Document, password: Option<&str>, existing: Option<&[u8]>, opts: &ExportOptions) -> Result<Vec<u8>, String> {
+    if !ENCRYPTION {
+        return Err(format!("{name}: {NO_ENCRYPTION}"));
+    }
     let pw = password
         .filter(|p| !p.is_empty())
         .ok_or_else(|| format!("{name}: an encrypted file needs a password (File › Info › Protect Document › Encrypt with Password)"))?;

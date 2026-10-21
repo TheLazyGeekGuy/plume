@@ -811,6 +811,7 @@ mod tests {
         assert!(same_package(&back, &original), "{back:?}");
     }
 
+    #[cfg(feature = "encryption")]
     /// md+assets → ZIP → encrypt → decrypt → extract: the same files, byte for byte.
     #[test]
     fn zip_encrypted_and_decrypted_is_lossless() {
@@ -852,6 +853,7 @@ mod tests {
         assert_eq!(form_of("a.docx", true), None);
     }
 
+    #[cfg(feature = "encryption")]
     /// A document saved with a password as `.md.aes`, `.textpack.aes` or `.zip` is written
     /// encrypted, opens only with its password, and saves again encrypted with it.
     #[cfg(not(target_arch = "wasm32"))]
@@ -895,6 +897,34 @@ mod tests {
         let _ = std::fs::remove_dir_all(&dir);
     }
 
+    /// A build without encryption converts, but never encrypts or decrypts: it says so and
+    /// writes nothing.
+    #[cfg(not(feature = "encryption"))]
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn without_encryption_nothing_is_encrypted_or_written() {
+        let dir = std::env::temp_dir().join(format!("plume-transport-noenc-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let src = dir.join("src");
+        write_folder(&pkg(), Form::Markdown, &src, None, false).unwrap();
+        let mut s = crate::Session::new(wordcraft_doc::Document::new());
+        let md = src.join("report.md").to_string_lossy().to_string();
+        let zip = dir.join("report.zip").to_string_lossy().to_string();
+        let e = s.run("transport.convert", &json!({"from": md, "to": zip, "password": "pw"})).unwrap_err().to_string();
+        assert!(e.contains("no encryption"), "{e}");
+        assert!(!std::path::Path::new(&zip).exists());
+        s.run("transport.convert", &json!({"from": md, "to": zip})).unwrap();
+        assert!(s.run("crypto.encryptFile", &json!({"path": md, "password": "x"})).is_err());
+        assert!(!src.join("report.md.aes").exists());
+        // An encrypted file is recognised and refused, never asked a password for.
+        let aes = dir.join("x.md.aes");
+        std::fs::write(&aes, b"AES\x03\x00\x00\x00").unwrap();
+        let e = s.run("file.open", &json!({"path": aes.to_string_lossy()})).unwrap_err().to_string();
+        assert!(e.contains("no encryption") && !crate::io::needs_password(&e), "{e}");
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[cfg(feature = "encryption")]
     #[cfg(not(target_arch = "wasm32"))]
     #[test]
     fn convert_on_disk_round_trips_and_never_overwrites_silently() {

@@ -315,6 +315,8 @@ fn encrypt(s: &mut Session, v: &Value) -> CmdResult {
     let password = match v.get("password") {
         Some(Value::Null) => None,
         Some(Value::String(pw)) if pw.is_empty() => None,
+        // Plume: a build without encryption can't save with a password.
+        Some(Value::String(_)) if !crate::io::ENCRYPTION => return Err(CmdError::Failed(crate::io::NO_ENCRYPTION.into())),
         Some(Value::String(pw)) => {
             wordcraft_docx::check_password(pw).map_err(|e| CmdError::Params(e.to_string()))?;
             Some(crate::io::Password::new(pw))
@@ -348,6 +350,9 @@ fn save(s: &mut Session, v: &Value) -> CmdResult {
         let Some(pw) = pw.as_str().filter(|pw| !pw.is_empty()) else {
             return Err(CmdError::Params("`password` must be a non-empty string (file.encrypt removes a password)".into()));
         };
+        if !crate::io::ENCRYPTION {
+            return Err(CmdError::Failed(crate::io::NO_ENCRYPTION.into()));
+        }
         if !crate::io::can_encrypt(&path.to_string_lossy()) {
             return Err(CmdError::Params(
                 "only Word documents (.docx, .docm, .dotx, .dotm), ZIP files and AES Crypt files (.aes: report.md.aes, report.textpack.aes) can be saved with a password".into(),

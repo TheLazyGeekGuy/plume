@@ -490,6 +490,10 @@ pub(crate) fn web_save_formats(app: &WordApp) -> Vec<(&'static str, &'static str
         ("Web page (*.html)", "html"),
         ("Plain text (*.txt)", "txt"),
     ];
+    // Encrypted formats only in a build with encryption.
+    if !wordcraft_engine::io::ENCRYPTION {
+        v.retain(|(_, e)| !e.ends_with(".aes"));
+    }
     if !crate::widgets::profile_on(app) {
         v.splice(0..0, [("Word document (*.docx)", "docx"), ("OpenDocument Text (*.odt)", "odt"), ("Rich Text Format (*.rtf)", "rtf")]);
     }
@@ -605,7 +609,8 @@ fn info_page(app: &mut WordApp, ui: &mut Ui) {
         // Plume: the document's classification, every dimension.
         ui.add_space(18.0);
         crate::classification_ui::info_section(app, ui);
-        // Protect Document › Encrypt with Password (#55).
+        // Protect Document › Encrypt with Password (#55); Plume: only in a build with encryption.
+        if wordcraft_engine::io::ENCRYPTION {
         ui.add_space(18.0);
         ui.label(egui::RichText::new(tl!("Protect Document")).font(semibold(15.0)));
         let encrypted = info.get("encrypted").and_then(|v| v.as_bool()).unwrap_or(false);
@@ -638,6 +643,7 @@ fn info_page(app: &mut WordApp, ui: &mut Ui) {
                 let _ = app.run("file.encrypt", json!({"password": null}));
             }
         });
+        }
         }
         let ui = &mut cols[1];
         ui.label(egui::RichText::new(tl!("Statistics")).font(semibold(15.0)));
@@ -1280,7 +1286,12 @@ mod tests {
         s.native_markdown = true;
         let mut a = WordApp::new(s, services);
         let exts: Vec<&str> = super::web_save_formats(&a).iter().map(|(_, e)| *e).collect();
-        assert_eq!(exts, ["md", "zip", "textpack", "md.aes", "textpack.aes", "pdf", "html", "txt"], "the Markdown profile's formats");
+        let want: &[&str] = if wordcraft_engine::io::ENCRYPTION {
+            &["md", "zip", "textpack", "md.aes", "textpack.aes", "pdf", "html", "txt"]
+        } else {
+            &["md", "zip", "textpack", "pdf", "html", "txt"]
+        };
+        assert_eq!(exts, want, "the Markdown profile's formats");
         a.run("file.saveAs", json!({"path": "Plan.zip"})).unwrap();
         assert_eq!(got.borrow().last().map(|(n, _)| n.as_str()), Some("Plan.zip"));
         assert!(!a.session.dirty && a.web_save_name().as_deref() == Some("Plan.zip"));

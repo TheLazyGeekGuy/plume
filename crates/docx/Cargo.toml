@@ -8,6 +8,12 @@ description = "WordCraft DOCX (OOXML WordprocessingML) reader and writer"
 [lints]
 workspace = true
 
+[features]
+# Plume: password encryption of Word documents (MS-OFFCRYPTO agile, AES-256). Off by default:
+# a build without it can't open or save encrypted documents. Restrict Editing's password hash,
+# which encrypts nothing, stays in every build.
+encryption = ["dep:aes", "dep:hmac"]
+
 [dependencies]
 wordcraft-brand = { workspace = true }
 wordcraft-doc = { workspace = true }
@@ -18,10 +24,10 @@ thiserror = { workspace = true }
 log = { workspace = true }
 unicode-bidi = { workspace = true }
 cfb = { workspace = true }
-aes = { workspace = true }
+aes = { workspace = true, optional = true }
 sha1 = { workspace = true }
 sha2 = { workspace = true }
-hmac = { workspace = true }
+hmac = { workspace = true, optional = true }
 base64 = { workspace = true }
 getrandom = { workspace = true }
 zeroize = { workspace = true }

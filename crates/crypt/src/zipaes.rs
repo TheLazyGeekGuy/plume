@@ -9,11 +9,17 @@
 //! An encrypted ZIP keeps its file names, sizes and dates in clear: only the contents are
 //! protected. Callers say so to the user (an AES Crypt file around a ZIP hides them).
 
-use std::io::{Cursor, Read, Write};
+use std::io::Cursor;
+#[cfg(feature = "encryption")]
+use std::io::{Read, Write};
 
-use zeroize::Zeroizing;
-use zip::write::SimpleFileOptions;
-use zip::{AesMode, CompressionMethod, ZipArchive, ZipWriter};
+use zip::ZipArchive;
+#[cfg(feature = "encryption")]
+use {
+    zeroize::Zeroizing,
+    zip::write::SimpleFileOptions,
+    zip::{AesMode, CompressionMethod, ZipWriter},
+};
 
 use crate::{Error, MAX_SIZE, Result};
 
@@ -55,14 +61,30 @@ pub fn encryption(bytes: &[u8]) -> Result<Encryption> {
         if !encrypted {
             continue;
         }
+        #[cfg(feature = "encryption")]
         match zip.get_aes_verification_key_and_salt(i) {
             Ok(Some(_)) => found = Encryption::Aes,
             _ => return Ok(Encryption::Legacy),
+        }
+        // Without the ciphers, an encrypted entry is told apart by its compression method: 99
+        // marks WinZip AES.
+        #[cfg(not(feature = "encryption"))]
+        if aes_entries(bytes) {
+            found = Encryption::Aes;
+        } else {
+            return Ok(Encryption::Legacy);
         }
     }
     Ok(found)
 }
 
+/// Without the ciphers: does a central directory entry name compression method 99 (WinZip AES)?
+#[cfg(not(feature = "encryption"))]
+fn aes_entries(bytes: &[u8]) -> bool {
+    bytes.windows(12).any(|w| w.starts_with(b"PK\x01\x02") && w.get(10..12) == Some(&[99, 0][..]))
+}
+
+#[cfg(feature = "encryption")]
 /// One entry, read.
 struct Entry {
     name: String,
@@ -73,6 +95,7 @@ struct Entry {
     data: Zeroizing<Vec<u8>>,
 }
 
+#[cfg(feature = "encryption")]
 /// Every entry of `bytes`, decrypted with `password` where encrypted. Each entry's integrity is
 /// checked (WinZip AES's HMAC; for legacy and plain entries, their CRC-32).
 fn entries(bytes: &[u8], password: Option<&str>) -> Result<Vec<Entry>> {
@@ -114,6 +137,7 @@ fn entries(bytes: &[u8], password: Option<&str>) -> Result<Vec<Entry>> {
     Ok(out)
 }
 
+#[cfg(feature = "encryption")]
 fn write(entries: &[Entry], password: Option<&str>) -> Result<Vec<u8>> {
     let mut w = ZipWriter::new(Cursor::new(Vec::new()));
     let err = |e: zip::result::ZipError| Error::Malformed(format!("ZIP: {e}"));
@@ -143,6 +167,7 @@ fn write(entries: &[Entry], password: Option<&str>) -> Result<Vec<u8>> {
 /// The ZIP `plain` with every file entry encrypted with WinZip AES-256 under `password`. Names,
 /// folders, dates and permissions are kept, and each entry stays stored or compressed as it was;
 /// already encrypted entries are refused (decrypt first).
+#[cfg(feature = "encryption")]
 pub fn encrypt(plain: &[u8], password: &str) -> Result<Vec<u8>> {
     if password.is_empty() {
         return Err(Error::EmptyPassword);
@@ -153,6 +178,7 @@ pub fn encrypt(plain: &[u8], password: &str) -> Result<Vec<u8>> {
 
 /// The ZIP `bytes` with its entries decrypted with `password` (WinZip AES or legacy ZipCrypto):
 /// an ordinary ZIP of the same files. Every entry's integrity is checked first.
+#[cfg(feature = "encryption")]
 pub fn decrypt(bytes: &[u8], password: &str) -> Result<Vec<u8>> {
     if password.is_empty() {
         return Err(Error::PasswordRequired);
@@ -161,7 +187,20 @@ pub fn decrypt(bytes: &[u8], password: &str) -> Result<Vec<u8>> {
     write(&entries, None)
 }
 
+/// Without the `encryption` feature: [`Error::Unavailable`].
+#[cfg(not(feature = "encryption"))]
+pub fn encrypt(_plain: &[u8], _password: &str) -> Result<Vec<u8>> {
+    Err(Error::Unavailable)
+}
+
+/// Without the `encryption` feature: [`Error::Unavailable`].
+#[cfg(not(feature = "encryption"))]
+pub fn decrypt(_bytes: &[u8], _password: &str) -> Result<Vec<u8>> {
+    Err(Error::Unavailable)
+}
+
 #[cfg(test)]
+#[cfg(feature = "encryption")]
 pub(crate) mod tests {
     use super::*;
 

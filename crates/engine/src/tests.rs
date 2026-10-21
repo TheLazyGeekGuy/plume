@@ -30,6 +30,7 @@ fn doc_extension_dispatches_to_docbin() {
     }
 }
 
+#[cfg(feature = "encryption")]
 #[test]
 fn encrypted_doc_asks_for_a_password_and_rejects_a_wrong_one() {
     // #1079: a Word 97-2003 file with the encryption flag and an RC4 header whose verifier does
@@ -4966,6 +4967,7 @@ fn border_sides_apply_exactly() {
     assert!(s.doc.last_section.page_borders.is_none());
 }
 
+#[cfg(feature = "encryption")]
 /// Encrypt with Password (#55): a document saved with a password opens only with it, keeps it
 /// for the next save, and saves unencrypted once the password is removed.
 #[cfg(not(target_arch = "wasm32"))]

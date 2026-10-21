@@ -21,23 +21,49 @@
 //! leaves the version byte out of the first HMAC, and ends the file with the length of its last
 //! block (one byte, 0 meaning 16) before the last HMAC.
 
+#[cfg(feature = "encryption")]
 use aes::cipher::{BlockCipherDecrypt, BlockCipherEncrypt, KeyInit};
+#[cfg(feature = "encryption")]
 use hmac::{Hmac, Mac};
+#[cfg(feature = "encryption")]
 use sha2::{Digest, Sha256, Sha512};
 use zeroize::Zeroizing;
 
-use crate::{Error, MAX_SIZE, Result, random, same};
+use crate::{Error, Result};
+#[cfg(feature = "encryption")]
+use crate::{MAX_SIZE, random, same};
 
 /// The PBKDF2 iterations AES Crypt itself uses by default.
 pub const DEFAULT_ITERATIONS: u32 = 300_000;
 /// The most PBKDF2 iterations a file may ask for when read (more would only stall the reader).
 pub const MAX_ITERATIONS: u32 = 5_000_000;
+#[cfg(feature = "encryption")]
 /// Most extensions skipped before giving up on a header.
 const MAX_EXTENSIONS: usize = 256;
+#[cfg(feature = "encryption")]
 /// Version 2's key derivation rounds.
 const ACKDF_ROUNDS: usize = 8192;
 
+#[cfg(feature = "encryption")]
 type HmacSha256 = Hmac<Sha256>;
+
+/// Without the `encryption` feature: [`Error::Unavailable`].
+#[cfg(not(feature = "encryption"))]
+pub fn encrypt(_plain: &[u8], _password: &str) -> Result<Vec<u8>> {
+    Err(Error::Unavailable)
+}
+
+/// Without the `encryption` feature: [`Error::Unavailable`].
+#[cfg(not(feature = "encryption"))]
+pub fn encrypt_with(_plain: &[u8], _password: &str, _iterations: u32) -> Result<Vec<u8>> {
+    Err(Error::Unavailable)
+}
+
+/// Without the `encryption` feature: [`Error::Unavailable`].
+#[cfg(not(feature = "encryption"))]
+pub fn decrypt(_bytes: &[u8], _password: &str) -> Result<Zeroizing<Vec<u8>>> {
+    Err(Error::Unavailable)
+}
 
 /// The stream format version of an AES Crypt file, if `bytes` is one this module reads (2 or 3).
 pub fn version(bytes: &[u8]) -> Option<u8> {
@@ -48,11 +74,13 @@ pub fn version(bytes: &[u8]) -> Option<u8> {
 }
 
 /// Encrypt `plain` with `password` in AES Crypt's format version 3, with its default iterations.
+#[cfg(feature = "encryption")]
 pub fn encrypt(plain: &[u8], password: &str) -> Result<Vec<u8>> {
     encrypt_with(plain, password, DEFAULT_ITERATIONS)
 }
 
 /// [`encrypt`] with `iterations` PBKDF2 iterations (1 to [`MAX_ITERATIONS`]).
+#[cfg(feature = "encryption")]
 pub fn encrypt_with(plain: &[u8], password: &str, iterations: u32) -> Result<Vec<u8>> {
     if password.is_empty() {
         return Err(Error::EmptyPassword);
@@ -98,6 +126,7 @@ pub fn encrypt_with(plain: &[u8], password: &str, iterations: u32) -> Result<Vec
 /// Decrypt an AES Crypt file (format version 2 or 3) with `password`. Both HMACs are checked
 /// before anything is decrypted: a wrong password is [`Error::WrongPassword`], a file altered
 /// after it was encrypted [`Error::Altered`].
+#[cfg(feature = "encryption")]
 pub fn decrypt(bytes: &[u8], password: &str) -> Result<Zeroizing<Vec<u8>>> {
     if bytes.len() > MAX_SIZE.saturating_add(4096) {
         return Err(Error::TooLarge);
@@ -175,12 +204,14 @@ pub fn decrypt(bytes: &[u8], password: &str) -> Result<Zeroizing<Vec<u8>>> {
     Ok(plain)
 }
 
+#[cfg(feature = "encryption")]
 /// A cursor over a header.
 struct Reader<'a> {
     bytes: &'a [u8],
     at: usize,
 }
 
+#[cfg(feature = "encryption")]
 impl Reader<'_> {
     fn take<const N: usize>(&mut self) -> Result<[u8; N]> {
         let end = self.at.checked_add(N).ok_or_else(|| Error::Malformed("truncated header".into()))?;
@@ -196,6 +227,7 @@ impl Reader<'_> {
     }
 }
 
+#[cfg(feature = "encryption")]
 /// Version 3's key: PBKDF2-HMAC-SHA512 of the password with the public IV as salt.
 fn pbkdf2_key(password: &str, salt: &[u8], iterations: u32) -> Result<Zeroizing<[u8; 32]>> {
     let mut key = Zeroizing::new([0u8; 32]);
@@ -203,6 +235,7 @@ fn pbkdf2_key(password: &str, salt: &[u8], iterations: u32) -> Result<Zeroizing<
     Ok(key)
 }
 
+#[cfg(feature = "encryption")]
 /// Version 2's key: SHA-256, 8 192 times, of the key so far and the password in UTF-16LE.
 fn ackdf_key(password: &str, iv: &[u8; 16]) -> Zeroizing<[u8; 32]> {
     let pw: Zeroizing<Vec<u8>> = Zeroizing::new(password.encode_utf16().flat_map(u16::to_le_bytes).collect());
@@ -217,14 +250,17 @@ fn ackdf_key(password: &str, iv: &[u8; 16]) -> Zeroizing<[u8; 32]> {
     key
 }
 
+#[cfg(feature = "encryption")]
 fn hmac(key: &[u8]) -> Result<HmacSha256> {
     <HmacSha256 as hmac::KeyInit>::new_from_slice(key).map_err(|_| Error::Malformed("bad key".into()))
 }
 
+#[cfg(feature = "encryption")]
 fn cipher(key: &[u8]) -> Result<aes::Aes256> {
     aes::Aes256::new_from_slice(key).map_err(|_| Error::Malformed("bad key".into()))
 }
 
+#[cfg(feature = "encryption")]
 /// AES-256-CBC of whole blocks.
 fn cbc_encrypt(key: &[u8], iv: &[u8], data: &[u8]) -> Result<Vec<u8>> {
     let aes = cipher(key)?;
@@ -243,6 +279,7 @@ fn cbc_encrypt(key: &[u8], iv: &[u8], data: &[u8]) -> Result<Vec<u8>> {
     Ok(out)
 }
 
+#[cfg(feature = "encryption")]
 /// AES-256-CBC decryption of whole blocks.
 fn cbc_decrypt(key: &[u8], iv: &[u8], data: &[u8]) -> Result<Zeroizing<Vec<u8>>> {
     let aes = cipher(key)?;
@@ -263,6 +300,7 @@ fn cbc_decrypt(key: &[u8], iv: &[u8], data: &[u8]) -> Result<Zeroizing<Vec<u8>>>
 }
 
 #[cfg(test)]
+#[cfg(feature = "encryption")]
 mod tests {
     use super::*;
 

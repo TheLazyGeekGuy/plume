@@ -8,6 +8,7 @@
 //! capped), so hostile input yields an error or a best-effort document, never a panic.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
+#[cfg(feature = "encryption")]
 mod crypt;
 mod drawing;
 mod fib;
@@ -98,6 +99,7 @@ pub fn read(bytes: &[u8]) -> Result<Document, DocbinError> {
 /// [`read`] for a file that may be password-protected: it is checked against the file's stored
 /// verifier ([`DocbinError::WrongPassword`] when it does not match) and then decrypted. The
 /// password is ignored for an unprotected file.
+#[cfg_attr(not(feature = "encryption"), allow(unused_mut))]
 pub fn read_with_password(bytes: &[u8], password: Option<&str>) -> Result<Document, DocbinError> {
     let mut comp = cfb::CompoundFile::open(std::io::Cursor::new(bytes)).map_err(|e| DocbinError::Container(e.to_string()))?;
     let mut word = stream(&mut comp, "WordDocument").ok_or_else(|| DocbinError::NotWord("no WordDocument stream".into()))?;
@@ -120,11 +122,20 @@ pub fn read_with_password(bytes: &[u8], password: Option<&str>) -> Result<Docume
     }
     if let Some(e) = enc {
         // Verify the password first; only then is anything decrypted.
-        let password = password.ok_or(DocbinError::PasswordRequired)?;
-        let cipher = crypt::Cipher::open(e.flags, e.lkey, &table, password)?;
-        cipher.decrypt_word(&mut word);
-        cipher.decrypt_table(&mut table);
-        cipher.decrypt_data(&mut data);
+        #[cfg(feature = "encryption")]
+        {
+            let password = password.ok_or(DocbinError::PasswordRequired)?;
+            let cipher = crypt::Cipher::open(e.flags, e.lkey, &table, password)?;
+            cipher.decrypt_word(&mut word);
+            cipher.decrypt_table(&mut table);
+            cipher.decrypt_data(&mut data);
+        }
+        // Plume: a build without encryption can't open it.
+        #[cfg(not(feature = "encryption"))]
+        {
+            let _ = (e, password);
+            return Err(DocbinError::Encryption("this build of Plume has no encryption: password-protected documents can't be opened".into()));
+        }
     }
     let fib = fib::Fib::parse(&word)?;
 

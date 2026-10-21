@@ -16,7 +16,14 @@ pub mod aescrypt;
 pub mod zipaes;
 
 #[cfg(test)]
+#[cfg(feature = "encryption")]
 mod vectors;
+
+/// Is encryption compiled into this build (the `encryption` feature)?
+pub const ENCRYPTION: bool = cfg!(feature = "encryption");
+
+/// What a build without encryption says when asked to encrypt or decrypt.
+pub const NO_ENCRYPTION: &str = "this build of Plume has no encryption: encrypted files can't be opened or saved";
 
 /// The largest file encrypted or decrypted, bytes.
 pub const MAX_SIZE: usize = 1 << 30;
@@ -40,6 +47,8 @@ pub enum Error {
     EmptyPassword,
     /// The system gave no secure random numbers.
     NoRandom,
+    /// This build has no encryption (the `encryption` feature is off).
+    Unavailable,
 }
 
 impl std::fmt::Display for Error {
@@ -53,6 +62,7 @@ impl std::fmt::Display for Error {
             Error::TooLarge => write!(f, "the file is larger than {} MB", MAX_SIZE >> 20),
             Error::EmptyPassword => f.write_str("the password is empty"),
             Error::NoRandom => f.write_str("no secure random numbers are available"),
+            Error::Unavailable => f.write_str(NO_ENCRYPTION),
         }
     }
 }
@@ -122,6 +132,7 @@ pub fn detect(bytes: &[u8]) -> Kind {
 }
 
 /// `n` secure random bytes.
+#[cfg(feature = "encryption")]
 pub(crate) fn random<const N: usize>() -> Result<zeroize::Zeroizing<[u8; N]>> {
     let mut v = zeroize::Zeroizing::new([0u8; N]);
     getrandom::fill(v.as_mut()).map_err(|_| Error::NoRandom)?;
@@ -129,6 +140,7 @@ pub(crate) fn random<const N: usize>() -> Result<zeroize::Zeroizing<[u8; N]>> {
 }
 
 /// Are `a` and `b` equal, in time that doesn't depend on where they differ?
+#[cfg(feature = "encryption")]
 pub(crate) fn same(a: &[u8], b: &[u8]) -> bool {
     a.len() == b.len() && a.iter().zip(b).fold(0u8, |acc, (x, y)| acc | (x ^ y)) == 0
 }
@@ -137,6 +149,19 @@ pub(crate) fn same(a: &[u8], b: &[u8]) -> bool {
 mod tests {
     use super::*;
 
+    /// Without the `encryption` feature nothing encrypts or decrypts, and files are still told apart.
+    #[cfg(not(feature = "encryption"))]
+    #[test]
+    fn without_the_feature_nothing_is_encrypted_or_decrypted() {
+        assert_eq!(aescrypt::encrypt(b"x", "pw"), Err(Error::Unavailable));
+        assert_eq!(aescrypt::decrypt(b"AES\x03\x00", "pw").map(|_| ()), Err(Error::Unavailable));
+        assert_eq!(zipaes::encrypt(b"PK\x05\x06", "pw"), Err(Error::Unavailable));
+        assert_eq!(zipaes::decrypt(b"PK\x05\x06", "pw"), Err(Error::Unavailable));
+        assert_eq!(detect(b"AES\x03\x00rest"), Kind::AesCrypt(3));
+        assert_eq!(detect(b"age-encryption.org/v1\n"), Kind::Age);
+    }
+
+    #[cfg(feature = "encryption")]
     #[test]
     fn detects_each_kind() {
         let aes = aescrypt::encrypt_with(b"x", "pw", 2).unwrap();
@@ -150,6 +175,7 @@ mod tests {
         assert!(Kind::ZipAes.is_encrypted() && !Kind::Zip.is_encrypted() && !Kind::SevenZip.is_encrypted());
     }
 
+    #[cfg(feature = "encryption")]
     #[test]
     fn messages_never_show_the_password() {
         let secret = "correct horse battery staple";

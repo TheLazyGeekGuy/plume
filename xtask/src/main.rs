@@ -25,7 +25,7 @@ commands:
   assets          check that every icon/image/font/asset is attributed in ATTRIBUTION.md
   layers          enforce the crate dependency layering (plan/architecture.md §3)
   wasm            cargo check --target wasm32-unknown-unknown for the wasm-safe crates
-  ci              fmt --check, clippy -D warnings, test, assets, layers, wasm (stops at first failure)
+  ci              fmt --check, clippy -D warnings, test, the same with encryption on, assets, layers, wasm (stops at first failure)
   corpus [--download] [--tables]
                   show where test corpora live; --download fetches PngSuite into corpus/pngsuite,
                   --tables fetches Word documents with nested tables into corpus/tables
@@ -83,6 +83,10 @@ fn main() -> ExitCode {
 pub fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).parent().expect("xtask has a parent dir").to_path_buf()
 }
+
+/// Plume: the features that turn encryption on in every crate that has it.
+const ENCRYPTION_FEATURES: &str =
+    "wordcraft-crypt/encryption,wordcraft-docx/encryption,wordcraft-docbin/encryption,wordcraft-engine/encryption,wordcraft-ui-egui/encryption";
 
 pub fn cargo() -> Command {
     let mut c = Command::new(std::env::var("CARGO").unwrap_or_else(|_| "cargo".into()));
@@ -195,6 +199,22 @@ fn cmd_ci() -> Result<(), String> {
                 let mut c = cargo();
                 c.args(["test", "--workspace"]);
                 run(c, "cargo test --workspace")
+            }),
+        ),
+        // Plume: encryption is off by default (no cipher in a default build), so it is checked
+        // and tested again with it on.
+        (
+            "encryption",
+            Box::new(|| {
+                let pkgs =
+                    ["-p", "wordcraft-crypt", "-p", "wordcraft-docx", "-p", "wordcraft-docbin", "-p", "wordcraft-engine", "-p", "wordcraft-ui-egui"];
+                let feats = ["--features", ENCRYPTION_FEATURES];
+                let mut c = cargo();
+                c.arg("clippy").args(pkgs).args(feats).args(["--all-targets", "--", "-D", "warnings"]);
+                run(c, "cargo clippy (encryption) -- -D warnings")?;
+                let mut c = cargo();
+                c.arg("test").args(pkgs).args(feats);
+                run(c, "cargo test (encryption)")
             }),
         ),
         ("assets", Box::new(|| assets::run(&root()))),

@@ -141,6 +141,7 @@ fn missing_parent_keeps_original_and_session_unchanged() {
     assert_eq!(d.names(), ["original.docx"]);
 }
 
+#[cfg(feature = "encryption")]
 #[test]
 fn encrypted_save_reopens_only_with_password_and_leaves_neighbours_alone() {
     let d = Scratch::new();

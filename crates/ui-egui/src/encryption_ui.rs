@@ -38,8 +38,11 @@ fn method_name(method: &str) -> &'static str {
     }
 }
 
-/// The status bar's padlock.
+/// The status bar's padlock (none in a build without encryption: nothing it offers would work).
 pub fn status(app: &mut WordApp, ui: &mut Ui) {
+    if !wordcraft_engine::io::ENCRYPTION {
+        return;
+    }
     let m = method(app);
     let (text, icon, color) = match m {
         Some(_) => (tl!("Encrypted"), "lock", Color32::from_rgb(0x2E, 0x7D, 0x32)),
@@ -105,12 +108,33 @@ pub fn save_encrypted_copy(app: &mut WordApp) {
 
 #[cfg(test)]
 mod tests {
+    #[cfg(feature = "encryption")]
     use serde_json::json;
 
     use crate::{Services, WordApp};
 
+    /// Without encryption, saving as `.md.aes` says so and writes nothing; no password is asked.
+    #[cfg(not(feature = "encryption"))]
+    #[test]
+    fn without_encryption_nothing_is_encrypted() {
+        let dir = std::env::temp_dir().join(format!("plume-noenc-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let mut s = wordcraft_engine::Session::new(wordcraft_doc::Document::from_text("Payroll"));
+        s.native_markdown = true;
+        let mut a = WordApp::new(s, Services::default());
+        let path = dir.join("pay.md.aes").to_string_lossy().to_string();
+        let e = a.run("file.saveAs", serde_json::json!({"path": path})).unwrap_err();
+        assert!(e.contains("no encryption"), "{e}");
+        assert!(a.dialog.is_none() && !std::path::Path::new(&path).exists());
+        assert!(a.run("file.encrypt", serde_json::json!({"password": "pw"})).is_err());
+        assert!(super::method(&a).is_none());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
     /// Saving as `.md.aes` without a password asks for one first, then saves encrypted; the
     /// padlock says so, and a C4 document says it is waiting for encryption until then.
+    #[cfg(feature = "encryption")]
     #[test]
     fn saving_encrypted_asks_for_the_password_then_shows_the_padlock() {
         let dir = std::env::temp_dir().join(format!("plume-padlock-{}", std::process::id()));

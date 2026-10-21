@@ -915,7 +915,11 @@ impl WordApp {
         }
         // Plume: saving as an encrypted file (`report.md.aes`) without a password asks for one,
         // then saves.
-        if matches!(id, "file.save" | "file.saveAs") && self.session.password.is_none() && params.get("password").is_none() {
+        if wordcraft_engine::io::ENCRYPTION
+            && matches!(id, "file.save" | "file.saveAs")
+            && self.session.password.is_none()
+            && params.get("password").is_none()
+        {
             let target = params
                 .get("path")
                 .and_then(Value::as_str)
@@ -4945,6 +4949,7 @@ mod tests {
         assert!(!body_text(&a).trim().is_empty());
     }
 
+    #[cfg(feature = "encryption")]
     /// #55: a password-protected document asks for its password (after Save Changes) instead of
     /// opening blank; scripts get the error instead of a dialog; Encrypt with Password asks for one.
     #[test]
