@@ -5986,6 +5986,7 @@ dependencies = [
  "toml",
  "unicode-bidi",
  "wordcraft-brand",
+ "wordcraft-crypt",
  "wordcraft-doc",
  "wordcraft-engine",
  "wordcraft-fonts",

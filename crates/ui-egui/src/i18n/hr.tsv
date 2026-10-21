@@ -3272,3 +3272,19 @@ preview	Title	Naslov
 	Encrypt File	Šifriraj datoteku
 	Decrypt File	Dešifriraj datoteku
 	Inspect Encryption	Provjeri šifriranje
+	Encrypted	Šifrirano
+	Not encrypted	Nije šifrirano
+	Encryption	Šifriranje
+	Method	Metoda
+	This document is saved encrypted.	Ovaj se dokument sprema šifriran.
+	Without the password nobody, Plume included, can open it.	Bez lozinke ga nitko, ni Plume, ne može otvoriti.
+	Save an Unencrypted Copy…	Spremi nešifriranu kopiju…
+	Anyone who gets this file can read it.	Svatko tko dobije ovu datoteku može je pročitati.
+	Its classification asks for encryption.	Njegova klasifikacija traži šifriranje.
+	A classification label doesn't encrypt the document.	Oznaka klasifikacije ne šifrira dokument.
+	Save an Encrypted Copy…	Spremi šifriranu kopiju…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Nazivi, veličine i datumi datoteka u ZIP-u ostaju čitljivi; šifriran je samo sadržaj.
+	The file's name and its approximate size stay visible; nothing inside does.	Naziv datoteke i približna veličina ostaju vidljivi; sadržaj ne.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdown datoteka šifrira se kao kopija: Markdown u AES Cryptu (.md.aes), TextPack (.textpack.aes) ili ZIP s lozinkom.
+	Markdown, encrypted (*.md.aes)	Markdown, šifrirani (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, šifrirani (*.textpack.aes)

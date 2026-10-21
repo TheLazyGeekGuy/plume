@@ -2987,3 +2987,19 @@ preview	Title	Örnek
 	Encrypt File	Dosyayı şifrele
 	Decrypt File	Dosyanın şifresini çöz
 	Inspect Encryption	Şifrelemeyi incele
+	Encrypted	Şifreli
+	Not encrypted	Şifresiz
+	Encryption	Şifreleme
+	Method	Yöntem
+	This document is saved encrypted.	Bu belge şifreli kaydedilir.
+	Without the password nobody, Plume included, can open it.	Parola olmadan Plume dahil hiç kimse onu açamaz.
+	Save an Unencrypted Copy…	Şifresiz bir kopya kaydet…
+	Anyone who gets this file can read it.	Bu dosyayı alan herkes okuyabilir.
+	Its classification asks for encryption.	Sınıflandırması şifreleme gerektiriyor.
+	A classification label doesn't encrypt the document.	Sınıflandırma etiketi belgeyi şifrelemez.
+	Save an Encrypted Copy…	Şifreli bir kopya kaydet…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	ZIP içindeki dosya adları, boyutları ve tarihleri okunabilir kalır; yalnızca içerikleri şifrelenir.
+	The file's name and its approximate size stay visible; nothing inside does.	Dosyanın adı ve yaklaşık boyutu görünür kalır; içindeki hiçbir şey görünmez.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Bir Markdown dosyası kopya olarak şifrelenir: AES Crypt içinde Markdown (.md.aes), bir TextPack (.textpack.aes) veya parolalı bir ZIP.
+	Markdown, encrypted (*.md.aes)	Markdown, şifreli (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, şifreli (*.textpack.aes)

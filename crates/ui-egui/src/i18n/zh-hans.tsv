@@ -2591,3 +2591,19 @@
 	Encrypt File	加密文件
 	Decrypt File	解密文件
 	Inspect Encryption	检查加密
+	Encrypted	已加密
+	Not encrypted	未加密
+	Encryption	加密
+	Method	方式
+	This document is saved encrypted.	此文档以加密方式保存。
+	Without the password nobody, Plume included, can open it.	没有密码，任何人（包括 Plume）都无法打开它。
+	Save an Unencrypted Copy…	保存未加密的副本…
+	Anyone who gets this file can read it.	任何拿到此文件的人都能阅读。
+	Its classification asks for encryption.	其分类要求加密。
+	A classification label doesn't encrypt the document.	分类标签不会加密文档。
+	Save an Encrypted Copy…	保存加密副本…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	ZIP 内的文件名、大小和日期仍可读取；只有内容被加密。
+	The file's name and its approximate size stay visible; nothing inside does.	文件名和大致大小仍可见；内容不可见。
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdown 文件以副本形式加密：AES Crypt 中的 Markdown（.md.aes）、TextPack（.textpack.aes）或带密码的 ZIP。
+	Markdown, encrypted (*.md.aes)	Markdown，已加密 (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack，已加密 (*.textpack.aes)

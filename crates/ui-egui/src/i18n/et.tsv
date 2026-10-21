@@ -2613,3 +2613,19 @@
 	Encrypt File	Krüpteeri fail
 	Decrypt File	Dekrüpteeri fail
 	Inspect Encryption	Kontrolli krüpteerimist
+	Encrypted	Krüpteeritud
+	Not encrypted	Krüpteerimata
+	Encryption	Krüpteerimine
+	Method	Meetod
+	This document is saved encrypted.	See dokument salvestatakse krüpteerituna.
+	Without the password nobody, Plume included, can open it.	Ilma paroolita ei saa seda keegi, ka Plume, avada.
+	Save an Unencrypted Copy…	Salvesta krüpteerimata koopia…
+	Anyone who gets this file can read it.	Igaüks, kes selle faili saab, saab seda lugeda.
+	Its classification asks for encryption.	Selle klassifikatsioon nõuab krüpteerimist.
+	A classification label doesn't encrypt the document.	Klassifikatsioonisilt ei krüpteeri dokumenti.
+	Save an Encrypted Copy…	Salvesta krüpteeritud koopia…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	ZIP-i failide nimed, suurused ja kuupäevad jäävad loetavaks; krüpteeritakse ainult sisu.
+	The file's name and its approximate size stay visible; nothing inside does.	Faili nimi ja ligikaudne suurus jäävad nähtavaks, sisu mitte.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdowni fail krüpteeritakse koopiana: Markdown AES Cryptis (.md.aes), TextPack (.textpack.aes) või parooliga ZIP.
+	Markdown, encrypted (*.md.aes)	Markdown, krüpteeritud (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, krüpteeritud (*.textpack.aes)

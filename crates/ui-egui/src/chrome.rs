@@ -478,6 +478,8 @@ pub fn status_bar(app: &mut WordApp, ui: &mut Ui) {
                 }
                 // Plume: the classification, compactly, with its menu.
                 crate::classification_ui::status(app, ui);
+                // Plume: encrypted or not, apart from the classification.
+                crate::encryption_ui::status(app, ui);
                 if app.session.sel.focus.story != StoryRef::Body && !crate::canvas::in_text_box(app) {
                     st(ui, tl!("Editing header/footer"));
                 }

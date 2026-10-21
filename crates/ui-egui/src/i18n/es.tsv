@@ -2945,3 +2945,19 @@ preview	Title	Título
 	Encrypt File	Cifrar archivo
 	Decrypt File	Descifrar archivo
 	Inspect Encryption	Examinar cifrado
+	Encrypted	Cifrado
+	Not encrypted	Sin cifrar
+	Encryption	Cifrado
+	Method	Método
+	This document is saved encrypted.	Este documento se guarda cifrado.
+	Without the password nobody, Plume included, can open it.	Sin la contraseña nadie, ni siquiera Plume, puede abrirlo.
+	Save an Unencrypted Copy…	Guardar una copia sin cifrar…
+	Anyone who gets this file can read it.	Cualquiera que obtenga este archivo puede leerlo.
+	Its classification asks for encryption.	Su clasificación pide cifrado.
+	A classification label doesn't encrypt the document.	Una etiqueta de clasificación no cifra el documento.
+	Save an Encrypted Copy…	Guardar una copia cifrada…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Los nombres, tamaños y fechas de los archivos del ZIP siguen legibles; solo se cifra su contenido.
+	The file's name and its approximate size stay visible; nothing inside does.	El nombre del archivo y su tamaño aproximado siguen visibles; nada de su interior.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Un archivo Markdown se cifra como copia: el Markdown en AES Crypt (.md.aes), un TextPack (.textpack.aes) o un ZIP con contraseña.
+	Markdown, encrypted (*.md.aes)	Markdown, cifrado (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, cifrado (*.textpack.aes)

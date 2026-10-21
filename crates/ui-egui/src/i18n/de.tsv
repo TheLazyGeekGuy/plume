@@ -2578,3 +2578,19 @@
 	Encrypt File	Datei verschlüsseln
 	Decrypt File	Datei entschlüsseln
 	Inspect Encryption	Verschlüsselung prüfen
+	Encrypted	Verschlüsselt
+	Not encrypted	Nicht verschlüsselt
+	Encryption	Verschlüsselung
+	Method	Verfahren
+	This document is saved encrypted.	Dieses Dokument wird verschlüsselt gespeichert.
+	Without the password nobody, Plume included, can open it.	Ohne das Kennwort kann niemand es öffnen, auch Plume nicht.
+	Save an Unencrypted Copy…	Unverschlüsselte Kopie speichern…
+	Anyone who gets this file can read it.	Wer diese Datei erhält, kann sie lesen.
+	Its classification asks for encryption.	Seine Klassifizierung verlangt Verschlüsselung.
+	A classification label doesn't encrypt the document.	Eine Klassifizierungskennzeichnung verschlüsselt das Dokument nicht.
+	Save an Encrypted Copy…	Verschlüsselte Kopie speichern…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Dateinamen, -größen und -daten im ZIP bleiben lesbar; nur ihr Inhalt ist verschlüsselt.
+	The file's name and its approximate size stay visible; nothing inside does.	Dateiname und ungefähre Größe bleiben sichtbar, der Inhalt nicht.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Eine Markdown-Datei wird als Kopie verschlüsselt: das Markdown in AES Crypt (.md.aes), ein TextPack (.textpack.aes) oder ein ZIP mit Kennwort.
+	Markdown, encrypted (*.md.aes)	Markdown, verschlüsselt (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, verschlüsselt (*.textpack.aes)

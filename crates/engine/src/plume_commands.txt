@@ -169,7 +169,7 @@ markdown file.autosave
 markdown file.close
 office file.compatibility
 markdown file.documents
-office file.encrypt
+markdown file.encrypt
 office file.exportLatexTemplate
 markdown file.exportPdf
 markdown file.exportPdfTemplate

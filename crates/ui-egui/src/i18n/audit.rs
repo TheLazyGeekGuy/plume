@@ -182,6 +182,7 @@ impl Exempt {
             || plain.contains('┬') || plain.contains('\u{2061}') // equation input (UnicodeMath), drawn as math
             || matches!(plain, "Plume" | "Plume User" | "Discord" | "https://" | "auto" | "I. II. III." | "i. ii. iii.")
             || matches!(plain, "Ollama" | "LM Studio") // model servers' names (Options › Artificial intelligence)
+            || plain.starts_with("Method: ") // Plume: an encryption method's name (AES Crypt, ZIP AES-256)
             || plain == "CONFIDENTIAL" // the watermark dialog's text: document content, kept as typed
             || plain == "Figure 1" // the caption dialog's sample: the label goes into the document as is
     }

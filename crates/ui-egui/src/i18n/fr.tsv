@@ -3272,3 +3272,19 @@ template	Letter	Lettre
 	Encrypt File	Chiffrer un fichier
 	Decrypt File	Déchiffrer un fichier
 	Inspect Encryption	Examiner le chiffrement
+	Encrypted	Chiffré
+	Not encrypted	Non chiffré
+	Encryption	Chiffrement
+	Method	Méthode
+	This document is saved encrypted.	Ce document est enregistré chiffré.
+	Without the password nobody, Plume included, can open it.	Sans le mot de passe, personne, pas même Plume, ne peut l'ouvrir.
+	Save an Unencrypted Copy…	Enregistrer une copie non chiffrée…
+	Anyone who gets this file can read it.	Quiconque obtient ce fichier peut le lire.
+	Its classification asks for encryption.	Sa classification demande un chiffrement.
+	A classification label doesn't encrypt the document.	Une étiquette de classification ne chiffre pas le document.
+	Save an Encrypted Copy…	Enregistrer une copie chiffrée…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Les noms, tailles et dates des fichiers du ZIP restent lisibles ; seul leur contenu est chiffré.
+	The file's name and its approximate size stay visible; nothing inside does.	Le nom du fichier et sa taille approximative restent visibles ; rien de son contenu.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Un fichier Markdown se chiffre en copie : le Markdown en AES Crypt (.md.aes), un TextPack (.textpack.aes) ou un ZIP avec mot de passe.
+	Markdown, encrypted (*.md.aes)	Markdown, chiffré (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, chiffré (*.textpack.aes)

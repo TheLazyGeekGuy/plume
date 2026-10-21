@@ -331,8 +331,25 @@ pub fn check(settings: &Settings, labels: &Labels, action: &str) -> Value {
 
 /// The front matter keys a publication must be acknowledged with (`acknowledged: true`) when the
 /// level asks for a decision; an error naming the warnings otherwise.
+/// What letting the session's document leave asks first: its classification's [`check`], and,
+/// for a document kept encrypted (opened or saved with a password), that the copy published is
+/// readable, which always asks for a decision.
+pub fn publish_check(s: &Session, action: &str) -> Value {
+    let mut c = check(&s.prefs.classification, &read(&s.doc), action);
+    if s.password.is_some() && action == "publish" {
+        if let Some(w) = c["warnings"].as_array_mut() {
+            w.insert(0, json!(ENCRYPTED_PUBLISH));
+        }
+        c["confirm"] = json!(true);
+    }
+    c
+}
+
+/// The warning publishing an encrypted document gives.
+pub const ENCRYPTED_PUBLISH: &str = "the document is encrypted here: publishing writes a decrypted, readable copy";
+
 pub fn require_ack(s: &Session, v: &Value, action: &str) -> Result<(), CmdError> {
-    let c = check(&s.prefs.classification, &read(&s.doc), action);
+    let c = publish_check(s, action);
     if c["confirm"] == json!(true) && p::bool(v, "acknowledged") != Some(true) {
         let w: Vec<&str> = c["warnings"].as_array().map(|a| a.iter().filter_map(Value::as_str).collect()).unwrap_or_default();
         return Err(CmdError::Failed(format!("classification: {}; publish only after deciding to (`acknowledged: true`)", w.join("; "))));
@@ -566,6 +583,18 @@ pub fn specs() -> Vec<CommandSpec> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// An encrypted document is never published decrypted without an explicit decision.
+    #[test]
+    fn publishing_an_encrypted_document_asks_first() {
+        let mut s = Session::new(Document::from_text("Hello"));
+        assert!(require_ack(&s, &json!({}), "publish").is_ok());
+        s.password = Some(crate::io::Password::new("pw"));
+        let c = publish_check(&s, "publish");
+        assert_eq!((c["confirm"].clone(), c["warnings"][0].clone()), (json!(true), json!(ENCRYPTED_PUBLISH)));
+        assert!(require_ack(&s, &json!({}), "publish").unwrap_err().to_string().contains("decrypted"));
+        assert!(require_ack(&s, &json!({"acknowledged": true}), "publish").is_ok());
+    }
     use serde_json::json;
 
     fn session() -> Session {

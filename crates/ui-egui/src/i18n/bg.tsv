@@ -2979,3 +2979,19 @@
 	Encrypt File	Шифроване на файл
 	Decrypt File	Дешифриране на файл
 	Inspect Encryption	Проверка на шифроването
+	Encrypted	Шифрован
+	Not encrypted	Нешифрован
+	Encryption	Шифроване
+	Method	Метод
+	This document is saved encrypted.	Този документ се записва шифрован.
+	Without the password nobody, Plume included, can open it.	Без паролата никой, включително Plume, не може да го отвори.
+	Save an Unencrypted Copy…	Запис на нешифровано копие…
+	Anyone who gets this file can read it.	Всеки, който получи този файл, може да го прочете.
+	Its classification asks for encryption.	Класификацията му изисква шифроване.
+	A classification label doesn't encrypt the document.	Етикетът за класификация не шифрова документа.
+	Save an Encrypted Copy…	Запис на шифровано копие…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Имената, размерите и датите на файловете в ZIP остават видими; шифрова се само съдържанието.
+	The file's name and its approximate size stay visible; nothing inside does.	Името на файла и приблизителният му размер остават видими; съдържанието — не.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Файл Markdown се шифрова като копие: Markdown в AES Crypt (.md.aes), TextPack (.textpack.aes) или ZIP с парола.
+	Markdown, encrypted (*.md.aes)	Markdown, шифрован (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, шифрован (*.textpack.aes)

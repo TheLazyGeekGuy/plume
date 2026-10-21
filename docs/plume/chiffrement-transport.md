@@ -1,0 +1,78 @@
+# Plume : chiffrement, transport et déploiement
+
+> **Date :** 2026-10-21 · **Statut :** priorités 1 à 3 livrées (moteur de transport, AES Crypt et ZIP AES-256, indicateur et enregistrement chiffré) ; age, 7z et le déploiement vers les forges restent à faire · **Base :** branche `claude/gallant-allen-2rb6nx`
+
+## 1. Ce qui est livré
+
+### 1.1 Un document = un paquet
+
+Un document voyage sous forme de **paquet** : son fichier Markdown et les fichiers à côté de lui (images, pièces jointes, tout ce que l'archive contenait), chacun avec son chemin. Le paquet existe sous quatre formes :
+
+| Forme | Fichier | Contenu |
+|---|---|---|
+| Markdown + ressources | `rapport.md` dans un dossier | le Markdown et les fichiers locaux qu'il cite |
+| ZIP | `rapport.zip` | les mêmes fichiers, aux mêmes chemins |
+| TextPack | `rapport.textpack` | `text.md`, `info.json`, fichiers sous `assets/` |
+| TextBundle | dossier `rapport.textbundle/` | idem, en dossier |
+
+`transport.convert` passe d'une forme à l'autre **octet pour octet** : le Markdown n'est pas réécrit par l'éditeur, et les fichiers que rien ne cite sont gardés. Pour un TextBundle, les fichiers hors de `assets/` y sont déplacés, les liens vers eux mis à jour, et les chemins d'origine notés dans `info.json` (clé `net.plume.transport`) : le retour vers Markdown ou ZIP rend exactement le paquet de départ. Si ce déplacement ne peut pas être défait à l'identique, les fichiers restent où les liens les trouvent.
+
+Les liens distants (`https://…`) sont listés dans le résultat (`links.remote`), **jamais téléchargés**. Les liens qui sortent du dossier (`../logo.png`) sont listés à part et ne sont pas emportés.
+
+Tests : `md+assets → TextPack → ZIP → md+assets` et `md+assets → ZIP → chiffrement → déchiffrement → extraction` rendent le même paquet (`crates/engine/src/transport.rs`).
+
+### 1.2 Chiffrement
+
+Aucun algorithme n'est inventé : Plume écrit des formats publiés que d'autres outils ouvrent.
+
+| Méthode | Fichier | Algorithmes | Ce qui reste visible |
+|---|---|---|---|
+| AES Crypt, format 3 (écrit), formats 2 et 3 (lus) | `rapport.md.aes`, `rapport.textpack.aes`, `rapport.zip.aes`, tout fichier `.aes` | clé PBKDF2-HMAC-SHA512 (300 000 itérations par défaut), AES-256-CBC, HMAC-SHA256 | le nom du fichier et sa taille approximative |
+| ZIP AES-256 (WinZip AE-2) | `rapport.zip` avec mot de passe | clé PBKDF2-HMAC-SHA1, AES-256-CTR, HMAC-SHA1 par entrée | les noms, tailles et dates des fichiers du ZIP |
+| ZipCrypto (ancien ZIP chiffré) | lecture seule | faible | — |
+
+- AES Crypt est écrit par Plume (crate `wordcraft-crypt`) à partir des primitives RustCrypto. Il est vérifié contre des fichiers produits par l'outil AES Crypt (formats 2 et 3) et, dans les deux sens, contre une implémentation indépendante (`aescrypt-rs`).
+- ZIP AES-256 passe par l'implémentation WinZip AES de la crate `zip`. Ses auteurs indiquent qu'elle n'a pas fait l'objet d'une revue cryptographique ; c'est à garder en tête pour un usage sensible. AES Crypt autour d'un ZIP (`.zip.aes`) masque aussi les noms de fichiers.
+- **L'intégrité est vérifiée avant tout succès** : les deux HMAC d'AES Crypt, le HMAC de chaque entrée ZIP. Un mauvais mot de passe ou un fichier modifié donne une erreur, jamais un contenu faux. Chaque fichier écrit est relu et déchiffré avant d'être déclaré enregistré.
+- **Les mots de passe ne sont jamais écrits** dans le Markdown, le front matter, l'archive, un journal ou un message d'erreur. Ils ne restent qu'en mémoire, effacés à la libération. Une macro enregistrée et Répéter ne les gardent pas. En ligne de commande, `passwordEnv` donne le nom d'une variable d'environnement, pour que le mot de passe n'apparaisse pas dans les arguments.
+- **Aucune récupération n'est promise** : sans le mot de passe, personne, Plume compris, ne peut ouvrir le fichier. L'interface le dit.
+- Les fichiers sont traités en mémoire, jusqu'à 1 Go.
+
+### 1.3 Dans l'éditeur
+
+- Ouvrir un `.md.aes`, un `.textpack.aes`, un `.zip.aes` ou un ZIP chiffré demande le mot de passe (même boîte que pour un document Word protégé). Enregistrer le réécrit chiffré avec le même mot de passe ; un ZIP garde ses autres fichiers.
+- Enregistrer sous un nom en `.aes` sans mot de passe ouvre d'abord « Chiffrer avec un mot de passe », puis enregistre.
+- La barre d'état montre un **cadenas** distinct de la classification : fermé et « Chiffré », ou ouvert et « Non chiffré ». Son menu dit la méthode, ce qui reste visible, et propose « Enregistrer une copie chiffrée… » ou « Modifier le mot de passe… ». Quand le niveau de classification demande le chiffrement (C4 par exemple), le cadenas ouvert passe à l'orange et le menu le dit ; la couleur n'est jamais le seul signal.
+- Fichier › Informations : pour un fichier Markdown, « Enregistrer une copie chiffrée… » (un `.md` ne se chiffre pas sur place).
+- Enregistrer sous (web) propose « Markdown, chiffré (*.md.aes) » et « TextPack, chiffré (*.textpack.aes) ».
+- Publier sur une forge un document ouvert chiffré demande une **confirmation explicite** : la copie publiée est lisible (`acknowledged: true` pour la CLI et le MCP).
+
+### 1.4 Commandes
+
+| Commande | Rôle |
+|---|---|
+| `transport.convert` | `{from, to, password? \| passwordEnv?, sourcePassword? \| sourcePasswordEnv?, overwrite?}` : convertit et, au besoin, protège ; rend la liste des fichiers, des liens distants et ce qui reste visible |
+| `crypto.encryptFile` | tout fichier en AES Crypt, vérifié avant écriture |
+| `crypto.decryptFile` | un `.aes` ou un ZIP chiffré ; rien n'est écrit si le mot de passe est faux ou le fichier modifié |
+| `crypto.inspect` | comment un fichier est protégé, sans mot de passe |
+
+Aucune destination existante n'est écrasée sans `overwrite: true`, et tous les chemins sont vérifiés avant la première écriture.
+
+## 2. Reste à faire
+
+1. **age** (destinataires X25519 et phrase de passe) : lecture et écriture, pour chiffrer pour plusieurs personnes sans partager de mot de passe.
+2. **7z AES-256** avec noms de fichiers chiffrés.
+3. **Boîte Exporter unifiée** : format (md + ressources, ZIP, TextPack), protection (aucune, AES Crypt, age), destination (disque, dépôt Git), avec le résultat affiché (`document.textpack.aes`).
+4. **Déploiement** vers un dossier, un dépôt Git local, GitHub, GitLab et Forgejo (dépôt, branche, dossier, contrôle des collisions), sans jamais déchiffrer pour publier sans validation.
+5. **Politique par niveau** appliquée à l'export (C4 : export non chiffré refusé ou confirmé), au-delà de l'avertissement actuel.
+6. Téléchargement explicite, sur demande, des ressources distantes listées.
+
+## 3. Note juridique
+
+En France, l'utilisation d'un moyen de cryptologie est libre. En revanche, la **fourniture** ou la **distribution** d'un logiciel qui en contient peut relever d'une déclaration auprès de l'ANSSI. Avant toute distribution publique de Plume avec ces fonctions, c'est au propriétaire du projet de vérifier les formalités applicables. Rien n'a été déclaré ni publié par l'agent.
+
+## Historique
+
+| Date | Changement |
+|---|---|
+| 2026-10-21 | Création : moteur de transport, AES Crypt, ZIP AES-256, ouverture et enregistrement chiffrés, cadenas, confirmation avant publication d'un document chiffré. |

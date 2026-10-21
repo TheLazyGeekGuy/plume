@@ -2982,3 +2982,19 @@ preview	Title	Ukázka
 	Encrypt File	Zašifrovat soubor
 	Decrypt File	Dešifrovat soubor
 	Inspect Encryption	Zkontrolovat šifrování
+	Encrypted	Šifrováno
+	Not encrypted	Nešifrováno
+	Encryption	Šifrování
+	Method	Metoda
+	This document is saved encrypted.	Tento dokument se ukládá zašifrovaný.
+	Without the password nobody, Plume included, can open it.	Bez hesla jej nikdo, ani Plume, neotevře.
+	Save an Unencrypted Copy…	Uložit nešifrovanou kopii…
+	Anyone who gets this file can read it.	Kdokoli získá tento soubor, může jej číst.
+	Its classification asks for encryption.	Jeho klasifikace žádá šifrování.
+	A classification label doesn't encrypt the document.	Klasifikační štítek dokument nešifruje.
+	Save an Encrypted Copy…	Uložit šifrovanou kopii…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Názvy, velikosti a data souborů v ZIP zůstávají čitelné; šifruje se jen obsah.
+	The file's name and its approximate size stay visible; nothing inside does.	Viditelný zůstává název souboru a jeho přibližná velikost; obsah ne.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Soubor Markdown se šifruje jako kopie: Markdown v AES Crypt (.md.aes), TextPack (.textpack.aes) nebo ZIP s heslem.
+	Markdown, encrypted (*.md.aes)	Markdown, šifrovaný (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, šifrovaný (*.textpack.aes)

@@ -2988,3 +2988,19 @@ preview	Title	Пример
 	Encrypt File	Зашифровать файл
 	Decrypt File	Расшифровать файл
 	Inspect Encryption	Проверить шифрование
+	Encrypted	Зашифрован
+	Not encrypted	Не зашифрован
+	Encryption	Шифрование
+	Method	Метод
+	This document is saved encrypted.	Этот документ сохраняется зашифрованным.
+	Without the password nobody, Plume included, can open it.	Без пароля никто, включая Plume, не сможет его открыть.
+	Save an Unencrypted Copy…	Сохранить незашифрованную копию…
+	Anyone who gets this file can read it.	Любой, кто получит этот файл, сможет его прочитать.
+	Its classification asks for encryption.	Его классификация требует шифрования.
+	A classification label doesn't encrypt the document.	Метка классификации не шифрует документ.
+	Save an Encrypted Copy…	Сохранить зашифрованную копию…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Имена, размеры и даты файлов в ZIP остаются видимыми; шифруется только содержимое.
+	The file's name and its approximate size stay visible; nothing inside does.	Видны имя файла и его примерный размер; содержимое — нет.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Файл Markdown шифруется как копия: Markdown в AES Crypt (.md.aes), TextPack (.textpack.aes) или ZIP с паролем.
+	Markdown, encrypted (*.md.aes)	Markdown, зашифрованный (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, зашифрованный (*.textpack.aes)

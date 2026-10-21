@@ -1354,7 +1354,7 @@ impl Session {
             return false;
         }
         match &self.path {
-            Some(p) => p.extension().is_some_and(|e| crate::io::is_markdown_ext(&e.to_string_lossy())),
+            Some(p) => crate::io::is_markdown_name(&p.to_string_lossy()),
             None => true,
         }
     }
@@ -1401,6 +1401,7 @@ impl Session {
             let mut p = params.clone();
             if let Some(m) = p.as_object_mut() {
                 m.remove("password");
+                m.remove("sourcePassword");
             }
             p
         };

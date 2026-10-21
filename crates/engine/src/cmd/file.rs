@@ -237,7 +237,7 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
         crate::io::open_path_in(std::path::Path::new(path), password, &s.region()).map_err(CmdError::Failed)?
     };
     // Plain text and Markdown carry no language: they are in the editing language.
-    let ext = std::path::Path::new(path).extension().and_then(|e| e.to_str()).unwrap_or("").to_ascii_lowercase();
+    let ext = crate::io::document_ext(path);
     if let Some(lang) = &s.editing_lang
         && (matches!(ext.as_str(), "txt" | "text") || crate::io::is_markdown_ext(&ext))
     {
@@ -252,7 +252,7 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
     s.import_report.clear();
     // A ZIP read from bytes (the browser) is written again over them.
     s.source_archive = match p::str(v, "data") {
-        Some(data) if ext == "zip" => super::insert::base64_decode(data).map(std::sync::Arc::new),
+        Some(data) if ext == "zip" && !encrypted => super::insert::base64_decode(data).map(std::sync::Arc::new),
         _ => None,
     };
     // Like Word, a document opened with a password is saved with it again.
@@ -349,13 +349,15 @@ fn save(s: &mut Session, v: &Value) -> CmdResult {
             return Err(CmdError::Params("`password` must be a non-empty string (file.encrypt removes a password)".into()));
         };
         if !crate::io::can_encrypt(&path.to_string_lossy()) {
-            return Err(CmdError::Params("only Word documents (.docx, .docm, .dotx, .dotm) can be saved with a password".into()));
+            return Err(CmdError::Params(
+                "only Word documents (.docx, .docm, .dotx, .dotm), ZIP files and AES Crypt files (.aes: report.md.aes, report.textpack.aes) can be saved with a password".into(),
+            ));
         }
         wordcraft_docx::check_password(pw).map_err(|e| CmdError::Params(e.to_string()))?;
         s.clear_recovery_before_password()?;
         s.password = Some(crate::io::Password::new(pw));
     }
-    let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("").to_ascii_lowercase();
+    let ext = crate::io::document_ext(&path.to_string_lossy());
     let mut opts = export_options(s, v);
     match v.get("format").filter(|f| !f.is_null()) {
         None => {
@@ -372,8 +374,15 @@ fn save(s: &mut Session, v: &Value) -> CmdResult {
     // A header/footer just made and left empty isn't saved (#960).
     let copy = super::insert::saved_copy(s);
     let markdown = crate::io::is_markdown_ext(&ext);
+    // Plume: an encrypted Markdown document (`.md.aes`, `.textpack.aes`, a ZIP with a password)
+    // is written encrypted, never through the clear Markdown save.
+    let protected = crate::io::aes_inner(&path.to_string_lossy()).is_some() || (password.is_some() && ext == "zip");
     let mut adapted: Vec<String> = Vec::new();
-    if markdown {
+    if markdown && protected {
+        let doc = copy.as_ref().unwrap_or(&s.doc);
+        crate::io::save_path_with(&path, doc, password, &opts).map_err(CmdError::Failed)?;
+        adapted = crate::io::markdown_bundle(doc).report.lines();
+    } else if markdown {
         adapted = save_markdown(&path, copy.as_ref().unwrap_or(&s.doc))?;
     } else if matches!(ext.as_str(), "html" | "htm" | "pdf") {
         // Plume: a copy for reading shows the document's classification.
@@ -545,6 +554,22 @@ const MAX_CUSTOM_NAME: usize = 255;
 /// Largest custom property value we accept from a command.
 const MAX_CUSTOM_VALUE: usize = 1024 * 1024;
 
+/// How the document is saved encrypted, if it is: `aescrypt` (an `.aes` file), `zip-aes` (a ZIP
+/// with a password) or `word` (a Word package with a password).
+pub fn encryption_of(s: &Session) -> Option<&'static str> {
+    s.password.as_ref()?;
+    let name = s.path.as_ref().map(|p| p.to_string_lossy().to_string()).unwrap_or_default();
+    if crate::io::aes_inner(&name).is_some() {
+        Some("aescrypt")
+    } else if crate::io::document_ext(&name) == "zip" {
+        Some("zip-aes")
+    } else if name.is_empty() || crate::io::can_encrypt(&name) {
+        Some("word")
+    } else {
+        None
+    }
+}
+
 fn info(s: &mut Session, _: &Value) -> CmdResult {
     let l = s.layout();
     Ok(json!({
@@ -557,7 +582,10 @@ fn info(s: &mut Session, _: &Value) -> CmdResult {
         "trackChanges": s.doc.settings.track_changes,
         "comments": s.doc.comments.len(),
         "sections": s.doc.sections().len(),
-        "encrypted": s.password.is_some(),
+        // Saved encrypted: a password, and a file that takes one (a Markdown file doesn't: an
+        // encrypted copy is saved as `.md.aes`, `.textpack.aes` or a ZIP).
+        "encrypted": s.password.is_some() && s.path.as_ref().is_none_or(|p| crate::io::can_encrypt(&p.to_string_lossy())),
+        "encryption": encryption_of(s),
         "layoutMs": l.ms,
     }))
 }

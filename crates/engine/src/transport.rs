@@ -852,6 +852,49 @@ mod tests {
         assert_eq!(form_of("a.docx", true), None);
     }
 
+    /// A document saved with a password as `.md.aes`, `.textpack.aes` or `.zip` is written
+    /// encrypted, opens only with its password, and saves again encrypted with it.
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn encrypted_documents_open_and_save_encrypted() {
+        let dir = std::env::temp_dir().join(format!("plume-encrypted-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        for (file, kind) in
+            [("note.md.aes", crypt::Kind::AesCrypt(3)), ("note.textpack.aes", crypt::Kind::AesCrypt(3)), ("note.zip", crypt::Kind::ZipAes)]
+        {
+            let path = dir.join(file).to_string_lossy().to_string();
+            let mut s = crate::Session::new(wordcraft_doc::Document::from_text("Secret plans"));
+            s.native_markdown = true;
+            s.run("file.saveAs", &json!({"path": path, "password": "pw"})).unwrap();
+            let bytes = std::fs::read(&path).unwrap();
+            assert_eq!(crypt::detect(&bytes), kind, "{file}");
+            assert!(!bytes.windows(6).any(|w| w == b"Secret"), "{file} holds its text in clear");
+            let mut t = crate::Session::new(wordcraft_doc::Document::new());
+            t.native_markdown = true;
+            let e = t.run("file.open", &json!({"path": path})).unwrap_err().to_string();
+            assert!(crate::io::needs_password(&e), "{file}: {e}");
+            let e = t.run("file.open", &json!({"path": path, "password": "nope"})).unwrap_err().to_string();
+            assert!(crate::io::wrong_password(&e), "{file}: {e}");
+            let r = t.run("file.open", &json!({"path": path, "password": "pw"})).unwrap();
+            assert_eq!(r["encrypted"], true);
+            assert!(t.doc.plain_text(wordcraft_doc::StoryRef::Body).contains("Secret plans"), "{file}");
+            assert!(t.is_markdown(), "{file}");
+            t.run("text.insert", &json!({"text": "More "})).unwrap();
+            let r = t.run("file.save", &json!({})).unwrap();
+            assert_eq!(r["encrypted"], true, "{file}");
+            let again = std::fs::read(&path).unwrap();
+            assert_eq!(crypt::detect(&again), kind, "{file}");
+            let (doc, _) = crate::io::open_path_with(std::path::Path::new(&path), Some("pw")).unwrap();
+            assert!(doc.plain_text(wordcraft_doc::StoryRef::Body).contains("More "), "{file}");
+        }
+        // No password, no encrypted save; a picture needs a container.
+        let mut s = crate::Session::new(wordcraft_doc::Document::from_text("x"));
+        assert!(s.run("file.saveAs", &json!({"path": dir.join("x.md.aes").to_string_lossy()})).is_err());
+        assert!(!dir.join("x.md.aes").exists());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
     #[cfg(not(target_arch = "wasm32"))]
     #[test]
     fn convert_on_disk_round_trips_and_never_overwrites_silently() {

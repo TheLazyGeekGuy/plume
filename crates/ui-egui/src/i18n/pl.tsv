@@ -3276,3 +3276,19 @@ preview	Title	Tytuł
 	Encrypt File	Zaszyfruj plik
 	Decrypt File	Odszyfruj plik
 	Inspect Encryption	Sprawdź szyfrowanie
+	Encrypted	Zaszyfrowany
+	Not encrypted	Niezaszyfrowany
+	Encryption	Szyfrowanie
+	Method	Metoda
+	This document is saved encrypted.	Ten dokument jest zapisywany w postaci zaszyfrowanej.
+	Without the password nobody, Plume included, can open it.	Bez hasła nikt, łącznie z Plume, nie może go otworzyć.
+	Save an Unencrypted Copy…	Zapisz niezaszyfrowaną kopię…
+	Anyone who gets this file can read it.	Każdy, kto zdobędzie ten plik, może go przeczytać.
+	Its classification asks for encryption.	Jego klasyfikacja wymaga szyfrowania.
+	A classification label doesn't encrypt the document.	Etykieta klasyfikacji nie szyfruje dokumentu.
+	Save an Encrypted Copy…	Zapisz zaszyfrowaną kopię…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Nazwy, rozmiary i daty plików w ZIP pozostają czytelne; szyfrowana jest tylko zawartość.
+	The file's name and its approximate size stay visible; nothing inside does.	Widoczne pozostają nazwa pliku i jego przybliżony rozmiar; zawartość nie.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Plik Markdown szyfruje się jako kopię: Markdown w AES Crypt (.md.aes), TextPack (.textpack.aes) lub ZIP z hasłem.
+	Markdown, encrypted (*.md.aes)	Markdown, zaszyfrowany (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, zaszyfrowany (*.textpack.aes)

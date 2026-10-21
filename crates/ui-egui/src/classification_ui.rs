@@ -112,7 +112,7 @@ fn dim_text(d: &Dim) -> String {
 
 /// Draw the level's pictogram (a dot, a shield or a lock) in its colour, outlined so a white or
 /// pale level stays visible.
-fn pictogram(ui: &Ui, center: egui::Pos2, icon: &str, fill: Color32, outline: Color32) {
+pub(crate) fn pictogram(ui: &Ui, center: egui::Pos2, icon: &str, fill: Color32, outline: Color32) {
     let p = ui.painter();
     match icon {
         "shield" => {
@@ -135,6 +135,17 @@ fn pictogram(ui: &Ui, center: egui::Pos2, icon: &str, fill: Color32, outline: Co
             );
             p.circle_stroke(pos2(center.x, center.y - 2.0), 2.8, Stroke::new(1.4, outline));
         }
+        // Plume: an open padlock (a document saved without encryption).
+        "unlock" => {
+            p.rect(
+                Rect::from_center_size(pos2(center.x - 1.0, center.y + 1.5), vec2(9.0, 6.5)),
+                1.0,
+                fill,
+                Stroke::new(1.0, outline),
+                egui::StrokeKind::Middle,
+            );
+            p.circle_stroke(pos2(center.x + 3.0, center.y - 3.0), 2.8, Stroke::new(1.4, outline));
+        }
         _ => {
             p.circle(center, 4.5, fill, Stroke::new(1.0, outline));
         }
@@ -149,7 +160,14 @@ fn chip_width(ui: &Ui, text: &str, swatch: bool) -> f32 {
 
 /// One label: a rounded box with the level's pictogram (when given) and its text; clicking it
 /// opens `menu`.
-fn chip(ui: &mut Ui, app: &mut WordApp, text: &str, swatch: Option<(Color32, String)>, a11y: &str, menu: impl FnOnce(&mut Ui, &mut WordApp)) {
+pub(crate) fn chip(
+    ui: &mut Ui,
+    app: &mut WordApp,
+    text: &str,
+    swatch: Option<(Color32, String)>,
+    a11y: &str,
+    menu: impl FnOnce(&mut Ui, &mut WordApp),
+) {
     let t = Tokens::get(ui.ctx());
     let w = chip_width(ui, text, swatch.is_some());
     let (r, resp) = ui.allocate_exact_size(vec2(w, 20.0), Sense::click());

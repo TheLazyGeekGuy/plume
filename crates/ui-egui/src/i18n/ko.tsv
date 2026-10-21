@@ -2836,3 +2836,19 @@ preview	Title	제목
 	Encrypt File	파일 암호화
 	Decrypt File	파일 복호화
 	Inspect Encryption	암호화 검사
+	Encrypted	암호화됨
+	Not encrypted	암호화 안 됨
+	Encryption	암호화
+	Method	방식
+	This document is saved encrypted.	이 문서는 암호화되어 저장됩니다.
+	Without the password nobody, Plume included, can open it.	암호가 없으면 Plume을 포함해 누구도 열 수 없습니다.
+	Save an Unencrypted Copy…	암호화하지 않은 사본 저장…
+	Anyone who gets this file can read it.	이 파일을 얻은 사람은 누구나 읽을 수 있습니다.
+	Its classification asks for encryption.	분류에 따라 암호화가 필요합니다.
+	A classification label doesn't encrypt the document.	분류 레이블은 문서를 암호화하지 않습니다.
+	Save an Encrypted Copy…	암호화된 사본 저장…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	ZIP 안의 파일 이름, 크기, 날짜는 그대로 보이며 내용만 암호화됩니다.
+	The file's name and its approximate size stay visible; nothing inside does.	파일 이름과 대략적인 크기는 보이지만 내용은 보이지 않습니다.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdown 파일은 사본으로 암호화됩니다: AES Crypt의 Markdown(.md.aes), TextPack(.textpack.aes) 또는 암호가 있는 ZIP.
+	Markdown, encrypted (*.md.aes)	Markdown, 암호화됨 (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, 암호화됨 (*.textpack.aes)

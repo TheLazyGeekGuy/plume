@@ -3311,3 +3311,19 @@ template	Letter	Thư
 	Encrypt File	Mã hóa tệp
 	Decrypt File	Giải mã tệp
 	Inspect Encryption	Kiểm tra mã hóa
+	Encrypted	Đã mã hóa
+	Not encrypted	Chưa mã hóa
+	Encryption	Mã hóa
+	Method	Phương pháp
+	This document is saved encrypted.	Tài liệu này được lưu ở dạng mã hóa.
+	Without the password nobody, Plume included, can open it.	Không có mật khẩu thì không ai, kể cả Plume, mở được.
+	Save an Unencrypted Copy…	Lưu bản sao không mã hóa…
+	Anyone who gets this file can read it.	Ai có tệp này đều đọc được.
+	Its classification asks for encryption.	Phân loại của nó yêu cầu mã hóa.
+	A classification label doesn't encrypt the document.	Nhãn phân loại không mã hóa tài liệu.
+	Save an Encrypted Copy…	Lưu bản sao đã mã hóa…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Tên, kích thước và ngày của tệp trong ZIP vẫn đọc được; chỉ nội dung được mã hóa.
+	The file's name and its approximate size stay visible; nothing inside does.	Tên tệp và kích thước gần đúng vẫn thấy được; nội dung bên trong thì không.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Tệp Markdown được mã hóa dưới dạng bản sao: Markdown trong AES Crypt (.md.aes), một TextPack (.textpack.aes) hoặc ZIP có mật khẩu.
+	Markdown, encrypted (*.md.aes)	Markdown, đã mã hóa (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, đã mã hóa (*.textpack.aes)

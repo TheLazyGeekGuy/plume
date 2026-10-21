@@ -55,6 +55,7 @@ pub mod dialogs_smart_art;
 pub mod dialogs_table_style;
 pub mod dialogs_templates;
 pub mod emoji_picker;
+pub mod encryption_ui;
 pub mod equation_tab;
 /// The built-in file browser, for desktops without a system file dialog (#576).
 #[cfg(not(target_arch = "wasm32"))]
@@ -649,6 +650,8 @@ pub struct WordApp {
     /// Plume: a publication waiting for the explicit decision the document's classification asks
     /// for: the command, its parameters and the warnings.
     pub(crate) classification_confirm: Option<(String, Value, Vec<String>)>,
+    /// Plume: a save to an encrypted file waiting for Encrypt with Password's answer.
+    pub(crate) after_encrypt: Option<(String, Value)>,
     /// Web: the command a Save Changes prompt held back until its picker save ends (#1315).
     awaiting_save: Option<AwaitingSave>,
     /// The file dialog the host is showing, and what its answer is for ([`file_dialogs`]).
@@ -762,6 +765,7 @@ impl WordApp {
             saves_in_flight: Vec::new(),
             web_save: None,
             classification_confirm: None,
+            after_encrypt: None,
             awaiting_save: None,
             change_picture_target: None,
             recipient_list_pending: false,
@@ -909,10 +913,23 @@ impl WordApp {
             self.ui.backstage = true;
             self.ui.backstage_page = "recover".into();
         }
+        // Plume: saving as an encrypted file (`report.md.aes`) without a password asks for one,
+        // then saves.
+        if matches!(id, "file.save" | "file.saveAs") && self.session.password.is_none() && params.get("password").is_none() {
+            let target = params
+                .get("path")
+                .and_then(Value::as_str)
+                .map(str::to_string)
+                .or_else(|| self.session.path.as_ref().map(|p| p.to_string_lossy().to_string()));
+            if target.as_deref().and_then(wordcraft_engine::io::aes_inner).is_some() {
+                self.after_encrypt = Some((id.to_string(), params));
+                self.dialog = dialogs::Dialog::open("encryptPassword", self);
+                return Ok(json!({"pending": "password"}));
+            }
+        }
         // Plume: publishing a document its classification keeps waits for an explicit decision.
         if (id == "forge.saveAs" || (id == "vcs.saveVersion" && self.session.forge.is_some())) && params.get("acknowledged").is_none() {
-            let labels = wordcraft_engine::classification::read(&self.session.doc);
-            let c = wordcraft_engine::classification::check(&self.session.prefs.classification, &labels, "publish");
+            let c = wordcraft_engine::classification::publish_check(&self.session, "publish");
             if c["confirm"] == json!(true) {
                 let warnings = c["warnings"].as_array().map(|a| a.iter().filter_map(Value::as_str).map(str::to_string).collect()).unwrap_or_default();
                 self.classification_confirm = Some((id.to_string(), params, warnings));
@@ -1058,7 +1075,7 @@ impl WordApp {
                 && let Some(pw) = params.get("password").filter(|v| !v.is_null())
             {
                 if !wordcraft_engine::io::can_encrypt(&name) || pw.as_str().is_none_or(str::is_empty) {
-                    return Err("only Word documents (.docx, .docm, .dotx, .dotm) can be saved with a password, and it can't be empty".into());
+                    return Err("only Word documents, ZIP files and AES Crypt files (.md.aes, .textpack.aes) can be saved with a password, and it can't be empty".into());
                 }
                 self.session.run("file.encrypt", &json!({"password": pw})).map_err(|e| e.to_string())?;
             }
@@ -2012,6 +2029,12 @@ impl WordApp {
     /// The name Save suggests: the open file's own Word format (so a .docm keeps its macros),
     /// otherwise .docx.
     pub(crate) fn default_save_name(&self) -> String {
+        // Plume: an encrypted file saves under its own name again (`report.md.aes`).
+        if let Some(name) = self.session.path.as_ref().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().to_string())
+            && wordcraft_engine::io::aes_inner(&name).is_some()
+        {
+            return name;
+        }
         let ext = self.session.path.as_ref().and_then(|p| p.extension()).map(|e| e.to_string_lossy().to_string());
         match ext {
             // Markdown is the document's own format: everything else saves as a new `.md`.
@@ -2086,7 +2109,15 @@ impl WordApp {
     /// named in the interface language, as `Document1` is in English.
     pub fn title_stem(&self) -> String {
         match &self.session.path {
-            Some(p) => p.file_stem().map(|s| s.to_string_lossy().to_string()).unwrap_or_else(|| tl!("Document1").into()),
+            // Plume: `report` for `report.md.aes` too.
+            Some(p) => p
+                .file_name()
+                .map(|n| n.to_string_lossy().to_string())
+                .map(|n| {
+                    let inner = wordcraft_engine::io::aes_inner(&n).unwrap_or(&n).to_string();
+                    inner.rsplit_once('.').map_or(inner.clone(), |(stem, _)| stem.to_string())
+                })
+                .unwrap_or_else(|| tl!("Document1").into()),
             None => match &self.session.file_name {
                 Some(name) => name.clone(),
                 None if self.session.doc.core.title.is_empty() => tl!("Document1").into(),
