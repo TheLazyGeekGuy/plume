@@ -112,6 +112,31 @@ fn insert_offers_markdown_blocks() {
     assert!(h.query_by_label("Leave Block").is_some());
 }
 
+/// Insert › Markdown › Callout shows each kind as on the page; clicking one makes the
+/// paragraph that callout. Diagram shows a picture of each kind of its first group (one of
+/// them is drawn wider than a texture may be: it is scaled down, never refused).
+#[test]
+fn the_callout_and_diagram_menus_are_galleries() {
+    let mut h = harness(true);
+    h.state_mut().ui.tab = "Insert".into();
+    h.run_steps(4);
+    h.get_by_label("Callout").click();
+    h.run_steps(4);
+    for kind in ["Note", "Tip", "Important", "Warning", "Caution", "Info", "Danger", "Details"] {
+        assert!(h.query_by_label(kind).is_some(), "{kind}");
+    }
+    h.get_by_label("Tip").click();
+    h.run_steps(4);
+    let block = h.state_mut().session.run("markdown.block", &serde_json::json!({})).unwrap();
+    assert_eq!(block["callout"]["kind"], "tip", "{block}");
+    h.get_by_label("Diagram").click();
+    h.run_steps(4);
+    assert!(h.query_by_label("Flowchart").is_some() && h.query_by_label("Sequence Diagram").is_some());
+    h.get_by_label("Structure").click();
+    h.run_steps(4);
+    assert!(h.query_by_label("Flowchart").is_none(), "one group at a time");
+}
+
 /// A locked main branch: Save Version says the version goes on the person's work branch and
 /// offers to request the merge into main.
 #[test]

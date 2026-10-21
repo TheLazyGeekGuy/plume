@@ -68,6 +68,7 @@ pub mod icons;
 pub mod ink;
 pub mod keys;
 pub mod keytips;
+pub mod md_galleries;
 pub mod mini_toolbar;
 pub mod objects;
 pub mod options;

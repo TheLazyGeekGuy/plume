@@ -1292,40 +1292,9 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
                 mi(ui, app, l, "markdown.codeBlock", json!({"language": lang}));
             }
         });
-        menu_button(ui, app, "callout", Some("Callout"), "Callout", true, "markdown.callout", |ui, app| {
-            for (l, kind) in [
-                ("Note", "note"),
-                ("Tip", "tip"),
-                ("Important", "important"),
-                ("Warning", "warning"),
-                ("Caution", "caution"),
-                ("Info", "info"),
-                ("Danger", "danger"),
-                ("Details", "details"),
-            ] {
-                mi(ui, app, l, "markdown.callout", json!({"kind": kind}));
-            }
-        });
-        menu_button(ui, app, "diagram", Some("Diagram"), "Diagram", true, "markdown.diagram", |ui, app| {
-            use crate::diagram_editor::DiagramEditor;
-            use wordcraft_engine::diagram::codec::Kind;
-            // Every kind of diagram, by group, as Insert › Shapes and SmartArt list theirs.
-            for cat in Kind::CATEGORIES {
-                ui.menu_button(tl!(cat), |ui| {
-                    for kind in Kind::ALL.into_iter().filter(|k| k.category() == cat) {
-                        if ui.button(tl!(kind.label())).clicked() {
-                            app.dialog = Some(crate::dialogs::Dialog::Diagram(Box::new(DiagramEditor::new(kind))));
-                            ui.close();
-                        }
-                    }
-                });
-            }
-            ui.separator();
-            if ui.button(tl!("All Diagrams…")).clicked() {
-                app.dialog = Some(crate::dialogs::Dialog::Diagram(Box::new(DiagramEditor::gallery())));
-                ui.close();
-            }
-        });
+        // Plume: each callout drawn as on the page, each diagram as a picture.
+        menu_button(ui, app, "callout", Some("Callout"), "Callout", true, "markdown.callout", crate::md_galleries::callouts);
+        menu_button(ui, app, "diagram", Some("Diagram"), "Diagram", true, "markdown.diagram", crate::md_galleries::diagrams);
         // In a code block: its language; in any block: back to plain text.
         let block = app.session.run("markdown.block", &json!({})).unwrap_or_default();
         if block.get("diagram").is_some() {

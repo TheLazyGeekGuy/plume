@@ -3288,3 +3288,11 @@ template	Letter	Lettre
 	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Un fichier Markdown se chiffre en copie : le Markdown en AES Crypt (.md.aes), un TextPack (.textpack.aes) ou un ZIP avec mot de passe.
 	Markdown, encrypted (*.md.aes)	Markdown, chiffré (*.md.aes)
 	TextPack, encrypted (*.textpack.aes)	TextPack, chiffré (*.textpack.aes)
+	Something worth knowing, even when skimming	À savoir, même en lisant en diagonale
+	Advice for doing it better or faster	Un conseil pour faire mieux ou plus vite
+	What the reader must know to succeed	Ce que le lecteur doit savoir pour réussir
+	A point that needs care	Un point qui demande de l'attention
+	A risk, or what goes wrong if ignored	Un risque, ou ce qui se passe si on l'ignore
+	Extra information, for those who want it	Un complément, pour qui veut en savoir plus
+	An action that harms or can't be undone	Une action dangereuse ou irréversible
+	Folded text the reader opens with a click	Un texte replié, que le lecteur ouvre d'un clic

@@ -3004,3 +3004,16 @@ preview	Title	Пример
 	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Файл Markdown шифруется как копия: Markdown в AES Crypt (.md.aes), TextPack (.textpack.aes) или ZIP с паролем.
 	Markdown, encrypted (*.md.aes)	Markdown, зашифрованный (*.md.aes)
 	TextPack, encrypted (*.textpack.aes)	TextPack, зашифрованный (*.textpack.aes)
+	Something worth knowing, even when skimming	Стоит знать, даже при беглом чтении
+	Advice for doing it better or faster	Совет, как сделать лучше или быстрее
+	What the reader must know to succeed	Что читателю нужно знать для успеха
+	A point that needs care	Момент, требующий внимания
+	A risk, or what goes wrong if ignored	Риск или последствия, если это проигнорировать
+	Extra information, for those who want it	Дополнительные сведения для желающих
+	An action that harms or can't be undone	Опасное или необратимое действие
+	Folded text the reader opens with a click	Свёрнутый текст, который раскрывается щелчком
+	Sequence Diagram	Диаграмма последовательности
+	State Diagram	Диаграмма состояний
+	User Journey	Путь пользователя
+	Git History	История Git
+	ZenUML Sequence	Последовательность ZenUML

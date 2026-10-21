@@ -3015,3 +3015,16 @@ preview	Title	Esempio
 	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Un file Markdown si cifra come copia: il Markdown in AES Crypt (.md.aes), un TextPack (.textpack.aes) o uno ZIP con password.
 	Markdown, encrypted (*.md.aes)	Markdown, cifrato (*.md.aes)
 	TextPack, encrypted (*.textpack.aes)	TextPack, cifrato (*.textpack.aes)
+	Something worth knowing, even when skimming	Da sapere, anche leggendo di corsa
+	Advice for doing it better or faster	Un consiglio per fare meglio o più in fretta
+	What the reader must know to succeed	Ciò che il lettore deve sapere per riuscire
+	A point that needs care	Un punto che richiede attenzione
+	A risk, or what goes wrong if ignored	Un rischio, o cosa succede se lo si ignora
+	Extra information, for those who want it	Informazioni in più, per chi le vuole
+	An action that harms or can't be undone	Un'azione pericolosa o irreversibile
+	Folded text the reader opens with a click	Testo ripiegato che il lettore apre con un clic
+	Sequence Diagram	Diagramma di sequenza
+	State Diagram	Diagramma di stato
+	User Journey	Percorso utente
+	Git History	Cronologia Git
+	ZenUML Sequence	Sequenza ZenUML

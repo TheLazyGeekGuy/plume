@@ -1693,7 +1693,14 @@ pub(crate) fn diagram_preview(ctx: &egui::Context, source: &str) -> Result<egui:
         return t;
     }
     let made = wordcraft_engine::diagram::draw(source).map_err(|e| e.to_string()).and_then(|p| {
-        let img = image::load_from_memory(&p.png).map_err(|e| e.to_string())?.to_rgba8();
+        let mut img = image::load_from_memory(&p.png).map_err(|e| e.to_string())?.to_rgba8();
+        // A wide diagram can be drawn larger than the GPU takes: scaled down to fit.
+        let max = ctx.input(|i| i.max_texture_side).max(1) as u32;
+        if img.width() > max || img.height() > max {
+            let k = max as f32 / img.width().max(img.height()) as f32;
+            let (w, h) = (((img.width() as f32 * k) as u32).clamp(1, max), ((img.height() as f32 * k) as u32).clamp(1, max));
+            img = image::imageops::resize(&img, w, h, image::imageops::FilterType::Triangle);
+        }
         let ci = egui::ColorImage::from_rgba_unmultiplied([img.width() as usize, img.height() as usize], img.as_raw());
         Ok(ctx.load_texture("diagram-preview", ci, egui::TextureOptions::LINEAR))
     });
