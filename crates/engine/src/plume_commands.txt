@@ -666,6 +666,7 @@ markdown view.hideWhiteSpace
 markdown view.immersive
 markdown view.interfaceTheme
 markdown view.markdownSource
+markdown view.markdownView
 markdown view.marks
 markdown view.multiplePages
 markdown view.navigationPane

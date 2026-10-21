@@ -59,7 +59,9 @@ Word's "Field" in the file.)
 
 - Zotero's "Bookmarks" field type isn't supported; keep the default.
 - Zotero's document transfer (Export/Import Document) isn't needed and isn't supported.
-- The web version can't reach Zotero (browsers can't open the socket).
+- The web version can't reach Zotero (browsers can't open the socket), so it has no Zotero tab and
+  no `ui.zotero.*` buttons. Citations already in a document stay as they are, and Move Past Citation
+  (`caret.pastCitation`) is still in command search.
 
 ## How it works
 

@@ -13,6 +13,30 @@ fn toggle(s: &mut Session, v: &Value, f: fn(&mut crate::ViewState) -> &mut bool)
     Ok(json!({"value": *f(&mut s.view)}))
 }
 
+/// `view.markdownView`'s current value.
+pub fn markdown_view_name(v: &crate::ViewState) -> &'static str {
+    match (v.markdown_source_only, v.markdown_source) {
+        (true, _) => "source",
+        (false, true) => "split",
+        _ => "page",
+    }
+}
+
+fn markdown_view(s: &mut Session, v: &Value) -> CmdResult {
+    let next = match p::str(v, "value") {
+        Some(x @ ("page" | "split" | "source")) => x,
+        Some(_) => return Err(CmdError::Params("`value`: page, split or source".into())),
+        None => match markdown_view_name(&s.view) {
+            "page" => "split",
+            "split" => "source",
+            _ => "page",
+        },
+    };
+    s.view.markdown_source = next == "split";
+    s.view.markdown_source_only = next == "source";
+    Ok(json!({"value": next}))
+}
+
 pub fn specs() -> Vec<CommandSpec> {
     vec![
         CommandSpec::new("view.marks", "Show/Hide ¶", "Home › Paragraph", |s, v| {
@@ -91,8 +115,19 @@ pub fn specs() -> Vec<CommandSpec> {
         .params(r#"{"value"?: "light" | "dark" | "system"; without it, toggles light and dark}"#)
         .pure(),
         CommandSpec::new("view.stylesPane", "Styles Pane", "Home › Styles", |s, v| toggle(s, v, |x| &mut x.styles_pane)).pure(),
-        CommandSpec::new("view.markdownSource", "Markdown Source", "View › Show", |s, v| toggle(s, v, |x| &mut x.markdown_source))
-            .params(r#"{"value"?: bool}"#)
+        CommandSpec::new("view.markdownSource", "Markdown Source", "View › Show", |s, v| {
+            let r = toggle(s, v, |x| &mut x.markdown_source);
+            s.view.markdown_source_only = false;
+            r
+        })
+        .params(r#"{"value"?: bool}"#)
+        .pure(),
+        // Plume: how a Markdown document shows: the page, the page beside its source, or the
+        // source alone. Without a value, steps through the three.
+        CommandSpec::new("view.markdownView", "Markdown View", "View › Views", markdown_view)
+            .key("Mod+Alt+U")
+            .params(r#"{"value"?: "page" | "split" | "source"} → {"value"}"#)
+            .when(|s| if s.is_markdown() { None } else { Some("only for a Markdown document") })
             .pure(),
         CommandSpec::new("view.documentsPane", "Documents Pane", "View › Show", |s, v| toggle(s, v, |x| &mut x.documents_pane))
             .params(r#"{"value"?: bool}"#)

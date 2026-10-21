@@ -3288,3 +3288,16 @@ preview	Title	Naslov
 	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdown datoteka šifrira se kao kopija: Markdown u AES Cryptu (.md.aes), TextPack (.textpack.aes) ili ZIP s lozinkom.
 	Markdown, encrypted (*.md.aes)	Markdown, šifrirani (*.md.aes)
 	TextPack, encrypted (*.textpack.aes)	TextPack, šifrirani (*.textpack.aes)
+	Something worth knowing, even when skimming	Vrijedi znati, čak i pri brzom čitanju
+	Advice for doing it better or faster	Savjet kako bolje ili brže
+	What the reader must know to succeed	Što čitatelj mora znati da uspije
+	A point that needs care	Točka koja traži pažnju
+	A risk, or what goes wrong if ignored	Rizik ili što se dogodi ako se zanemari
+	Extra information, for those who want it	Dodatne informacije za one koji žele
+	An action that harms or can't be undone	Radnja koja šteti ili se ne može poništiti
+	Folded text the reader opens with a click	Sklopljeni tekst koji čitatelj otvara klikom
+	Side by\nSide	Jedno\nuz drugo
+	Side by Side	Jedno uz drugo
+	Source	Izvor
+	Markdown View	Prikaz Markdowna
+	Colour the title bar with the level	Oboji naslovnu traku bojom razine

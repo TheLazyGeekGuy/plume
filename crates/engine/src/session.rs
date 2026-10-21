@@ -142,6 +142,9 @@ pub struct ViewState {
     /// (`view.markdownSource`).
     #[serde(default)]
     pub markdown_source: bool,
+    /// Plume: the Markdown source alone in place of the page (`view.markdownView` "source").
+    #[serde(default)]
+    pub markdown_source_only: bool,
     /// The Clipboard pane (Home › Clipboard): items collected by Copy and Cut.
     #[serde(default)]
     pub clipboard_pane: bool,
@@ -251,6 +254,7 @@ impl Default for ViewState {
             comments_pane: false,
             documents_pane: false,
             markdown_source: false,
+            markdown_source_only: false,
             clipboard_pane: false,
             smart_art_pane: false,
             accessibility_pane: false,

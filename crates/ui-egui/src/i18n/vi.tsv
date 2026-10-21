@@ -3327,3 +3327,16 @@ template	Letter	Thư
 	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Tệp Markdown được mã hóa dưới dạng bản sao: Markdown trong AES Crypt (.md.aes), một TextPack (.textpack.aes) hoặc ZIP có mật khẩu.
 	Markdown, encrypted (*.md.aes)	Markdown, đã mã hóa (*.md.aes)
 	TextPack, encrypted (*.textpack.aes)	TextPack, đã mã hóa (*.textpack.aes)
+	Something worth knowing, even when skimming	Điều nên biết, kể cả khi đọc lướt
+	Advice for doing it better or faster	Lời khuyên để làm tốt hơn hoặc nhanh hơn
+	What the reader must know to succeed	Điều người đọc phải biết để thành công
+	A point that needs care	Một điểm cần chú ý
+	A risk, or what goes wrong if ignored	Một rủi ro, hoặc hậu quả nếu bỏ qua
+	Extra information, for those who want it	Thông tin thêm cho ai muốn tìm hiểu
+	An action that harms or can't be undone	Thao tác gây hại hoặc không thể hoàn tác
+	Folded text the reader opens with a click	Văn bản thu gọn, người đọc mở bằng một cú nhấp
+	Side by\nSide	Song\nsong
+	Side by Side	Song song
+	Source	Mã nguồn
+	Markdown View	Chế độ xem Markdown
+	Colour the title bar with the level	Tô thanh tiêu đề theo màu của cấp

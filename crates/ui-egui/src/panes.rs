@@ -93,8 +93,10 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
             });
     }
     if app.session.view.markdown_source && app.session.is_markdown() {
+        // Side by side: the page and its source share the window.
+        let half = (ui.available_width() / 2.0).max(320.0);
         egui::Panel::right("markdown_source")
-            .default_size(420.0)
+            .default_size(half)
             .resizable(true)
             .frame(egui::Frame::NONE.fill(t.panel).inner_margin(10).stroke(Stroke::new(1.0, t.border)))
             .show(ui, |ui| markdown_source(app, ui));
@@ -108,13 +110,42 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
     }
 }
 
-/// Plume: the document as its Markdown file is written. Edited here, Apply makes the document
-/// what the text says (undoable); untouched, it follows the document as it changes.
+/// Plume: the document as its Markdown file is written, beside the page (View › Side by Side).
+/// What is typed here becomes the document after a short pause (undoable); untouched, it follows
+/// the document as it changes.
 fn markdown_source(app: &mut WordApp, ui: &mut Ui) {
     if header(ui, "Markdown Source") {
-        let _ = app.run("view.markdownSource", json!({"value": false}));
+        let _ = app.run("view.markdownView", json!({"value": "page"}));
         return;
     }
+    source_editor(app, ui);
+}
+
+/// Plume: the Markdown source alone, in place of the page (View › Source).
+pub(crate) fn markdown_source_view(app: &mut WordApp, ui: &mut Ui) {
+    let t = Tokens::get(ui.ctx());
+    let width = ui.available_width().min(960.0);
+    let side = ((ui.available_width() - width) / 2.0).max(0.0);
+    ui.horizontal_top(|ui| {
+        ui.add_space(side);
+        egui::Frame::NONE.fill(t.panel).inner_margin(12).stroke(Stroke::new(1.0, t.border)).show(ui, |ui| {
+            ui.set_width(width - 26.0);
+            ui.set_min_height(ui.available_height());
+            ui.vertical(|ui| {
+                ui.label(egui::RichText::new(tl!("Markdown Source")).font(semibold(15.0)));
+                ui.add_space(4.0);
+                source_editor(app, ui);
+            });
+        });
+    });
+}
+
+/// How long typing pauses before the source is applied (seconds).
+const SOURCE_PAUSE: f64 = 0.6;
+
+/// The source text, its Apply and Discard buttons, and applying it after a pause or when it loses
+/// the keyboard.
+fn source_editor(app: &mut WordApp, ui: &mut Ui) {
     let rev = app.session.rev();
     let stale = app.md_source.as_ref().is_none_or(|(r, _, edited)| *r != rev && !edited);
     if stale {
@@ -130,24 +161,58 @@ fn markdown_source(app: &mut WordApp, ui: &mut Ui) {
     ui.horizontal(|ui| {
         ui.add_enabled_ui(edited_now, |ui| {
             if ui.button(tl!("Apply")).clicked() {
-                let t = app.md_source.as_ref().map(|(_, t, _)| t.clone()).unwrap_or_default();
-                match app.run("markdown.setSource", json!({"text": t})) {
-                    Ok(_) => app.md_source = None,
-                    Err(e) => app.status(e),
-                }
+                apply_markdown_source(app, true);
             }
             if ui.button(tl!("Discard")).clicked() {
                 app.md_source = None;
             }
         });
     });
+    let now = ui.input(|i| i.time);
     let Some((_, text, edited)) = app.md_source.as_mut() else { return };
+    let mut lost_focus = false;
     egui::ScrollArea::vertical().auto_shrink(false).show(ui, |ui| {
         let r = ui.add(egui::TextEdit::multiline(text).code_editor().desired_width(f32::INFINITY).desired_rows(40));
         if r.changed() {
             *edited = true;
+            app.md_source_typed = now;
         }
+        lost_focus = r.lost_focus();
     });
+    if app.md_source.as_ref().is_some_and(|(_, _, e)| *e) {
+        let wait = app.md_source_typed + SOURCE_PAUSE - now;
+        if (lost_focus || wait <= 0.0) && wait.is_finite() {
+            flush_markdown_source(app);
+        } else if wait.is_finite() {
+            ui.ctx().request_repaint_after(std::time::Duration::from_secs_f64(wait.min(1.0)));
+        }
+    }
+}
+
+/// Plume: make the document what the edited Markdown source says (undoable). The text stays as
+/// typed, so the editor doesn't jump while the user is still writing; a source the engine refuses
+/// stays edited, with the reason on the status line.
+/// A source refused once isn't tried again until it is typed in or Apply is clicked (`force`).
+pub(crate) fn flush_markdown_source(app: &mut WordApp) {
+    apply_markdown_source(app, false);
+}
+
+fn apply_markdown_source(app: &mut WordApp, force: bool) {
+    let Some((_, text, true)) = app.md_source.as_ref() else { return };
+    if app.md_source_typed.is_infinite() && !force {
+        return;
+    }
+    let text = text.clone();
+    match app.run("markdown.setSource", json!({"text": text})) {
+        Ok(_) => app.md_source = Some((app.session.rev(), text, false)),
+        Err(e) => {
+            if let Some(s) = app.md_source.as_mut() {
+                s.0 = app.session.rev();
+            }
+            app.md_source_typed = f64::INFINITY;
+            app.status(e);
+        }
+    }
 }
 
 pub(crate) fn header(ui: &mut Ui, title: &str) -> bool {

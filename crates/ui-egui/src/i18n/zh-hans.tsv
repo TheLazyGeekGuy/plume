@@ -2607,3 +2607,8 @@
 	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdown 文件以副本形式加密：AES Crypt 中的 Markdown（.md.aes）、TextPack（.textpack.aes）或带密码的 ZIP。
 	Markdown, encrypted (*.md.aes)	Markdown，已加密 (*.md.aes)
 	TextPack, encrypted (*.textpack.aes)	TextPack，已加密 (*.textpack.aes)
+	Side by\nSide	并排
+	Side by Side	并排
+	Source	源代码
+	Markdown View	Markdown 视图
+	Colour the title bar with the level	按级别为标题栏着色

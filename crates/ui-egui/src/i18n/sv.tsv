@@ -3022,3 +3022,21 @@ preview	Title	Titel
 	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	En Markdown-fil krypteras som kopia: Markdown i AES Crypt (.md.aes), ett TextPack (.textpack.aes) eller en ZIP med lösenord.
 	Markdown, encrypted (*.md.aes)	Markdown, krypterad (*.md.aes)
 	TextPack, encrypted (*.textpack.aes)	TextPack, krypterad (*.textpack.aes)
+	Something worth knowing, even when skimming	Bra att veta, även vid snabbläsning
+	Advice for doing it better or faster	Ett råd för att göra det bättre eller snabbare
+	What the reader must know to succeed	Det läsaren måste veta för att lyckas
+	A point that needs care	En punkt som kräver omsorg
+	A risk, or what goes wrong if ignored	En risk, eller vad som händer om det ignoreras
+	Extra information, for those who want it	Extra information för den som vill
+	An action that harms or can't be undone	En åtgärd som skadar eller inte kan ångras
+	Folded text the reader opens with a click	Hopfälld text som läsaren öppnar med ett klick
+	Sequence Diagram	Sekvensdiagram
+	State Diagram	Tillståndsdiagram
+	User Journey	Användarresa
+	Git History	Git-historik
+	ZenUML Sequence	ZenUML-sekvens
+	Side by\nSide	Sida\nvid sida
+	Side by Side	Sida vid sida
+	Source	Källa
+	Markdown View	Markdown-vy
+	Colour the title bar with the level	Färga namnlisten efter nivån

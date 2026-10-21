@@ -2629,3 +2629,8 @@
 	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdowni fail krüpteeritakse koopiana: Markdown AES Cryptis (.md.aes), TextPack (.textpack.aes) või parooliga ZIP.
 	Markdown, encrypted (*.md.aes)	Markdown, krüpteeritud (*.md.aes)
 	TextPack, encrypted (*.textpack.aes)	TextPack, krüpteeritud (*.textpack.aes)
+	Side by\nSide	Kõrvuti\nvaade
+	Side by Side	Kõrvuti
+	Source	Lähtetekst
+	Markdown View	Markdowni vaade
+	Colour the title bar with the level	Värvi tiitliriba taseme värviga

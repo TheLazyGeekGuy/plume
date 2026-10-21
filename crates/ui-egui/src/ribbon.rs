@@ -1005,37 +1005,45 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
             format_painter_button(ui, app);
         });
     });
-    group(ui, "Font", Some("format.fontDialog"), app, |ui, app| {
+    // Plume's Markdown profile: Markdown has no fonts or sizes, so the group is "Text" and keeps
+    // what Markdown writes (bold, italic, strikethrough), Change Case and Clear Formatting.
+    let fonts = !crate::widgets::hidden(app, "format.font");
+    group(ui, if fonts { "Font" } else { "Text" }, Some("format.fontDialog"), app, |ui, app| {
         stack(ui, |ui| {
             crate::widgets::row(ui, |ui| {
-                let font = st.get("font").and_then(Value::as_str).unwrap_or("").to_string();
-                let font = app.previews.font_shown(&font);
-                let fams = app.previews.families();
-                let recent: Vec<String> = app.ui.recent_fonts.iter().map(|f| app.previews.font_shown(f)).collect();
-                let prev = app.previews.font_preview_fn();
-                if let Some(f) = crate::widgets::font_combo_with_recent_hint(ui, "font", 150.0, &font, &fams, &recent, Some(&*prev), tl!("Font")) {
-                    let _ = if f == crate::widgets::ADD_FONT {
-                        app.run("font.add", json!({}))
-                    } else if f == crate::widgets::LOAD_SYSTEM_FONTS {
-                        app.run("font.loadSystem", json!({}))
-                    } else {
-                        let f = app.previews.font_stored(&f);
-                        app.run("format.font", json!({"name": f}))
-                    };
+                if fonts {
+                    let font = st.get("font").and_then(Value::as_str).unwrap_or("").to_string();
+                    let font = app.previews.font_shown(&font);
+                    let fams = app.previews.families();
+                    let recent: Vec<String> = app.ui.recent_fonts.iter().map(|f| app.previews.font_shown(f)).collect();
+                    let prev = app.previews.font_preview_fn();
+                    if let Some(f) = crate::widgets::font_combo_with_recent_hint(ui, "font", 150.0, &font, &fams, &recent, Some(&*prev), tl!("Font"))
+                    {
+                        let _ = if f == crate::widgets::ADD_FONT {
+                            app.run("font.add", json!({}))
+                        } else if f == crate::widgets::LOAD_SYSTEM_FONTS {
+                            app.run("font.loadSystem", json!({}))
+                        } else {
+                            let f = app.previews.font_stored(&f);
+                            app.run("format.font", json!({"name": f}))
+                        };
+                    }
+                    let size = st
+                        .get("size")
+                        .and_then(Value::as_f64)
+                        .map(|s| if s.fract() == 0.0 { format!("{s:.0}") } else { format!("{s}") })
+                        .unwrap_or_default();
+                    let sizes: Vec<String> = wordcraft_engine::cmd::format::SIZES
+                        .iter()
+                        .map(|s| if s.fract() == 0.0 { format!("{s:.0}") } else { s.to_string() })
+                        .collect();
+                    if let Some(v) = crate::widgets::combo_hint(ui, "size", 52.0, &size, &sizes, None, tl!("Font Size"))
+                        && let Ok(x) = v.trim().parse::<f64>()
+                    {
+                        let _ = app.run("format.size", json!({"size": x}));
+                    }
+                    ui.add_space(3.0);
                 }
-                let size = st
-                    .get("size")
-                    .and_then(Value::as_f64)
-                    .map(|s| if s.fract() == 0.0 { format!("{s:.0}") } else { format!("{s}") })
-                    .unwrap_or_default();
-                let sizes: Vec<String> =
-                    wordcraft_engine::cmd::format::SIZES.iter().map(|s| if s.fract() == 0.0 { format!("{s:.0}") } else { s.to_string() }).collect();
-                if let Some(v) = crate::widgets::combo_hint(ui, "size", 52.0, &size, &sizes, None, tl!("Font Size"))
-                    && let Ok(x) = v.trim().parse::<f64>()
-                {
-                    let _ = app.run("format.size", json!({"size": x}));
-                }
-                ui.add_space(3.0);
                 small(ui, app, "grow", None, "Increase Font Size", "format.growFont", json!({}), false);
                 small(ui, app, "shrink", None, "Decrease Font Size", "format.shrinkFont", json!({}), false);
                 menu_button(ui, app, "case", None, "Change Case", false, "format.changeCase", |ui, app| {
@@ -1072,21 +1080,30 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
                 small(ui, app, "charborder", None, "Character Border", "format.border", json!({}), flag("border"));
                 small(ui, app, "enclose", None, "Enclose Characters", "format.enclose", json!({}), false);
                 ui.add_space(4.0);
-                menu_button(ui, app, "effects", None, "Text Effects and Typography", false, "", |ui, app| {
-                    let theme = app.session.doc.settings.theme_colors.clone();
-                    crate::wordart_menus::style_gallery(ui, app, "format.textEffects");
-                    ui.separator();
-                    ui.menu_button(tl!("Text Fill"), |ui| crate::wordart_menus::fill_menu(ui, app, &theme));
-                    let outline = crate::wordart_menus::current_outline(app);
-                    ui.menu_button(tl!("Text Outline"), |ui| crate::wordart_menus::outline_menu(ui, app, &theme, outline));
-                    crate::wordart_menus::effects_menu(ui, app, &theme, false);
-                    ui.separator();
-                    mi(ui, app, "Outline", "format.outline", json!({}));
-                    mi(ui, app, "Shadow", "format.shadow", json!({}));
-                    mi(ui, app, "Small Caps", "format.smallCaps", json!({}));
-                    mi(ui, app, "All Caps", "format.allCaps", json!({}));
-                    mi(ui, app, "Double Strikethrough", "format.doubleStrikethrough", json!({}));
-                });
+                menu_button(
+                    ui,
+                    app,
+                    "effects",
+                    None,
+                    "Text Effects and Typography",
+                    false,
+                    if fonts { "" } else { "format.textEffects" },
+                    |ui, app| {
+                        let theme = app.session.doc.settings.theme_colors.clone();
+                        crate::wordart_menus::style_gallery(ui, app, "format.textEffects");
+                        ui.separator();
+                        ui.menu_button(tl!("Text Fill"), |ui| crate::wordart_menus::fill_menu(ui, app, &theme));
+                        let outline = crate::wordart_menus::current_outline(app);
+                        ui.menu_button(tl!("Text Outline"), |ui| crate::wordart_menus::outline_menu(ui, app, &theme, outline));
+                        crate::wordart_menus::effects_menu(ui, app, &theme, false);
+                        ui.separator();
+                        mi(ui, app, "Outline", "format.outline", json!({}));
+                        mi(ui, app, "Shadow", "format.shadow", json!({}));
+                        mi(ui, app, "Small Caps", "format.smallCaps", json!({}));
+                        mi(ui, app, "All Caps", "format.allCaps", json!({}));
+                        mi(ui, app, "Double Strikethrough", "format.doubleStrikethrough", json!({}));
+                    },
+                );
                 let hl = app.canvas.last_highlight.clone();
                 split(
                     ui,
@@ -1292,40 +1309,9 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
                 mi(ui, app, l, "markdown.codeBlock", json!({"language": lang}));
             }
         });
-        menu_button(ui, app, "callout", Some("Callout"), "Callout", true, "markdown.callout", |ui, app| {
-            for (l, kind) in [
-                ("Note", "note"),
-                ("Tip", "tip"),
-                ("Important", "important"),
-                ("Warning", "warning"),
-                ("Caution", "caution"),
-                ("Info", "info"),
-                ("Danger", "danger"),
-                ("Details", "details"),
-            ] {
-                mi(ui, app, l, "markdown.callout", json!({"kind": kind}));
-            }
-        });
-        menu_button(ui, app, "diagram", Some("Diagram"), "Diagram", true, "markdown.diagram", |ui, app| {
-            use crate::diagram_editor::DiagramEditor;
-            use wordcraft_engine::diagram::codec::Kind;
-            // Every kind of diagram, by group, as Insert › Shapes and SmartArt list theirs.
-            for cat in Kind::CATEGORIES {
-                ui.menu_button(tl!(cat), |ui| {
-                    for kind in Kind::ALL.into_iter().filter(|k| k.category() == cat) {
-                        if ui.button(tl!(kind.label())).clicked() {
-                            app.dialog = Some(crate::dialogs::Dialog::Diagram(Box::new(DiagramEditor::new(kind))));
-                            ui.close();
-                        }
-                    }
-                });
-            }
-            ui.separator();
-            if ui.button(tl!("All Diagrams…")).clicked() {
-                app.dialog = Some(crate::dialogs::Dialog::Diagram(Box::new(DiagramEditor::gallery())));
-                ui.close();
-            }
-        });
+        // Plume: each callout drawn as on the page, each diagram as a picture.
+        menu_button(ui, app, "callout", Some("Callout"), "Callout", true, "markdown.callout", crate::md_galleries::callouts);
+        menu_button(ui, app, "diagram", Some("Diagram"), "Diagram", true, "markdown.diagram", crate::md_galleries::diagrams);
         // In a code block: its language; in any block: back to plain text.
         let block = app.session.run("markdown.block", &json!({})).unwrap_or_default();
         if block.get("diagram").is_some() {
@@ -2258,6 +2244,16 @@ fn developer(app: &mut WordApp, ui: &mut Ui) {
 
 fn view(app: &mut WordApp, ui: &mut Ui) {
     let v = app.session.view.clone();
+    // Plume: a Markdown document shows as its page, its page beside its source, or its source.
+    if app.session.is_markdown() {
+        let now = wordcraft_engine::cmd::view::markdown_view_name(&v);
+        group(ui, "Markdown", None, app, |ui, app| {
+            for (icon, label, value) in [("printLayout", "Page", "page"), ("sideBySide", "Side by\nSide", "split"), ("codeBlock", "Source", "source")]
+            {
+                crate::widgets::big_choice(ui, app, icon, label, "view.markdownView", json!({"value": value}), now == value);
+            }
+        });
+    }
     group(ui, "Views", None, app, |ui, app| {
         big(ui, app, "readMode", "Read\nMode", "view.readMode", json!({}), false);
         big(ui, app, "printLayout", "Print\nLayout", "view.printLayout", json!({}), false);
@@ -2300,11 +2296,6 @@ fn view(app: &mut WordApp, ui: &mut Ui) {
             let mut d = v.documents_pane;
             if ui.checkbox(&mut d, tl!("Documents Pane")).changed() {
                 let _ = app.run("view.documentsPane", json!({"value": d}));
-            }
-            // Plume: the document as its Markdown file is written, editable.
-            let mut m = v.markdown_source;
-            if ui.checkbox(&mut m, tl!("Markdown Source")).changed() {
-                let _ = app.run("view.markdownSource", json!({"value": m}));
             }
         });
     });

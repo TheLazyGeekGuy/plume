@@ -2852,3 +2852,8 @@ preview	Title	제목
 	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdown 파일은 사본으로 암호화됩니다: AES Crypt의 Markdown(.md.aes), TextPack(.textpack.aes) 또는 암호가 있는 ZIP.
 	Markdown, encrypted (*.md.aes)	Markdown, 암호화됨 (*.md.aes)
 	TextPack, encrypted (*.textpack.aes)	TextPack, 암호화됨 (*.textpack.aes)
+	Side by\nSide	나란히\n보기
+	Side by Side	나란히 보기
+	Source	소스
+	Markdown View	Markdown 보기
+	Colour the title bar with the level	제목 표시줄을 등급 색으로 표시

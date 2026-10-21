@@ -175,58 +175,77 @@ fn picture(ui: &mut Ui, source: &str, max: egui::Vec2) {
 
 /// The gallery: every kind of diagram, by group, with a picture of each.
 fn gallery(ui: &mut Ui, e: &mut DiagramEditor) {
-    ui.horizontal(|ui| {
-        if ui.selectable_label(e.category.is_empty(), tl!("All")).clicked() {
-            e.category = "";
+    if let Some(kind) = kind_grid(ui, &mut e.category, vec2(196.0, 110.0), 900.0, 480.0, "diagram_gallery", true) {
+        e.start(kind);
+    }
+}
+
+/// The groups as tabs (with "All" when `all`; `""` is all), then a card per kind of the group
+/// shown: a picture of its template, `card` big, and its name. The kind clicked.
+pub fn kind_grid(ui: &mut Ui, category: &mut &'static str, card: egui::Vec2, width: f32, height: f32, salt: &str, all: bool) -> Option<Kind> {
+    ui.horizontal_wrapped(|ui| {
+        ui.set_max_width(width);
+        if all && ui.selectable_label(category.is_empty(), tl!("All")).clicked() {
+            *category = "";
         }
         for cat in Kind::CATEGORIES {
-            if ui.selectable_label(e.category == cat, tl!(cat)).clicked() {
-                e.category = cat;
+            if ui.selectable_label(*category == cat, tl!(cat)).clicked() {
+                *category = cat;
             }
         }
     });
     ui.separator();
     let mut picked = None;
-    egui::ScrollArea::vertical().id_salt("diagram_gallery").max_height(480.0).auto_shrink([false, false]).show(ui, |ui| {
-        ui.set_width(900.0);
+    egui::ScrollArea::vertical().id_salt(salt).max_height(height).auto_shrink([false, true]).show(ui, |ui| {
+        ui.set_width(width);
         for cat in Kind::CATEGORIES {
-            if !e.category.is_empty() && e.category != cat {
+            if !category.is_empty() && *category != cat {
                 continue;
             }
-            ui.strong(tl!(cat));
-            ui.horizontal_wrapped(|ui| {
-                for kind in Kind::ALL.into_iter().filter(|k| k.category() == cat) {
-                    let r = ui
-                        .scope(|ui| {
-                            let frame = egui::Frame::group(ui.style()).inner_margin(6.0);
-                            frame
-                                .show(ui, |ui| {
-                                    ui.set_width(196.0);
-                                    ui.vertical_centered(|ui| {
-                                        ui.allocate_ui(vec2(196.0, 110.0), |ui| {
-                                            ui.centered_and_justified(|ui| picture(ui, kind.template(), vec2(190.0, 106.0)));
+            if category.is_empty() {
+                ui.strong(tl!(cat));
+            }
+            // Rows of as many cards as fit: a menu grows to its content, so nothing wraps there.
+            let per_row = ((width + 8.0) / (card.x + 20.0)).floor().max(1.0) as usize;
+            let kinds: Vec<Kind> = Kind::ALL.into_iter().filter(|k| k.category() == cat).collect();
+            for row in kinds.chunks(per_row) {
+                ui.horizontal(|ui| {
+                    for &kind in row {
+                        let r = ui
+                            .scope(|ui| {
+                                let frame = egui::Frame::group(ui.style()).inner_margin(6.0);
+                                frame
+                                    .show(ui, |ui| {
+                                        ui.set_width(card.x);
+                                        ui.vertical_centered(|ui| {
+                                            ui.allocate_ui(card, |ui| {
+                                                ui.centered_and_justified(|ui| picture(ui, kind.template(), card - vec2(6.0, 4.0)));
+                                            });
+                                            ui.label(tl!(kind.label()));
                                         });
-                                        ui.label(tl!(kind.label()));
-                                    });
-                                })
-                                .response
-                        })
-                        .inner;
-                    let r = r.interact(egui::Sense::click()).on_hover_cursor(egui::CursorIcon::PointingHand);
-                    if r.hovered() {
-                        ui.painter().rect_stroke(r.rect, 4.0, egui::Stroke::new(1.5, ui.visuals().selection.stroke.color), egui::StrokeKind::Inside);
+                                    })
+                                    .response
+                            })
+                            .inner;
+                        let r = r.interact(egui::Sense::click()).on_hover_cursor(egui::CursorIcon::PointingHand);
+                        if r.hovered() {
+                            ui.painter().rect_stroke(
+                                r.rect,
+                                4.0,
+                                egui::Stroke::new(1.5, ui.visuals().selection.stroke.color),
+                                egui::StrokeKind::Inside,
+                            );
+                        }
+                        if r.clicked() {
+                            picked = Some(kind);
+                        }
                     }
-                    if r.clicked() {
-                        picked = Some(kind);
-                    }
-                }
-            });
+                });
+            }
             ui.add_space(6.0);
         }
     });
-    if let Some(kind) = picked {
-        e.start(kind);
-    }
+    picked
 }
 
 /// The editor's body; `true` when the dialog closes.

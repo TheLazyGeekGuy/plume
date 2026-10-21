@@ -43,6 +43,15 @@ const COMBO_FONT_W: f32 = ROW2_W - (COMBO_SIZE_W + GAP + 2.0 * BTN_W + 3.0 * SPA
 pub const BAR_W: f32 = PAD_X * 2.0 + ROW2_W;
 pub const BAR_H: f32 = PAD_Y * 2.0 + ROW_H * 2.0 + ROW_GAP;
 
+/// Plume's Markdown profile: the bar holds one row of four buttons. `bar` is where the full bar
+/// goes; the short one keeps its side of the selection, next to it.
+pub const MD_BAR_W: f32 = PAD_X * 2.0 + 4.0 * BTN_W + 3.0 * SPACING;
+pub const MD_BAR_H: f32 = PAD_Y * 2.0 + ROW_H;
+fn markdown_bar(bar: Rect, selection_top: f32) -> Rect {
+    let y = if bar.min.y < selection_top { bar.max.y - MD_BAR_H } else { bar.min.y };
+    Rect::from_min_size(pos2(bar.min.x, y), Vec2::new(MD_BAR_W, MD_BAR_H))
+}
+
 /// The part of the selection the bar anchors to: the topmost selection rectangle that is actually
 /// visible inside `clip` (the scroll viewport), cut down to its visible portion. `None` when no
 /// usable part of the selection is on screen. Rectangles that only touch the clip's edge, or are
@@ -168,6 +177,7 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context, selection: Rect, viewport: R
         return;
     }
     let Some(bar) = anchor_rect(selection.min.y, selection.min.x, viewport) else { return };
+    let bar = if widgets::profile_on(app) { markdown_bar(bar, selection.min.y) } else { bar };
     // The bar belongs to the page: as the selection scrolls under the ribbon (or past the status
     // bar) it slides under it with the text, and goes once none of it shows.
     let shown = bar.intersect(viewport);
@@ -211,6 +221,16 @@ fn content(app: &mut WordApp, ui: &mut egui::Ui, t: &Tokens) {
         });
     };
 
+    // Plume's Markdown profile: one row, what Markdown writes (no fonts, sizes or colours).
+    if widgets::profile_on(app) {
+        row(ui, app, &|ui, app| {
+            widgets::small(ui, app, "bold", None, "Bold", "format.bold", json!({}), flag("bold"));
+            widgets::small(ui, app, "italic", None, "Italic", "format.italic", json!({}), flag("italic"));
+            widgets::small(ui, app, "strike", None, "Strikethrough", "format.strikethrough", json!({}), flag("strike"));
+            widgets::small(ui, app, "clear", None, "Clear All Formatting", "format.clear", json!({}), false);
+        });
+        return;
+    }
     row(ui, app, &|ui, app| {
         let font = st.get("font").and_then(Value::as_str).unwrap_or("").to_string();
         let font = app.previews.font_shown(&font);

@@ -2607,3 +2607,8 @@
 	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Um arquivo Markdown é criptografado como cópia: o Markdown em AES Crypt (.md.aes), um TextPack (.textpack.aes) ou um ZIP com senha.
 	Markdown, encrypted (*.md.aes)	Markdown, criptografado (*.md.aes)
 	TextPack, encrypted (*.textpack.aes)	TextPack, criptografado (*.textpack.aes)
+	Side by\nSide	Lado\na lado
+	Side by Side	Lado a lado
+	Source	Código-fonte
+	Markdown View	Exibição do Markdown
+	Colour the title bar with the level	Colorir a barra de título com o nível

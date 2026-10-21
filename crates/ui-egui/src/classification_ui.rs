@@ -338,6 +338,68 @@ fn compact_text(st: &Value) -> String {
     s
 }
 
+/// The title bar in the level's colour (Options › Colour the title bar with the level), so the
+/// level is in view from across the room: its fill, the ink drawn on it (white or near black,
+/// whichever reads), and whether it needs a striped edge because the colour is too close to the
+/// plain title bar (black in the dark theme, white in the light one).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Tint {
+    pub fill: Color32,
+    pub ink: Color32,
+    pub ink_dim: Color32,
+    pub stripes: bool,
+}
+
+/// The document's [`Tint`], or `None` for the plain title bar (no level, unknown colour, or the
+/// option or the labels turned off). `plain` is the theme's own title bar colour.
+pub fn title_tint(app: &WordApp, plain: Color32) -> Option<Tint> {
+    use wordcraft_engine::classification::Presentation;
+    let settings = &app.session.prefs.classification;
+    if !settings.color_title_bar || settings.presentation == Presentation::Hidden || !app.has_document() {
+        return None;
+    }
+    let fill = state(app)["color"].as_str().and_then(color)?;
+    Some(tint(fill, plain))
+}
+
+/// [`Tint`] for `fill` over a theme whose plain title bar is `plain`.
+pub fn tint(fill: Color32, plain: Color32) -> Tint {
+    let light = luminance(fill) > 0.4;
+    let ink = if light { Color32::from_rgb(0x14, 0x14, 0x14) } else { Color32::WHITE };
+    Tint { fill, ink, ink_dim: ink, stripes: contrast(fill, plain) < 1.5 }
+}
+
+/// WCAG relative luminance.
+fn luminance(c: Color32) -> f32 {
+    let ch = |v: u8| {
+        let v = v as f32 / 255.0;
+        if v <= 0.04045 { v / 12.92 } else { ((v + 0.055) / 1.055).powf(2.4) }
+    };
+    0.2126 * ch(c.r()) + 0.7152 * ch(c.g()) + 0.0722 * ch(c.b())
+}
+
+/// WCAG contrast ratio, 1 to 21.
+fn contrast(a: Color32, b: Color32) -> f32 {
+    let (x, y) = (luminance(a), luminance(b));
+    (x.max(y) + 0.05) / (x.min(y) + 0.05)
+}
+
+/// The striped edge along the bottom of a tinted title bar whose colour is close to the plain
+/// bar: diagonal bands of the level's colour and its ink, like a hazard tape.
+pub fn paint_stripes(ui: &Ui, bar: Rect, tint: &Tint) {
+    let h = 5.0;
+    let band = Rect::from_min_max(pos2(bar.min.x, bar.max.y - h), bar.max);
+    let p = ui.painter().with_clip_rect(band);
+    p.rect_filled(band, 0.0, tint.fill);
+    let step = 14.0;
+    let mut x = band.min.x - h;
+    while x < band.max.x {
+        let pts = vec![pos2(x, band.max.y), pos2(x + h, band.min.y), pos2(x + h + step / 2.0, band.min.y), pos2(x + step / 2.0, band.max.y)];
+        p.add(egui::Shape::convex_polygon(pts, tint.ink, Stroke::NONE));
+        x += step;
+    }
+}
+
 /// How wide the title bar's labels are: in full, and compact; `None` when hidden.
 pub fn title_widths(app: &WordApp, ui: &Ui) -> Option<(f32, f32)> {
     use wordcraft_engine::classification::Presentation;
@@ -475,6 +537,10 @@ pub fn options_pane(app: &mut WordApp, ui: &mut Ui) {
     let mut mark = settings.mark_exports;
     if ui.checkbox(&mut mark, tl!("Show the level on PDF and HTML copies")).changed() {
         let _ = app.run("classification.options", json!({"markExports": mark}));
+    }
+    let mut bar = settings.color_title_bar;
+    if ui.checkbox(&mut bar, tl!("Colour the title bar with the level")).changed() {
+        let _ = app.run("classification.options", json!({"colorTitleBar": bar}));
     }
     let mut warn = settings.warn_on_publish;
     if ui.checkbox(&mut warn, tl!("Warn before publishing a document its level asks to keep")).changed() {
