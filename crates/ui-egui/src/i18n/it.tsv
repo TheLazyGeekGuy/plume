@@ -2929,3 +2929,89 @@ preview	Title	Esempio
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Nessun motore TeX trovato: questa copia di Plume non include Tectonic. Installalo (brew install tectonic) o MacTeX, poi esporta di nuovo.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Nessun motore TeX trovato: questa copia di Plume non include Tectonic. Installalo (winget install TectonicTypesetting.Tectonic) o MiKTeX, poi esporta di nuovo.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Nessun motore TeX trovato: questa copia di Plume non include Tectonic. Installa Tectonic o TeX Live con il gestore di pacchetti, poi esporta di nuovo.
+	Classification	Classificazione
+	Set Classification	Imposta classificazione
+	Classification Referential	Schema di classificazione
+	Classification Referentials	Schemi di classificazione
+	Check Classification	Verifica classificazione
+	Classification Options	Opzioni di classificazione
+	Save Classification Referential	Salva schema
+	Delete Classification Referential	Elimina schema
+	Document Classification	Classificazione documentale
+	Personal	Personale
+	Association	Associativo
+	Private	Privato
+	Shared	Condiviso
+	Public	Pubblico
+	Ordinary	Ordinaria
+	Strategic	Strategica
+	No personal data	Nessun dato personale
+	Personal data	Dati personali
+	Sensitive personal data	Dati personali sensibili
+	Visibility	Visibilità
+	Importance	Importanza
+	Unclassified	Non classificato
+	Not set	Non impostato
+	Confidentiality	Riservatezza
+	Referential definition	Definizione dello schema
+	Change referential	Cambia schema
+	Classification Options…	Opzioni di classificazione…
+	Referential	Schema
+	Default referential	Schema predefinito
+	Labels in the title bar	Etichette nella barra del titolo
+	Each label	Ogni etichetta
+	One compact label	Un'etichetta compatta
+	Referentials	Schemi
+	{name} (built in)	{name} (integrato)
+	Duplicate to customise	Duplica per personalizzare
+	custom	personalizzato
+	Code	Codice
+	Label	Etichetta
+	Add a level	Aggiungi un livello
+	Classified document	Documento classificato
+	Publish anyway	Pubblica comunque
+	Internal	Interno
+	Confidential	Riservato
+	Restricted	Ristretto
+	Highly restricted	Strettamente riservato
+	Referential: {name}	Schema: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Una classificazione indica come può circolare il documento; non cifra il file.
+	Anyone may read it.	Chiunque può leggerlo.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	I colori sono sempre accompagnati dal codice e dal nome del livello. Cambiare il referenziale di un documento richiede il nuovo livello: un documento non viene mai riclassificato in silenzio.
+	Description and rules of diffusion	Descrizione e regole di diffusione
+	FIRST's Traffic Light Protocol, version 2.0.	Traffic Light Protocol di FIRST, versione 2.0.
+	For named people only, under strict control; never exported unencrypted.	Solo per persone designate, sotto stretto controllo; mai esportato senza cifratura.
+	For named people only; disclosure would cause serious harm.	Solo per persone designate; la divulgazione causerebbe gravi danni.
+	For the eyes and ears of the individual recipients only.	Solo per i singoli destinatari.
+	For the people of the organisation or group.	Per le persone dell'organizzazione o del gruppo.
+	For the people who need it; not to be published.	Per chi ne ha bisogno; da non pubblicare.
+	Plume's five levels, from public to highly restricted.	I cinque livelli di Plume, da pubblico a strettamente riservato.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	La pubblicazione vi crea una copia leggibile. L'etichetta non la protegge; la cifratura sì.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	I destinatari possono condividerlo solo nella loro organizzazione e con i suoi clienti, in base alla necessità di sapere.
+	Recipients may share it only within their organisation, on a need-to-know basis.	I destinatari possono condividerlo solo nella loro organizzazione, in base alla necessità di sapere.
+	Recipients may share it within their community, not publicly.	I destinatari possono condividerlo nella loro comunità, non pubblicamente.
+	Recipients may share it without limit.	I destinatari possono condividerlo senza limiti.
+	Referential {name} (not known here; kept as written)	Referenziale {name} (sconosciuto qui; conservato come scritto)
+	Show the level on PDF and HTML copies	Mostra il livello sulle copie PDF e HTML
+	This document's classification asks for a decision before it is published:	La classificazione di questo documento richiede una decisione prima della pubblicazione:
+	Warn before publishing a document its level asks to keep	Avvisa prima di pubblicare un documento che il suo livello chiede di riservare
+	Convert Document Package	Converti pacchetto del documento
+	Encrypt File	Cifra file
+	Decrypt File	Decifra file
+	Inspect Encryption	Esamina cifratura
+	Encrypted	Cifrato
+	Not encrypted	Non cifrato
+	Encryption	Cifratura
+	Method	Metodo
+	This document is saved encrypted.	Questo documento è salvato cifrato.
+	Without the password nobody, Plume included, can open it.	Senza la password nessuno, nemmeno Plume, può aprirlo.
+	Save an Unencrypted Copy…	Salva una copia non cifrata…
+	Anyone who gets this file can read it.	Chiunque ottenga questo file può leggerlo.
+	Its classification asks for encryption.	La sua classificazione richiede la cifratura.
+	A classification label doesn't encrypt the document.	Un'etichetta di classificazione non cifra il documento.
+	Save an Encrypted Copy…	Salva una copia cifrata…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Nomi, dimensioni e date dei file nello ZIP restano leggibili; solo il contenuto è cifrato.
+	The file's name and its approximate size stay visible; nothing inside does.	Il nome del file e la sua dimensione approssimativa restano visibili; nulla del contenuto.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Un file Markdown si cifra come copia: il Markdown in AES Crypt (.md.aes), un TextPack (.textpack.aes) o uno ZIP con password.
+	Markdown, encrypted (*.md.aes)	Markdown, cifrato (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, cifrato (*.textpack.aes)

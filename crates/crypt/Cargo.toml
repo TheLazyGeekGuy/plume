@@ -1,0 +1,29 @@
+[package]
+name = "wordcraft-crypt"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Plume: password encryption of whole files in published formats (AES Crypt, ZIP AES-256)"
+
+[lints]
+workspace = true
+
+[features]
+# The ciphers themselves. Off by default: without it this crate only tells encrypted files apart
+# (`detect`), and every encrypt or decrypt is `Error::Unavailable`; no cipher is compiled in.
+encryption = ["dep:aes", "dep:sha2", "dep:hmac", "dep:pbkdf2", "dep:getrandom", "zip/aes-crypto"]
+
+[dependencies]
+aes = { workspace = true, optional = true }
+sha2 = { workspace = true, optional = true }
+hmac = { workspace = true, optional = true }
+pbkdf2 = { workspace = true, optional = true }
+getrandom = { workspace = true, optional = true }
+zeroize = { workspace = true }
+# WinZip AES (AE-1/AE-2) entries, read and written by the `zip` crate's own implementation
+# (its `aes-crypto` feature, with `encryption`).
+zip = { workspace = true }
+
+# The browser's `crypto.getRandomValues` for salts, IVs and keys.
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+getrandom = { workspace = true, optional = true, features = ["wasm_js"] }

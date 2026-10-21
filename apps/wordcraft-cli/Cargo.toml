@@ -13,6 +13,10 @@ path = "src/main.rs"
 [lints]
 workspace = true
 
+[features]
+# Plume: password encryption, off by default (see wordcraft-engine's `encryption`).
+encryption = ["wordcraft-engine/encryption"]
+
 [dependencies]
 wordcraft-brand = { workspace = true }
 wordcraft-doc = { workspace = true }

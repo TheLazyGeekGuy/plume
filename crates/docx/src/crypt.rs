@@ -13,15 +13,22 @@
 //! spin count is bounded by the specification's maximum. Passwords and keys are wiped from memory
 //! when dropped ([`Zeroizing`]) and never logged.
 
-use std::io::{Cursor, Read, Write};
+use std::io::Cursor;
+#[cfg(feature = "encryption")]
+use std::io::{Read, Write};
 
-use aes::cipher::{BlockCipherDecrypt, BlockCipherEncrypt, KeyInit};
+#[cfg(feature = "encryption")]
+use aes::cipher::{BlockCipherDecrypt, BlockCipherEncrypt};
 use base64::Engine as _;
+#[cfg(feature = "encryption")]
 use hmac::Mac;
+#[cfg(feature = "encryption")]
+use hmac::digest::KeyInit;
 use sha2::Digest;
 use zeroize::Zeroizing;
 
 use crate::DocxError;
+#[cfg(feature = "encryption")]
 use crate::xml;
 
 /// The spin count Word uses, and WordCraft writes.
@@ -31,26 +38,36 @@ pub const DEFAULT_SPIN_COUNT: u32 = 100_000;
 const MAX_SPIN_COUNT: u32 = 10_000_000;
 /// Word's limit on password length, in characters.
 pub const MAX_PASSWORD_CHARS: usize = 255;
+#[cfg(feature = "encryption")]
 /// `EncryptedPackage` is encrypted in segments of this many bytes (§2.3.4.15).
 const SEGMENT: usize = 4096;
+#[cfg(feature = "encryption")]
 /// Largest `EncryptionInfo` stream read (the XML is a few kilobytes).
 const MAX_INFO: u64 = 1 << 20;
+#[cfg(feature = "encryption")]
 /// AES's block size.
 const BLOCK: usize = 16;
 /// Salt length written.
 const SALT: usize = 16;
 
+#[cfg(feature = "encryption")]
 /// Block keys (§2.3.4.13, §2.3.4.14).
 const BK_VERIFIER_INPUT: [u8; 8] = [0xfe, 0xa7, 0xd2, 0x76, 0x3b, 0x4b, 0x9e, 0x79];
+#[cfg(feature = "encryption")]
 const BK_VERIFIER_VALUE: [u8; 8] = [0xd7, 0xaa, 0x0f, 0x6d, 0x30, 0x61, 0x34, 0x4e];
+#[cfg(feature = "encryption")]
 const BK_KEY_VALUE: [u8; 8] = [0x14, 0x6e, 0x0b, 0xe7, 0xab, 0xac, 0xd0, 0xd6];
+#[cfg(feature = "encryption")]
 const BK_HMAC_KEY: [u8; 8] = [0x5f, 0xb2, 0xad, 0x01, 0x0c, 0xb9, 0xe1, 0xf6];
+#[cfg(feature = "encryption")]
 const BK_HMAC_VALUE: [u8; 8] = [0xa0, 0x67, 0x7f, 0x02, 0xb2, 0x2c, 0x84, 0x33];
 
 /// An OLE compound file starts with these bytes ([MS-CFB] §2.2).
 const CFB_MAGIC: [u8; 8] = [0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1];
 
+#[cfg(feature = "encryption")]
 const NS_ENCRYPTION: &str = "http://schemas.microsoft.com/office/2006/encryption";
+#[cfg(feature = "encryption")]
 const NS_PASSWORD: &str = "http://schemas.microsoft.com/office/2006/keyEncryptor/password";
 
 /// Is this an encrypted Office package (a compound file with `EncryptionInfo` and
@@ -68,6 +85,7 @@ pub fn is_encrypted(bytes: &[u8]) -> bool {
 /// The zip package inside an encrypted Office file. Without a password (`None`) this says
 /// [`DocxError::PasswordRequired`] once it knows the file is one it can decrypt; a password that
 /// doesn't fit gives [`DocxError::WrongPassword`].
+#[cfg(feature = "encryption")]
 pub fn decrypt(bytes: &[u8], password: Option<&str>) -> Result<Vec<u8>, DocxError> {
     let mut comp = cfb::CompoundFile::open(Cursor::new(bytes)).map_err(|e| bad(format!("not a readable compound file ({e})")))?;
     let info = stream(&mut comp, "/EncryptionInfo", MAX_INFO)?;
@@ -126,11 +144,13 @@ pub fn decrypt(bytes: &[u8], password: Option<&str>) -> Result<Vec<u8>, DocxErro
 
 /// Encrypt a zip package with `password` (agile encryption: AES-256-CBC, SHA-512, Word's spin
 /// count), as Word's "Encrypt with Password" does.
+#[cfg(feature = "encryption")]
 pub fn encrypt(package: &[u8], password: &str) -> Result<Vec<u8>, DocxError> {
     encrypt_with_spin_count(package, password, DEFAULT_SPIN_COUNT)
 }
 
 /// [`encrypt`] with a chosen spin count (tests use a small one; files should use the default).
+#[cfg(feature = "encryption")]
 pub fn encrypt_with_spin_count(package: &[u8], password: &str, spin_count: u32) -> Result<Vec<u8>, DocxError> {
     check_password(password)?;
     let spin_count = spin_count.min(MAX_SPIN_COUNT);
@@ -210,6 +230,27 @@ pub fn encrypt_with_spin_count(package: &[u8], password: &str, spin_count: u32) 
     }
     comp.flush().map_err(io)?;
     Ok(comp.into_inner().into_inner())
+}
+
+/// Plume: this build has no encryption (the `encryption` feature is off).
+pub const NO_ENCRYPTION: &str = "this build of Plume has no encryption: encrypted documents can't be opened or saved";
+
+/// Is encryption compiled into this build?
+pub const ENCRYPTION: bool = cfg!(feature = "encryption");
+
+#[cfg(not(feature = "encryption"))]
+pub fn decrypt(_bytes: &[u8], _password: Option<&str>) -> Result<Vec<u8>, DocxError> {
+    Err(DocxError::Encryption(NO_ENCRYPTION.into()))
+}
+
+#[cfg(not(feature = "encryption"))]
+pub fn encrypt(_package: &[u8], _password: &str) -> Result<Vec<u8>, DocxError> {
+    Err(DocxError::Encryption(NO_ENCRYPTION.into()))
+}
+
+#[cfg(not(feature = "encryption"))]
+pub fn encrypt_with_spin_count(_package: &[u8], _password: &str, _spin_count: u32) -> Result<Vec<u8>, DocxError> {
+    Err(DocxError::Encryption(NO_ENCRYPTION.into()))
 }
 
 /// Refuse a password Word wouldn't accept: empty, or longer than [`MAX_PASSWORD_CHARS`].
@@ -396,6 +437,7 @@ fn bad(msg: impl Into<String>) -> DocxError {
     DocxError::Encryption(msg.into())
 }
 
+#[cfg(feature = "encryption")]
 /// A root-level stream, at most `cap` bytes.
 fn stream<F: Read + std::io::Seek>(comp: &mut cfb::CompoundFile<F>, path: &str, cap: u64) -> Result<Vec<u8>, DocxError> {
     let s = comp.open_stream(path).map_err(|e| bad(format!("can't read {} ({e})", path.trim_start_matches('/'))))?;
@@ -427,6 +469,7 @@ impl Hash {
         }
     }
 
+    #[cfg(feature = "encryption")]
     fn name(self) -> &'static str {
         match self {
             Hash::Sha1 => "SHA-1",
@@ -462,6 +505,7 @@ impl Hash {
         }
     }
 
+    #[cfg(feature = "encryption")]
     fn hmac(self, key: &[u8], msg: &[u8]) -> Result<Vec<u8>, DocxError> {
         fn go<M: Mac + KeyInit>(key: &[u8], msg: &[u8]) -> Result<Vec<u8>, DocxError> {
             let mut m = <M as KeyInit>::new_from_slice(key).map_err(|_| bad("bad integrity key"))?;
@@ -477,6 +521,7 @@ impl Hash {
     }
 }
 
+#[cfg(feature = "encryption")]
 /// The password hash after `spin_count` iterations (§2.3.4.11): H0 = H(salt + password as
 /// UTF-16LE), Hn = H(iterator + Hn-1).
 fn iterate(hash: Hash, salt: &[u8], password: &str, spin_count: u32) -> Zeroizing<Vec<u8>> {
@@ -488,6 +533,7 @@ fn iterate(hash: Hash, salt: &[u8], password: &str, spin_count: u32) -> Zeroizin
     h
 }
 
+#[cfg(feature = "encryption")]
 /// A key from the iterated password hash and a block key (§2.3.4.11): H(Hn + blockKey),
 /// truncated to `len`, or padded with 0x36.
 fn derive_key(hash: Hash, hn: &[u8], block_key: &[u8], len: usize) -> Zeroizing<Vec<u8>> {
@@ -496,6 +542,7 @@ fn derive_key(hash: Hash, hn: &[u8], block_key: &[u8], len: usize) -> Zeroizing<
     k
 }
 
+#[cfg(feature = "encryption")]
 /// An initialization vector (§2.3.4.12): H(salt + blockKey), or the salt itself, truncated to
 /// the block size or padded with 0x36.
 fn make_iv(hash: Hash, salt: &[u8], block_key: Option<&[u8]>, block_size: usize) -> Vec<u8> {
@@ -507,6 +554,7 @@ fn make_iv(hash: Hash, salt: &[u8], block_key: Option<&[u8]>, block_size: usize)
     iv
 }
 
+#[cfg(feature = "encryption")]
 /// `data` zero-padded to a whole number of blocks.
 fn padded(data: &[u8]) -> Zeroizing<Vec<u8>> {
     let mut v = Zeroizing::new(data.to_vec());
@@ -525,6 +573,7 @@ fn same(a: &[u8], b: &[u8]) -> bool {
     a.len() == b.len() && a.iter().zip(b).fold(0u8, |acc, (x, y)| acc | (x ^ y)) == 0
 }
 
+#[cfg(feature = "encryption")]
 /// AES with a 128-, 192- or 256-bit key.
 enum Aes {
     A128(aes::Aes128),
@@ -532,6 +581,7 @@ enum Aes {
     A256(aes::Aes256),
 }
 
+#[cfg(feature = "encryption")]
 impl Aes {
     fn new(key: &[u8]) -> Result<Aes, DocxError> {
         let err = |_| bad("bad AES key");
@@ -560,6 +610,7 @@ impl Aes {
     }
 }
 
+#[cfg(feature = "encryption")]
 /// AES-CBC without padding: `data` must be whole blocks.
 fn cbc_encrypt(key: &[u8], iv: &[u8], data: &[u8]) -> Result<Vec<u8>, DocxError> {
     let aes = Aes::new(key)?;
@@ -581,6 +632,7 @@ fn cbc_encrypt(key: &[u8], iv: &[u8], data: &[u8]) -> Result<Vec<u8>, DocxError>
     Ok(out)
 }
 
+#[cfg(feature = "encryption")]
 /// AES-CBC decryption without padding.
 fn cbc_decrypt(key: &[u8], iv: &[u8], data: &[u8]) -> Result<Vec<u8>, DocxError> {
     let aes = Aes::new(key)?;
@@ -603,6 +655,7 @@ fn cbc_decrypt(key: &[u8], iv: &[u8], data: &[u8]) -> Result<Vec<u8>, DocxError>
     Ok(out)
 }
 
+#[cfg(feature = "encryption")]
 /// What `EncryptionInfo` says.
 struct Info {
     hash: Hash,
@@ -614,6 +667,7 @@ struct Info {
     password: PasswordEncryptor,
 }
 
+#[cfg(feature = "encryption")]
 struct PasswordEncryptor {
     hash: Hash,
     salt: Vec<u8>,
@@ -626,6 +680,7 @@ struct PasswordEncryptor {
     key_value: Vec<u8>,
 }
 
+#[cfg(feature = "encryption")]
 /// Cipher parameters shared by `keyData` and `encryptedKey`.
 struct Params {
     hash: Hash,
@@ -635,6 +690,7 @@ struct Params {
     key_bytes: usize,
 }
 
+#[cfg(feature = "encryption")]
 fn parse_info(info: &[u8]) -> Result<Info, DocxError> {
     let (major, minor) = match info.get(..4) {
         Some([a, b, c, d]) => (u16::from_le_bytes([*a, *b]), u16::from_le_bytes([*c, *d])),
@@ -692,6 +748,7 @@ fn parse_info(info: &[u8]) -> Result<Info, DocxError> {
     })
 }
 
+#[cfg(feature = "encryption")]
 fn params(e: &xml::El) -> Result<Params, DocxError> {
     let num = |k: &str| -> Result<usize, DocxError> { e.attr(k).and_then(|s| s.trim().parse::<usize>().ok()).ok_or_else(|| bad(format!("bad {k}"))) };
     let cipher = e.attr("cipherAlgorithm").unwrap_or("");
@@ -723,12 +780,14 @@ fn params(e: &xml::El) -> Result<Params, DocxError> {
     Ok(Params { hash, salt, salt_size, block_size, key_bytes: key_bits / 8 })
 }
 
+#[cfg(feature = "encryption")]
 fn b64_attr(e: &xml::El, k: &str) -> Result<Vec<u8>, DocxError> {
     let s = e.attr(k).ok_or_else(|| bad(format!("{k} is missing")))?;
     let s: String = s.chars().filter(|c| !c.is_ascii_whitespace()).collect();
     base64::engine::general_purpose::STANDARD.decode(s).map_err(|_| bad(format!("{k} isn't valid base64")))
 }
 
+#[cfg(feature = "encryption")]
 /// A UNICODE-LP-P4 string (§2.1.2): byte length, UTF-16LE, zero-padded to 4 bytes.
 fn lp_p4(out: &mut Vec<u8>, s: &str) {
     let units: Vec<u8> = s.encode_utf16().flat_map(u16::to_le_bytes).collect();
@@ -739,6 +798,7 @@ fn lp_p4(out: &mut Vec<u8>, s: &str) {
     }
 }
 
+#[cfg(feature = "encryption")]
 /// `\x06DataSpaces\Version` (§2.1.5).
 fn data_space_version() -> Vec<u8> {
     let mut v = Vec::new();
@@ -749,6 +809,7 @@ fn data_space_version() -> Vec<u8> {
     v
 }
 
+#[cfg(feature = "encryption")]
 /// `\x06DataSpaces\DataSpaceMap` (§2.1.6, §2.3.4.1): EncryptedPackage → StrongEncryptionDataSpace.
 fn data_space_map() -> Vec<u8> {
     let mut entry = Vec::new();
@@ -764,6 +825,7 @@ fn data_space_map() -> Vec<u8> {
     v
 }
 
+#[cfg(feature = "encryption")]
 /// `\x06DataSpaces\DataSpaceInfo\StrongEncryptionDataSpace` (§2.1.7, §2.3.4.2).
 fn data_space_definition() -> Vec<u8> {
     let mut v = Vec::new();
@@ -773,6 +835,7 @@ fn data_space_definition() -> Vec<u8> {
     v
 }
 
+#[cfg(feature = "encryption")]
 /// `\x06DataSpaces\TransformInfo\StrongEncryptionTransform\x06Primary` (§2.1.8, §2.1.9,
 /// §2.3.4.3): the encryption transform, with a null EncryptionName as agile encryption requires.
 fn primary_transform() -> Vec<u8> {
@@ -863,14 +926,17 @@ mod tests {
     /// SHA-1 of the salt 00 01 … 0F and "7EEDCE64" as UTF-16LE, iterated 100,000 times.
     const KNOWN_LEGACY_SHA1: &str = "pEWelKoH6SVpvMmyPAJ8bHA/g/s=";
 
+    #[cfg(feature = "encryption")]
     use super::*;
 
+    #[cfg(feature = "encryption")]
     fn zip_package() -> Vec<u8> {
         let mut doc = wordcraft_doc::Document::from_text("Top secret plans\nSecond paragraph");
         doc.core.title = "Secret".into();
         crate::write(&doc).unwrap()
     }
 
+    #[cfg(feature = "encryption")]
     #[test]
     fn round_trip_with_a_password() {
         let pkg = zip_package();
@@ -898,6 +964,7 @@ mod tests {
         assert!(encrypt(&pkg, &"x".repeat(MAX_PASSWORD_CHARS + 1)).is_err());
     }
 
+    #[cfg(feature = "encryption")]
     #[test]
     fn tampered_package_fails_the_integrity_check() {
         let pkg = zip_package();
@@ -913,6 +980,7 @@ mod tests {
         assert!(matches!(decrypt(&enc, Some("pw")), Err(DocxError::Encryption(m)) if m.contains("integrity")));
     }
 
+    #[cfg(feature = "encryption")]
     /// A compound file with the given EncryptionInfo and EncryptedPackage streams.
     fn cfb_with(info: &[u8], package: &[u8]) -> Vec<u8> {
         let mut comp = cfb::CompoundFile::create(Cursor::new(Vec::new())).unwrap();
@@ -922,6 +990,7 @@ mod tests {
         comp.into_inner().into_inner()
     }
 
+    #[cfg(feature = "encryption")]
     #[test]
     fn hostile_encryption_info_errors_without_panicking() {
         let good = encrypt_with_spin_count(&zip_package(), "pw", 2).unwrap();

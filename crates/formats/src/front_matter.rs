@@ -167,6 +167,131 @@ pub fn set(body: &str, key: &str, value: &str) -> String {
     set_after(body, key, value, None)
 }
 
+/// Indentation of a line (spaces; a tab counts as two), `None` for a blank or comment line.
+fn indent_of(l: &str) -> Option<usize> {
+    let t = l.trim_start();
+    if t.is_empty() || t.starts_with('#') {
+        return None;
+    }
+    Some(l.chars().take_while(|c| c.is_whitespace()).map(|c| if c == '\t' { 2 } else { 1 }).sum())
+}
+
+/// The key of a `key: value` line at any indentation (not a list item).
+fn nested_key(l: &str) -> Option<&str> {
+    let t = l.trim_start();
+    if t.starts_with('-') || t.starts_with('#') {
+        return None;
+    }
+    let (k, _) = t.split_once(':')?;
+    let k = k.trim().trim_matches(['"', '\'']);
+    (!k.is_empty() && !k.contains(' ')).then_some(k)
+}
+
+/// Where the map entry `key` is among `lines[from..to]` at indentation `ind`: its line and the
+/// end of its nested block.
+fn find_at(lines: &[String], from: usize, to: usize, ind: usize, key: &str) -> Option<(usize, usize)> {
+    let mut i = from;
+    while i < to {
+        let l = lines.get(i)?;
+        if indent_of(l) == Some(ind) && nested_key(l).is_some_and(|k| k == key) {
+            let mut end = i + 1;
+            while end < to && lines.get(end).is_some_and(|n| indent_of(n).is_none_or(|d| d > ind)) {
+                end += 1;
+            }
+            // Blank or comment lines at the end belong to what follows.
+            while end > i + 1 && lines.get(end - 1).is_some_and(|n| indent_of(n).is_none()) {
+                end -= 1;
+            }
+            return Some((i, end));
+        }
+        i += 1;
+    }
+    None
+}
+
+/// The value at `path` in nested maps (`["plume", "classification", "level"]`), if set.
+pub fn get_path(body: &str, path: &[&str]) -> Option<String> {
+    let lines: Vec<String> = body.lines().map(str::to_string).collect();
+    let (mut from, mut to, mut ind) = (0, lines.len(), 0);
+    for (n, key) in path.iter().enumerate() {
+        let (at, end) = find_at(&lines, from, to, ind, key)?;
+        if n + 1 == path.len() {
+            let (_, v) = lines.get(at)?.split_once(':')?;
+            let v = scalar(v.trim());
+            return (!v.is_empty()).then_some(v);
+        }
+        ind = lines.get(at + 1..end)?.iter().find_map(|l| indent_of(l))?;
+        (from, to) = (at + 1, end);
+    }
+    None
+}
+
+/// A value as Plume writes it in a nested map: plain when YAML reads it back as the same text
+/// (`C2`, `personal`), double-quoted otherwise (`"1.0"`, `"yes"`, text with spaces).
+fn nested_value(v: &str) -> String {
+    let plain = v.chars().all(|c| c.is_alphanumeric() || matches!(c, '_' | '-' | '+' | '.'))
+        && v.chars().next().is_some_and(char::is_alphabetic)
+        && !matches!(v.to_ascii_lowercase().as_str(), "yes" | "no" | "true" | "false" | "on" | "off" | "null" | "y" | "n");
+    if plain { v.to_string() } else { quoted(v) }
+}
+
+/// `body` with the value at `path` set (empty removes it, and maps it leaves empty). Every other
+/// line — the map's other keys, unknown ones included, comments, order — stays as it was; a new
+/// key goes at the end of its map, indented by two spaces.
+pub fn set_path(body: &str, path: &[&str], value: &str) -> String {
+    let mut lines: Vec<String> = body.lines().map(str::to_string).collect();
+    let value = value.trim().replace(['\n', '\r'], " ");
+    set_in(&mut lines, 0, None, 0, path, &value);
+    lines.join("\n")
+}
+
+/// [`set_path`] within `lines[from..to]` (`to` `None`: to the end) at indentation `ind`; whether
+/// the map still has entries.
+fn set_in(lines: &mut Vec<String>, from: usize, to: Option<usize>, ind: usize, path: &[&str], value: &str) -> bool {
+    let Some((key, rest)) = path.split_first() else { return true };
+    let to_end = to.unwrap_or(lines.len());
+    match find_at(lines, from, to_end, ind, key) {
+        Some((at, end)) if rest.is_empty() => {
+            if value.is_empty() {
+                lines.drain(at..end);
+            } else {
+                // A value is written on its key's line, replacing what was nested under it.
+                lines.drain(at + 1..end);
+                if let Some(l) = lines.get_mut(at) {
+                    *l = format!("{}{key}: {}", " ".repeat(ind), nested_value(value));
+                }
+            }
+        }
+        Some((at, end)) => {
+            let child = lines.get(at + 1..end).and_then(|c| c.iter().find_map(|l| indent_of(l))).unwrap_or(ind + 2);
+            let before = lines.len();
+            let kept = set_in(lines, at + 1, Some(end), child, rest, value);
+            if !kept {
+                let end = (end + lines.len()).saturating_sub(before);
+                lines.drain(at..end.max(at + 1));
+            }
+        }
+        None if value.is_empty() => {}
+        None => {
+            // A new entry at the end of this map: its key, then its nested keys.
+            let mut at = to_end;
+            while at > from && lines.get(at - 1).is_some_and(|l| indent_of(l).is_none()) {
+                at -= 1;
+            }
+            let mut new = Vec::new();
+            for (d, k) in path.iter().enumerate() {
+                let pad = " ".repeat(ind + 2 * d);
+                new.push(if d + 1 == path.len() { format!("{pad}{k}: {}", nested_value(value)) } else { format!("{pad}{k}:") });
+            }
+            for (i, l) in new.into_iter().enumerate() {
+                lines.insert(at + i, l);
+            }
+        }
+    }
+    let to_end = to.map_or(lines.len(), |t| t.min(lines.len()));
+    (from..to_end).any(|i| lines.get(i).and_then(|l| indent_of(l)).is_some())
+}
+
 /// The document's front matter as stored ([`FRONT_MATTER_PART`]).
 pub fn stored(doc: &Document) -> String {
     doc.passthrough.get(FRONT_MATTER_PART).map(|b| String::from_utf8_lossy(b).into_owned()).unwrap_or_default()
@@ -292,6 +417,27 @@ pub fn adopt_converted(doc: &mut Document) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn nested_values_are_read_and_written_in_place() {
+        let body = "title: \"Mon document\"\n# a comment\nplume:\n  classification:\n    reference: plume\n    level: C1\n    owner: x  # unknown key kept\n  context: personal\nother: 1";
+        assert_eq!(get_path(body, &["plume", "classification", "level"]).as_deref(), Some("C1"));
+        assert_eq!(get_path(body, &["plume", "context"]).as_deref(), Some("personal"));
+        assert_eq!(get_path(body, &["plume", "visibility"]), None);
+        let b = set_path(body, &["plume", "classification", "level"], "C2");
+        assert!(b.contains("    level: C2\n    owner: x  # unknown key kept"), "{b}");
+        let b = set_path(&b, &["plume", "visibility"], "private");
+        assert!(b.contains("  context: personal\n  visibility: private\nother: 1"), "{b}");
+        let b = set_path(&b, &["plume", "classification", "version"], "1.0");
+        assert_eq!(get_path(&b, &["plume", "classification", "version"]).as_deref(), Some("1.0"));
+        assert!(b.contains("version: \"1.0\""), "a number-looking value is quoted: {b}");
+        assert!(b.starts_with("title: \"Mon document\"\n# a comment\n"), "{b}");
+        // A new map where there was none; removing its last key removes it.
+        let fresh = set_path("title: x", &["plume", "classification", "level"], "C0");
+        assert_eq!(fresh, "title: x\nplume:\n  classification:\n    level: C0");
+        assert_eq!(set_path(&fresh, &["plume", "classification", "level"], ""), "title: x");
+        assert_eq!(set_path("", &["plume", "context"], "other"), "plume:\n  context: other");
+    }
 
     const SRC: &str = "title: Guide\ntags:\n  - a\n  - b\n# PDF settings\ntitlepage: true\nauthor: [Ada, Grace]";
 

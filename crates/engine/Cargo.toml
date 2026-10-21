@@ -8,6 +8,12 @@ description = "WordCraft engine: session, selection, undo, the command registry 
 [lints]
 workspace = true
 
+[features]
+# Plume: password encryption (AES Crypt, ZIP AES-256, encrypted Word documents). Off by default:
+# without it no cipher is compiled in, and encrypted files are recognised but never opened or
+# written. Build a release with encryption with `--features encryption`.
+encryption = ["wordcraft-crypt/encryption", "wordcraft-docx/encryption", "wordcraft-docbin/encryption"]
+
 [dependencies]
 wordcraft-brand = { workspace = true }
 wordcraft-geom = { workspace = true }
@@ -22,6 +28,7 @@ wordcraft-pdf = { workspace = true }
 wordcraft-formats = { workspace = true }
 wordcraft-diagram = { workspace = true }
 wordcraft-vcs = { workspace = true }
+wordcraft-crypt = { workspace = true }
 wordcraft-control-key = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

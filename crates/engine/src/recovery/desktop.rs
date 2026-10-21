@@ -834,6 +834,7 @@ mod tests {
         assert_eq!(fs::read(file).unwrap(), original);
     }
 
+    #[cfg(feature = "encryption")]
     #[test]
     fn password_barrier_clears_in_flight_plaintext_and_blocks_new_copies() {
         let t = Temp::new();
@@ -886,6 +887,7 @@ mod tests {
         assert!(s.recovery_error().unwrap().contains("document changed"));
     }
 
+    #[cfg(feature = "encryption")]
     #[test]
     fn opening_protected_file_and_password_save_never_leave_plaintext_copies() {
         let t = Temp::new();
@@ -916,6 +918,7 @@ mod tests {
         assert_eq!(fs::read(original).unwrap(), bytes);
     }
 
+    #[cfg(feature = "encryption")]
     #[test]
     fn protection_after_document_switch_does_not_discard_another_draft() {
         let t = Temp::new();

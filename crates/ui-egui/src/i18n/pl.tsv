@@ -3208,3 +3208,87 @@ preview	Title	Tytuł
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Nie znaleziono silnika TeX: ta kopia Plume nie ma Tectonic. Zainstaluj go (brew install tectonic) lub MacTeX, a potem wyeksportuj ponownie.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Nie znaleziono silnika TeX: ta kopia Plume nie ma Tectonic. Zainstaluj go (winget install TectonicTypesetting.Tectonic) lub MiKTeX, a potem wyeksportuj ponownie.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Nie znaleziono silnika TeX: ta kopia Plume nie ma Tectonic. Zainstaluj Tectonic lub TeX Live menedżerem pakietów, a potem wyeksportuj ponownie.
+	Classification	Klasyfikacja
+	Set Classification	Ustaw klasyfikację
+	Classification Referential	Schemat klasyfikacji
+	Classification Referentials	Schematy klasyfikacji
+	Check Classification	Sprawdź klasyfikację
+	Classification Options	Opcje klasyfikacji
+	Save Classification Referential	Zapisz schemat
+	Delete Classification Referential	Usuń schemat
+	Document Classification	Klasyfikacja dokumentów
+	Personal	Prywatny
+	Private	Prywatny
+	Shared	Udostępniony
+	Public	Publiczny
+	Ordinary	Zwykła
+	Strategic	Strategiczna
+	No personal data	Brak danych osobowych
+	Personal data	Dane osobowe
+	Sensitive personal data	Wrażliwe dane osobowe
+	Visibility	Widoczność
+	Importance	Ważność
+	Unclassified	Niesklasyfikowany
+	Not set	Nie ustawiono
+	Confidentiality	Poufność
+	Referential definition	Definicja schematu
+	Change referential	Zmień schemat
+	Classification Options…	Opcje klasyfikacji…
+	Referential	Schemat
+	Default referential	Domyślny schemat
+	Labels in the title bar	Etykiety na pasku tytułu
+	Each label	Każda etykieta
+	One compact label	Jedna zwarta etykieta
+	Referentials	Schematy
+	{name} (built in)	{name} (wbudowany)
+	Duplicate to customise	Duplikuj, by dostosować
+	custom	własny
+	Code	Kod
+	Add a level	Dodaj poziom
+	Classified document	Dokument sklasyfikowany
+	Publish anyway	Opublikuj mimo to
+	Internal	Wewnętrzny
+	Confidential	Poufny
+	Restricted	Zastrzeżony
+	Highly restricted	Ściśle zastrzeżony
+	Referential: {name}	Schemat: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Klasyfikacja określa, jak dokument może być rozpowszechniany; nie szyfruje pliku.
+	Anyone may read it.	Każdy może go czytać.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Kolorom zawsze towarzyszą kod i nazwa poziomu. Zmiana systemu klasyfikacji dokumentu wymaga podania nowego poziomu: dokument nigdy nie jest przeklasyfikowywany po cichu.
+	Description and rules of diffusion	Opis i zasady rozpowszechniania
+	FIRST's Traffic Light Protocol, version 2.0.	Traffic Light Protocol organizacji FIRST, wersja 2.0.
+	For named people only, under strict control; never exported unencrypted.	Tylko dla wskazanych osób, pod ścisłą kontrolą; nigdy nie eksportowany bez szyfrowania.
+	For named people only; disclosure would cause serious harm.	Tylko dla wskazanych osób; ujawnienie wyrządziłoby poważną szkodę.
+	For the eyes and ears of the individual recipients only.	Wyłącznie dla poszczególnych odbiorców.
+	For the people of the organisation or group.	Dla osób z organizacji lub grupy.
+	For the people who need it; not to be published.	Dla osób, które go potrzebują; nie do publikacji.
+	Plume's five levels, from public to highly restricted.	Pięć poziomów Plume, od publicznego do ściśle ograniczonego.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Publikacja tworzy tam czytelną kopię. Etykieta jej nie chroni; chroni ją szyfrowanie.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Odbiorcy mogą go udostępniać tylko w swojej organizacji i jej klientom, w razie potrzeby.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Odbiorcy mogą go udostępniać tylko w swojej organizacji, w razie potrzeby.
+	Recipients may share it within their community, not publicly.	Odbiorcy mogą go udostępniać w swojej społeczności, nie publicznie.
+	Recipients may share it without limit.	Odbiorcy mogą go udostępniać bez ograniczeń.
+	Referential {name} (not known here; kept as written)	System klasyfikacji {name} (tu nieznany; zachowany w zapisanej postaci)
+	Show the level on PDF and HTML copies	Pokazuj poziom na kopiach PDF i HTML
+	This document's classification asks for a decision before it is published:	Klasyfikacja tego dokumentu wymaga decyzji przed publikacją:
+	Warn before publishing a document its level asks to keep	Ostrzegaj przed publikacją dokumentu, który według poziomu należy zachować
+	Convert Document Package	Konwertuj pakiet dokumentu
+	Encrypt File	Zaszyfruj plik
+	Decrypt File	Odszyfruj plik
+	Inspect Encryption	Sprawdź szyfrowanie
+	Encrypted	Zaszyfrowany
+	Not encrypted	Niezaszyfrowany
+	Encryption	Szyfrowanie
+	Method	Metoda
+	This document is saved encrypted.	Ten dokument jest zapisywany w postaci zaszyfrowanej.
+	Without the password nobody, Plume included, can open it.	Bez hasła nikt, łącznie z Plume, nie może go otworzyć.
+	Save an Unencrypted Copy…	Zapisz niezaszyfrowaną kopię…
+	Anyone who gets this file can read it.	Każdy, kto zdobędzie ten plik, może go przeczytać.
+	Its classification asks for encryption.	Jego klasyfikacja wymaga szyfrowania.
+	A classification label doesn't encrypt the document.	Etykieta klasyfikacji nie szyfruje dokumentu.
+	Save an Encrypted Copy…	Zapisz zaszyfrowaną kopię…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Nazwy, rozmiary i daty plików w ZIP pozostają czytelne; szyfrowana jest tylko zawartość.
+	The file's name and its approximate size stay visible; nothing inside does.	Widoczne pozostają nazwa pliku i jego przybliżony rozmiar; zawartość nie.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Plik Markdown szyfruje się jako kopię: Markdown w AES Crypt (.md.aes), TextPack (.textpack.aes) lub ZIP z hasłem.
+	Markdown, encrypted (*.md.aes)	Markdown, zaszyfrowany (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, zaszyfrowany (*.textpack.aes)

@@ -2917,3 +2917,89 @@ preview	Title	Örnek
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	TeX motoru bulunamadı: Plume'un bu kopyasında Tectonic yok. Onu (brew install tectonic) veya MacTeX'i yükleyin, sonra yeniden dışa aktarın.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	TeX motoru bulunamadı: Plume'un bu kopyasında Tectonic yok. Onu (winget install TectonicTypesetting.Tectonic) veya MiKTeX'i yükleyin, sonra yeniden dışa aktarın.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	TeX motoru bulunamadı: Plume'un bu kopyasında Tectonic yok. Tectonic veya TeX Live'ı paket yöneticinizle yükleyin, sonra yeniden dışa aktarın.
+	Classification	Sınıflandırma
+	Set Classification	Sınıflandırmayı ayarla
+	Classification Referential	Sınıflandırma şeması
+	Classification Referentials	Sınıflandırma şemaları
+	Check Classification	Sınıflandırmayı denetle
+	Classification Options	Sınıflandırma seçenekleri
+	Save Classification Referential	Şemayı kaydet
+	Delete Classification Referential	Şemayı sil
+	Document Classification	Belge sınıflandırması
+	Personal	Kişisel
+	Association	Dernek
+	Private	Özel
+	Shared	Paylaşılan
+	Public	Herkese açık
+	Ordinary	Olağan
+	Strategic	Stratejik
+	No personal data	Kişisel veri yok
+	Personal data	Kişisel veriler
+	Sensitive personal data	Hassas kişisel veriler
+	Visibility	Görünürlük
+	Importance	Önem
+	Unclassified	Sınıflandırılmamış
+	Not set	Ayarlanmadı
+	Confidentiality	Gizlilik
+	Referential definition	Şemanın tanımı
+	Change referential	Şemayı değiştir
+	Classification Options…	Sınıflandırma seçenekleri…
+	Referential	Şema
+	Default referential	Varsayılan şema
+	Labels in the title bar	Başlık çubuğundaki etiketler
+	Each label	Her etiket
+	One compact label	Tek bir kısa etiket
+	Referentials	Şemalar
+	{name} (built in)	{name} (yerleşik)
+	Duplicate to customise	Özelleştirmek için çoğalt
+	custom	özel
+	Code	Kod
+	Label	Etiket
+	Add a level	Düzey ekle
+	Classified document	Sınıflandırılmış belge
+	Publish anyway	Yine de yayımla
+	Internal	Dahili
+	Confidential	Gizli
+	Restricted	Kısıtlı
+	Highly restricted	Çok kısıtlı
+	Referential: {name}	Şema: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Sınıflandırma, belgenin nasıl dolaşabileceğini belirtir; dosyayı şifrelemez.
+	Anyone may read it.	Herkes okuyabilir.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Renkler her zaman düzeyin kodu ve adıyla birlikte gösterilir. Belgenin sınıflandırma sistemini değiştirmek yeni düzeyini sorar: belge asla sessizce yeniden sınıflandırılmaz.
+	Description and rules of diffusion	Açıklama ve dağıtım kuralları
+	FIRST's Traffic Light Protocol, version 2.0.	FIRST'ün Traffic Light Protocol'ü, sürüm 2.0.
+	For named people only, under strict control; never exported unencrypted.	Yalnızca adı belirtilen kişiler için, sıkı denetim altında; asla şifrelenmeden dışa aktarılmaz.
+	For named people only; disclosure would cause serious harm.	Yalnızca adı belirtilen kişiler için; ifşası ciddi zarar verir.
+	For the eyes and ears of the individual recipients only.	Yalnızca tek tek alıcıların kendileri için.
+	For the people of the organisation or group.	Kuruluşun veya grubun kişileri için.
+	For the people who need it; not to be published.	İhtiyacı olan kişiler için; yayımlanmaz.
+	Plume's five levels, from public to highly restricted.	Plume'un beş düzeyi, herkese açıktan çok kısıtlıya.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Yayımlamak orada okunabilir bir kopya oluşturur. Etiket onu korumaz; şifreleme korur.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Alıcılar yalnızca kendi kuruluşları ve müşterileri içinde, bilmesi gereken ilkesiyle paylaşabilir.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Alıcılar yalnızca kendi kuruluşları içinde, bilmesi gereken ilkesiyle paylaşabilir.
+	Recipients may share it within their community, not publicly.	Alıcılar topluluklarında paylaşabilir, herkese açık olarak değil.
+	Recipients may share it without limit.	Alıcılar sınırsız paylaşabilir.
+	Referential {name} (not known here; kept as written)	{name} sınıflandırma sistemi (burada bilinmiyor; yazıldığı gibi korunur)
+	Show the level on PDF and HTML copies	Düzeyi PDF ve HTML kopyalarında göster
+	This document's classification asks for a decision before it is published:	Bu belgenin sınıflandırması yayımlamadan önce bir karar gerektiriyor:
+	Warn before publishing a document its level asks to keep	Düzeyi saklı tutulmasını isteyen bir belgeyi yayımlamadan önce uyar
+	Convert Document Package	Belge paketini dönüştür
+	Encrypt File	Dosyayı şifrele
+	Decrypt File	Dosyanın şifresini çöz
+	Inspect Encryption	Şifrelemeyi incele
+	Encrypted	Şifreli
+	Not encrypted	Şifresiz
+	Encryption	Şifreleme
+	Method	Yöntem
+	This document is saved encrypted.	Bu belge şifreli kaydedilir.
+	Without the password nobody, Plume included, can open it.	Parola olmadan Plume dahil hiç kimse onu açamaz.
+	Save an Unencrypted Copy…	Şifresiz bir kopya kaydet…
+	Anyone who gets this file can read it.	Bu dosyayı alan herkes okuyabilir.
+	Its classification asks for encryption.	Sınıflandırması şifreleme gerektiriyor.
+	A classification label doesn't encrypt the document.	Sınıflandırma etiketi belgeyi şifrelemez.
+	Save an Encrypted Copy…	Şifreli bir kopya kaydet…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	ZIP içindeki dosya adları, boyutları ve tarihleri okunabilir kalır; yalnızca içerikleri şifrelenir.
+	The file's name and its approximate size stay visible; nothing inside does.	Dosyanın adı ve yaklaşık boyutu görünür kalır; içindeki hiçbir şey görünmez.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Bir Markdown dosyası kopya olarak şifrelenir: AES Crypt içinde Markdown (.md.aes), bir TextPack (.textpack.aes) veya parolalı bir ZIP.
+	Markdown, encrypted (*.md.aes)	Markdown, şifreli (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, şifreli (*.textpack.aes)

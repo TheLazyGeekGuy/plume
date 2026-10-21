@@ -3140,10 +3140,20 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
                         } else {
                             tl!("The document will be saved with a password. Save it to protect it.")
                         });
+                        // Plume: the save to an encrypted file that asked for the password.
+                        if let Some((id, params)) = app.after_encrypt.take()
+                            && !password.is_empty()
+                            && let Err(e) = app.run(&id, params)
+                        {
+                            app.status(e);
+                        }
                         return true;
                     }
                     Err(e) => *message = e,
                 }
+            }
+            if cancel {
+                app.after_encrypt = None;
             }
             cancel
         }

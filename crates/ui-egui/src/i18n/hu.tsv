@@ -2916,3 +2916,89 @@
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Nem található TeX-motor: a Plume ezen példányában nincs Tectonic. Telepítse (brew install tectonic) vagy a MacTeX-et, majd exportáljon újra.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Nem található TeX-motor: a Plume ezen példányában nincs Tectonic. Telepítse (winget install TectonicTypesetting.Tectonic) vagy a MiKTeX-et, majd exportáljon újra.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Nem található TeX-motor: a Plume ezen példányában nincs Tectonic. Telepítse a Tectonicot vagy a TeX Live-ot a csomagkezelővel, majd exportáljon újra.
+	Classification	Besorolás
+	Set Classification	Besorolás beállítása
+	Classification Referential	Besorolási rendszer
+	Classification Referentials	Besorolási rendszerek
+	Check Classification	Besorolás ellenőrzése
+	Classification Options	Besorolási beállítások
+	Save Classification Referential	Rendszer mentése
+	Delete Classification Referential	Rendszer törlése
+	Document Classification	Dokumentumbesorolás
+	Personal	Személyes
+	Association	Egyesületi
+	Private	Privát
+	Shared	Megosztott
+	Public	Nyilvános
+	Ordinary	Szokásos
+	Strategic	Stratégiai
+	No personal data	Nincs személyes adat
+	Personal data	Személyes adatok
+	Sensitive personal data	Érzékeny személyes adatok
+	Visibility	Láthatóság
+	Importance	Fontosság
+	Unclassified	Besorolatlan
+	Not set	Nincs beállítva
+	Confidentiality	Bizalmasság
+	Referential definition	A rendszer meghatározása
+	Change referential	Rendszer váltása
+	Classification Options…	Besorolási beállítások…
+	Referential	Rendszer
+	Default referential	Alapértelmezett rendszer
+	Labels in the title bar	Címkék a címsorban
+	Each label	Minden címke
+	One compact label	Egy tömör címke
+	Referentials	Rendszerek
+	{name} (built in)	{name} (beépített)
+	Duplicate to customise	Másolat testreszabáshoz
+	custom	saját
+	Code	Kód
+	Label	Címke
+	Add a level	Szint hozzáadása
+	Classified document	Besorolt dokumentum
+	Publish anyway	Közzététel mégis
+	Internal	Belső
+	Confidential	Bizalmas
+	Restricted	Korlátozott
+	Highly restricted	Szigorúan korlátozott
+	Referential: {name}	Rendszer: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	A besorolás azt rögzíti, hogyan terjedhet a dokumentum; a fájlt nem titkosítja.
+	Anyone may read it.	Bárki elolvashatja.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	A színek mellett mindig ott a szint kódja és neve. A dokumentum besorolási rendszerének cseréjekor az új szintet is meg kell adni: a dokumentum sosem sorolódik át csendben.
+	Description and rules of diffusion	Leírás és terjesztési szabályok
+	FIRST's Traffic Light Protocol, version 2.0.	A FIRST Traffic Light Protocolja, 2.0-s verzió.
+	For named people only, under strict control; never exported unencrypted.	Csak megnevezett személyeknek, szigorú ellenőrzés mellett; titkosítás nélkül sosem exportálható.
+	For named people only; disclosure would cause serious harm.	Csak megnevezett személyeknek; nyilvánosságra kerülése súlyos kárt okozna.
+	For the eyes and ears of the individual recipients only.	Kizárólag az egyes címzettek számára.
+	For the people of the organisation or group.	A szervezet vagy csoport tagjainak.
+	For the people who need it; not to be published.	Akiknek szükségük van rá; nem hozható nyilvánosságra.
+	Plume's five levels, from public to highly restricted.	A Plume öt szintje, a nyilvánostól a szigorúan korlátozottig.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	A közzététel olvasható másolatot hoz létre ott. A címke nem védi; a titkosítás igen.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	A címzettek csak a saját szervezetükön belül és annak ügyfeleivel oszthatják meg, szükség szerint.
+	Recipients may share it only within their organisation, on a need-to-know basis.	A címzettek csak a saját szervezetükön belül oszthatják meg, szükség szerint.
+	Recipients may share it within their community, not publicly.	A címzettek a közösségükön belül megoszthatják, nyilvánosan nem.
+	Recipients may share it without limit.	A címzettek korlátozás nélkül megoszthatják.
+	Referential {name} (not known here; kept as written)	{name} besorolási rendszer (itt ismeretlen; a leírt módon megőrizve)
+	Show the level on PDF and HTML copies	A szint megjelenítése a PDF- és HTML-másolatokon
+	This document's classification asks for a decision before it is published:	A dokumentum besorolása döntést kér a közzététel előtt:
+	Warn before publishing a document its level asks to keep	Figyelmeztetés olyan dokumentum közzététele előtt, amelyet a szintje szerint vissza kell tartani
+	Convert Document Package	Dokumentumcsomag átalakítása
+	Encrypt File	Fájl titkosítása
+	Decrypt File	Fájl visszafejtése
+	Inspect Encryption	Titkosítás vizsgálata
+	Encrypted	Titkosítva
+	Not encrypted	Nincs titkosítva
+	Encryption	Titkosítás
+	Method	Módszer
+	This document is saved encrypted.	Ez a dokumentum titkosítva van mentve.
+	Without the password nobody, Plume included, can open it.	Jelszó nélkül senki, a Plume sem tudja megnyitni.
+	Save an Unencrypted Copy…	Titkosítatlan másolat mentése…
+	Anyone who gets this file can read it.	Aki megszerzi ezt a fájlt, el tudja olvasni.
+	Its classification asks for encryption.	A besorolása titkosítást kér.
+	A classification label doesn't encrypt the document.	A besorolási címke nem titkosítja a dokumentumot.
+	Save an Encrypted Copy…	Titkosított másolat mentése…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	A ZIP-ben lévő fájlok neve, mérete és dátuma olvasható marad; csak a tartalmuk titkosított.
+	The file's name and its approximate size stay visible; nothing inside does.	A fájl neve és hozzávetőleges mérete látható marad; a tartalma nem.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	A Markdown-fájl másolatként titkosítható: a Markdown AES Cryptben (.md.aes), TextPackként (.textpack.aes) vagy jelszavas ZIP-ként.
+	Markdown, encrypted (*.md.aes)	Markdown, titkosított (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, titkosított (*.textpack.aes)

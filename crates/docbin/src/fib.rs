@@ -80,8 +80,14 @@ impl SubDocs {
     }
 }
 
+/// Bytes at the start of the WordDocument stream that are stored untransformed.
+pub(crate) const FIB_PLAIN: usize = 68;
+/// `FibBase.flags`: the document is encrypted (`fEncrypted`).
+pub(crate) const F_ENCRYPTED: u16 = 0x0100;
+
 /// What the unencrypted head of a password-protected file says (see [`peek_encryption`]).
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(not(feature = "encryption"), allow(dead_code))]
 pub(crate) struct Protection {
     pub(crate) flags: u16,
     /// `FibBase.lKey`: the XOR verifier, or the size of the RC4 header in the Table stream.
@@ -93,11 +99,11 @@ pub(crate) struct Protection {
 /// stored in the clear; this reads nothing else. `None` for anything else, including streams that
 /// are too short or have a foreign magic (the full parse reports those).
 pub(crate) fn peek_encryption(word: &[u8]) -> Option<Protection> {
-    if word.len() < crate::crypt::FIB_PLAIN || word.get(0..2)? != W_IDENT.to_le_bytes() {
+    if word.len() < FIB_PLAIN || word.get(0..2)? != W_IDENT.to_le_bytes() {
         return None;
     }
     let flags = u16::from_le_bytes([*word.get(OFF_FLAGS)?, *word.get(OFF_FLAGS + 1)?]);
-    if flags & crate::crypt::F_ENCRYPTED == 0 {
+    if flags & F_ENCRYPTED == 0 {
         return None;
     }
     let lkey = u32::from_le_bytes([*word.get(0x0E)?, *word.get(0x0F)?, *word.get(0x10)?, *word.get(0x11)?]);

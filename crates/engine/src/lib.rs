@@ -8,6 +8,7 @@
 
 pub mod ai;
 pub mod catalog;
+pub mod classification;
 pub mod cmd;
 pub mod diagrams;
 pub mod emoji;
@@ -25,6 +26,7 @@ pub mod ribbon;
 pub mod sample;
 mod session;
 pub mod speech;
+pub mod transport;
 
 use std::collections::HashMap;
 

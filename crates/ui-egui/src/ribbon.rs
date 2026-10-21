@@ -625,7 +625,7 @@ fn esc_cancelled(ui: &Ui, r: &egui::Response, id: egui::Id) -> bool {
     ui.data(|d| d.get_temp::<u64>(esc_key)).is_some_and(|at| now.saturating_sub(at) <= 2)
 }
 
-fn stack(ui: &mut Ui, add: impl FnOnce(&mut Ui)) {
+pub(crate) fn stack(ui: &mut Ui, add: impl FnOnce(&mut Ui)) {
     ui.vertical(|ui| {
         ui.spacing_mut().item_spacing = vec2(1.0, 0.0);
         add(ui);
@@ -2128,6 +2128,8 @@ fn review(app: &mut WordApp, ui: &mut Ui) {
             small(ui, app, "wordCount", Some("Word Count"), "Word Count", "ui.dialog", json!({"name": "wordCount"}), false);
         });
     });
+    // Plume: the document's classification labels.
+    crate::classification_ui::ribbon_group(app, ui);
     group(ui, "Speech", None, app, |ui, app| {
         big(ui, app, "readAloud", "Read\nAloud", "review.readAloud", json!({}), false);
     });

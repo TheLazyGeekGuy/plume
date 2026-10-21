@@ -77,7 +77,8 @@ pub fn start_export(app: &mut WordApp, ctx: &egui::Context, path: &str, preview:
     if app.services.download.is_some() {
         let id = app.pdf_templates.id().to_string();
         let name = std::path::Path::new(path).file_name().map_or_else(|| "document.pdf".to_string(), |n| n.to_string_lossy().to_string());
-        app.pdf_templates.message = match wordcraft_engine::pdf_template::native_pdf(&app.session.doc, &id) {
+        let doc = wordcraft_engine::classification::marked(&app.session.prefs.classification, &app.session.doc);
+        app.pdf_templates.message = match wordcraft_engine::pdf_template::native_pdf(&doc, &id) {
             Ok(bytes) => match app.services.download.as_ref().map(|d| d(&name, &bytes)) {
                 Some(Err(e)) => e,
                 _ => tl!(WEB_PDF_NOTE).to_string(),

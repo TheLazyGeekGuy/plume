@@ -10,6 +10,10 @@ description = "WordCraft desktop app"
 [lints]
 workspace = true
 
+[features]
+# Plume: password encryption, off by default (see wordcraft-engine's `encryption`).
+encryption = ["wordcraft-engine/encryption", "wordcraft-ui-egui/encryption"]
+
 [dependencies]
 wordcraft-brand = { workspace = true }
 wordcraft-doc = { workspace = true }

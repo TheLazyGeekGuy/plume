@@ -2936,3 +2936,89 @@ preview	Title	Titel
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Ingen TeX-motor hittades: den här kopian av Plume saknar Tectonic. Installera den (brew install tectonic) eller MacTeX och exportera igen.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Ingen TeX-motor hittades: den här kopian av Plume saknar Tectonic. Installera den (winget install TectonicTypesetting.Tectonic) eller MiKTeX och exportera igen.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Ingen TeX-motor hittades: den här kopian av Plume saknar Tectonic. Installera Tectonic eller TeX Live med pakethanteraren och exportera igen.
+	Classification	Klassificering
+	Set Classification	Ange klassificering
+	Classification Referential	Klassificeringsschema
+	Classification Referentials	Klassificeringsscheman
+	Check Classification	Kontrollera klassificering
+	Classification Options	Klassificeringsalternativ
+	Save Classification Referential	Spara schema
+	Delete Classification Referential	Ta bort schema
+	Document Classification	Dokumentklassificering
+	Personal	Personlig
+	Association	Förening
+	Private	Privat
+	Shared	Delad
+	Public	Offentlig
+	Ordinary	Vanlig
+	Strategic	Strategisk
+	No personal data	Inga personuppgifter
+	Personal data	Personuppgifter
+	Sensitive personal data	Känsliga personuppgifter
+	Visibility	Synlighet
+	Importance	Vikt
+	Unclassified	Oklassificerad
+	Not set	Inte angivet
+	Confidentiality	Sekretess
+	Referential definition	Schemats definition
+	Change referential	Byt schema
+	Classification Options…	Klassificeringsalternativ…
+	Referential	Schema
+	Default referential	Standardschema
+	Labels in the title bar	Etiketter i namnlisten
+	Each label	Varje etikett
+	One compact label	En kompakt etikett
+	Referentials	Scheman
+	{name} (built in)	{name} (inbyggt)
+	Duplicate to customise	Duplicera för att anpassa
+	custom	eget
+	Code	Kod
+	Label	Etikett
+	Add a level	Lägg till nivå
+	Classified document	Klassificerat dokument
+	Publish anyway	Publicera ändå
+	Internal	Intern
+	Confidential	Konfidentiell
+	Restricted	Begränsad
+	Highly restricted	Strängt begränsad
+	Referential: {name}	Schema: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	En klassificering anger hur dokumentet får spridas; den krypterar inte filen.
+	Anyone may read it.	Vem som helst får läsa det.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Färger visas alltid tillsammans med nivåns kod och namn. Byte av dokumentets klassificeringssystem kräver en ny nivå: ett dokument omklassificeras aldrig i tysthet.
+	Description and rules of diffusion	Beskrivning och spridningsregler
+	FIRST's Traffic Light Protocol, version 2.0.	FIRST:s Traffic Light Protocol, version 2.0.
+	For named people only, under strict control; never exported unencrypted.	Endast för namngivna personer, under strikt kontroll; exporteras aldrig okrypterat.
+	For named people only; disclosure would cause serious harm.	Endast för namngivna personer; röjande skulle orsaka allvarlig skada.
+	For the eyes and ears of the individual recipients only.	Endast för de enskilda mottagarna.
+	For the people of the organisation or group.	För personer i organisationen eller gruppen.
+	For the people who need it; not to be published.	För dem som behöver det; ska inte publiceras.
+	Plume's five levels, from public to highly restricted.	Plumes fem nivåer, från offentlig till strikt begränsad.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Publicering skapar en läsbar kopia där. Etiketten skyddar den inte; kryptering gör det.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Mottagarna får dela det endast inom sin organisation och med dess kunder, efter behov.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Mottagarna får dela det endast inom sin organisation, efter behov.
+	Recipients may share it within their community, not publicly.	Mottagarna får dela det inom sin gemenskap, inte offentligt.
+	Recipients may share it without limit.	Mottagarna får dela det utan begränsning.
+	Referential {name} (not known here; kept as written)	Klassificeringssystemet {name} (okänt här; behålls som skrivet)
+	Show the level on PDF and HTML copies	Visa nivån på PDF- och HTML-kopior
+	This document's classification asks for a decision before it is published:	Dokumentets klassificering kräver ett beslut innan det publiceras:
+	Warn before publishing a document its level asks to keep	Varna innan ett dokument publiceras som dess nivå säger ska hållas inne
+	Convert Document Package	Konvertera dokumentpaket
+	Encrypt File	Kryptera fil
+	Decrypt File	Dekryptera fil
+	Inspect Encryption	Granska kryptering
+	Encrypted	Krypterat
+	Not encrypted	Inte krypterat
+	Encryption	Kryptering
+	Method	Metod
+	This document is saved encrypted.	Det här dokumentet sparas krypterat.
+	Without the password nobody, Plume included, can open it.	Utan lösenordet kan ingen, inte ens Plume, öppna det.
+	Save an Unencrypted Copy…	Spara en okrypterad kopia…
+	Anyone who gets this file can read it.	Den som får tag på filen kan läsa den.
+	Its classification asks for encryption.	Dess klassificering kräver kryptering.
+	A classification label doesn't encrypt the document.	En klassificeringsetikett krypterar inte dokumentet.
+	Save an Encrypted Copy…	Spara en krypterad kopia…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Filnamn, storlekar och datum i ZIP-filen förblir läsbara; bara innehållet krypteras.
+	The file's name and its approximate size stay visible; nothing inside does.	Filens namn och ungefärliga storlek syns; inget av innehållet.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	En Markdown-fil krypteras som kopia: Markdown i AES Crypt (.md.aes), ett TextPack (.textpack.aes) eller en ZIP med lösenord.
+	Markdown, encrypted (*.md.aes)	Markdown, krypterad (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, krypterad (*.textpack.aes)

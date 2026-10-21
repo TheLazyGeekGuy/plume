@@ -235,6 +235,7 @@ fn format_name(ext: &str) -> String {
         "textbundle" => "TextBundle".into(),
         "textpack" => "TextPack".into(),
         "zip" => "Markdown and pictures (ZIP)".into(),
+        "aes" => "Encrypted, AES Crypt (name.md.aes, name.textpack.aes)".into(),
         "html" => "Web Page".into(),
         "rtf" => "Rich Text Format".into(),
         "odt" => "OpenDocument Text".into(),

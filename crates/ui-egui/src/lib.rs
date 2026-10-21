@@ -29,6 +29,7 @@ pub mod backstage;
 pub mod canvas;
 pub mod caret_glide;
 pub mod chrome;
+pub mod classification_ui;
 pub mod colors;
 pub mod content_controls;
 pub mod control;
@@ -54,6 +55,7 @@ pub mod dialogs_smart_art;
 pub mod dialogs_table_style;
 pub mod dialogs_templates;
 pub mod emoji_picker;
+pub mod encryption_ui;
 pub mod equation_tab;
 /// The built-in file browser, for desktops without a system file dialog (#576).
 #[cfg(not(target_arch = "wasm32"))]
@@ -645,6 +647,11 @@ pub struct WordApp {
     /// Plume, web: the file name the document was last saved under (or opened from, for a
     /// Markdown file), with the document and the file it belongs to; a later Save reuses it.
     pub(crate) web_save: Option<(u64, Option<std::path::PathBuf>, String)>,
+    /// Plume: a publication waiting for the explicit decision the document's classification asks
+    /// for: the command, its parameters and the warnings.
+    pub(crate) classification_confirm: Option<(String, Value, Vec<String>)>,
+    /// Plume: a save to an encrypted file waiting for Encrypt with Password's answer.
+    pub(crate) after_encrypt: Option<(String, Value)>,
     /// Web: the command a Save Changes prompt held back until its picker save ends (#1315).
     awaiting_save: Option<AwaitingSave>,
     /// The file dialog the host is showing, and what its answer is for ([`file_dialogs`]).
@@ -757,6 +764,8 @@ impl WordApp {
             autosave_path: None,
             saves_in_flight: Vec::new(),
             web_save: None,
+            classification_confirm: None,
+            after_encrypt: None,
             awaiting_save: None,
             change_picture_target: None,
             recipient_list_pending: false,
@@ -904,6 +913,33 @@ impl WordApp {
             self.ui.backstage = true;
             self.ui.backstage_page = "recover".into();
         }
+        // Plume: saving as an encrypted file (`report.md.aes`) without a password asks for one,
+        // then saves.
+        if wordcraft_engine::io::ENCRYPTION
+            && matches!(id, "file.save" | "file.saveAs")
+            && self.session.password.is_none()
+            && params.get("password").is_none()
+        {
+            let target = params
+                .get("path")
+                .and_then(Value::as_str)
+                .map(str::to_string)
+                .or_else(|| self.session.path.as_ref().map(|p| p.to_string_lossy().to_string()));
+            if target.as_deref().and_then(wordcraft_engine::io::aes_inner).is_some() {
+                self.after_encrypt = Some((id.to_string(), params));
+                self.dialog = dialogs::Dialog::open("encryptPassword", self);
+                return Ok(json!({"pending": "password"}));
+            }
+        }
+        // Plume: publishing a document its classification keeps waits for an explicit decision.
+        if (id == "forge.saveAs" || (id == "vcs.saveVersion" && self.session.forge.is_some())) && params.get("acknowledged").is_none() {
+            let c = wordcraft_engine::classification::publish_check(&self.session, "publish");
+            if c["confirm"] == json!(true) {
+                let warnings = c["warnings"].as_array().map(|a| a.iter().filter_map(Value::as_str).map(str::to_string).collect()).unwrap_or_default();
+                self.classification_confirm = Some((id.to_string(), params, warnings));
+                return Ok(json!({"pending": "classification"}));
+            }
+        }
         // Plume, web: a first Save, and every Save As, ask for the name and the format (File ›
         // Save As), as the desktop's dialog does; the browser chooses the folder.
         if self.services.download.is_some()
@@ -1043,7 +1079,7 @@ impl WordApp {
                 && let Some(pw) = params.get("password").filter(|v| !v.is_null())
             {
                 if !wordcraft_engine::io::can_encrypt(&name) || pw.as_str().is_none_or(str::is_empty) {
-                    return Err("only Word documents (.docx, .docm, .dotx, .dotm) can be saved with a password, and it can't be empty".into());
+                    return Err("only Word documents, ZIP files and AES Crypt files (.md.aes, .textpack.aes) can be saved with a password, and it can't be empty".into());
                 }
                 self.session.run("file.encrypt", &json!({"password": pw})).map_err(|e| e.to_string())?;
             }
@@ -1061,7 +1097,14 @@ impl WordApp {
             let (name, bytes) = if native_md {
                 wordcraft_engine::io::markdown_download(&name, &self.session.doc, self.session.source_archive.as_deref().map(Vec::as_slice))?
             } else {
-                (name.clone(), wordcraft_engine::io::save_bytes_with(&name, &self.session.doc, password, &opts)?)
+                // Plume: a copy for reading (PDF, HTML) shows the document's classification.
+                let lower = name.to_ascii_lowercase();
+                let doc = if lower.ends_with(".pdf") || lower.ends_with(".html") || lower.ends_with(".htm") {
+                    wordcraft_engine::classification::marked(&self.session.prefs.classification, &self.session.doc)
+                } else {
+                    std::borrow::Cow::Borrowed(&self.session.doc)
+                };
+                (name.clone(), wordcraft_engine::io::save_bytes_with(&name, &doc, password, &opts)?)
             };
             // A ticket left over from an earlier call isn't this save's.
             let saves = self.services.async_saves.clone();
@@ -1990,6 +2033,12 @@ impl WordApp {
     /// The name Save suggests: the open file's own Word format (so a .docm keeps its macros),
     /// otherwise .docx.
     pub(crate) fn default_save_name(&self) -> String {
+        // Plume: an encrypted file saves under its own name again (`report.md.aes`).
+        if let Some(name) = self.session.path.as_ref().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().to_string())
+            && wordcraft_engine::io::aes_inner(&name).is_some()
+        {
+            return name;
+        }
         let ext = self.session.path.as_ref().and_then(|p| p.extension()).map(|e| e.to_string_lossy().to_string());
         match ext {
             // Markdown is the document's own format: everything else saves as a new `.md`.
@@ -2064,7 +2113,15 @@ impl WordApp {
     /// named in the interface language, as `Document1` is in English.
     pub fn title_stem(&self) -> String {
         match &self.session.path {
-            Some(p) => p.file_stem().map(|s| s.to_string_lossy().to_string()).unwrap_or_else(|| tl!("Document1").into()),
+            // Plume: `report` for `report.md.aes` too.
+            Some(p) => p
+                .file_name()
+                .map(|n| n.to_string_lossy().to_string())
+                .map(|n| {
+                    let inner = wordcraft_engine::io::aes_inner(&n).unwrap_or(&n).to_string();
+                    inner.rsplit_once('.').map_or(inner.clone(), |(stem, _)| stem.to_string())
+                })
+                .unwrap_or_else(|| tl!("Document1").into()),
             None => match &self.session.file_name {
                 Some(name) => name.clone(),
                 None if self.session.doc.core.title.is_empty() => tl!("Document1").into(),
@@ -2385,6 +2442,7 @@ impl WordApp {
         }
         content_controls::popup(self, &ctx);
         dialogs::show(self, &ctx);
+        classification_ui::confirm_dialog(self, &ctx);
         #[cfg(not(target_arch = "wasm32"))]
         file_browser::show(self, &ctx);
         colors::show(self, &ctx);
@@ -4891,6 +4949,7 @@ mod tests {
         assert!(!body_text(&a).trim().is_empty());
     }
 
+    #[cfg(feature = "encryption")]
     /// #55: a password-protected document asks for its password (after Save Changes) instead of
     /// opening blank; scripts get the error instead of a dialog; Encrypt with Password asks for one.
     #[test]

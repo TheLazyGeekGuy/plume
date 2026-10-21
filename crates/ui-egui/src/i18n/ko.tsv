@@ -2766,3 +2766,89 @@ preview	Title	제목
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	TeX 엔진을 찾을 수 없습니다. 이 Plume에는 Tectonic이 없습니다.Tectonic(brew install tectonic) 또는 MacTeX를 설치한 다음 다시 내보내세요.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	TeX 엔진을 찾을 수 없습니다. 이 Plume에는 Tectonic이 없습니다.Tectonic(winget install TectonicTypesetting.Tectonic) 또는 MiKTeX를 설치한 다음 다시 내보내세요.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	TeX 엔진을 찾을 수 없습니다. 이 Plume에는 Tectonic이 없습니다.패키지 관리자로 Tectonic 또는 TeX Live를 설치한 다음 다시 내보내세요.
+	Classification	분류
+	Set Classification	분류 설정
+	Classification Referential	분류 체계
+	Classification Referentials	분류 체계 목록
+	Check Classification	분류 확인
+	Classification Options	분류 옵션
+	Save Classification Referential	체계 저장
+	Delete Classification Referential	체계 삭제
+	Document Classification	문서 분류
+	Personal	개인
+	Association	단체
+	Private	비공개
+	Shared	공유
+	Public	공개
+	Ordinary	보통
+	Strategic	전략적
+	No personal data	개인정보 없음
+	Personal data	개인정보 있음
+	Sensitive personal data	민감한 개인정보
+	Visibility	공개 범위
+	Importance	중요도
+	Unclassified	미분류
+	Not set	설정 안 함
+	Confidentiality	기밀성
+	Referential definition	체계 정의
+	Change referential	체계 변경
+	Classification Options…	분류 옵션…
+	Referential	체계
+	Default referential	기본 체계
+	Labels in the title bar	제목 표시줄의 레이블
+	Each label	각 레이블
+	One compact label	간단한 레이블 하나
+	Referentials	체계 목록
+	{name} (built in)	{name} (기본 제공)
+	Duplicate to customise	복제하여 사용자 지정
+	custom	사용자 지정
+	Code	코드
+	Label	레이블
+	Add a level	수준 추가
+	Classified document	분류된 문서
+	Publish anyway	그래도 게시
+	Internal	내부
+	Confidential	기밀
+	Restricted	제한
+	Highly restricted	엄격히 제한
+	Referential: {name}	체계: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	분류는 문서가 어떻게 유통될 수 있는지를 나타내며 파일을 암호화하지 않습니다.
+	Anyone may read it.	누구나 읽을 수 있습니다.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	색상에는 항상 수준의 코드와 이름이 함께 표시됩니다. 문서의 분류 체계를 바꾸면 새 수준을 묻습니다. 문서가 조용히 재분류되는 일은 없습니다.
+	Description and rules of diffusion	설명 및 배포 규칙
+	FIRST's Traffic Light Protocol, version 2.0.	FIRST의 Traffic Light Protocol 버전 2.0.
+	For named people only, under strict control; never exported unencrypted.	지정된 사람만, 엄격한 통제하에. 암호화하지 않고 내보내지 않습니다.
+	For named people only; disclosure would cause serious harm.	지정된 사람만. 유출 시 심각한 피해가 발생합니다.
+	For the eyes and ears of the individual recipients only.	개별 수신자 본인만.
+	For the people of the organisation or group.	조직 또는 그룹 구성원용.
+	For the people who need it; not to be published.	필요한 사람용. 공개 불가.
+	Plume's five levels, from public to highly restricted.	공개부터 극비까지 Plume의 다섯 수준.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	게시하면 그곳에 읽을 수 있는 사본이 생깁니다. 레이블은 보호하지 않으며 암호화가 보호합니다.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	수신자는 자신의 조직과 그 고객 내에서만 알 필요에 따라 공유할 수 있습니다.
+	Recipients may share it only within their organisation, on a need-to-know basis.	수신자는 자신의 조직 내에서만 알 필요에 따라 공유할 수 있습니다.
+	Recipients may share it within their community, not publicly.	수신자는 커뮤니티 내에서 공유할 수 있지만 공개할 수는 없습니다.
+	Recipients may share it without limit.	수신자는 제한 없이 공유할 수 있습니다.
+	Referential {name} (not known here; kept as written)	분류 체계 {name}(여기서는 알 수 없음, 기록된 대로 유지)
+	Show the level on PDF and HTML copies	PDF 및 HTML 사본에 수준 표시
+	This document's classification asks for a decision before it is published:	이 문서의 분류는 게시 전에 결정을 요구합니다:
+	Warn before publishing a document its level asks to keep	수준상 공개를 보류해야 하는 문서를 게시하기 전에 경고
+	Convert Document Package	문서 패키지 변환
+	Encrypt File	파일 암호화
+	Decrypt File	파일 복호화
+	Inspect Encryption	암호화 검사
+	Encrypted	암호화됨
+	Not encrypted	암호화 안 됨
+	Encryption	암호화
+	Method	방식
+	This document is saved encrypted.	이 문서는 암호화되어 저장됩니다.
+	Without the password nobody, Plume included, can open it.	암호가 없으면 Plume을 포함해 누구도 열 수 없습니다.
+	Save an Unencrypted Copy…	암호화하지 않은 사본 저장…
+	Anyone who gets this file can read it.	이 파일을 얻은 사람은 누구나 읽을 수 있습니다.
+	Its classification asks for encryption.	분류에 따라 암호화가 필요합니다.
+	A classification label doesn't encrypt the document.	분류 레이블은 문서를 암호화하지 않습니다.
+	Save an Encrypted Copy…	암호화된 사본 저장…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	ZIP 안의 파일 이름, 크기, 날짜는 그대로 보이며 내용만 암호화됩니다.
+	The file's name and its approximate size stay visible; nothing inside does.	파일 이름과 대략적인 크기는 보이지만 내용은 보이지 않습니다.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdown 파일은 사본으로 암호화됩니다: AES Crypt의 Markdown(.md.aes), TextPack(.textpack.aes) 또는 암호가 있는 ZIP.
+	Markdown, encrypted (*.md.aes)	Markdown, 암호화됨 (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, 암호화됨 (*.textpack.aes)

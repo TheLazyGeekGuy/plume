@@ -2,6 +2,8 @@
 
 use wordcraft_doc::Document;
 
+#[cfg(not(target_arch = "wasm32"))]
+pub mod folders;
 pub mod mdzip;
 #[cfg(not(target_arch = "wasm32"))]
 mod safe_save;
@@ -35,7 +37,7 @@ pub const OPEN_EXTS: &[&str] = &[
 ];
 /// Formats WordCraft saves (Save As).
 pub const SAVE_EXTS: &[&str] =
-    &["docx", "docm", "dotx", "dotm", "pdf", "txt", "md", "textbundle", "textpack", "zip", "html", "rtf", "odt", "tex", "png", "json", "xml"];
+    &["docx", "docm", "dotx", "dotm", "pdf", "txt", "md", "textbundle", "textpack", "zip", "aes", "html", "rtf", "odt", "tex", "png", "json", "xml"];
 
 /// Magic number for ZIP package signatures (used by .docx/.docm/.dotx/.dotm).
 const ZIP_SIG: &[u8] = b"PK\x03\x04";
@@ -58,7 +60,13 @@ pub fn is_markdown_ext(ext: &str) -> bool {
 
 /// [`is_markdown_ext`] for a file name or path.
 pub fn is_markdown_name(name: &str) -> bool {
-    is_markdown_ext(&ext_of(name))
+    is_markdown_ext(&document_ext(name))
+}
+
+/// The extension that says a file's format, lower case: the one inside an AES Crypt file's name
+/// (`md` for `report.md.aes`), else its own.
+pub fn document_ext(name: &str) -> String {
+    ext_of(aes_inner(name).unwrap_or(name))
 }
 
 /// A TextBundle's or TextPack's text as a document: Markdown with its pictures (`resolve` gives
@@ -213,9 +221,127 @@ pub fn is_empty_file(_path: &std::path::Path) -> bool {
     false
 }
 
-/// Can files with this extension be saved with a password (Word's packages)?
+/// Can files with this name be saved with a password: Word's packages (Word's own encryption),
+/// and Plume's protected forms, any file in AES Crypt (`report.md.aes`, `report.textpack.aes`)
+/// and a Markdown ZIP (its entries in WinZip AES-256)?
 pub fn can_encrypt(name: &str) -> bool {
-    is_word_package(&ext_of(name))
+    let ext = ext_of(name);
+    ENCRYPTION && (is_word_package(&ext) || ext == "aes" || ext == "zip")
+}
+
+/// Plume: is encryption compiled into this build (the `encryption` feature)? Without it no
+/// cipher is in the program: encrypted files are recognised and refused, never opened or written.
+pub const ENCRYPTION: bool = cfg!(feature = "encryption");
+
+/// What a build without encryption says.
+pub const NO_ENCRYPTION: &str = wordcraft_crypt::NO_ENCRYPTION;
+
+/// Plume: the name inside an AES Crypt file's name (`report.md` for `report.md.aes`).
+pub fn aes_inner(name: &str) -> Option<&str> {
+    let n = name.len().checked_sub(4)?;
+    name.get(n..).filter(|e| e.eq_ignore_ascii_case(".aes")).and_then(|_| name.get(..n)).filter(|i| !i.is_empty())
+}
+
+/// An encryption error as the open and save paths report it: the texts [`needs_password`] and
+/// [`wrong_password`] recognise for a missing or wrong password.
+fn crypt_error(e: wordcraft_crypt::Error) -> String {
+    match e {
+        wordcraft_crypt::Error::PasswordRequired => wordcraft_docx::PASSWORD_REQUIRED.to_string(),
+        wordcraft_crypt::Error::WrongPassword => wordcraft_docx::WRONG_PASSWORD.to_string(),
+        e => e.to_string(),
+    }
+}
+
+/// Plume: the plain bytes of an encrypted file `name` holds, and the name they are read by: an
+/// AES Crypt file (`report.md` inside `report.md.aes`) or a ZIP or TextPack with encrypted
+/// entries (an ordinary ZIP of the same files). `None` for a file that isn't encrypted.
+fn decrypted<'a>(name: &'a str, bytes: &[u8], password: Option<&str>) -> Result<Option<(&'a str, Vec<u8>)>, String> {
+    use wordcraft_crypt::{Kind, aescrypt, zipaes};
+    let pw = || password.filter(|p| !p.is_empty()).ok_or_else(|| wordcraft_docx::PASSWORD_REQUIRED.to_string());
+    let kind = wordcraft_crypt::detect(bytes);
+    // A build without encryption says so at once, rather than asking for a password it can't use.
+    if !ENCRYPTION
+        && (matches!(kind, Kind::AesCrypt(_))
+            || (matches!(kind, Kind::ZipAes | Kind::ZipLegacy) && matches!(ext_of(name).as_str(), "zip" | "textpack")))
+    {
+        return Err(format!("{name}: {NO_ENCRYPTION}"));
+    }
+    match kind {
+        Kind::AesCrypt(_) => {
+            let plain = aescrypt::decrypt(bytes, pw()?).map_err(crypt_error)?;
+            Ok(Some((aes_inner(name).unwrap_or(name), plain.to_vec())))
+        }
+        Kind::ZipAes | Kind::ZipLegacy if matches!(ext_of(name).as_str(), "zip" | "textpack") => {
+            Ok(Some((name, zipaes::decrypt(bytes, pw()?).map_err(crypt_error)?)))
+        }
+        _ => Ok(None),
+    }
+}
+
+/// Plume: `plain`, the file `name` holds, encrypted with `password`: whole in AES Crypt for an
+/// `.aes` name, else (a ZIP) entry by entry in WinZip AES-256. It is decrypted back and compared
+/// before it is returned.
+fn protect(name: &str, plain: &[u8], password: &str) -> Result<Vec<u8>, String> {
+    use wordcraft_crypt::{aescrypt, zipaes};
+    let failed = |e: wordcraft_crypt::Error| format!("verification of the encrypted file failed: {e}");
+    if aes_inner(name).is_some() {
+        let out = aescrypt::encrypt(plain, password).map_err(|e| e.to_string())?;
+        let back = aescrypt::decrypt(&out, password).map_err(failed)?;
+        return if back.as_slice() == plain { Ok(out) } else { Err("verification of the encrypted file failed".into()) };
+    }
+    let out = zipaes::encrypt(plain, password).map_err(|e| e.to_string())?;
+    // Both written by the same writer from the same entries: equal when nothing was lost.
+    if zipaes::decrypt(&out, password).map_err(failed)? != zipaes::decrypt(plain, password).map_err(failed)? {
+        return Err("verification of the encrypted file failed".into());
+    }
+    Ok(out)
+}
+
+/// Should saving `name` with `password` encrypt it Plume's way (an `.aes` name always; a ZIP
+/// when there is a password)?
+fn plume_protected(name: &str, password: Option<&str>) -> bool {
+    aes_inner(name).is_some() || (password.is_some() && ext_of(name) == "zip")
+}
+
+/// Plume: the encrypted file `doc` saves as under `name` (see [`plume_protected`]), over the
+/// encrypted file `existing` when there is one: its other files are kept, as for an unencrypted
+/// ZIP or TextPack, which needs `existing` to open with `password`.
+fn protected_bytes(name: &str, doc: &Document, password: Option<&str>, existing: Option<&[u8]>, opts: &ExportOptions) -> Result<Vec<u8>, String> {
+    if !ENCRYPTION {
+        return Err(format!("{name}: {NO_ENCRYPTION}"));
+    }
+    let pw = password
+        .filter(|p| !p.is_empty())
+        .ok_or_else(|| format!("{name}: an encrypted file needs a password (File › Info › Protect Document › Encrypt with Password)"))?;
+    let old = match existing {
+        Some(b) => match decrypted(name, b, Some(pw)) {
+            Ok(Some((_, plain))) => Some(plain),
+            Ok(None) => Some(b.to_vec()),
+            Err(_) => {
+                return Err(format!(
+                    "{name}: the file there doesn't open with this password, so its other files can't be kept; nothing was saved (save under another name)"
+                ));
+            }
+        },
+        None => None,
+    };
+    let inner = aes_inner(name).unwrap_or(name);
+    let plain = match ext_of(inner).as_str() {
+        "zip" => zip_bytes(inner, doc, old.as_deref())?.0,
+        "textpack" => textpack_bytes(doc, old.as_deref())?.0,
+        "textbundle" => return Err(format!("{name}: a TextBundle is a folder; protect a .textpack.aes instead")),
+        "md" | "markdown" => {
+            let bundle = markdown_bundle(doc);
+            if !bundle.assets.is_empty() {
+                return Err(format!(
+                    "{name}: the document has pictures, which a lone Markdown file can't hold; save it as a .textpack.aes or a .zip.aes"
+                ));
+            }
+            bundle.text.into_bytes()
+        }
+        _ => save_bytes_opts(inner, doc, opts)?,
+    };
+    protect(name, &plain, pw)
 }
 
 /// Finish a document just read from a file: never leave it empty, and bring its unlocked
@@ -285,6 +411,10 @@ fn load_embedded_fonts(doc: &Document) {
 }
 
 fn read_bytes(name: &str, bytes: &[u8], password: Option<&str>, page: &wordcraft_doc::SectionProps) -> Result<(Document, bool), String> {
+    // Plume: an AES Crypt file, or a ZIP or TextPack with encrypted entries: what it holds.
+    if let Some((inner, plain)) = decrypted(name, bytes, password)? {
+        return read_bytes(inner, &plain, None, page).map(|(doc, _)| (doc, true));
+    }
     let ext = ext_of(name);
     if matches!(ext.as_str(), "docx" | "docm" | "dotx" | "dotm" | "doc" | "dot") && wordcraft_docx::is_encrypted(bytes) {
         let mut doc = wordcraft_docx::read_with_password(bytes, password).map_err(|e| e.to_string())?;
@@ -492,6 +622,9 @@ pub fn save_bytes_opts(name: &str, doc: &Document, opts: &ExportOptions) -> Resu
 /// [`save_bytes`], encrypted with `password` when there is one and the format is a Word package
 /// (other formats are copies and are written as they are).
 pub fn save_bytes_with(name: &str, doc: &Document, password: Option<&str>, opts: &ExportOptions) -> Result<Vec<u8>, String> {
+    if plume_protected(name, password) {
+        return protected_bytes(name, doc, password, None, opts);
+    }
     let bytes = save_bytes_opts(name, doc, opts)?;
     match password {
         Some(pw) if can_encrypt(name) => wordcraft_docx::encrypt(&bytes, pw).map_err(|e| e.to_string()),
@@ -762,7 +895,13 @@ pub fn save_path(path: &std::path::Path, doc: &Document) -> Result<(), String> {
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save_path_with(path: &std::path::Path, doc: &Document, password: Option<&str>, opts: &ExportOptions) -> Result<(), String> {
     crate::file_access::check_write(&path.to_string_lossy())?;
-    if is_markdown_name(&path.to_string_lossy()) {
+    let name = path.to_string_lossy();
+    if plume_protected(&name, password) {
+        let existing = if path.is_file() { read_regular_file(path, 2 << 30) } else { None };
+        let bytes = protected_bytes(&name, doc, password, existing.as_deref(), opts)?;
+        return safe_save::write(path, &bytes).map_err(|e| format!("{}: {e}", path.display()));
+    }
+    if is_markdown_name(&name) {
         return save_markdown(path, doc).map(|_| ());
     }
     let bytes = save_bytes_with(&path.to_string_lossy(), doc, password, opts)?;
@@ -846,6 +985,10 @@ pub fn save_markdown(path: &std::path::Path, doc: &Document) -> Result<wordcraft
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save_markdown_files(path: &std::path::Path, doc: &Document) -> Result<(wordcraft_formats::markdown::Report, Vec<std::path::PathBuf>), String> {
     crate::file_access::check_write(&path.to_string_lossy())?;
+    // An encrypted file is only ever written encrypted ([`save_path_with`] with its password).
+    if aes_inner(&path.to_string_lossy()).is_some() {
+        return Err(format!("{}: an encrypted file is saved with its password, never in clear", path.display()));
+    }
     // TextBundle, TextPack and ZIP hold their pictures themselves.
     match ext_of(&path.to_string_lossy()).as_str() {
         "textbundle" => return save_textbundle(path, doc).map(|r| (r, Vec::new())),

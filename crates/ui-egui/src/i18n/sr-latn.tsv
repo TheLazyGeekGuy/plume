@@ -2519,3 +2519,89 @@
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	Nije pronađen TeX mehanizam: ova kopija Plumea nema Tectonic. Instalirajte ga (brew install tectonic) ili MacTeX, pa ponovo izvezite.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	Nije pronađen TeX mehanizam: ova kopija Plumea nema Tectonic. Instalirajte ga (winget install TectonicTypesetting.Tectonic) ili MiKTeX, pa ponovo izvezite.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	Nije pronađen TeX mehanizam: ova kopija Plumea nema Tectonic. Instalirajte Tectonic ili TeX Live menadžerom paketa, pa ponovo izvezite.
+	Classification	Klasifikacija
+	Set Classification	Postavi klasifikaciju
+	Classification Referential	Klasifikaciona šema
+	Classification Referentials	Klasifikacione šeme
+	Check Classification	Proveri klasifikaciju
+	Classification Options	Opcije klasifikacije
+	Save Classification Referential	Sačuvaj šemu
+	Delete Classification Referential	Izbriši šemu
+	Document Classification	Klasifikacija dokumenata
+	Personal	Lično
+	Association	Udruženje
+	Private	Privatno
+	Shared	Deljeno
+	Public	Javno
+	Ordinary	Uobičajena
+	Strategic	Strateška
+	No personal data	Bez ličnih podataka
+	Personal data	Lični podaci
+	Sensitive personal data	Osetljivi lični podaci
+	Visibility	Vidljivost
+	Importance	Važnost
+	Unclassified	Neklasifikovano
+	Not set	Nije postavljeno
+	Confidentiality	Poverljivost
+	Referential definition	Definicija šeme
+	Change referential	Promeni šemu
+	Classification Options…	Opcije klasifikacije…
+	Referential	Šema
+	Default referential	Podrazumevana šema
+	Labels in the title bar	Oznake na naslovnoj traci
+	Each label	Svaka oznaka
+	One compact label	Jedna sažeta oznaka
+	Referentials	Šeme
+	{name} (built in)	{name} (ugrađena)
+	Duplicate to customise	Dupliraj radi prilagođavanja
+	custom	prilagođena
+	Code	Kod
+	Label	Oznaka
+	Add a level	Dodaj nivo
+	Classified document	Klasifikovani dokument
+	Publish anyway	Ipak objavi
+	Internal	Interno
+	Confidential	Poverljivo
+	Restricted	Ograničeno
+	Highly restricted	Strogo ograničeno
+	Referential: {name}	Šema: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Klasifikacija određuje kako dokument sme da kruži; ona ne šifruje datoteku.
+	Anyone may read it.	Svako sme da ga čita.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Boje uvek prate oznaka i naziv nivoa. Promena referentnog okvira dokumenta traži novi nivo: dokument se nikad ne reklasifikuje prećutno.
+	Description and rules of diffusion	Opis i pravila distribucije
+	FIRST's Traffic Light Protocol, version 2.0.	FIRST-ov Traffic Light Protocol, verzija 2.0.
+	For named people only, under strict control; never exported unencrypted.	Samo za imenovane osobe, pod strogim nadzorom; nikad se ne izvozi nešifrovano.
+	For named people only; disclosure would cause serious harm.	Samo za imenovane osobe; otkrivanje bi nanelo ozbiljnu štetu.
+	For the eyes and ears of the individual recipients only.	Samo za pojedinačne primaoce lično.
+	For the people of the organisation or group.	Za osobe u organizaciji ili grupi.
+	For the people who need it; not to be published.	Za osobe kojima je potreban; ne sme se objaviti.
+	Plume's five levels, from public to highly restricted.	Pet nivoa Plume-a, od javnog do strogo ograničenog.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Objava tamo stvara čitljivu kopiju. Oznaka je ne štiti; šifrovanje je štiti.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Primaoci smeju da ga dele samo u svojoj organizaciji i sa njenim klijentima, po principu neophodnosti.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Primaoci smeju da ga dele samo u svojoj organizaciji, po principu neophodnosti.
+	Recipients may share it within their community, not publicly.	Primaoci smeju da ga dele u svojoj zajednici, ali ne javno.
+	Recipients may share it without limit.	Primaoci smeju da ga dele bez ograničenja.
+	Referential {name} (not known here; kept as written)	Referentni okvir {name} (ovde nepoznat; zadržan kako je zapisan)
+	Show the level on PDF and HTML copies	Prikaži nivo na PDF i HTML kopijama
+	This document's classification asks for a decision before it is published:	Klasifikacija ovog dokumenta traži odluku pre objave:
+	Warn before publishing a document its level asks to keep	Upozori pre objave dokumenta koji njegov nivo traži da se zadrži
+	Convert Document Package	Pretvori paket dokumenta
+	Encrypt File	Šifruj datoteku
+	Decrypt File	Dešifruj datoteku
+	Inspect Encryption	Proveri šifrovanje
+	Encrypted	Šifrovano
+	Not encrypted	Nije šifrovano
+	Encryption	Šifrovanje
+	Method	Metod
+	This document is saved encrypted.	Ovaj dokument se čuva šifrovan.
+	Without the password nobody, Plume included, can open it.	Bez lozinke niko, ni Plume, ne može da ga otvori.
+	Save an Unencrypted Copy…	Sačuvaj nešifrovanu kopiju…
+	Anyone who gets this file can read it.	Svako ko dobije ovu datoteku može da je pročita.
+	Its classification asks for encryption.	Njegova klasifikacija traži šifrovanje.
+	A classification label doesn't encrypt the document.	Oznaka klasifikacije ne šifruje dokument.
+	Save an Encrypted Copy…	Sačuvaj šifrovanu kopiju…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	Nazivi, veličine i datumi datoteka u ZIP-u ostaju čitljivi; šifrovan je samo sadržaj.
+	The file's name and its approximate size stay visible; nothing inside does.	Naziv datoteke i približna veličina ostaju vidljivi; sadržaj ne.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdown datoteka se šifruje kao kopija: Markdown u AES Crypt-u (.md.aes), TextPack (.textpack.aes) ili ZIP sa lozinkom.
+	Markdown, encrypted (*.md.aes)	Markdown, šifrovani (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, šifrovani (*.textpack.aes)

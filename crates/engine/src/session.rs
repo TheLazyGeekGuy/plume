@@ -549,6 +549,9 @@ pub struct Prefs {
     /// document is saved (`markdown.strict`). On by default: Plume edits Markdown, and the
     /// Office-only features are opt-in (File › Options › Markdown).
     pub markdown_strict: bool,
+    /// Plume: document classification's referentials and display (File › Options › Document
+    /// Classification).
+    pub classification: crate::classification::Settings,
     /// Plume: the emoji inserted last, newest first (Insert › Emoji's Recently Used).
     pub recent_emoji: Vec<String>,
     /// Plume: the skin tone Insert › Emoji gives the emoji that have one (0 none, 1–5 lightest
@@ -601,6 +604,7 @@ impl Default for Prefs {
         Prefs {
             count_notes: true,
             markdown_strict: true,
+            classification: Default::default(),
             recent_emoji: Vec::new(),
             emoji_tone: 0,
             markup: Default::default(),
@@ -1350,7 +1354,7 @@ impl Session {
             return false;
         }
         match &self.path {
-            Some(p) => p.extension().is_some_and(|e| crate::io::is_markdown_ext(&e.to_string_lossy())),
+            Some(p) => crate::io::is_markdown_name(&p.to_string_lossy()),
             None => true,
         }
     }
@@ -1397,6 +1401,7 @@ impl Session {
             let mut p = params.clone();
             if let Some(m) = p.as_object_mut() {
                 m.remove("password");
+                m.remove("sourcePassword");
             }
             p
         };

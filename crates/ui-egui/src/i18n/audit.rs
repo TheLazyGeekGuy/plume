@@ -153,6 +153,8 @@ impl Exempt {
                 names.extend([m.company, m.model, m.version].map(str::to_string));
             }
         }
+        // Classification referentials' names and versions: names (a custom one is the user's own).
+        names.extend(wordcraft_engine::classification::all(&app.session.prefs.classification).iter().map(|r| format!("{} {}", r.name, r.version)));
         Exempt { body: app.session.doc.plain_text(wordcraft_doc::StoryRef::Body), names }
     }
 
@@ -180,6 +182,7 @@ impl Exempt {
             || plain.contains('┬') || plain.contains('\u{2061}') // equation input (UnicodeMath), drawn as math
             || matches!(plain, "Plume" | "Plume User" | "Discord" | "https://" | "auto" | "I. II. III." | "i. ii. iii.")
             || matches!(plain, "Ollama" | "LM Studio") // model servers' names (Options › Artificial intelligence)
+            || plain.starts_with("Method: ") // Plume: an encryption method's name (AES Crypt, ZIP AES-256)
             || plain == "CONFIDENTIAL" // the watermark dialog's text: document content, kept as typed
             || plain == "Figure 1" // the caption dialog's sample: the label goes into the document as is
     }

@@ -484,10 +484,16 @@ pub(crate) fn web_save_formats(app: &WordApp) -> Vec<(&'static str, &'static str
         ("Markdown (*.md)", "md"),
         ("Markdown and pictures (*.zip)", "zip"),
         ("TextPack (*.textpack)", "textpack"),
+        ("Markdown, encrypted (*.md.aes)", "md.aes"),
+        ("TextPack, encrypted (*.textpack.aes)", "textpack.aes"),
         ("PDF document (*.pdf)", "pdf"),
         ("Web page (*.html)", "html"),
         ("Plain text (*.txt)", "txt"),
     ];
+    // Encrypted formats only in a build with encryption.
+    if !wordcraft_engine::io::ENCRYPTION {
+        v.retain(|(_, e)| !e.ends_with(".aes"));
+    }
     if !crate::widgets::profile_on(app) {
         v.splice(0..0, [("Word document (*.docx)", "docx"), ("OpenDocument Text (*.odt)", "odt"), ("Rich Text Format (*.rtf)", "rtf")]);
     }
@@ -499,9 +505,14 @@ fn web_save_as(app: &mut WordApp, ui: &mut Ui) {
     let id = egui::Id::new("web_save_as");
     let formats = web_save_formats(app);
     let current = app.web_save_name().unwrap_or_else(|| app.default_save_name());
-    let (default_stem, default_ext) = match current.rsplit_once('.') {
-        Some((s, e)) => (s.to_string(), e.to_ascii_lowercase()),
-        None => (current.clone(), "md".to_string()),
+    // The format whose extension ends the name, the longest first (`.textpack.aes` before `.aes`).
+    let lower = current.to_ascii_lowercase();
+    let (default_stem, default_ext) = match formats.iter().filter(|(_, e)| lower.ends_with(&format!(".{e}"))).max_by_key(|(_, e)| e.len()) {
+        Some((_, e)) => (current.get(..current.len() - e.len() - 1).unwrap_or("").to_string(), (*e).to_string()),
+        None => match current.rsplit_once('.') {
+            Some((s, e)) => (s.to_string(), e.to_ascii_lowercase()),
+            None => (current.clone(), "md".to_string()),
+        },
     };
     let (mut stem, mut ext) = ui.data(|d| d.get_temp::<(String, String)>(id)).unwrap_or((default_stem, default_ext));
     if !formats.iter().any(|(_, e)| *e == ext) {
@@ -595,7 +606,11 @@ fn info_page(app: &mut WordApp, ui: &mut Ui) {
         if focused != app.info_editing.map(|(f, _)| f) {
             app.info_editing = None;
         }
-        // Protect Document › Encrypt with Password (#55).
+        // Plume: the document's classification, every dimension.
+        ui.add_space(18.0);
+        crate::classification_ui::info_section(app, ui);
+        // Protect Document › Encrypt with Password (#55); Plume: only in a build with encryption.
+        if wordcraft_engine::io::ENCRYPTION {
         ui.add_space(18.0);
         ui.label(egui::RichText::new(tl!("Protect Document")).font(semibold(15.0)));
         let encrypted = info.get("encrypted").and_then(|v| v.as_bool()).unwrap_or(false);
@@ -604,6 +619,21 @@ fn info_page(app: &mut WordApp, ui: &mut Ui) {
         } else {
             tl!("Anyone can open this document. Encrypt it with a password to keep it private.")
         });
+        // Plume: a Markdown file isn't encrypted in place; an encrypted copy is (`.md.aes`,
+        // `.textpack.aes`, a ZIP with a password).
+        let in_place = app.session.path.as_ref().is_none_or(|p| wordcraft_engine::io::can_encrypt(&p.to_string_lossy()));
+        if !encrypted && app.session.is_markdown() && !in_place {
+            ui.label(
+                egui::RichText::new(tl!(
+                    "A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password."
+                ))
+                .small()
+                .weak(),
+            );
+            if ui.button(egui::RichText::new(tl!("Save an Encrypted Copy…")).font(medium(13.5))).clicked() {
+                crate::encryption_ui::save_encrypted_copy(app);
+            }
+        } else {
         ui.horizontal(|ui| {
             let label = if encrypted { tl!("Change Password…") } else { tl!("Encrypt with Password…") };
             if ui.button(egui::RichText::new(label).font(medium(13.5))).clicked() {
@@ -613,6 +643,8 @@ fn info_page(app: &mut WordApp, ui: &mut Ui) {
                 let _ = app.run("file.encrypt", json!({"password": null}));
             }
         });
+        }
+        }
         let ui = &mut cols[1];
         ui.label(egui::RichText::new(tl!("Statistics")).font(semibold(15.0)));
         for (l, k) in [("Pages", "pages"), ("Words", "words"), ("Paragraphs", "paragraphs"), ("Sections", "sections"), ("Comments", "comments")] {
@@ -1254,7 +1286,12 @@ mod tests {
         s.native_markdown = true;
         let mut a = WordApp::new(s, services);
         let exts: Vec<&str> = super::web_save_formats(&a).iter().map(|(_, e)| *e).collect();
-        assert_eq!(exts, ["md", "zip", "textpack", "pdf", "html", "txt"], "the Markdown profile's formats");
+        let want: &[&str] = if wordcraft_engine::io::ENCRYPTION {
+            &["md", "zip", "textpack", "md.aes", "textpack.aes", "pdf", "html", "txt"]
+        } else {
+            &["md", "zip", "textpack", "pdf", "html", "txt"]
+        };
+        assert_eq!(exts, want, "the Markdown profile's formats");
         a.run("file.saveAs", json!({"path": "Plan.zip"})).unwrap();
         assert_eq!(got.borrow().last().map(|(n, _)| n.as_str()), Some("Plan.zip"));
         assert!(!a.session.dirty && a.web_save_name().as_deref() == Some("Plan.zip"));

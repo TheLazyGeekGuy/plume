@@ -44,6 +44,17 @@ office chart.editData
 office chart.legend
 office chart.title
 office chart.type
+markdown classification.check
+markdown classification.deleteReference
+markdown classification.get
+markdown classification.options
+markdown classification.references
+markdown classification.saveReference
+markdown classification.set
+markdown classification.setReference
+markdown crypto.decryptFile
+markdown crypto.encryptFile
+markdown crypto.inspect
 office design.effects
 office design.pageBorders
 office design.pageColor
@@ -158,7 +169,7 @@ markdown file.autosave
 markdown file.close
 office file.compatibility
 markdown file.documents
-office file.encrypt
+markdown file.encrypt
 office file.exportLatexTemplate
 markdown file.exportPdf
 markdown file.exportPdfTemplate
@@ -627,6 +638,7 @@ office tools.recordMacro
 markdown tools.search
 office tools.templates
 office tools.updateStyles
+markdown transport.convert
 markdown vcs.changesSinceVersion
 markdown vcs.compare
 markdown vcs.history

@@ -2543,3 +2543,89 @@
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (brew install tectonic) or MacTeX, then export again.	TeX-mootorit ei leitud: sellel Plume'i koopial pole Tectonicut. Paigaldage see (brew install tectonic) või MacTeX ja eksportige uuesti.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install it (winget install TectonicTypesetting.Tectonic) or MiKTeX, then export again.	TeX-mootorit ei leitud: sellel Plume'i koopial pole Tectonicut. Paigaldage see (winget install TectonicTypesetting.Tectonic) või MiKTeX ja eksportige uuesti.
 	No TeX engine was found: this copy of Plume has no Tectonic. Install Tectonic or TeX Live with your package manager, then export again.	TeX-mootorit ei leitud: sellel Plume'i koopial pole Tectonicut. Paigaldage Tectonic või TeX Live paketihalduriga ja eksportige uuesti.
+	Classification	Klassifikatsioon
+	Set Classification	Määra klassifikatsioon
+	Classification Referential	Klassifikatsiooniskeem
+	Classification Referentials	Klassifikatsiooniskeemid
+	Check Classification	Kontrolli klassifikatsiooni
+	Classification Options	Klassifikatsiooni valikud
+	Save Classification Referential	Salvesta skeem
+	Delete Classification Referential	Kustuta skeem
+	Document Classification	Dokumentide klassifikatsioon
+	Personal	Isiklik
+	Association	Ühing
+	Private	Privaatne
+	Shared	Jagatud
+	Public	Avalik
+	Ordinary	Tavaline
+	Strategic	Strateegiline
+	No personal data	Isikuandmeid pole
+	Personal data	Isikuandmed
+	Sensitive personal data	Tundlikud isikuandmed
+	Visibility	Nähtavus
+	Importance	Olulisus
+	Unclassified	Klassifitseerimata
+	Not set	Määramata
+	Confidentiality	Konfidentsiaalsus
+	Referential definition	Skeemi määratlus
+	Change referential	Vaheta skeemi
+	Classification Options…	Klassifikatsiooni valikud…
+	Referential	Skeem
+	Default referential	Vaikeskeem
+	Labels in the title bar	Sildid tiitliribal
+	Each label	Iga silt
+	One compact label	Üks kompaktne silt
+	Referentials	Skeemid
+	{name} (built in)	{name} (sisseehitatud)
+	Duplicate to customise	Kopeeri kohandamiseks
+	custom	oma
+	Code	Kood
+	Label	Silt
+	Add a level	Lisa tase
+	Classified document	Klassifitseeritud dokument
+	Publish anyway	Avalda ikkagi
+	Internal	Sisemine
+	Confidential	Konfidentsiaalne
+	Restricted	Piiratud
+	Highly restricted	Rangelt piiratud
+	Referential: {name}	Skeem: {name}
+	A classification declares how the document may circulate; it doesn't encrypt the file.	Klassifikatsioon määrab, kuidas dokument tohib liikuda; see ei krüpteeri faili.
+	Anyone may read it.	Igaüks võib seda lugeda.
+	Colours always come with a level's code and label. Changing a document's referential asks for its new level: a document is never reclassified silently.	Värviga on alati kaasas taseme kood ja nimi. Dokumendi klassifikatsioonisüsteemi muutmisel küsitakse uut taset: dokumenti ei klassifitseerita kunagi vaikselt ümber.
+	Description and rules of diffusion	Kirjeldus ja levitamise reeglid
+	FIRST's Traffic Light Protocol, version 2.0.	FIRST-i Traffic Light Protocol, versioon 2.0.
+	For named people only, under strict control; never exported unencrypted.	Ainult nimetatud isikutele, range kontrolli all; ei ekspordita kunagi krüpteerimata.
+	For named people only; disclosure would cause serious harm.	Ainult nimetatud isikutele; avalikustamine põhjustaks tõsist kahju.
+	For the eyes and ears of the individual recipients only.	Ainult üksikutele adressaatidele isiklikult.
+	For the people of the organisation or group.	Organisatsiooni või rühma inimestele.
+	For the people who need it; not to be published.	Neile, kes seda vajavad; mitte avaldamiseks.
+	Plume's five levels, from public to highly restricted.	Plume'i viis taset, avalikust rangelt piiratuni.
+	Publishing makes a readable copy there. The label doesn't protect it; encryption does.	Avaldamine loob sinna loetava koopia. Silt seda ei kaitse; krüpteerimine kaitseb.
+	Recipients may share it only within their organisation and its clients, on a need-to-know basis.	Adressaadid võivad seda jagada ainult oma organisatsioonis ja selle klientidega, teadmisvajaduse alusel.
+	Recipients may share it only within their organisation, on a need-to-know basis.	Adressaadid võivad seda jagada ainult oma organisatsioonis, teadmisvajaduse alusel.
+	Recipients may share it within their community, not publicly.	Adressaadid võivad seda jagada oma kogukonnas, mitte avalikult.
+	Recipients may share it without limit.	Adressaadid võivad seda jagada piiranguteta.
+	Referential {name} (not known here; kept as written)	Klassifikatsioonisüsteem {name} (siin tundmatu; säilitatud nagu kirjas)
+	Show the level on PDF and HTML copies	Näita taset PDF- ja HTML-koopiatel
+	This document's classification asks for a decision before it is published:	Selle dokumendi klassifikatsioon nõuab enne avaldamist otsust:
+	Warn before publishing a document its level asks to keep	Hoiata enne dokumendi avaldamist, mille tase nõuab selle kinni hoidmist
+	Convert Document Package	Teisenda dokumendipakett
+	Encrypt File	Krüpteeri fail
+	Decrypt File	Dekrüpteeri fail
+	Inspect Encryption	Kontrolli krüpteerimist
+	Encrypted	Krüpteeritud
+	Not encrypted	Krüpteerimata
+	Encryption	Krüpteerimine
+	Method	Meetod
+	This document is saved encrypted.	See dokument salvestatakse krüpteerituna.
+	Without the password nobody, Plume included, can open it.	Ilma paroolita ei saa seda keegi, ka Plume, avada.
+	Save an Unencrypted Copy…	Salvesta krüpteerimata koopia…
+	Anyone who gets this file can read it.	Igaüks, kes selle faili saab, saab seda lugeda.
+	Its classification asks for encryption.	Selle klassifikatsioon nõuab krüpteerimist.
+	A classification label doesn't encrypt the document.	Klassifikatsioonisilt ei krüpteeri dokumenti.
+	Save an Encrypted Copy…	Salvesta krüpteeritud koopia…
+	File names, sizes and dates inside the ZIP stay readable; only their contents are encrypted.	ZIP-i failide nimed, suurused ja kuupäevad jäävad loetavaks; krüpteeritakse ainult sisu.
+	The file's name and its approximate size stay visible; nothing inside does.	Faili nimi ja ligikaudne suurus jäävad nähtavaks, sisu mitte.
+	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdowni fail krüpteeritakse koopiana: Markdown AES Cryptis (.md.aes), TextPack (.textpack.aes) või parooliga ZIP.
+	Markdown, encrypted (*.md.aes)	Markdown, krüpteeritud (*.md.aes)
+	TextPack, encrypted (*.textpack.aes)	TextPack, krüpteeritud (*.textpack.aes)

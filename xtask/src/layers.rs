@@ -38,6 +38,8 @@ pub const TABLE: &[(&str, Class)] = &[
     // Layer 0 (not standalone) so it can read the settings-folder names from `brand`.
     ("control-key", Class::Layer(0)),
     ("vcs", Class::Standalone),
+    // Plume: whole-file encryption (AES Crypt, ZIP AES-256), below every format that uses it.
+    ("crypt", Class::Standalone),
     ("doc", Class::Layer(1)),
     ("fonts", Class::Layer(1)),
     ("metafile", Class::Layer(1)),
