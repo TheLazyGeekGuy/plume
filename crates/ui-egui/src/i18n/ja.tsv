@@ -2595,3 +2595,8 @@
 	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdown ファイルはコピーとして暗号化します：AES Crypt の Markdown（.md.aes）、TextPack（.textpack.aes）、またはパスワード付き ZIP。
 	Markdown, encrypted (*.md.aes)	Markdown（暗号化）(*.md.aes)
 	TextPack, encrypted (*.textpack.aes)	TextPack（暗号化）(*.textpack.aes)
+	Side by\nSide	左右に\n並べる
+	Side by Side	左右に並べる
+	Source	ソース
+	Markdown View	Markdown の表示
+	Colour the title bar with the level	タイトル バーをレベルの色にする

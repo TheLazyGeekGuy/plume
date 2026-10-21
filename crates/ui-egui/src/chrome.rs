@@ -12,15 +12,32 @@ pub(crate) fn qat_button_id(id: &str) -> egui::Id {
     egui::Id::new(("qat_button", id))
 }
 
+/// Plume: the ink of a title bar tinted with the document's classification level, which the Quick
+/// Access Toolbar's icons take while it is drawn (`None`: the theme's own).
+fn bar_ink_id() -> egui::Id {
+    egui::Id::new("title_bar_ink")
+}
+
+fn bar_ink(ui: &Ui) -> Option<egui::Color32> {
+    ui.ctx().data(|d| d.get_temp::<Option<egui::Color32>>(bar_ink_id())).flatten()
+}
+
 fn qat_button(ui: &mut Ui, app: &mut WordApp, icon: &str, tip: &str, id: &str, enabled: bool) -> egui::Response {
     let t = Tokens::get(ui.ctx());
+    let ink = bar_ink(ui);
     let (r, _) = ui.allocate_exact_size(vec2(26.0, 24.0), Sense::hover());
     let resp = ui.interact(r, qat_button_id(id), Sense::click());
     if resp.hovered() && enabled {
         ui.painter().rect_filled(r, 4.0, t.hover);
     }
-    let c = if enabled { t.icon } else { t.text_disabled };
-    icons::paint(ui.painter(), Rect::from_center_size(r.center(), vec2(16.0, 16.0)), icon, c, if enabled { t.accent } else { c });
+    let c = match (enabled, ink) {
+        (true, Some(i)) => i,
+        (false, Some(i)) => i.gamma_multiply(0.45),
+        (true, None) => t.icon,
+        (false, None) => t.text_disabled,
+    };
+    let accent = if enabled { ink.unwrap_or(t.accent) } else { c };
+    icons::paint(ui.painter(), Rect::from_center_size(r.center(), vec2(16.0, 16.0)), icon, c, accent);
     let sc = crate::widgets::shortcut_text(app, id);
     let resp = resp.on_hover_text(if sc.is_empty() { tip.to_string() } else { format!("{tip} ({sc})") });
     if resp.clicked() && enabled {
@@ -74,7 +91,8 @@ fn quick_access(ui: &mut Ui, app: &mut WordApp) {
     if resp.hovered() {
         ui.painter().rect_filled(r, 4.0, t.hover);
     }
-    icons::paint(ui.painter(), Rect::from_center_size(r.center(), vec2(16.0, 16.0)), "more", t.icon, t.accent);
+    let ink = bar_ink(ui);
+    icons::paint(ui.painter(), Rect::from_center_size(r.center(), vec2(16.0, 16.0)), "more", ink.unwrap_or(t.icon), ink.unwrap_or(t.accent));
     let resp = resp.on_hover_text(tl!("Customize Quick Access Toolbar"));
     egui::Popup::menu(&resp).show(|ui| {
         ui.set_min_width(220.0);
@@ -119,7 +137,12 @@ fn undo_list_button(ui: &mut Ui, app: &mut WordApp, enabled: bool) {
     if resp.hovered() && enabled {
         ui.painter().rect_filled(r, 4.0, t.hover);
     }
-    let c = if enabled { t.icon } else { t.text_disabled };
+    let c = match (enabled, bar_ink(ui)) {
+        (true, Some(i)) => i,
+        (false, Some(i)) => i.gamma_multiply(0.45),
+        (true, None) => t.icon,
+        (false, None) => t.text_disabled,
+    };
     icons::paint(ui.painter(), Rect::from_center_size(r.center(), vec2(9.0, 9.0)), "dropdown", c, c);
     let resp = resp.on_hover_text(tl!("Undo History"));
     egui::Popup::menu(&resp).show(|ui| undo_list(ui, app));
@@ -261,11 +284,20 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
     let bar = app.mac_titlebar;
     let left = if mac { bar.content_left as i8 } else { 8 };
     let control_h = if mac { 22.0 } else { 26.0 };
+    // Plume: the whole bar in the document's classification colour, with ink that reads on it.
+    let tint = crate::classification_ui::title_tint(app, t.title_bar);
+    let (ink, ink_dim) = tint.map_or((t.text, t.text_dim), |x| (x.ink, x.ink_dim));
+    ui.ctx().data_mut(|d| d.insert_temp(bar_ink_id(), tint.map(|x| x.ink)));
     egui::Panel::top("title_bar")
         .exact_size(if mac { bar.height } else { 38.0 })
-        .frame(egui::Frame::NONE.fill(t.title_bar).inner_margin(egui::Margin { left, right: 10, top: 0, bottom: 0 }))
+        .frame(egui::Frame::NONE.fill(tint.map_or(t.title_bar, |x| x.fill)).inner_margin(egui::Margin { left, right: 10, top: 0, bottom: 0 }))
         .show(ui, |ui| {
             let full = ui.max_rect();
+            if let Some(x) = tint.filter(|x| x.stripes) {
+                let panel = ui.clip_rect();
+                let outer = Rect::from_min_max(pos2(panel.min.x, full.min.y), pos2(panel.max.x, full.max.y));
+                crate::classification_ui::paint_stripes(ui, outer, &x);
+            }
             // Drag the window by the title bar (integrated title bar on macOS).
             let drag = ui.interact(full, ui.id().with("title_drag"), Sense::click_and_drag());
             if drag.drag_started() {
@@ -283,7 +315,7 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
                 // cover the document (#196, #176); clicking it then offers Save As where that helps.
                 let block = app.autosave_block();
                 let on = app.autosaves();
-                let label = if block.is_some() { t.text_dim.gamma_multiply(0.6) } else { t.text_dim };
+                let label = if block.is_some() { ink_dim.gamma_multiply(0.6) } else { ink_dim };
                 ui.label(egui::RichText::new(tl!("AutoSave")).font(regular(11.5)).color(label));
                 let (r, resp) = ui.allocate_exact_size(vec2(30.0, 16.0), Sense::click());
                 let (fill, stroke, knob_fill) = match (&block, on) {
@@ -421,10 +453,11 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
                     &shown,
                     &font,
                     track,
-                    t.text,
+                    ink,
                 );
             }
         });
+    ui.ctx().data_mut(|d| d.remove::<Option<egui::Color32>>(bar_ink_id()));
 }
 
 pub fn status_bar(app: &mut WordApp, ui: &mut Ui) {
@@ -580,6 +613,29 @@ pub fn status_bar(app: &mut WordApp, ui: &mut Ui) {
                         resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::SelectableLabel, true, on, name));
                         if resp.on_hover_text(name).clicked() {
                             let _ = app.run(id, json!({}));
+                        }
+                    }
+                    // Plume: Page, Side by Side and Source for a Markdown document (right to left).
+                    if app.session.is_markdown() {
+                        ui.add_space(6.0);
+                        let now = wordcraft_engine::cmd::view::markdown_view_name(&app.session.view);
+                        for (icon, value, name) in [("codeBlock", "source", tl!("Source")), ("sideBySide", "split", tl!("Side by Side")), ("printLayout", "page", tl!("Page"))] {
+                            let on = now == value;
+                            let (r, resp) = ui.allocate_exact_size(vec2(22.0, 20.0), Sense::click());
+                            if on {
+                                ui.painter().rect_filled(r, 3.0, t.checked);
+                            } else if resp.hovered() {
+                                ui.painter().rect_filled(r, 3.0, t.hover);
+                            }
+                            icons::paint(ui.painter(), r.shrink(3.0), icon, t.icon, t.accent);
+                            resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::SelectableLabel, true, on, name));
+                            let tip = match crate::widgets::shortcut_text(app, "view.markdownView") {
+                                k if k.is_empty() => name.to_string(),
+                                k => format!("{name} ({k})"),
+                            };
+                            if resp.on_hover_text(tip).clicked() {
+                                let _ = app.run("view.markdownView", json!({"value": value}));
+                            }
                         }
                     }
                     ui.add_space(8.0);

@@ -118,11 +118,20 @@ pub struct Settings {
     pub mark_exports: bool,
     /// Warn before publishing a document its level asks to keep (forges).
     pub warn_on_publish: bool,
+    /// The window's title bar takes the level's colour.
+    pub color_title_bar: bool,
 }
 
 impl Default for Settings {
     fn default() -> Self {
-        Settings { default_reference: PLUME.into(), custom: Vec::new(), presentation: Presentation::Full, mark_exports: true, warn_on_publish: true }
+        Settings {
+            default_reference: PLUME.into(),
+            custom: Vec::new(),
+            presentation: Presentation::Full,
+            mark_exports: true,
+            warn_on_publish: true,
+            color_title_bar: true,
+        }
     }
 }
 
@@ -162,7 +171,7 @@ pub fn builtin() -> Vec<Referential> {
                     "C4",
                     "Highly restricted",
                     "For named people only, under strict control; never exported unencrypted.",
-                    "#6A1B9A",
+                    "#000000",
                     "lock",
                     P::Confirm,
                     E::Required,
@@ -489,6 +498,9 @@ fn options(s: &mut Session, v: &Value) -> CmdResult {
     if let Some(b) = p::bool(v, "warnOnPublish") {
         st.warn_on_publish = b;
     }
+    if let Some(b) = p::bool(v, "colorTitleBar") {
+        st.color_title_bar = b;
+    }
     Ok(settings_json(st))
 }
 
@@ -557,7 +569,7 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("classification.references", "Classification Referentials", "Review › Classification", |s, _| {
             Ok(settings_json(&s.prefs.classification))
         })
-        .params("{} → {defaultReference, presentation, markExports, warnOnPublish, custom, references: [{id, version, name, description, levels: [{code, label, description, color, icon, publish, encryption}]}]}")
+        .params("{} → {defaultReference, presentation, markExports, warnOnPublish, colorTitleBar, custom, references: [{id, version, name, description, levels: [{code, label, description, color, icon, publish, encryption}]}]}")
         .pure(),
         CommandSpec::new("classification.check", "Check Classification", "Review › Classification", |s, v| {
             let action = p::str(v, "action").unwrap_or("publish");
@@ -569,7 +581,7 @@ pub fn specs() -> Vec<CommandSpec> {
         .params(r#"{"action"?: "publish|share|export"} → {warnings, confirm}: what the document's level asks before it leaves"#)
         .pure(),
         CommandSpec::new("classification.options", "Classification Options", "File › Options › Document Classification", options)
-            .params(r#"{"defaultReference"?: id, "presentation"?: "full|compact|hidden", "markExports"?: bool, "warnOnPublish"?: bool}"#)
+            .params(r#"{"defaultReference"?: id, "presentation"?: "full|compact|hidden", "markExports"?: bool, "warnOnPublish"?: bool, "colorTitleBar"?: bool}"#)
             .pure(),
         CommandSpec::new("classification.saveReference", "Save Classification Referential", "File › Options › Document Classification", save_reference)
             .params(r##"{"reference": {id, version, name, description, levels: [{code, label, description, color: "#RRGGBB", icon: "dot|shield|lock", publish: "allow|warn|confirm", encryption: "optional|exchange|export|warnUnencrypted|required"}]}}"##)

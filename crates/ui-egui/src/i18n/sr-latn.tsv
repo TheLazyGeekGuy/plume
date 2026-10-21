@@ -2605,3 +2605,8 @@
 	A Markdown file is encrypted as a copy: the Markdown in AES Crypt (.md.aes), a TextPack (.textpack.aes), or a ZIP with a password.	Markdown datoteka se šifruje kao kopija: Markdown u AES Crypt-u (.md.aes), TextPack (.textpack.aes) ili ZIP sa lozinkom.
 	Markdown, encrypted (*.md.aes)	Markdown, šifrovani (*.md.aes)
 	TextPack, encrypted (*.textpack.aes)	TextPack, šifrovani (*.textpack.aes)
+	Side by\nSide	Jedno\npored drugog
+	Side by Side	Jedno pored drugog
+	Source	Izvor
+	Markdown View	Prikaz Markdowna
+	Colour the title bar with the level	Oboji naslovnu traku bojom nivoa

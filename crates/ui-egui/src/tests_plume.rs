@@ -205,3 +205,87 @@ fn the_markdown_source_pane_edits_the_document() {
     h.state_mut().run("markdown.setSource", serde_json::json!({"text": t})).unwrap();
     assert!(h.state().session.doc.plain_text(wordcraft_doc::StoryRef::Body).contains("Le manuel"));
 }
+
+/// Markdown has no fonts or sizes: the profile draws neither box, nor the Text Effects menu;
+/// without the profile they are back.
+#[test]
+fn the_profile_has_no_font_or_size_boxes() {
+    // The boxes show the caret's font and size (the sample's title: Aptos Display, 28 pt).
+    let shows = |h: &egui_kittest::Harness<'static, WordApp>, v: &str| h.query_all_by_value(v).next().is_some();
+    let h = harness(true);
+    assert!(!shows(&h, "Aptos Display") && !shows(&h, "28"), "no font or size box");
+    assert!(h.query_by_label("Text Effects and Typography").is_none());
+    assert!(h.query_by_label("Clear All Formatting").is_some(), "Clear Formatting stays");
+    let h = harness(false);
+    assert!(shows(&h, "Aptos Display") && shows(&h, "28"));
+    assert!(h.query_by_label("Text Effects and Typography").is_some());
+}
+
+/// View › Markdown: Page, Side by Side and Source; the command steps through them, and is only
+/// for a Markdown document.
+#[test]
+fn the_markdown_view_steps_through_page_split_and_source() {
+    let mut s = wordcraft_engine::Session::new(wordcraft_engine::sample::sample_document());
+    s.native_markdown = true;
+    let mut a = WordApp::new(s, Services::default());
+    let value = |a: &mut WordApp, p| a.run("view.markdownView", p).unwrap()["value"].as_str().unwrap_or("").to_string();
+    assert_eq!(value(&mut a, serde_json::json!({})), "split");
+    assert!(a.session.view.markdown_source && !a.session.view.markdown_source_only);
+    assert_eq!(value(&mut a, serde_json::json!({})), "source");
+    assert!(!a.session.view.markdown_source && a.session.view.markdown_source_only);
+    assert_eq!(value(&mut a, serde_json::json!({})), "page");
+    assert_eq!(value(&mut a, serde_json::json!({"value": "source"})), "source");
+    assert!(a.run("view.markdownView", serde_json::json!({"value": "sideways"})).is_err());
+    let mut docx = WordApp::new(wordcraft_engine::Session::new(wordcraft_engine::sample::sample_document()), Services::default());
+    assert!(docx.run("view.markdownView", serde_json::json!({})).is_err(), "only for Markdown");
+}
+
+/// Source typed but not applied yet (the pause hasn't passed) is part of what is saved: any
+/// command that saves or replaces the document applies it first.
+#[test]
+fn typed_markdown_source_is_applied_before_a_save() {
+    let mut s = wordcraft_engine::Session::new(wordcraft_engine::sample::sample_document());
+    s.native_markdown = true;
+    let mut a = WordApp::new(s, Services::default());
+    a.md_source = Some((a.session.rev(), "# Typed heading\n\nTyped body.\n".into(), true));
+    a.md_source_typed = 0.0;
+    let path = std::env::temp_dir().join(format!("plume-src-{}.md", std::process::id()));
+    a.run("file.saveAs", serde_json::json!({"path": path.to_string_lossy()})).unwrap();
+    let saved = std::fs::read_to_string(&path).unwrap_or_default();
+    let _ = std::fs::remove_file(&path);
+    assert!(saved.contains("# Typed heading") && saved.contains("Typed body."), "{saved}");
+    assert!(a.md_source.as_ref().is_some_and(|(_, _, edited)| !edited));
+}
+
+/// The title bar takes the level's colour with ink that reads on it; a colour too close to the
+/// plain bar (black in the dark theme, white in the light one) gets the striped edge.
+#[test]
+fn the_title_bar_tint_stays_readable() {
+    use crate::classification_ui::tint;
+    use egui::Color32;
+    let (dark_bar, light_bar) = (Color32::from_rgb(0x1F, 0x1F, 0x1F), Color32::from_rgb(0xF0, 0xF0, 0xF0));
+    let black = tint(Color32::BLACK, dark_bar);
+    assert!(black.stripes && black.ink == Color32::WHITE, "black over the dark theme is striped");
+    assert!(!tint(Color32::BLACK, light_bar).stripes);
+    let red = tint(Color32::from_rgb(0xC6, 0x28, 0x28), dark_bar);
+    assert!(!red.stripes && red.ink == Color32::WHITE);
+    let amber = tint(Color32::from_rgb(0xFF, 0xC0, 0x00), light_bar);
+    assert!(amber.ink != Color32::WHITE, "dark ink on a pale level");
+    assert!(tint(Color32::WHITE, light_bar).stripes, "TLP:CLEAR over the light theme is striped");
+}
+
+/// C4 is black, and the title bar shows it only while the option is on.
+#[test]
+fn a_highly_restricted_document_tints_the_title_bar_black() {
+    let mut s = wordcraft_engine::Session::new(wordcraft_engine::sample::sample_document());
+    s.native_markdown = true;
+    let mut a = WordApp::new(s, Services::default());
+    let plain = egui::Color32::from_rgb(0x1F, 0x1F, 0x1F);
+    assert!(crate::classification_ui::title_tint(&a, plain).is_none(), "unclassified: plain bar");
+    a.run("classification.set", serde_json::json!({"level": "C4"})).unwrap();
+    let t = crate::classification_ui::title_tint(&a, plain).unwrap();
+    assert_eq!(t.fill, egui::Color32::BLACK);
+    assert!(t.stripes);
+    a.run("classification.options", serde_json::json!({"colorTitleBar": false})).unwrap();
+    assert!(crate::classification_ui::title_tint(&a, plain).is_none());
+}

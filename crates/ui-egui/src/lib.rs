@@ -669,6 +669,8 @@ pub struct WordApp {
     /// Plume: the Markdown source pane's text: the document's revision it was read at, the text,
     /// and whether it was edited since.
     pub(crate) md_source: Option<(u64, String, bool)>,
+    /// When the Markdown source was last typed in (egui time, seconds): it applies after a pause.
+    pub(crate) md_source_typed: f64,
     recovery_seen: bool,
     /// Started on the Start screen with nothing to open (#1129): the id of the placeholder
     /// blank document the session holds until the user creates or opens one. While it is still
@@ -778,6 +780,7 @@ impl WordApp {
             info_editing: None,
             recent_titles: Default::default(),
             md_source: None,
+            md_source_typed: 0.0,
             recovery_seen: false,
             no_document: None,
             comment_drafts: Default::default(),
@@ -910,6 +913,10 @@ impl WordApp {
         // part of it: saving and exporting go on without it (the refusal stays on the status
         // line), and replacing the document asks Save / Don't Save / Cancel about it.
         let refused = if flushes_comment_drafts(id, &params) { panes::flush_comment_drafts(self).err() } else { None };
+        // Plume: Markdown source typed but not yet applied is applied first, for the same reasons.
+        if flushes_comment_drafts(id, &params) && id != "markdown.setSource" {
+            panes::flush_markdown_source(self);
+        }
         if id == "file.recover" && params.as_object().is_none_or(|p| p.is_empty()) {
             self.ui.backstage = true;
             self.ui.backstage_page = "recover".into();
@@ -2437,9 +2444,17 @@ impl WordApp {
                 chrome::status_bar(self, ui);
                 panes::show(self, ui);
             }
-            egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.canvas)).show(ui, |ui| {
-                canvas::show(self, ui);
-            });
+            // Plume: leaving the source view applies what was typed in it.
+            if !self.session.view.markdown_source && !self.session.view.markdown_source_only {
+                panes::flush_markdown_source(self);
+            }
+            if self.session.view.markdown_source_only && self.session.is_markdown() {
+                egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.canvas)).show(ui, |ui| panes::markdown_source_view(self, ui));
+            } else {
+                egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.canvas)).show(ui, |ui| {
+                    canvas::show(self, ui);
+                });
+            }
         }
         content_controls::popup(self, &ctx);
         dialogs::show(self, &ctx);
