@@ -67,12 +67,29 @@ Aucune destination existante n'est écrasée sans `overwrite: true`, et tous les
 5. **Politique par niveau** appliquée à l'export (C4 : export non chiffré refusé ou confirmé), au-delà de l'avertissement actuel.
 6. Téléchargement explicite, sur demande, des ressources distantes listées.
 
-## 3. Note juridique
+## 3. Note juridique (vérifiée le 2026-10-21, sur sources secondaires)
 
-En France, l'utilisation d'un moyen de cryptologie est libre. En revanche, la **fourniture** ou la **distribution** d'un logiciel qui en contient peut relever d'une déclaration auprès de l'ANSSI. Avant toute distribution publique de Plume avec ces fonctions, c'est au propriétaire du projet de vérifier les formalités applicables. Rien n'a été déclaré ni publié par l'agent.
+Ce qui est établi :
+
+- **Utiliser est libre** (LCEN, loi n° 2004-575, art. 30-I).
+- **Fournir, importer, transférer dans l'UE ou exporter** un moyen de cryptologie relève par principe d'une **déclaration** auprès de l'ANSSI, parfois d'une autorisation (LCEN art. 30-III et 30-IV ; décret n° 2007-663). La démarche incombe au **fournisseur** (ou au premier importateur). Pour Plume, la question vise donc celui qui le distribue.
+- **Dispense** : seuls les moyens listés à l'**annexe 1** du décret 2007-663 en sont dispensés. Les sources consultées ne citent **aucune dispense générale pour le logiciel libre ou gratuit**. Debian, par exemple, a déclaré sa distribution à l'ANSSI.
+- **Dossier** (arrêté du 29 janvier 2015) : un formulaire et un dossier technique, avec le **code source** ou les moyens de le recompiler, et les composants qui chiffrent (ici `aes`, `cbc`, `pbkdf2`, `hmac`, `sha2`, et la crate `zip` pour ZIP AES). L'ANSSI répond **sous un mois** pour une déclaration complète.
+- **Sanction** de la fourniture sans déclaration (LCEN art. 35) : jusqu'à un an d'emprisonnement et 15 000 € d'amende, selon les sources secondaires.
+
+Ce qui reste à confirmer par le propriétaire, sur les textes officiels :
+
+- la liste exacte de l'annexe 1, pour voir si une catégorie couvre le chiffrement de fichiers de Plume (c'est peu probable : AES-256 pour la confidentialité, clé choisie par l'utilisateur) ;
+- qui est « fournisseur » quand Plume est publié sur une forge et téléchargé librement, depuis la France ou l'étranger ;
+- le régime d'exportation hors UE (règlement UE 2021/821 sur les biens à double usage, et sa note sur les logiciels du domaine public).
+
+Légifrance et cyber.gouv.fr n'étaient pas joignables depuis l'environnement de l'agent. Ce qui précède vient de pages qui les citent, et ce n'est pas un avis juridique. Pour une diffusion publique, la page ANSSI « Contrôle réglementaire sur la cryptographie : démarches à accomplir » et, au besoin, un avocat font foi. Rien n'a été déclaré ni publié par l'agent.
+
+Sources : [décret 2007-663 (Légifrance)](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000646995) · [arrêté du 29 janvier 2015](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000030255024) · [ANSSI, démarches](https://cyber.gouv.fr/reglementation/reglementation-identite-confiance-numerique/controles-reglementaires-cryptographie/controle-moyen-de-cryptologie/controle-rglementaire-cryptographie-demarches/) · [Debian, attestation de déclaration](https://www.debian.org/legal/anssi.fr.html) · [Next, « une exception française »](https://next.ink/10408/103575-les-outils-chiffrement-face-a-declaration-a-anssi-exception-francaise/) · [Deleporte Wentz Avocat](https://www.deleporte-wentz-avocat.com/actualite-importation-et-exportation-de-moyens-de-cryptologie-une-liberte-qui-reste-encadree)
 
 ## Historique
 
 | Date | Changement |
 |---|---|
+| 2026-10-21 | Note juridique vérifiée : déclaration de fourniture, pas de dispense générale pour le logiciel libre trouvée, points à confirmer. |
 | 2026-10-21 | Création : moteur de transport, AES Crypt, ZIP AES-256, ouverture et enregistrement chiffrés, cadenas, confirmation avant publication d'un document chiffré. |
