@@ -1,6 +1,6 @@
 # PLUME-SPEC-012: mixed page orientation
 
-Status: implementation in progress (parser increment).
+Status: implementation in progress (Markdown import -> document section integration).
 
 ## Syntax
 
@@ -26,15 +26,17 @@ GitHub; ordinary text and diagrams remain usable.
 - `wordcraft_formats::page_directives::scan`: bounded parser of page section
   open/close and page break events, rejecting invalid units and unsupported values.
 - Explicit unit tests for valid, invalid, unfinished, and fenced-code cases.
-- The API is intentionally **not** wired to Markdown import yet; interpreting
-  a directive as a plain paragraph would be misleading.
+- Markdown `import` and `import_on` now translate valid directives into
+  section boundaries and restore the previous geometry after closing fences.
+- Existing layout, PDF and print engines consume document sections; these engines
+  themselves have not been modified.
+- Native Markdown save and image-resolving import are not yet round-trip complete.
 
 ## Follow-up integration tasks
 
-1. Extend Markdown's flow model with section boundary metadata; protect directives
-   from being treated as ordinary paragraphs, without losing unrecognised fenced divs.
-2. Map section boundaries to `Document` section properties and section breaks.
-   Retain previous page settings after `:::`, with next-page break semantics.
+1. Improve the current source chunk importer to preserve numbered lists and front matter
+   across boundaries, and handle image-resolving import.
+2. Add negative tests for unrecognised containers and deeper nested sections.
 3. Update native Markdown export to emit the same directives after save/import/save.
 4. Wire layout and PDF output to physical page size, not merely PDF /Rotate.
 5. Verify DOCX `w:sectPr` / `w:pgSz` / `w:pgMar` imports and exports.
