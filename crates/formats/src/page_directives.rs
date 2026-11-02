@@ -249,3 +249,38 @@ fn apply_spec(section: &mut wordcraft_doc::SectionProps, spec: &PageSpec) {
     }
     section.start = wordcraft_doc::section::SectionStart::NextPage;
 }
+
+#[cfg(test)]
+mod integration_tests {
+    use super::*;
+
+    #[test]
+    fn page_directives_become_document_sections() {
+        use wordcraft_doc::Block;
+        let md = "# Intro\n\n::: {.page orientation=\"landscape\" size=\"A3\"}\n\n# Wide\n\n:::\n\n# Back";
+        let doc = import_paged(md, &wordcraft_doc::SectionProps::default()).unwrap();
+        let sections: Vec<_> = doc.body.iter().filter_map(|b| match b.as_ref() {
+            Block::Para(p) => p.section.as_ref(),
+            Block::Table(_) => None,
+        }).collect();
+        assert_eq!(sections.len(), 2);
+        assert!(!sections[0].landscape);
+        assert!(sections[1].landscape);
+        assert!(sections[1].page_w > sections[1].page_h);
+        assert!(!doc.last_section.landscape);
+    }
+
+    #[test]
+    fn ordinary_markdown_uses_legacy_path() {
+        assert!(import_paged("# Hello", &wordcraft_doc::SectionProps::default()).is_none());
+    }
+
+    #[test]
+    fn page_break_adds_a_section_boundary() {
+        let doc = import_paged("Before\n\n::: {.page-break}\n\nAfter", &wordcraft_doc::SectionProps::default()).unwrap();
+        assert!(doc.body.iter().any(|b| match b.as_ref() {
+            wordcraft_doc::Block::Para(p) => p.section.is_some(),
+            wordcraft_doc::Block::Table(_) => false,
+        }));
+    }
+}
