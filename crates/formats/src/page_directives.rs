@@ -151,3 +151,101 @@ mod tests {
         assert!(scan("::: {.page orientation=\"landscape\"}").is_err());
     }
 }
+
+
+/// Import a Markdown document containing page directives into real document sections.
+///
+/// Returns None for ordinary Markdown or malformed directives, leaving legacy import intact.
+/// Each fenced page span begins on a new physical page. The closing fence restores the
+/// previous section setup. A section break lives on the preceding paragraph, as in OOXML.
+pub fn import_paged(text: &str, base: &wordcraft_doc::SectionProps) -> Option<wordcraft_doc::Document> {
+    use wordcraft_doc::{Block, Paragraph, SectionProps, para_block};
+    use std::sync::Arc;
+
+    let events = scan(text).ok()?;
+    if events.is_empty() {
+        return None;
+    }
+    let lines: Vec<&str> = text.lines().collect();
+    let mut chunks: Vec<(String, SectionProps)> = Vec::new();
+    let mut current = base.clone();
+    let mut stack: Vec<SectionProps> = Vec::new();
+    let mut from = 0usize;
+    for event in &events {
+        let line = match event {
+            PageEvent::Begin { line, .. } | PageEvent::End { line } | PageEvent::Break { line } => *line,
+        };
+        let before = line.saturating_sub(1).min(lines.len());
+        if before > from {
+            chunks.push((lines[from..before].join("\n"), current.clone()));
+        }
+        match event {
+            PageEvent::Begin { spec, .. } => {
+                stack.push(current.clone());
+                apply_spec(&mut current, spec);
+            }
+            PageEvent::End { .. } => {
+                current = stack.pop().unwrap_or_else(|| base.clone());
+            }
+            PageEvent::Break { .. } => {}
+        }
+        from = line.min(lines.len());
+    }
+    if from < lines.len() {
+        chunks.push((lines[from..].join("\n"), current));
+    }
+    if chunks.is_empty() {
+        return None;
+    }
+    let mut combined: Option<wordcraft_doc::Document> = None;
+    for (source, settings) in chunks {
+        if source.trim().is_empty() {
+            continue;
+        }
+        let mut part = crate::model::to_doc_in(&crate::markdown::parse(&source), settings.clone());
+        if let Some(document) = combined.as_mut() {
+            // Attach a real section boundary to the previous section's last paragraph.
+            if !matches!(document.body.last().map(|b| b.as_ref()), Some(Block::Para(_))) {
+                document.body.push(para_block(Paragraph::new()));
+            }
+            if let Some(last) = document.body.last_mut() {
+                if let Block::Para(p) = Arc::make_mut(last) {
+                    p.section = Some(Box::new(document.last_section.clone()));
+                }
+            }
+            document.body.append(&mut part.body);
+            document.last_section = settings;
+        } else {
+            combined = Some(part);
+        }
+    }
+    combined
+}
+
+fn apply_spec(section: &mut wordcraft_doc::SectionProps, spec: &PageSpec) {
+    if let Some(paper) = spec.paper {
+        let (w, h) = match paper {
+            Paper::A3 => (841.89, 1190.55),
+            Paper::A4 => (595.28, 841.89),
+            Paper::A5 => (419.53, 595.28),
+            Paper::Letter => (612.0, 792.0),
+            Paper::Legal => (612.0, 1008.0),
+        };
+        section.page_w = w;
+        section.page_h = h;
+    }
+    if let Some(orientation) = spec.orientation {
+        section.landscape = orientation == Orientation::Landscape;
+    }
+    let needs_swap = (section.page_w > section.page_h) != section.landscape;
+    if needs_swap {
+        std::mem::swap(&mut section.page_w, &mut section.page_h);
+    }
+    if let Some(m) = spec.margin_pt {
+        section.margin_top = m;
+        section.margin_bottom = m;
+        section.margin_left = m;
+        section.margin_right = m;
+    }
+    section.start = wordcraft_doc::section::SectionStart::NextPage;
+}
