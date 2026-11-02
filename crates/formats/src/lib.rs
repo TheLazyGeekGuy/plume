@@ -17,6 +17,7 @@ pub mod markdown;
 pub mod mathml;
 pub mod model;
 pub mod odt;
+pub mod page_directives;
 pub mod rtf;
 pub mod sheet;
 pub mod template;

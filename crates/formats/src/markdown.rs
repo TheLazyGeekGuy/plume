@@ -36,12 +36,12 @@ const MAX_NEST: usize = 32;
 
 /// Parse Markdown text into a document.
 pub fn import(text: &str) -> Document {
-    model::to_doc(&parse(text))
+    crate::page_directives::import_paged(text, &wordcraft_doc::SectionProps::default()).unwrap_or_else(|| model::to_doc(&parse(text)))
 }
 
 /// [`import`] onto `page`: Markdown gives no page size (#1381).
 pub fn import_on(text: &str, page: &wordcraft_doc::SectionProps) -> Document {
-    model::to_doc_in(&parse(text), page.clone())
+    crate::page_directives::import_paged(text, page).unwrap_or_else(|| model::to_doc_in(&parse(text), page.clone()))
 }
 
 /// Most distinct picture destinations one document resolves.
