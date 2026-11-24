@@ -101,8 +101,17 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
             .frame(egui::Frame::NONE.fill(t.panel).inner_margin(10).stroke(Stroke::new(1.0, t.border)))
             .show(ui, |ui| markdown_source(app, ui));
     }
-    // GitCraft incorporates the document comments instead of creating a second competing pane.
-    crate::gitcraft::show(app, ui);
+    // GitCraft's three-region writing workspace applies to Markdown documents.
+    // Other document formats keep WordCraft's existing comment panel.
+    if app.session.is_markdown() {
+        crate::gitcraft::show(app, ui);
+    } else if app.session.view.comments_pane {
+        egui::Panel::right("comments_pane")
+            .default_size(290.0)
+            .resizable(true)
+            .frame(egui::Frame::NONE.fill(t.panel).inner_margin(10).stroke(Stroke::new(1.0, t.border)))
+            .show(ui, |ui| comments(app, ui));
+    }
 }
 
 /// Plume: the document as its Markdown file is written, beside the page (View › Side by Side).
