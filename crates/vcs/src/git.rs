@@ -258,3 +258,63 @@ impl Repo {
         self.run(&["push".into(), "-q".into()], None).map(|_| ())
     }
 }
+
+/// Read-only snapshot of the current repository for GitCraft's branch explorer.
+/// Remote state is based on the last fetched upstream reference, not live server data.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct WorkspaceSnapshot {
+    pub branch: String,
+    pub upstream: Option<String>,
+    pub ahead: usize,
+    pub behind: usize,
+    pub dirty: bool,
+    pub graph: Vec<String>,
+}
+
+fn parse_ahead_behind(bytes: &[u8]) -> Option<(usize, usize)> {
+    let text = std::str::from_utf8(bytes).ok()?;
+    let mut parts = text.split_whitespace();
+    let ahead = parts.next()?.parse().ok()?;
+    let behind = parts.next()?.parse().ok()?;
+    if parts.next().is_some() { return None; }
+    Some((ahead, behind))
+}
+
+impl Repo {
+    /// Gather the current branch, upstream divergence, dirty status, and real
+    /// Git ASCII graph. Does not fetch, switch branches or alter files.
+    pub fn workspace_snapshot(&self) -> Result<WorkspaceSnapshot, GitError> {
+        let branch = self.run(&["symbolic-ref".into(), "--quiet".into(), "--short".into(), "HEAD".into()], None)
+            .ok().map(|b| String::from_utf8_lossy(&b).trim().to_string())
+            .filter(|b| !b.is_empty()).unwrap_or_else(|| "(detached HEAD)".into());
+        let upstream = self.run(&["rev-parse".into(), "--abbrev-ref".into(), "--symbolic-full-name".into(), "@{upstream}".into()], None)
+            .ok().map(|b| String::from_utf8_lossy(&b).trim().to_string()).filter(|b| !b.is_empty());
+        let (ahead, behind) = if upstream.is_some() {
+            self.run(&["rev-list".into(), "--left-right".into(), "--count".into(), "HEAD...@{upstream}".into()], None)
+                .ok().and_then(|b| parse_ahead_behind(&b)).unwrap_or((0, 0))
+        } else { (0, 0) };
+        let dirty = !self.run(&["status".into(), "--porcelain".into()], None)?.is_empty();
+        let graph = self.run(&["log".into(), "--all".into(), "--graph".into(), "--decorate=short".into(),
+            "--oneline".into(), "-n".into(), "60".into()], None)
+            .unwrap_or_default();
+        Ok(WorkspaceSnapshot {
+            branch,
+            upstream,
+            ahead,
+            behind,
+            dirty,
+            graph: String::from_utf8_lossy(&graph).lines().map(str::to_string).collect(),
+        })
+    }
+}
+
+#[cfg(test)]
+mod gitcraft_snapshot_tests {
+    use super::*;
+    #[test]
+    fn divergence_counts_are_parsed_in_git_order() {
+        assert_eq!(parse_ahead_behind(b"2\t7\n"), Some((2, 7)));
+        assert_eq!(parse_ahead_behind(b"0 0"), Some((0, 0)));
+        assert_eq!(parse_ahead_behind(b"invalid"), None);
+    }
+}

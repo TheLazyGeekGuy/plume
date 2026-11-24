@@ -63,6 +63,7 @@ pub mod file_browser;
 pub mod file_dialogs;
 pub mod frame;
 pub mod guides;
+pub mod gitcraft;
 pub mod i18n;
 pub mod icons;
 pub mod ink;

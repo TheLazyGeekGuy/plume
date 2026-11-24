@@ -101,7 +101,11 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
             .frame(egui::Frame::NONE.fill(t.panel).inner_margin(10).stroke(Stroke::new(1.0, t.border)))
             .show(ui, |ui| markdown_source(app, ui));
     }
-    if app.session.view.comments_pane {
+    // GitCraft's three-region writing workspace applies to Markdown documents.
+    // Other document formats keep WordCraft's existing comment panel.
+    if app.session.is_markdown() {
+        crate::gitcraft::show(app, ui);
+    } else if app.session.view.comments_pane {
         egui::Panel::right("comments_pane")
             .default_size(290.0)
             .resizable(true)
@@ -531,7 +535,7 @@ fn styles(app: &mut WordApp, ui: &mut Ui) {
     });
 }
 
-fn comments(app: &mut WordApp, ui: &mut Ui) {
+pub(crate) fn comments(app: &mut WordApp, ui: &mut Ui) {
     if header(ui, "Comments") {
         let _ = app.run("view.commentsPane", json!({"value": false}));
         return;
